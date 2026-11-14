@@ -12,6 +12,7 @@ public sealed class InstallDiagnostics
     public string XiloaderPath { get; set; } = string.Empty;
     public bool PivotPluginInstalled { get; set; }
     public bool TalentsAddonSynced { get; set; }
+    public bool CrystalSocketAddonSynced { get; set; }
     public bool DatOverlaySynced { get; set; }
 
     public bool DirectPlayEnabled { get; set; }

@@ -144,6 +144,7 @@
                                     <CheckBox Content="Remember password (Windows DPAPI encrypted)" IsChecked="{Binding RememberPassword}" />
                                     <CheckBox Content="Auto-login via xiloader arguments" IsChecked="{Binding AutoLogin}" />
                                     <CheckBox Content="Auto-load overlords_talents (/talents)" IsChecked="{Binding AutoLoadTalentsAddon}" />
+                                    <CheckBox Content="Auto-load crystalsocket (Equipment Soul Crystal UI)" IsChecked="{Binding AutoLoadCrystalSocketAddon}" />
                                     <CheckBox Content="Enable Pivot DAT overlay (Call Eos)" IsChecked="{Binding EnablePivotOverlay}" />
                                     <CheckBox Content="Close launcher when game starts" IsChecked="{Binding AutoCloseOnLaunch}" />
 
@@ -513,6 +514,23 @@
                                             </StackPanel>
                                             <TextBlock Grid.Column="2" Text="{Binding Diagnostics.TalentsAddonSynced, Converter={StaticResource BoolToReadyText}}"
                                                        Foreground="{Binding Diagnostics.TalentsAddonSynced, Converter={StaticResource BoolToStatusBrush}}"
+                                                       FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="crystalsocket Addon" FontWeight="Bold" FontSize="13" />
+                                                <TextBlock Text="Ashita v4 Soul Crystal Equipment UI (/crystalsocket)" Foreground="{StaticResource TextSecondary}" FontSize="11.5" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding Diagnostics.CrystalSocketAddonSynced, Converter={StaticResource BoolToReadyText}}"
+                                                       Foreground="{Binding Diagnostics.CrystalSocketAddonSynced, Converter={StaticResource BoolToStatusBrush}}"
                                                        FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
                                         </Grid>
                                     </Border>

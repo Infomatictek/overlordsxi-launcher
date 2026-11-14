@@ -485,6 +485,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         set { if (_settings.AutoLoadTalentsAddon != value) { _settings.AutoLoadTalentsAddon = value; OnPropertyChanged(); } }
     }
 
+    public bool AutoLoadCrystalSocketAddon
+    {
+        get => _settings.AutoLoadCrystalSocketAddon;
+        set { if (_settings.AutoLoadCrystalSocketAddon != value) { _settings.AutoLoadCrystalSocketAddon = value; OnPropertyChanged(); } }
+    }
+
     public bool AutoCloseOnLaunch
     {
         get => _settings.AutoCloseOnLaunch;

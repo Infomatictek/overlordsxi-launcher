@@ -51,6 +51,83 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/berserker.png",
+      "targetPath": "crystalsocket/assets/berserker.png",
+      "sha256": "539dce2f8d744d1af9a9ad77dee5589b2bff6fab450f2b3df2fb6bb346dd0f72",
+      "size": 17345
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/commander.png",
+      "targetPath": "crystalsocket/assets/commander.png",
+      "sha256": "2801ee6923186fb6234813e5b7e2e7ddd707cb114239f9853e8fdc7747a3a091",
+      "size": 17905
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/gladiator.png",
+      "targetPath": "crystalsocket/assets/gladiator.png",
+      "sha256": "d34ee2f4693e2da843774fecab95179093eb359b66261af2ac4d48eab1f9afab",
+      "size": 25068
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/medic.png",
+      "targetPath": "crystalsocket/assets/medic.png",
+      "sha256": "6a10347069381f0f5847ea41366ea3c473b0b93795cb9a73865b14c58b289757",
+      "size": 15278
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/sage.png",
+      "targetPath": "crystalsocket/assets/sage.png",
+      "sha256": "0bfa8460f77ebe8750c2ed177bd36868e8ab4f02d9d4262778ae5bbca66f5f2a",
+      "size": 12521
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/sensei.png",
+      "targetPath": "crystalsocket/assets/sensei.png",
+      "sha256": "a0244acdf6debc5c64ec9b3bb77acab6e94ee33ad7cfaff8e53438d88494c433",
+      "size": 14292
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
+      "targetPath": "crystalsocket/crystalsocket.lua",
+      "sha256": "6f80d9b2c6a843ad724020560510830eed66e6e049b2dfdade2336cbdb3f89b1",
+      "size": 12160
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/menu.lua",
+      "targetPath": "crystalsocket/menu.lua",
+      "sha256": "3efccf994909999c74f97818047f4abac885e2bd63281e1001c9acb5bccbf85e",
+      "size": 3056
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/protocol.lua",
+      "targetPath": "crystalsocket/protocol.lua",
+      "sha256": "6677aeb1e6c42d96421ffcb191cbda88925a3c4405f915e82e9e90dbce93e77a",
+      "size": 3511
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/state.lua",
+      "targetPath": "crystalsocket/state.lua",
+      "sha256": "46127fe3ad703dc23f1ce0aa4663705f103626fa16d06820eafabef7e60f06a7",
+      "size": 10569
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
+      "targetPath": "crystalsocket/ui.lua",
+      "sha256": "65a790c43c75f17a81ad3f141c3cca0faa546d3fe6af7540cfc3d1dc0e49ded6",
+      "size": 16871
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
       "sha256": "5fb547f9ce798b653aaad89c50f81ec57bab0df527a64f6cbf51edaa1de277b1",
