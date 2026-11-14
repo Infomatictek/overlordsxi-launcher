@@ -2,7 +2,7 @@ LSB-Faerie XIPivot overlay
 ==========================
 
 This overlay does not replace any live FFXI install files. It contains custom
-client text DATs for the LandSandBoat SCH Call Eos ability.
+client text DATs for the OverlordsXI SCH **Call Eos** (Medic) and **Call Titania** (Sage) abilities.
 
 Files:
 
@@ -11,18 +11,17 @@ Files:
 - ROM/118/114.DAT: spell/ability metadata table
 - ROM/118/108.DAT: weapon/ammo item text table
 
-Changed client-facing ability entry:
+Changed client-facing entries:
 
-- ID 743, a blank unused display slot for server ability ID 231, now shows as Call Eos.
-- ID 743 now targets the caster instead of enemies. Its metadata recast is set to
-  the client-safe cap for this DAT; the real 5 minute cooldown is enforced by the
-  server ability recast.
-- Item ID 18256, Orphic Egg, now shows Eos: "Refresh" scales with level.
+- ID 743 (server ability ID 231) now shows as **Call Eos** (`Calls forth Eos to heal and remove ailments.`), targeting self with the client-safe recast cap.
+- ID 801 (server ability ID 289) now shows as **Call Titania** (`Calls forth Titania to enfeeble foes and unleash elemental magic.`), targeting self with the client-safe recast cap.
+- Item ID 18256, **Orphic Egg**, now shows `Eos/Titania: "Refresh"+1-5`.
 
 Server mapping:
 
-- LandSandBoat ability ID 231 is the protocol-safe SCH Call Eos job ability slot.
-- The server script for ability 231 summons the custom Eos pet.
+- LandSandBoat ability ID 231 (`faerie_companion`) summons Eos (gated behind Medic crystal Lv.10+).
+- LandSandBoat ability ID 289 (`faerie_titania`) summons Titania (gated behind Sage crystal Lv.10+).
+- The real 5 minute cooldowns are enforced by the server ability recasts.
 - Tabula Rasa is restored to normal behavior and no longer summons the faerie.
 - Modus Veritas is restored to normal behavior and remains ability ID 214.
 
