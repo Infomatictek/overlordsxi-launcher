@@ -1,0 +1,8 @@
+bin/
+obj/
+.vs/
+*.user
+publish/
+Thumbs.db
+*.log
+*.tmp
