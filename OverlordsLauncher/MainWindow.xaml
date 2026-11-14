@@ -249,7 +249,7 @@
                                     </StackPanel>
                                 </Border>
 
-                                <Border Background="{StaticResource BgCard}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="8" Padding="18">
+                                <Border Background="{StaticResource BgCard}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="8" Padding="18" Margin="0,0,0,16">
                                     <StackPanel>
                                         <TextBlock Text="PATHS &amp; OVERLAY" FontSize="13" FontWeight="Bold" Foreground="{StaticResource GoldAccent}" Margin="0,0,0,10" />
 
@@ -290,6 +290,31 @@
                                         </Grid>
 
                                         <CheckBox Content="Check for OverlordsXI updates on startup" IsChecked="{Binding AutoCheckUpdatesOnStartup}" />
+                                    </StackPanel>
+                                </Border>
+
+                                <Border Background="{StaticResource BgCard}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="8" Padding="18">
+                                    <StackPanel>
+                                        <TextBlock Text="GAMEPAD &amp; IMPORT SETTINGS" FontSize="13" FontWeight="Bold" Foreground="{StaticResource GoldAccent}" Margin="0,0,0,10" />
+
+                                        <UniformGrid Columns="2" Margin="0,0,0,8">
+                                            <CheckBox Content="Enable Gamepad" IsChecked="{Binding EnableGamepad}" />
+                                            <CheckBox Content="Enable XInput (Xbox/Modern)" IsChecked="{Binding EnableXInput}" />
+                                            <CheckBox Content="Allow Gamepad in Background" IsChecked="{Binding GamepadAllowBackground}" />
+                                            <CheckBox Content="Disable Pad Re-Enumeration" IsChecked="{Binding GamepadDisableEnumeration}" />
+                                        </UniformGrid>
+
+                                        <TextBlock Text="{Binding GamepadSummaryText}" FontSize="11.5" Foreground="{StaticResource CyanAccent}" Margin="0,0,0,2" TextTrimming="CharacterEllipsis" />
+                                        <TextBlock Text="{Binding ImportedSettingsSourceText}" FontSize="11.5" Foreground="{StaticResource TextSecondary}" Margin="0,0,0,10" TextTrimming="CharacterEllipsis" />
+
+                                        <WrapPanel Orientation="Horizontal">
+                                            <Button Content="Auto-Import Current Settings" Style="{StaticResource SecondaryButton}"
+                                                    Command="{Binding ImportSystemSettingsCommand}" Margin="0,0,8,6" />
+                                            <Button Content="Import Ashita .ini..." Style="{StaticResource SecondaryButton}"
+                                                    Command="{Binding ImportAshitaIniCommand}" Margin="0,0,8,6" />
+                                            <Button Content="Open FFXI Config" Style="{StaticResource SecondaryButton}"
+                                                    Command="{Binding LaunchFfxiConfigCommand}" Margin="0,0,0,6" />
+                                        </WrapPanel>
                                     </StackPanel>
                                 </Border>
                             </StackPanel>

@@ -15,6 +15,7 @@ namespace OverlordsLauncher.ViewModels;
 public sealed class MainViewModel : INotifyPropertyChanged
 {
     private readonly SettingsService _settingsService;
+    private readonly SettingsImportService _importService;
     private readonly ManifestUpdateService _manifestService;
     private readonly FfxiInstallDetector _detector;
     private readonly AshitaConfigGenerator _configGenerator;
@@ -36,6 +37,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public MainViewModel()
     {
         _settingsService = new SettingsService();
+        _importService = new SettingsImportService();
         _manifestService = new ManifestUpdateService();
         _detector = new FfxiInstallDetector();
         _configGenerator = new AshitaConfigGenerator();
@@ -66,6 +68,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
         OpenAshitaFolderCommand = new RelayCommand(OpenAshitaFolder);
         ExportServerOverrideCommand = new RelayCommand(ExportShareableServerJson);
         ApplyResolutionPresetCommand = new RelayCommand(ApplyResolutionPreset);
+        ImportSystemSettingsCommand = new RelayCommand(ImportSystemSettings);
+        ImportAshitaIniCommand = new RelayCommand(ImportFromAshitaIniDialog);
+        LaunchFfxiConfigCommand = new RelayCommand(LaunchFfxiConfigTool);
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
@@ -87,6 +92,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public ICommand OpenAshitaFolderCommand { get; }
     public ICommand ExportServerOverrideCommand { get; }
     public ICommand ApplyResolutionPresetCommand { get; }
+    public ICommand ImportSystemSettingsCommand { get; }
+    public ICommand ImportAshitaIniCommand { get; }
+    public ICommand LaunchFfxiConfigCommand { get; }
 
     public string SelectedTab
     {
@@ -503,8 +511,72 @@ public sealed class MainViewModel : INotifyPropertyChanged
         set { if (_settings.AutoCheckUpdatesOnStartup != value) { _settings.AutoCheckUpdatesOnStartup = value; OnPropertyChanged(); } }
     }
 
+    public bool GamepadAllowBackground
+    {
+        get => _settings.GamepadAllowBackground;
+        set { if (_settings.GamepadAllowBackground != value) { _settings.GamepadAllowBackground = value; OnPropertyChanged(); } }
+    }
+
+    public bool GamepadDisableEnumeration
+    {
+        get => _settings.GamepadDisableEnumeration;
+        set { if (_settings.GamepadDisableEnumeration != value) { _settings.GamepadDisableEnumeration = value; OnPropertyChanged(); } }
+    }
+
+    public bool EnableGamepad
+    {
+        get => _settings.EnableGamepad;
+        set
+        {
+            if (_settings.EnableGamepad != value)
+            {
+                _settings.EnableGamepad = value;
+                _settings.UseCustomGamepadConfig = true;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GamepadSummaryText));
+            }
+        }
+    }
+
+    public bool EnableXInput
+    {
+        get => _settings.EnableXInput;
+        set
+        {
+            if (_settings.EnableXInput != value)
+            {
+                _settings.EnableXInput = value;
+                _settings.UseCustomGamepadConfig = true;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GamepadSummaryText));
+            }
+        }
+    }
+
+    public string GamepadSummaryText
+    {
+        get
+        {
+            var padMode = AshitaConfigGenerator.BuildEffectivePadMode(_settings);
+            var hasCustomMap = !string.IsNullOrWhiteSpace(_settings.PadSin);
+            if (padMode == "-1" && !hasCustomMap)
+            {
+                return "Gamepad mode: Windows FFXI Registry passthrough (-1)";
+            }
+
+            var mappingLabel = hasCustomMap ? "button map imported" : "default button map";
+            return $"padmode000 = {padMode} ({mappingLabel})";
+        }
+    }
+
+    public string ImportedSettingsSourceText =>
+        string.IsNullOrWhiteSpace(_settings.ImportedSettingsSource)
+            ? "No external FFXI/Ashita settings imported yet"
+            : $"Last imported: {_settings.ImportedSettingsSource}";
+
     public async Task InitializeAsync()
     {
+        var isFirstRun = !File.Exists(_settingsService.SettingsPath);
         RefreshDiagnostics();
         if (string.IsNullOrWhiteSpace(_settings.FfxiPath) && !string.IsNullOrWhiteSpace(Diagnostics.DetectedFfxiPath))
         {
@@ -512,6 +584,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
             if (Diagnostics.FfxiRegion is "US" or "EU" or "JP")
             {
                 SelectedLanguage = Diagnostics.FfxiRegion;
+            }
+        }
+
+        if (isFirstRun || !_settings.HasImportedSystemSettings)
+        {
+            var importResult = _importService.ImportBestAvailable(_settings, gamepadOnly: !isFirstRun);
+            if (importResult.ImportedAny)
+            {
+                NotifyAllSettingsChanged();
+                _settingsService.Save(_settings, PlainPassword);
+                Log(importResult.SourceSummary);
+            }
+            else if (isFirstRun)
+            {
+                _settings.HasImportedSystemSettings = true;
+                _settingsService.Save(_settings, PlainPassword);
             }
         }
 
@@ -842,6 +930,117 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 BackgroundHeight = 2048;
                 break;
         }
+    }
+
+    private void ImportSystemSettings()
+    {
+        var result = _importService.ImportBestAvailable(_settings, gamepadOnly: false);
+        NotifyAllSettingsChanged();
+
+        if (result.ImportedAny)
+        {
+            _settingsService.Save(_settings, PlainPassword);
+            StatusMessage = result.SourceSummary;
+            Log(result.SourceSummary);
+            RefreshDiagnostics();
+            MessageBox.Show(
+                $"{result.SourceSummary}\n\nGamepad: {GamepadSummaryText}\nResolution: {WindowWidth}x{WindowHeight} ({SelectedWindowMode})",
+                "Settings Imported",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+        else
+        {
+            StatusMessage = result.SourceSummary;
+            Log(result.SourceSummary);
+            MessageBox.Show(
+                "Could not find existing settings in Windows FFXI Registry or standard Ashita config folders.\n\nUse \"Import Ashita .ini...\" to select your existing Ashita boot .ini file manually, or click \"Open FFXI Config\" to configure your gamepad.",
+                "No Existing Settings Found",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+    }
+
+    private void ImportFromAshitaIniDialog()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = "Select Existing Ashita v4 Boot Configuration (.ini)",
+            Filter = "Ashita INI Files (*.ini)|*.ini|All Files (*.*)|*.*",
+            InitialDirectory = Directory.Exists(Path.Combine(AshitaPath, "config", "boot"))
+                ? Path.Combine(AshitaPath, "config", "boot")
+                : AppContext.BaseDirectory
+        };
+
+        if (dialog.ShowDialog() == true)
+        {
+            if (_importService.TryImportFromAshitaIni(dialog.FileName, _settings, gamepadOnly: false))
+            {
+                NotifyAllSettingsChanged();
+                _settingsService.Save(_settings, PlainPassword);
+                StatusMessage = $"Imported settings from {Path.GetFileName(dialog.FileName)}";
+                Log($"Imported settings from {dialog.FileName}");
+                RefreshDiagnostics();
+            }
+            else
+            {
+                MessageBox.Show(
+                    "No FFXI registry or Ashita input settings were found inside the selected .ini file.",
+                    "Import Unchanged",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+        }
+    }
+
+    private void LaunchFfxiConfigTool()
+    {
+        var exe = SettingsImportService.FindFfxiConfigExecutable(_settings);
+        if (string.IsNullOrEmpty(exe))
+        {
+            MessageBox.Show(
+                "Could not locate FINAL FANTASY XI Config.exe or FFXiPadConfig.exe inside your FFXI folder.",
+                "FFXI Config Tool Not Found",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return;
+        }
+
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = exe,
+            WorkingDirectory = Path.GetDirectoryName(exe) ?? string.Empty,
+            UseShellExecute = true
+        });
+        Log($"Opened {Path.GetFileName(exe)} — click 'Auto-Import Current Settings' after saving changes.");
+    }
+
+    private void NotifyAllSettingsChanged()
+    {
+        OnPropertyChanged(nameof(FfxiPath));
+        OnPropertyChanged(nameof(SelectedWindowMode));
+        OnPropertyChanged(nameof(WindowWidth));
+        OnPropertyChanged(nameof(WindowHeight));
+        OnPropertyChanged(nameof(BackgroundWidth));
+        OnPropertyChanged(nameof(BackgroundHeight));
+        OnPropertyChanged(nameof(MenuWidth));
+        OnPropertyChanged(nameof(MenuHeight));
+        OnPropertyChanged(nameof(MipMapping));
+        OnPropertyChanged(nameof(BumpMapping));
+        OnPropertyChanged(nameof(UncompressedTextures));
+        OnPropertyChanged(nameof(UncompressedMaps));
+        OnPropertyChanged(nameof(HighQualityFonts));
+        OnPropertyChanged(nameof(HardwareMouse));
+        OnPropertyChanged(nameof(ShowOpeningMovie));
+        OnPropertyChanged(nameof(SoundEnabled));
+        OnPropertyChanged(nameof(BackgroundSound));
+        OnPropertyChanged(nameof(SelectedLanguage));
+        OnPropertyChanged(nameof(GamepadAllowBackground));
+        OnPropertyChanged(nameof(GamepadDisableEnumeration));
+        OnPropertyChanged(nameof(EnableGamepad));
+        OnPropertyChanged(nameof(EnableXInput));
+        OnPropertyChanged(nameof(GamepadSummaryText));
+        OnPropertyChanged(nameof(ImportedSettingsSourceText));
     }
 
     private void NotifyEffectiveServerChanged()

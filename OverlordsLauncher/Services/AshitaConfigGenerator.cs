@@ -89,6 +89,17 @@ public sealed class AshitaConfigGenerator
         sb.AppendLine($"ashita = {langCode}");
         sb.AppendLine();
 
+        sb.AppendLine("[ashita.input]");
+        sb.AppendLine($"gamepad.allowbackground = {(settings.GamepadAllowBackground ? 1 : 0)}");
+        sb.AppendLine($"gamepad.disableenumeration = {(settings.GamepadDisableEnumeration ? 1 : 0)}");
+        sb.AppendLine("keyboard.blockinput = 0");
+        sb.AppendLine("keyboard.blockbindsduringinput = 1");
+        sb.AppendLine("keyboard.silentbinds = 0");
+        sb.AppendLine("keyboard.windowskeyenabled = 0");
+        sb.AppendLine("mouse.blockinput = 0");
+        sb.AppendLine("mouse.unhook = 1");
+        sb.AppendLine();
+
         sb.AppendLine("[ashita.logging]");
         sb.AppendLine("level = 5");
         sb.AppendLine("crashdumps = 1");
@@ -130,9 +141,51 @@ public sealed class AshitaConfigGenerator
         sb.AppendLine($"0037 = {Math.Max(640, settings.MenuWidth)}");
         sb.AppendLine($"0038 = {Math.Max(480, settings.MenuHeight)}");
         sb.AppendLine("0040 = 0");
+        if (!string.IsNullOrWhiteSpace(settings.FfxiPath))
+        {
+            sb.AppendLine($"0042 = {settings.FfxiPath.Trim()}");
+        }
+
+        sb.AppendLine($"padexsin000 = {ValueOrPassthrough(settings.PadExSin)}");
+        sb.AppendLine($"padguid000 = {ValueOrPassthrough(settings.PadGuid)}");
+        sb.AppendLine($"padmode000 = {BuildEffectivePadMode(settings)}");
+        sb.AppendLine($"padsin000 = {ValueOrPassthrough(settings.PadSin)}");
 
         return sb.ToString();
     }
+
+    public static string BuildEffectivePadMode(LauncherSettings settings)
+    {
+        if (settings.UseCustomGamepadConfig)
+        {
+            var parts = !string.IsNullOrWhiteSpace(settings.PadMode)
+                ? settings.PadMode.Split(',', StringSplitOptions.TrimEntries)
+                : ["0", "0", "0", "1", "0", "0"];
+
+            if (parts.Length < 6)
+            {
+                var padded = new[] { "0", "0", "0", "1", "0", "0" };
+                for (var i = 0; i < Math.Min(parts.Length, 6); i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(parts[i]))
+                    {
+                        padded[i] = parts[i];
+                    }
+                }
+
+                parts = padded;
+            }
+
+            parts[0] = settings.EnableGamepad ? "1" : "0";
+            parts[5] = settings.EnableXInput ? "1" : "0";
+            return string.Join(",", parts);
+        }
+
+        return ValueOrPassthrough(settings.PadMode);
+    }
+
+    private static string ValueOrPassthrough(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? "-1" : value.Trim();
 
     public string BuildPivotIniContent(string datsRootPath)
     {

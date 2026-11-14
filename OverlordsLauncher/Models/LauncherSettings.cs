@@ -52,6 +52,19 @@ public sealed class LauncherSettings
     public bool AutoCloseOnLaunch { get; set; }
     public bool AutoCheckUpdatesOnStartup { get; set; } = true;
 
+    public bool HasImportedSystemSettings { get; set; }
+    public string ImportedSettingsSource { get; set; } = string.Empty;
+
+    public bool GamepadAllowBackground { get; set; } = true;
+    public bool GamepadDisableEnumeration { get; set; }
+    public bool UseCustomGamepadConfig { get; set; }
+    public bool EnableGamepad { get; set; } = true;
+    public bool EnableXInput { get; set; } = true;
+    public string PadMode { get; set; } = string.Empty;
+    public string PadSin { get; set; } = string.Empty;
+    public string PadGuid { get; set; } = string.Empty;
+    public string PadExSin { get; set; } = string.Empty;
+
     public static LauncherSettings CreateDefault(string baseDir)
     {
         return new LauncherSettings

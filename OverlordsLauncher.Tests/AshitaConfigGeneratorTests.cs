@@ -195,4 +195,49 @@ public sealed class AshitaConfigGeneratorTests
         Assert.Contains("/addon load overlords_talents", merged);
         Assert.Contains("/fps 1", merged);
     }
+
+    [Fact]
+    public void BuildBootIniContent_WritesInputAndGamepadRegistryKeys()
+    {
+        var settings = new LauncherSettings
+        {
+            FfxiPath = @"D:\PlayOnline\SquareEnix\FINAL FANTASY XI",
+            GamepadAllowBackground = true,
+            GamepadDisableEnumeration = true,
+            UseCustomGamepadConfig = true,
+            EnableGamepad = true,
+            EnableXInput = true,
+            PadMode = "0,1,0,1,0,0",
+            PadSin = "8,9,10,11,4,5,6,7",
+            PadGuid = "{1234-ABCD}"
+        };
+
+        var ini = _generator.BuildBootIniContent(
+            settings,
+            serverHost: "127.0.0.1",
+            useHairpin: false,
+            password: null,
+            xiloaderPath: "xiloader.exe");
+
+        Assert.Contains("[ashita.input]", ini);
+        Assert.Contains("gamepad.allowbackground = 1", ini);
+        Assert.Contains("gamepad.disableenumeration = 1", ini);
+        Assert.Contains(@"0042 = D:\PlayOnline\SquareEnix\FINAL FANTASY XI", ini);
+        Assert.Contains("padmode000 = 1,1,0,1,0,1", ini);
+        Assert.Contains("padsin000 = 8,9,10,11,4,5,6,7", ini);
+        Assert.Contains("padguid000 = {1234-ABCD}", ini);
+        Assert.Contains("padexsin000 = -1", ini);
+    }
+
+    [Fact]
+    public void BuildEffectivePadMode_UsesPassthroughWhenNotCustomized()
+    {
+        var settings = new LauncherSettings
+        {
+            UseCustomGamepadConfig = false,
+            PadMode = string.Empty
+        };
+
+        Assert.Equal("-1", AshitaConfigGenerator.BuildEffectivePadMode(settings));
+    }
 }
