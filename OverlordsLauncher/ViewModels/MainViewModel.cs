@@ -17,6 +17,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private readonly SettingsService _settingsService;
     private readonly SettingsImportService _importService;
     private readonly ManifestUpdateService _manifestService;
+    private readonly LauncherSelfUpdateService _selfUpdateService;
     private readonly FfxiInstallDetector _detector;
     private readonly AshitaConfigGenerator _configGenerator;
     private readonly ServerStatusService _statusService;
@@ -26,6 +27,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private LauncherManifest _manifest;
     private InstallDiagnostics _diagnostics = new();
     private ServerStatus _serverStatus = new();
+    private LauncherUpdateCheckResult? _availableLauncherUpdate;
 
     private string _selectedTab = "Play";
     private bool _isBusy;
@@ -39,6 +41,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
         _settingsService = new SettingsService();
         _importService = new SettingsImportService();
         _manifestService = new ManifestUpdateService();
+        _selfUpdateService = new LauncherSelfUpdateService();
         _detector = new FfxiInstallDetector();
         _configGenerator = new AshitaConfigGenerator();
         _statusService = new ServerStatusService();
@@ -57,6 +60,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         PlayCommand = new AsyncRelayCommand(PlayAsync, () => !IsBusy);
         CheckUpdatesCommand = new AsyncRelayCommand(() => SyncUpdatesAsync(forceAll: false), () => !IsBusy);
         RepairFilesCommand = new AsyncRelayCommand(() => SyncUpdatesAsync(forceAll: true), () => !IsBusy);
+        CheckLauncherUpdateCommand = new AsyncRelayCommand(
+            () => CheckAndApplyLauncherUpdateAsync(autoApply: false, showUpToDateDialog: true),
+            () => !IsBusy);
+        ApplyLauncherUpdateCommand = new AsyncRelayCommand(
+            ApplyAvailableLauncherUpdateAsync,
+            () => !IsBusy && IsLauncherUpdateAvailable);
         InstallPrerequisitesCommand = new AsyncRelayCommand(InstallPrerequisitesAsync, () => !IsBusy);
         RefreshStatusCommand = new AsyncRelayCommand(RefreshServerStatusAsync);
         RefreshDiagnosticsCommand = new RelayCommand(RefreshDiagnostics);
@@ -82,6 +91,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public ICommand PlayCommand { get; }
     public ICommand CheckUpdatesCommand { get; }
     public ICommand RepairFilesCommand { get; }
+    public ICommand CheckLauncherUpdateCommand { get; }
+    public ICommand ApplyLauncherUpdateCommand { get; }
     public ICommand InstallPrerequisitesCommand { get; }
     public ICommand RefreshStatusCommand { get; }
     public ICommand RefreshDiagnosticsCommand { get; }
@@ -511,6 +522,20 @@ public sealed class MainViewModel : INotifyPropertyChanged
         set { if (_settings.AutoCheckUpdatesOnStartup != value) { _settings.AutoCheckUpdatesOnStartup = value; OnPropertyChanged(); } }
     }
 
+    public bool AutoUpdateLauncher
+    {
+        get => _settings.AutoUpdateLauncher;
+        set { if (_settings.AutoUpdateLauncher != value) { _settings.AutoUpdateLauncher = value; OnPropertyChanged(); } }
+    }
+
+    public string LauncherVersionText => $"v{LauncherSelfUpdateService.GetCurrentVersion()}";
+
+    public bool IsLauncherUpdateAvailable => _availableLauncherUpdate?.UpdateAvailable == true;
+
+    public string LauncherUpdateButtonText => IsLauncherUpdateAvailable
+        ? $"Update Launcher ({_availableLauncherUpdate!.LatestTag})"
+        : "Check Launcher Update";
+
     public bool GamepadAllowBackground
     {
         get => _settings.GamepadAllowBackground;
@@ -576,6 +601,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
     public async Task InitializeAsync()
     {
+        var justUpdated = Environment.GetCommandLineArgs()
+            .Any(arg => arg.Equals(LauncherSelfUpdateService.JustUpdatedArg, StringComparison.OrdinalIgnoreCase));
+        LauncherSelfUpdateService.CleanupStagingDirectory();
+
         var isFirstRun = !File.Exists(_settingsService.SettingsPath);
         RefreshDiagnostics();
         if (string.IsNullOrWhiteSpace(_settings.FfxiPath) && !string.IsNullOrWhiteSpace(Diagnostics.DetectedFfxiPath))
@@ -603,12 +632,23 @@ public sealed class MainViewModel : INotifyPropertyChanged
             }
         }
 
-        Log($"Launcher initialized. Ashita path: {AshitaPath}");
+        Log($"Launcher {LauncherVersionText} initialized. Ashita path: {AshitaPath}");
+        if (justUpdated)
+        {
+            StatusMessage = $"Launcher updated to {LauncherVersionText}.";
+            Log(StatusMessage);
+        }
+
         await RefreshServerStatusAsync();
 
         if (_settings.AutoCheckUpdatesOnStartup)
         {
             await CheckUpdatesOnlyAsync();
+        }
+
+        if (!justUpdated && (_settings.AutoUpdateLauncher || _settings.AutoCheckUpdatesOnStartup))
+        {
+            await CheckAndApplyLauncherUpdateAsync(autoApply: _settings.AutoUpdateLauncher, showUpToDateDialog: false);
         }
     }
 
@@ -646,6 +686,138 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             StatusMessage = $"Update check failed: {ex.Message}";
             Log(StatusMessage);
+        }
+    }
+
+    private async Task CheckAndApplyLauncherUpdateAsync(bool autoApply, bool showUpToDateDialog)
+    {
+        try
+        {
+            var result = await _selfUpdateService.CheckForUpdateAsync(_manifest);
+            _availableLauncherUpdate = result;
+            OnPropertyChanged(nameof(IsLauncherUpdateAvailable));
+            OnPropertyChanged(nameof(LauncherUpdateButtonText));
+            RelayCommand.RaiseCanExecuteChanged();
+
+            if (!result.UpdateAvailable)
+            {
+                if (showUpToDateDialog)
+                {
+                    MessageBox.Show(
+                        $"OverlordsXI Launcher {LauncherVersionText} is already up to date.",
+                        "Launcher Up to Date",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+
+                return;
+            }
+
+            Log($"Launcher update available: {result.LatestTag} (current {LauncherVersionText})");
+
+            if (autoApply && !IsBusy)
+            {
+                if (LauncherSelfUpdateService.CanSelfUpdateInPlace(out _, out var reason))
+                {
+                    await ApplyAvailableLauncherUpdateAsync();
+                    return;
+                }
+
+                Log($"Automatic launcher update skipped: {reason}");
+                StatusMessage = $"Launcher {result.LatestTag} available (click Update Launcher).";
+                return;
+            }
+
+            StatusMessage = $"Launcher {result.LatestTag} is available!";
+            if (showUpToDateDialog)
+            {
+                var choice = MessageBox.Show(
+                    $"A new OverlordsXI Launcher release ({result.LatestTag}) is available.\nCurrent version: {LauncherVersionText}\n\nDownload and restart now?",
+                    "Launcher Update Available",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+                if (choice == MessageBoxResult.Yes)
+                {
+                    await ApplyAvailableLauncherUpdateAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Log($"Launcher update check skipped: {ex.Message}");
+            if (showUpToDateDialog)
+            {
+                MessageBox.Show(
+                    $"Could not check GitHub Releases for launcher updates:\n{ex.Message}",
+                    "Launcher Update Check Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+            }
+        }
+    }
+
+    private async Task ApplyAvailableLauncherUpdateAsync()
+    {
+        if (_availableLauncherUpdate is null || !_availableLauncherUpdate.UpdateAvailable)
+        {
+            return;
+        }
+
+        if (!LauncherSelfUpdateService.CanSelfUpdateInPlace(out var targetExePath, out var reason) ||
+            string.IsNullOrEmpty(targetExePath))
+        {
+            Log(reason);
+            if (!string.IsNullOrWhiteSpace(_availableLauncherUpdate.ReleaseUrl))
+            {
+                var openBrowser = MessageBox.Show(
+                    $"{reason}\n\nOpen the GitHub Release page to download {_availableLauncherUpdate.LatestTag}?",
+                    "Manual Update Required",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+                if (openBrowser == MessageBoxResult.Yes)
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = _availableLauncherUpdate.ReleaseUrl,
+                        UseShellExecute = true
+                    });
+                }
+            }
+
+            return;
+        }
+
+        IsBusy = true;
+        ProgressPercent = 0;
+        try
+        {
+            var progress = new Progress<SyncProgress>(p =>
+            {
+                StatusMessage = p.Message;
+                ProgressPercent = p.Percent;
+            });
+
+            Log($"Downloading launcher update {_availableLauncherUpdate.LatestTag}...");
+            var stagedExe = await _selfUpdateService.DownloadUpdateAsync(_availableLauncherUpdate, progress);
+            StatusMessage = $"Installing {_availableLauncherUpdate.LatestTag} and restarting...";
+            Log(StatusMessage);
+
+            _selfUpdateService.LaunchUpdaterAndPrepareRestart(stagedExe, targetExePath);
+            Application.Current?.Shutdown();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"Launcher self-update failed: {ex.Message}";
+            Log(StatusMessage);
+            MessageBox.Show(
+                $"Could not update OverlordsLauncher.exe:\n{ex.Message}",
+                "Launcher Update Error",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+        finally
+        {
+            IsBusy = false;
         }
     }
 

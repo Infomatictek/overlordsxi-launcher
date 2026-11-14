@@ -51,6 +51,7 @@ public sealed class LauncherSettings
     public bool AutoLoadCrystalSocketAddon { get; set; } = true;
     public bool AutoCloseOnLaunch { get; set; }
     public bool AutoCheckUpdatesOnStartup { get; set; } = true;
+    public bool AutoUpdateLauncher { get; set; } = true;
 
     public bool HasImportedSystemSettings { get; set; }
     public string ImportedSettingsSource { get; set; } = string.Empty;

@@ -37,7 +37,8 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
                     <Border Width="10" Height="10" CornerRadius="5" Background="{StaticResource GoldAccent}" Margin="0,0,10,0" />
                     <TextBlock Text="OVERLORDS XI" FontWeight="Bold" FontSize="13" Foreground="{StaticResource GoldAccent}" VerticalAlignment="Center" />
-                    <TextBlock Text="  •  CLIENT LAUNCHER" FontSize="12" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" />
+                    <TextBlock Text="  •  CLIENT LAUNCHER  •  " FontSize="12" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding LauncherVersionText}" FontSize="12" Foreground="{StaticResource CyanAccent}" FontWeight="SemiBold" VerticalAlignment="Center" />
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" WindowChrome.IsHitTestVisibleInChrome="True">
@@ -117,6 +118,10 @@
                             <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
                                 <Button Content="{Binding PlayButtonText}" Style="{StaticResource PrimaryPlayButton}" Command="{Binding PlayCommand}" MinWidth="220" />
                                 <Button Content="Check / Sync Updates" Style="{StaticResource SecondaryButton}" Command="{Binding CheckUpdatesCommand}" Margin="0,8,0,0" />
+                                <Button Content="{Binding LauncherUpdateButtonText}" Style="{StaticResource SecondaryButton}"
+                                        Command="{Binding ApplyLauncherUpdateCommand}"
+                                        Visibility="{Binding IsLauncherUpdateAvailable, Converter={StaticResource BoolToVis}}"
+                                        Foreground="{StaticResource GoldAccent}" BorderBrush="{StaticResource GoldAccent}" Margin="0,6,0,0" />
                             </StackPanel>
                         </Grid>
                     </Border>
@@ -290,6 +295,7 @@
                                         </Grid>
 
                                         <CheckBox Content="Check for OverlordsXI updates on startup" IsChecked="{Binding AutoCheckUpdatesOnStartup}" />
+                                        <CheckBox Content="Auto-update OverlordsLauncher.exe on startup" IsChecked="{Binding AutoUpdateLauncher}" />
                                     </StackPanel>
                                 </Border>
 
@@ -613,7 +619,8 @@
                                 </UniformGrid>
 
                                 <StackPanel Orientation="Horizontal" Margin="0,14,0,0">
-                                    <Button Content="Force Re-Sync All OverlordsXI Files" Style="{StaticResource SecondaryButton}" Command="{Binding RepairFilesCommand}" />
+                                    <Button Content="Force Re-Sync All OverlordsXI Files" Style="{StaticResource SecondaryButton}" Command="{Binding RepairFilesCommand}" Margin="0,0,10,0" />
+                                    <Button Content="Check Launcher Update" Style="{StaticResource SecondaryButton}" Command="{Binding CheckLauncherUpdateCommand}" />
                                 </StackPanel>
                             </StackPanel>
                         </Border>
