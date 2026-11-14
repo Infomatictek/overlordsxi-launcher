@@ -11,9 +11,9 @@
   },
   "repo": {
     "owner": "Infomatictek",
-    "name": "overlordsxi",
+    "name": "overlordsxi-launcher",
     "branch": "main",
-    "rawBaseUrl": "https://raw.githubusercontent.com/Infomatictek/overlordsxi/main"
+    "rawBaseUrl": "https://raw.githubusercontent.com/Infomatictek/overlordsxi-launcher/main"
   },
   "bootstrap": {
     "ashitaZipUrl": "https://github.com/AshitaXI/Ashita-v4beta/archive/refs/heads/main.zip",

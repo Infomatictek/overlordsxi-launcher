@@ -6,7 +6,7 @@ Distributable Windows client launcher (`OverlordsLauncher.exe`) for **OverlordsX
 
 - **Zero-Manual Setup**: Auto-detects an existing FINAL FANTASY XI installation from the Windows Registry and checks Windows DirectPlay and x86 VC++ prerequisites.
 - **Automatic Tool Bootstrapping**: Downloads and configures **Ashita v4**, **`xiloader.exe`**, and **XIPivot** (`pivot.dll`) if missing.
-- **SHA-256 Auto-Updater**: Fetches [`launcher/manifest.json`](https://raw.githubusercontent.com/Infomatictek/overlordsxi/main/launcher/manifest.json) from [`Infomatictek/overlordsxi`](https://github.com/Infomatictek/overlordsxi) and keeps the OverlordsXI DAT overlay (`Call Eos`, `Orphic Egg`) and `overlords_talents.lua` addon in sync.
+- **SHA-256 Auto-Updater**: Uses [`manifest.json`](manifest.json) in this repository to keep the OverlordsXI DAT overlay (`dat-overlay/ROM`, `Call Eos` & `Orphic Egg`) and Ashita v4 addon (`addons/ashita4/overlords_talents/overlords_talents.lua`) in sync with your game client. Whenever client DATs or the addon change, run `python scripts/update-launcher-manifest.py` before pushing.
 - **Graphics, Audio & Auto-Login**: Configures Ashita boot/registry settings (`config\boot\overlordsxi.ini`), XIPivot overlay (`config\pivot\overlordsxi.ini`), and startup script (`scripts\overlordsxi.txt` with `/addon load overlords_talents` and `/fps`), plus optional Windows DPAPI-encrypted saved credentials.
 - **Live Server Status & Easy Host Sharing**: Probes lobby (`54231`) and search (`54002`) TCP ports and loads an optional `overlords-server.json` placed alongside `OverlordsLauncher.exe`.
 

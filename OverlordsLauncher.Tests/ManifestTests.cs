@@ -16,7 +16,7 @@ public sealed class ManifestTests
 
         Assert.Equal("OverlordsXI", manifest.ServerName);
         Assert.Equal("Infomatictek", manifest.Repo.Owner);
-        Assert.Equal("overlordsxi", manifest.Repo.Name);
+        Assert.Equal("overlordsxi-launcher", manifest.Repo.Name);
         Assert.True(manifest.Files.Count >= 5);
         Assert.Contains(manifest.Files, f =>
             f.Category == "addon" &&

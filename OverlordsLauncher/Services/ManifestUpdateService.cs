@@ -34,7 +34,7 @@ public sealed class ManifestUpdateService
         {
             Timeout = TimeSpan.FromSeconds(60)
         };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("OverlordsLauncher/1.0 (+https://github.com/Infomatictek/overlordsxi)");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("OverlordsLauncher/1.0 (+https://github.com/Infomatictek/overlordsxi-launcher)");
         return client;
     }
 
@@ -73,7 +73,7 @@ public sealed class ManifestUpdateService
             {
                 using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                 cts.CancelAfter(TimeSpan.FromSeconds(10));
-                var url = $"{rawBase}/launcher/manifest.json?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+                var url = $"{rawBase}/manifest.json?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
                 var json = await _http.GetStringAsync(url, cts.Token).ConfigureAwait(false);
                 var remote = JsonSerializer.Deserialize<LauncherManifest>(json, JsonOptions);
                 if (remote is not null && remote.Files.Count > 0)
