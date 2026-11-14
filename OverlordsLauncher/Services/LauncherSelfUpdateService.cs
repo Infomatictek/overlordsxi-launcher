@@ -115,9 +115,10 @@ public sealed class LauncherSelfUpdateService
             }
         }
 
+        Version? latestVersion = null;
         var isNewer = !isDraft &&
                       !isPrerelease &&
-                      IsNewerVersion(normalizedCurrent, tagName, out var latestVersion) &&
+                      IsNewerVersion(normalizedCurrent, tagName, out latestVersion) &&
                       !string.IsNullOrWhiteSpace(downloadUrl);
 
         return new LauncherUpdateCheckResult
