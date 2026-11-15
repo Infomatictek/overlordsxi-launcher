@@ -13,8 +13,8 @@ Files:
 
 Changed client-facing entries:
 
-- ID 743 (server ability ID 231) now shows as **Call Eos** (`Calls forth Eos to heal and remove ailments.`), targeting self with the client-safe recast cap.
-- ID 801 (server ability ID 289) now shows as **Call Titania** (`Calls forth Titania to enfeeble foes and unleash elemental magic.`), targeting self with the client-safe recast cap.
+- ID 743 (server ability ID 231) now shows as **Call Eos** (`Calls forth Eos to heal and remove ailments.`), targeting self with matching recast ID `227`.
+- ID 801 (server ability ID 289) now shows as **Call Titania** (`Calls forth Titania to enfeeble foes and unleash elemental magic.`), targeting self with matching recast ID `200`.
 - Item ID 18256, **Orphic Egg**, now shows `Eos/Titania: "Refresh"+1-5`.
 
 Server mapping:
