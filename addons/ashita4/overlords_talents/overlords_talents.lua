@@ -70,6 +70,7 @@ local SKILL_LIST =
     { id = 12, name = 'Staff' },
     { id = 25, name = 'Archery' },
     { id = 26, name = 'Marksmanship' },
+    { id = 27, name = 'Throwing' },
 }
 
 local state =
