@@ -32,21 +32,21 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "eb7de8d6cb0787e88aba499cf9d0a0b27f110154787d2fccacb72f0f52f75788",
+      "sha256": "7a2bae95194e89cd9e9ac0f7a43d63cabc2f428e8525ffb16e96c79d532150a1",
       "size": 403280
     },
     {
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/72.DAT",
       "targetPath": "ROM/181/72.DAT",
-      "sha256": "6e53615496a867900217d0a0ef768c3dbc43345c8813a0a84852f993350a55e1",
+      "sha256": "061e3c56c37e105645fcacb861f6247eed49236f73351e6aecf136910a61bff1",
       "size": 471104
     },
     {
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/74.DAT",
       "targetPath": "ROM/181/74.DAT",
-      "sha256": "537b8625b3ccddf8482a1fe77abcefe03dad14a7db09cc321fe9bb9e0da0a2eb",
+      "sha256": "1bc89e473bf502ad87cd251e365e3ccec17675439f71fd1a19e309306e9846bf",
       "size": 1507392
     },
     {
@@ -130,8 +130,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
-      "sha256": "5fb547f9ce798b653aaad89c50f81ec57bab0df527a64f6cbf51edaa1de277b1",
-      "size": 25688
+      "sha256": "9e79984b9dcbc683d94bbf7292e9aa83e7da7e5939101442f72b416c5a6f63c9",
+      "size": 25724
     }
   ],
   "news": [

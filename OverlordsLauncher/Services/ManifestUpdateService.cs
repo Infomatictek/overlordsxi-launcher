@@ -199,7 +199,10 @@ public sealed class ManifestUpdateService
             var destDir = Path.GetDirectoryName(destPath)!;
             Directory.CreateDirectory(destDir);
 
-            var url = $"{rawBase}/{entry.SourcePath.TrimStart('/')}";
+            var cacheBuster = !string.IsNullOrWhiteSpace(entry.Sha256)
+                ? $"sha={Uri.EscapeDataString(entry.Sha256)}"
+                : $"t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+            var url = $"{rawBase}/{entry.SourcePath.TrimStart('/')}?{cacheBuster}";
             var tempPath = destPath + ".download";
 
             await DownloadFileAsync(url, tempPath, cancellationToken).ConfigureAwait(false);
