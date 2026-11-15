@@ -203,8 +203,8 @@ ashita.events.register('packet_in', 'crystalsocket_packet_in', function(e)
         transport.in_expected = state:snapshot().pending_request
         transport.in_matched = decoded ~= nil and transport.in_expected == decoded.request_id
         if packet then
-            local _, why = state:receive(packet, now())
-            transport.in_error = why
+            local ok, received, why = pcall(state.receive, state, packet, now())
+            transport.in_error = ok and (received and nil or why) or tostring(received)
         else
             transport.in_error = boundary_error
         end

@@ -1,3 +1,4 @@
+local bit = require('bit')
 local protocol = require('protocol')
 local UI = {}
 UI.__index = UI

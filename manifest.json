@@ -95,8 +95,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "6f80d9b2c6a843ad724020560510830eed66e6e049b2dfdade2336cbdb3f89b1",
-      "size": 12160
+      "sha256": "5293f6d25166e92bdcf603ddc471dc81a50c314d3949e9fca5bf20d12d3320c9",
+      "size": 12236
     },
     {
       "category": "addon",
@@ -109,22 +109,22 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/protocol.lua",
       "targetPath": "crystalsocket/protocol.lua",
-      "sha256": "6677aeb1e6c42d96421ffcb191cbda88925a3c4405f915e82e9e90dbce93e77a",
-      "size": 3511
+      "sha256": "e3c3f57c7837ee05c2ccdfea43601a980d5a38ad05cd75c8865d77d7960e4304",
+      "size": 3512
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/state.lua",
       "targetPath": "crystalsocket/state.lua",
-      "sha256": "46127fe3ad703dc23f1ce0aa4663705f103626fa16d06820eafabef7e60f06a7",
-      "size": 10569
+      "sha256": "4dcedba411b545d969126894d1583104814577c77089b1bc1986a9c10011a8b6",
+      "size": 10852
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "65a790c43c75f17a81ad3f141c3cca0faa546d3fe6af7540cfc3d1dc0e49ded6",
-      "size": 16871
+      "sha256": "7cecd7f676bfabfe71a5a7fed2cf31886a19c96bd996f4719098cdd8f73421d5",
+      "size": 16898
     },
     {
       "category": "addon",

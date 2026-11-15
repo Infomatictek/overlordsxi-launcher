@@ -200,18 +200,28 @@ function State:receive_catalog_chunk(msg)
     end
 
     local chunk_key = ('%d:%d:%d:%d'):format(msg.catalog_kind, msg.job_id, msg.branch_id, msg.index)
-    local list = builder.chunks[chunk_key]
-    if not list then
-        list = {}
-        builder.chunks[chunk_key] = list
+    local chunk = builder.chunks[chunk_key]
+    if not chunk then
+        chunk = { parts = {}, final_count = nil }
+        builder.chunks[chunk_key] = chunk
     end
-    list[msg.chunk_idx + 1] = msg.text
+    chunk.parts[msg.chunk_idx + 1] = msg.text
 
-    if msg.chunk_flag ~= 0 then
+    if msg.chunk_flag == 0 then
+        chunk.final_count = msg.chunk_idx + 1
+    end
+
+    if not chunk.final_count then
         return true
     end
 
-    local full_text = table.concat(list)
+    for i = 1, chunk.final_count do
+        if chunk.parts[i] == nil then
+            return true
+        end
+    end
+
+    local full_text = table.concat(chunk.parts, '', 1, chunk.final_count)
     builder.chunks[chunk_key] = nil
 
     if msg.catalog_kind == protocol.CATALOG_BEGIN then

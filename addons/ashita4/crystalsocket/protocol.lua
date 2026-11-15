@@ -67,7 +67,7 @@ function M.decode_catalog(packet)
         return nil, 'Invalid crystal catalog length.'
     end
     local b = { packet:byte(1, 20) }
-    if b[1] ~= 0xff or b[2] ~= 0x21 or packet:sub(5, 8) ~= 'CRYC'
+    if b[1] ~= 0xff or b[2] % 2 ~= 1 or packet:sub(5, 8) ~= 'CRYC'
         or b[9] ~= 1 or b[10] > 3 or b[13] < 1 or b[13] > 23 or b[18] > 1 then
         return nil, 'Invalid crystal catalog header.'
     end
