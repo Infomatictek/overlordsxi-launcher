@@ -18,12 +18,13 @@ local colors = {
 }
 
 local fallback_tints = {
-    blue_crystal   = 0xFFCC9944,
-    crimson_shard  = 0xFF4444CC,
-    amber_crescent = 0xFF4499DD,
-    jade_orb       = 0xFF66BB55,
-    white_prism    = 0xFFE6E6D8,
-    onyx_tome      = 0xFFAA6688,
+    blue_crystal    = 0xFFCC9944,
+    crimson_shard   = 0xFF4444CC,
+    amber_crescent  = 0xFF4499DD,
+    jade_orb        = 0xFF66BB55,
+    white_prism     = 0xFFE6E6D8,
+    onyx_tome       = 0xFFAA6688,
+    chakram_crystal = 0xFF8844BB,
 }
 
 function UI.new(imgui, state, send, scaling, icon_loader)

@@ -58,6 +58,13 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/bladewheel.png",
+      "targetPath": "crystalsocket/assets/bladewheel.png",
+      "sha256": "6bfa0964991fb85fe0996ed7b4386d1524d44d8d45e1875b9129df02c291902f",
+      "size": 23710
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/commander.png",
       "targetPath": "crystalsocket/assets/commander.png",
       "sha256": "2801ee6923186fb6234813e5b7e2e7ddd707cb114239f9853e8fdc7747a3a091",
@@ -74,8 +81,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/medic.png",
       "targetPath": "crystalsocket/assets/medic.png",
-      "sha256": "6a10347069381f0f5847ea41366ea3c473b0b93795cb9a73865b14c58b289757",
-      "size": 15278
+      "sha256": "1eaf008e397b3696a28923e9422c962bafc74675dd8698ce2ed97b0d4c623218",
+      "size": 14895
     },
     {
       "category": "addon",
@@ -95,8 +102,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "5293f6d25166e92bdcf603ddc471dc81a50c314d3949e9fca5bf20d12d3320c9",
-      "size": 12236
+      "sha256": "c8cc9b7cfa937aaad34b7297b1eebe72a632fd0d71d15e2afc50f4af4a9eb862",
+      "size": 12250
     },
     {
       "category": "addon",
@@ -123,8 +130,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "7cecd7f676bfabfe71a5a7fed2cf31886a19c96bd996f4719098cdd8f73421d5",
-      "size": 16898
+      "sha256": "52db39a43e95190c4fb1508f2cc15eadf71668193a036f89c53373a77731be5e",
+      "size": 16938
     },
     {
       "category": "addon",

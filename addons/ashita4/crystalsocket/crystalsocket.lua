@@ -14,7 +14,7 @@ local Menu = require('menu')
 
 local ui, menu
 local textures, asset_status = {}, {}
-local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'medic', 'sage' }
+local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'medic', 'sage', 'bladewheel' }
 local epoch, transitioning = 0, false
 local captured = {}
 local last_mouse
