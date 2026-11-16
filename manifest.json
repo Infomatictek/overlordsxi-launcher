@@ -35,7 +35,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "d2b547ec794c468f06fcae4f23af9e1e5d84c5f5e80d496e25d8ce97ce1493db",
+      "sha256": "28f48b6ab599cf1dcdea0c439304ce4482088003dc348219e44b8c2774e2eb6a",
       "size": 403280
     },
     {
@@ -44,6 +44,13 @@
       "targetPath": "ROM/181/72.DAT",
       "sha256": "55de28c53da760e79b93d73cdb1ccfa64e73b6c533ae18dbb92918292a5a9b44",
       "size": 471104
+    },
+    {
+      "category": "dat",
+      "sourcePath": "dat-overlay/ROM/181/73.DAT",
+      "targetPath": "ROM/181/73.DAT",
+      "sha256": "bcb5eb935a593a73366175bdc23e5c6a61de9b49a7f2c413eea8afeab85610aa",
+      "size": 81984
     },
     {
       "category": "dat",
@@ -215,6 +222,13 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/README.md",
+      "targetPath": "overlords_gear/README.md",
+      "sha256": "e597a8bc7de7eb5be0cb8452eadd16da7f9ff1c07472886e223badc0f936e22b",
+      "size": 3743
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/data/augments.lua",
       "targetPath": "overlords_gear/data/augments.lua",
       "sha256": "310d32472e84d1adc4a12a753be86033c79b9145774553d66ea6b0ac1a1109dd",
@@ -308,8 +322,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/swapper.lua",
       "targetPath": "overlords_gear/og/swapper.lua",
-      "sha256": "b4c1b926bb90d3de554497ee0dec4b9ae1099822b2e9e871e60b1f8f7b71dd13",
-      "size": 21957
+      "sha256": "91068eac15a8d8eba6b6b72c34ae01cf00159d5ba4479b2e054c2f331fe4219a",
+      "size": 22901
     },
     {
       "category": "addon",
@@ -327,35 +341,10 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/overlords_gear/README.md",
-      "targetPath": "overlords_gear/README.md",
-      "sha256": "e597a8bc7de7eb5be0cb8452eadd16da7f9ff1c07472886e223badc0f936e22b",
-      "size": 3743
-    },
-    {
-      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
-      "sha256": "9e79984b9dcbc683d94bbf7292e9aa83e7da7e5939101442f72b416c5a6f63c9",
-      "size": 25724
-    },
-    {
-      "repoPath": "dat-overlay/ROM/118/114.DAT",
-      "installPath": "OVERLORDSXI/ROM/118/114.DAT",
-      "sha256": "28f48b6ab599cf1dcdea0c439304ce4482088003dc348219e44b8c2774e2eb6a",
-      "size": 403280
-    },
-    {
-      "repoPath": "dat-overlay/ROM/181/73.DAT",
-      "installPath": "OVERLORDSXI/ROM/181/73.DAT",
-      "sha256": "bcb5eb935a593a73366175bdc23e5c6a61de9b49a7f2c413eea8afeab85610aa",
-      "size": 81984
-    },
-    {
-      "repoPath": "addons/ashita4/overlords_gear/og/swapper.lua",
-      "installPath": "Ashita/addons/overlords_gear/og/swapper.lua",
-      "sha256": "91068eac15a8d8eba6b6b72c34ae01cf00159d5ba4479b2e054c2f331fe4219a",
-      "size": 22901
+      "sha256": "5aa7efc9a983bc7063cdf77ee3f638c51fc9a33d54de425b187ed6774f8e7225",
+      "size": 29346
     }
   ],
   "news": [
