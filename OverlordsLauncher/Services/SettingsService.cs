@@ -20,7 +20,7 @@ public sealed class SettingsService
 
     public SettingsService(string? launcherBaseDir = null, string? appDataOverride = null)
     {
-        _launcherBaseDir = launcherBaseDir ?? AppContext.BaseDirectory;
+        _launcherBaseDir = ResolveLauncherBaseDirectory(launcherBaseDir);
         _appDataDir = appDataOverride ?? Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "OverlordsXI");
@@ -28,9 +28,64 @@ public sealed class SettingsService
     }
 
     public string SettingsPath => _settingsPath;
+    public string LauncherBaseDirectory => _launcherBaseDir;
+    public string DefaultAshitaDirectory => GetDefaultAshitaDirectory(_launcherBaseDir);
+
+    public static string ResolveLauncherBaseDirectory(string? launcherBaseDir = null)
+    {
+        if (!string.IsNullOrWhiteSpace(launcherBaseDir))
+        {
+            return Path.GetFullPath(launcherBaseDir);
+        }
+
+        var exePath = LauncherSelfUpdateService.GetCurrentExecutablePath();
+        var exeDir = !string.IsNullOrWhiteSpace(exePath) ? Path.GetDirectoryName(exePath) : null;
+        return Path.GetFullPath(!string.IsNullOrWhiteSpace(exeDir) ? exeDir : AppContext.BaseDirectory);
+    }
+
+    public static string GetDefaultAshitaDirectory(string baseDir) =>
+        Path.Combine(Path.GetFullPath(baseDir), "Ashita");
+
+    public static bool PathsEqual(string? left, string? right)
+    {
+        if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right))
+        {
+            return false;
+        }
+
+        try
+        {
+            var normLeft = Path.GetFullPath(left).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var normRight = Path.GetFullPath(right).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            return string.Equals(normLeft, normRight, StringComparison.OrdinalIgnoreCase);
+        }
+        catch
+        {
+            return string.Equals(left.Trim(), right.Trim(), StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    public string EnsureDefaultAshitaDirectory()
+    {
+        var dir = DefaultAshitaDirectory;
+        Directory.CreateDirectory(dir);
+        return dir;
+    }
+
+    public void EnsureAshitaDirectory(LauncherSettings settings)
+    {
+        if (!settings.UseCustomAshitaPath || string.IsNullOrWhiteSpace(settings.AshitaPath))
+        {
+            settings.AshitaPath = DefaultAshitaDirectory;
+            settings.UseCustomAshitaPath = false;
+        }
+
+        Directory.CreateDirectory(settings.AshitaPath);
+    }
 
     public LauncherSettings Load()
     {
+        var defaultAshitaDir = DefaultAshitaDirectory;
         try
         {
             if (File.Exists(_settingsPath))
@@ -39,9 +94,36 @@ public sealed class SettingsService
                 var loaded = JsonSerializer.Deserialize<LauncherSettings>(json, JsonOptions);
                 if (loaded is not null)
                 {
+                    using var doc = JsonDocument.Parse(json);
+                    var hasExplicitCustomFlag = doc.RootElement.ValueKind == JsonValueKind.Object &&
+                        doc.RootElement.EnumerateObject().Any(p =>
+                            p.Name.Equals(nameof(LauncherSettings.UseCustomAshitaPath), StringComparison.OrdinalIgnoreCase));
+
                     if (string.IsNullOrWhiteSpace(loaded.AshitaPath))
                     {
-                        loaded.AshitaPath = Path.Combine(_launcherBaseDir, "Ashita");
+                        loaded.AshitaPath = defaultAshitaDir;
+                        loaded.UseCustomAshitaPath = false;
+                    }
+                    else if (!hasExplicitCustomFlag && !PathsEqual(loaded.AshitaPath, defaultAshitaDir))
+                    {
+                        var folderName = Path.GetFileName(loaded.AshitaPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+                        var hasExistingCustomInstall =
+                            !string.Equals(folderName, "Ashita", StringComparison.OrdinalIgnoreCase) &&
+                            File.Exists(Path.Combine(loaded.AshitaPath, "Ashita-cli.exe"));
+
+                        if (hasExistingCustomInstall)
+                        {
+                            loaded.UseCustomAshitaPath = true;
+                        }
+                        else
+                        {
+                            loaded.AshitaPath = defaultAshitaDir;
+                            loaded.UseCustomAshitaPath = false;
+                        }
+                    }
+                    else if (!loaded.UseCustomAshitaPath)
+                    {
+                        loaded.AshitaPath = defaultAshitaDir;
                     }
 
                     return loaded;

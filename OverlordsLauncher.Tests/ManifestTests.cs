@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Compression;
+using System.Net.Http;
 using System.Text;
 using OverlordsLauncher.Models;
 using OverlordsLauncher.Services;
@@ -300,5 +301,106 @@ public sealed class ManifestTests
         Assert.Contains(embedded.Files, f => f.Category == "addon" && f.TargetPath == "kazenoeye/setting.lua");
         Assert.Contains(embedded.Files, f => f.Category == "addon" && f.TargetPath == "kazenoeye/util/texture.lua");
         Assert.Contains(embedded.Files, f => f.Category == "addon" && f.TargetPath == "kazenoeye/util/hidestatus.lua");
+    }
+
+    [Fact]
+    public async Task FetchManifestAsync_PinsDownloadsToCommitShaAndRetriesTransientMismatch()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"overlords_manifest_pin_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+
+        try
+        {
+            const string commitSha = "0123456789abcdef0123456789abcdef01234567";
+            var payloadBytes = Encoding.UTF8.GetBytes("-- pinned talents lua\n");
+            var payloadHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(payloadBytes)).ToLowerInvariant();
+            var manifestJson = $$"""
+            {
+              "schemaVersion": 1,
+              "serverName": "OverlordsXI",
+              "repo": {
+                "owner": "Infomatictek",
+                "name": "overlordsxi-launcher",
+                "branch": "main",
+                "rawBaseUrl": "https://raw.githubusercontent.com/Infomatictek/overlordsxi-launcher/main"
+              },
+              "files": [
+                {
+                  "category": "addon",
+                  "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
+                  "targetPath": "overlords_talents/overlords_talents.lua",
+                  "sha256": "{{payloadHash}}",
+                  "size": {{payloadBytes.Length}}
+                }
+              ]
+            }
+            """;
+
+            var fileAttempts = 0;
+            var requestedUrls = new List<string>();
+            using var handler = new StubHttpMessageHandler(req =>
+            {
+                var url = req.RequestUri!.ToString();
+                requestedUrls.Add(url);
+
+                if (url.Contains("/commits/main", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(commitSha)
+                    };
+                }
+
+                if (url.Contains($"/{commitSha}/manifest.json", StringComparison.OrdinalIgnoreCase))
+                {
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    {
+                        Content = new StringContent(manifestJson, Encoding.UTF8, "application/json")
+                    };
+                }
+
+                if (url.Contains($"/{commitSha}/addons/ashita4/overlords_talents/overlords_talents.lua", StringComparison.OrdinalIgnoreCase))
+                {
+                    fileAttempts++;
+                    var content = fileAttempts == 1
+                        ? Encoding.UTF8.GetBytes("-- stale attempt\n")
+                        : payloadBytes;
+                    return new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                    {
+                        Content = new ByteArrayContent(content)
+                    };
+                }
+
+                return new HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+            });
+
+            using var http = new HttpClient(handler);
+            var service = new ManifestUpdateService(http);
+            var fallback = new LauncherManifest();
+            var (manifest, fromRemote) = await service.FetchManifestAsync(fallback, localOverride: null);
+
+            Assert.True(fromRemote);
+            Assert.Equal($"https://raw.githubusercontent.com/Infomatictek/overlordsxi-launcher/{commitSha}", manifest.ResolvedRawBaseUrl);
+
+            var settings = new LauncherSettings { AshitaPath = Path.Combine(tempRoot, "Ashita") };
+            var synced = await service.SyncOverlordsFilesAsync(manifest, settings, forceAll: false);
+
+            Assert.Equal(1, synced);
+            Assert.Equal(2, fileAttempts);
+            Assert.True(File.Exists(Path.Combine(settings.AshitaPath, "addons", "overlords_talents", "overlords_talents.lua")));
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
+    private sealed class StubHttpMessageHandler(Func<HttpRequestMessage, HttpResponseMessage> responder) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken) =>
+            Task.FromResult(responder(request));
     }
 }

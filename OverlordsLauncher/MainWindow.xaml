@@ -286,10 +286,13 @@
                                                 <ColumnDefinition Width="Auto" />
                                                 <ColumnDefinition Width="6" />
                                                 <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="6" />
+                                                <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <TextBox Text="{Binding AshitaPath}" />
                                             <Button Grid.Column="2" Content="Browse..." Style="{StaticResource SecondaryButton}" Command="{Binding BrowseAshitaCommand}" />
-                                            <Button Grid.Column="4" Content="Open" Style="{StaticResource SecondaryButton}" Command="{Binding OpenAshitaFolderCommand}" />
+                                            <Button Grid.Column="4" Content="Default" ToolTip="Use Ashita folder next to launcher" Style="{StaticResource SecondaryButton}" Command="{Binding ResetAshitaPathCommand}" />
+                                            <Button Grid.Column="6" Content="Open" Style="{StaticResource SecondaryButton}" Command="{Binding OpenAshitaFolderCommand}" />
                                         </Grid>
 
                                         <CheckBox Content="Also copy DAT overlay to external folder (e.g. C:\DATs\Overlords)" IsChecked="{Binding SyncToCustomDatFolder}" />

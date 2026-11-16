@@ -73,6 +73,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
         BrowseFfxiCommand = new RelayCommand(BrowseFfxiFolder);
         BrowseAshitaCommand = new RelayCommand(BrowseAshitaFolder);
+        ResetAshitaPathCommand = new RelayCommand(ResetAshitaToLauncherFolder);
         BrowseCustomDatCommand = new RelayCommand(BrowseCustomDatFolder);
         OpenAshitaFolderCommand = new RelayCommand(OpenAshitaFolder);
         ExportServerOverrideCommand = new RelayCommand(ExportShareableServerJson);
@@ -99,6 +100,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public ICommand SaveSettingsCommand { get; }
     public ICommand BrowseFfxiCommand { get; }
     public ICommand BrowseAshitaCommand { get; }
+    public ICommand ResetAshitaPathCommand { get; }
     public ICommand BrowseCustomDatCommand { get; }
     public ICommand OpenAshitaFolderCommand { get; }
     public ICommand ExportServerOverrideCommand { get; }
@@ -296,6 +298,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
             if (_settings.AshitaPath != value)
             {
                 _settings.AshitaPath = value;
+                _settings.UseCustomAshitaPath =
+                    !string.IsNullOrWhiteSpace(value) &&
+                    !SettingsService.PathsEqual(value, _settingsService.DefaultAshitaDirectory);
                 OnPropertyChanged();
             }
         }
@@ -635,6 +640,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
             .Any(arg => arg.Equals(LauncherSelfUpdateService.JustUpdatedArg, StringComparison.OrdinalIgnoreCase));
         LauncherSelfUpdateService.CleanupStagingDirectory();
 
+        try
+        {
+            _settingsService.EnsureAshitaDirectory(_settings);
+            OnPropertyChanged(nameof(AshitaPath));
+        }
+        catch (Exception ex)
+        {
+            Log($"Could not create Ashita folder at {AshitaPath}: {ex.Message}");
+        }
+
         var isFirstRun = !File.Exists(_settingsService.SettingsPath);
         RefreshDiagnostics();
         if (string.IsNullOrWhiteSpace(_settings.FfxiPath) && !string.IsNullOrWhiteSpace(Diagnostics.DetectedFfxiPath))
@@ -881,10 +896,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
         try
         {
             var embedded = _manifestService.LoadEmbeddedManifest();
-            var (manifest, _) = await _manifestService.FetchManifestAsync(
+            var (manifest, fromRemote) = await _manifestService.FetchManifestAsync(
                 embedded,
                 _settingsService.LoadLocalServerOverride());
             ApplyManifest(manifest);
+
+            if (!fromRemote)
+            {
+                throw new InvalidOperationException(
+                    "Could not download the latest OverlordsXI manifest from GitHub. Please check your internet connection and try again.");
+            }
 
             var progress = new Progress<SyncProgress>(p =>
             {
@@ -922,8 +943,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 ProgressPercent = p.Percent;
             });
 
+            var embedded = _manifestService.LoadEmbeddedManifest();
+            var (manifest, fromRemote) = await _manifestService.FetchManifestAsync(
+                embedded,
+                _settingsService.LoadLocalServerOverride());
+            ApplyManifest(manifest);
+
             await _manifestService.EnsureAshitaAndToolsAsync(_manifest, _settings, progress);
-            await _manifestService.SyncOverlordsFilesAsync(_manifest, _settings, forceAll: false, progress);
+            if (fromRemote)
+            {
+                await _manifestService.SyncOverlordsFilesAsync(_manifest, _settings, forceAll: false, progress);
+            }
+            else
+            {
+                Log("Warning: Could not fetch remote manifest from GitHub; skipped file sync against bundled hashes.");
+            }
+
             PendingUpdatesCount = _manifestService.GetOutdatedFiles(_manifest, _settings).Count;
             RefreshDiagnostics();
             Log("Ashita v4, xiloader, XIPivot, and OverlordsXI files are ready.");
@@ -982,20 +1017,22 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 _settingsService.LoadLocalServerOverride());
             ApplyManifest(manifest);
 
-            if (!fromRemote)
-            {
-                Log("Warning: Could not reach GitHub for remote manifest; checking against bundled manifest.");
-            }
-
             StatusMessage = "Checking Ashita v4 prerequisites...";
             await _manifestService.EnsureAshitaAndToolsAsync(_manifest, _settings, progress);
 
-            StatusMessage = "Checking for OverlordsXI file updates...";
-            var updatedCount = await _manifestService.SyncOverlordsFilesAsync(_manifest, _settings, forceAll: false, progress);
-            PendingUpdatesCount = _manifestService.GetOutdatedFiles(_manifest, _settings).Count;
-            Log(updatedCount > 0
-                ? $"Updated {updatedCount} OverlordsXI client file(s) before launch."
-                : "All OverlordsXI client files are up to date.");
+            if (fromRemote)
+            {
+                StatusMessage = "Checking for OverlordsXI file updates...";
+                var updatedCount = await _manifestService.SyncOverlordsFilesAsync(_manifest, _settings, forceAll: false, progress);
+                PendingUpdatesCount = _manifestService.GetOutdatedFiles(_manifest, _settings).Count;
+                Log(updatedCount > 0
+                    ? $"Updated {updatedCount} OverlordsXI client file(s) before launch."
+                    : "All OverlordsXI client files are up to date.");
+            }
+            else
+            {
+                Log("Warning: Could not reach GitHub for remote manifest; launching with local client files.");
+            }
 
             var xiloaderPath = FfxiInstallDetector.ResolveXiloaderPath(_settings.AshitaPath);
             if (string.IsNullOrEmpty(xiloaderPath))
@@ -1081,13 +1118,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
         var dialog = new OpenFolderDialog
         {
             Title = "Select Ashita v4 Folder",
-            InitialDirectory = Directory.Exists(AshitaPath) ? AshitaPath : AppContext.BaseDirectory
+            InitialDirectory = Directory.Exists(AshitaPath) ? AshitaPath : _settingsService.LauncherBaseDirectory
         };
         if (dialog.ShowDialog() == true)
         {
             AshitaPath = dialog.FolderName;
             RefreshDiagnostics();
         }
+    }
+
+    private void ResetAshitaToLauncherFolder()
+    {
+        _settings.UseCustomAshitaPath = false;
+        var defaultDir = _settingsService.EnsureDefaultAshitaDirectory();
+        AshitaPath = defaultDir;
+        _settingsService.Save(_settings, PlainPassword);
+        RefreshDiagnostics();
+        StatusMessage = $"Ashita folder set to {defaultDir}";
+        Log(StatusMessage);
     }
 
     private void BrowseCustomDatFolder()

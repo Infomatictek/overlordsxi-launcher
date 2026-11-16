@@ -19,6 +19,7 @@ public sealed class LauncherSettings
 
     public string FfxiPath { get; set; } = string.Empty;
     public string AshitaPath { get; set; } = string.Empty;
+    public bool UseCustomAshitaPath { get; set; }
     public bool SyncToCustomDatFolder { get; set; }
     public string CustomDatOverlayPath { get; set; } = @"C:\DATs\Overlords";
 

@@ -33,6 +33,9 @@ public sealed class LauncherManifest
 
     [JsonPropertyName("news")]
     public List<ManifestNewsItem> News { get; set; } = [];
+
+    [JsonIgnore]
+    public string? ResolvedRawBaseUrl { get; set; }
 }
 
 public sealed class ManifestPorts

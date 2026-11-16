@@ -76,27 +76,99 @@ public sealed class ManifestUpdateService
         var rawBase = fallback.Repo.RawBaseUrl.TrimEnd('/');
         if (!string.IsNullOrWhiteSpace(rawBase))
         {
-            try
+            string? pinnedRawBase = null;
+            if (IsGitHubRawBaseUrl(rawBase) &&
+                !string.IsNullOrWhiteSpace(fallback.Repo.Owner) &&
+                !string.IsNullOrWhiteSpace(fallback.Repo.Name) &&
+                !string.IsNullOrWhiteSpace(fallback.Repo.Branch))
             {
-                using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                cts.CancelAfter(TimeSpan.FromSeconds(10));
-                var url = $"{rawBase}/manifest.json?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-                var json = await _http.GetStringAsync(url, cts.Token).ConfigureAwait(false);
-                var remote = JsonSerializer.Deserialize<LauncherManifest>(json, JsonOptions);
+                var commitSha = await TryResolveBranchCommitShaAsync(
+                    fallback.Repo.Owner.Trim(),
+                    fallback.Repo.Name.Trim(),
+                    fallback.Repo.Branch.Trim(),
+                    cancellationToken).ConfigureAwait(false);
+                if (!string.IsNullOrWhiteSpace(commitSha))
+                {
+                    pinnedRawBase = $"https://raw.githubusercontent.com/{fallback.Repo.Owner.Trim()}/{fallback.Repo.Name.Trim()}/{commitSha}";
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(pinnedRawBase))
+            {
+                var remote = await TryFetchManifestFromUrlAsync($"{pinnedRawBase}/manifest.json", cancellationToken)
+                    .ConfigureAwait(false);
                 if (remote is not null && remote.Files.Count > 0)
                 {
+                    remote.ResolvedRawBaseUrl = pinnedRawBase;
                     manifest = remote;
                     fromRemote = true;
                 }
             }
-            catch
+
+            if (!fromRemote)
             {
-                // Fall back cleanly to embedded manifest when offline or unreachable.
+                var url = $"{rawBase}/manifest.json?t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
+                var remote = await TryFetchManifestFromUrlAsync(url, cancellationToken).ConfigureAwait(false);
+                if (remote is not null && remote.Files.Count > 0)
+                {
+                    remote.ResolvedRawBaseUrl = rawBase;
+                    manifest = remote;
+                    fromRemote = true;
+                }
             }
         }
 
         ApplyLocalOverride(manifest, localOverride);
         return (manifest, fromRemote);
+    }
+
+    public static bool IsGitHubRawBaseUrl(string rawBaseUrl) =>
+        Uri.TryCreate(rawBaseUrl, UriKind.Absolute, out var uri) &&
+        uri.Host.Equals("raw.githubusercontent.com", StringComparison.OrdinalIgnoreCase);
+
+    private async Task<string?> TryResolveBranchCommitShaAsync(
+        string owner,
+        string repo,
+        string branch,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(8));
+
+            var apiUrl = $"https://api.github.com/repos/{Uri.EscapeDataString(owner)}/{Uri.EscapeDataString(repo)}/commits/{Uri.EscapeDataString(branch)}";
+            using var request = new HttpRequestMessage(HttpMethod.Get, apiUrl);
+            request.Headers.Accept.ParseAdd("application/vnd.github.sha");
+
+            using var response = await _http.SendAsync(request, cts.Token).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+            {
+                return null;
+            }
+
+            var sha = (await response.Content.ReadAsStringAsync(cts.Token).ConfigureAwait(false)).Trim();
+            return sha.Length == 40 && sha.All(Uri.IsHexDigit) ? sha : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private async Task<LauncherManifest?> TryFetchManifestFromUrlAsync(string url, CancellationToken cancellationToken)
+    {
+        try
+        {
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cts.CancelAfter(TimeSpan.FromSeconds(10));
+            var json = await _http.GetStringAsync(url, cts.Token).ConfigureAwait(false);
+            return JsonSerializer.Deserialize<LauncherManifest>(json, JsonOptions);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     public static void ApplyLocalOverride(LauncherManifest manifest, LocalServerOverride? localOverride)
@@ -182,6 +254,8 @@ public sealed class ManifestUpdateService
         IProgress<SyncProgress>? progress = null,
         CancellationToken cancellationToken = default)
     {
+        Directory.CreateDirectory(settings.AshitaPath);
+
         var pending = GetOutdatedFiles(manifest, settings, forceAll);
         if (pending.Count == 0)
         {
@@ -189,7 +263,9 @@ public sealed class ManifestUpdateService
             return 0;
         }
 
-        var rawBase = manifest.Repo.RawBaseUrl.TrimEnd('/');
+        var rawBase = (!string.IsNullOrWhiteSpace(manifest.ResolvedRawBaseUrl)
+            ? manifest.ResolvedRawBaseUrl
+            : manifest.Repo.RawBaseUrl).TrimEnd('/');
         var completed = 0;
 
         foreach (var entry in pending)
@@ -209,7 +285,8 @@ public sealed class ManifestUpdateService
             var cacheBuster = !string.IsNullOrWhiteSpace(entry.Sha256)
                 ? $"sha={Uri.EscapeDataString(entry.Sha256)}"
                 : $"t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-            var url = $"{rawBase}/{entry.SourcePath.TrimStart('/')}?{cacheBuster}";
+            var sourcePath = entry.SourcePath.TrimStart('/');
+            var url = $"{rawBase}/{sourcePath}?{cacheBuster}";
             var tempPath = destPath + ".download";
 
             await DownloadFileAsync(url, tempPath, cancellationToken).ConfigureAwait(false);
@@ -219,13 +296,30 @@ public sealed class ManifestUpdateService
                 var actualHash = ComputeSha256(tempPath);
                 if (!actualHash.Equals(entry.Sha256, StringComparison.OrdinalIgnoreCase))
                 {
-                    File.Delete(tempPath);
-                    throw new InvalidDataException(
-                        $"Checksum mismatch for {entry.TargetPath}. Expected {entry.Sha256}, got {actualHash}.");
+                    TryDeleteFile(tempPath);
+                    var retryUrl = $"{rawBase}/{sourcePath}?cb={Guid.NewGuid():N}";
+                    await DownloadFileAsync(retryUrl, tempPath, cancellationToken).ConfigureAwait(false);
+                    actualHash = ComputeSha256(tempPath);
+                    if (!actualHash.Equals(entry.Sha256, StringComparison.OrdinalIgnoreCase))
+                    {
+                        TryDeleteFile(tempPath);
+                        throw new InvalidDataException(
+                            $"Checksum mismatch for {entry.TargetPath}. Expected {entry.Sha256}, got {actualHash}.");
+                    }
                 }
             }
 
-            File.Move(tempPath, destPath, overwrite: true);
+            try
+            {
+                File.Move(tempPath, destPath, overwrite: true);
+            }
+            catch (IOException ex)
+            {
+                TryDeleteFile(tempPath);
+                throw new IOException(
+                    $"Could not update {entry.TargetPath} because it is currently in use. Close Ashita / FINAL FANTASY XI / PlayOnline and try again. ({ex.Message})",
+                    ex);
+            }
 
             if (entry.Category.Equals("dat", StringComparison.OrdinalIgnoreCase) &&
                 settings.SyncToCustomDatFolder &&
