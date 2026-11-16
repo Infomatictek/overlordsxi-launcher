@@ -27,7 +27,10 @@ def main() -> None:
 
     dat_root = repo_root / "dat-overlay" / "ROM"
     if dat_root.exists():
-        for file_path in sorted(p for p in dat_root.rglob("*") if p.is_file()):
+        for file_path in sorted(
+            (p for p in dat_root.rglob("*") if p.is_file()),
+            key=lambda p: p.relative_to(repo_root).as_posix().lower(),
+        ):
             rel_repo = file_path.relative_to(repo_root).as_posix()
             rel_dat = file_path.relative_to(repo_root / "dat-overlay").as_posix()
             digest, size = sha256_file(file_path)
@@ -43,7 +46,10 @@ def main() -> None:
 
     addons_root = repo_root / "addons" / "ashita4"
     if addons_root.exists():
-        for file_path in sorted(p for p in addons_root.rglob("*") if p.is_file()):
+        for file_path in sorted(
+            (p for p in addons_root.rglob("*") if p.is_file()),
+            key=lambda p: p.relative_to(repo_root).as_posix().lower(),
+        ):
             rel_repo = file_path.relative_to(repo_root).as_posix()
             rel_addon = file_path.relative_to(addons_root).as_posix()
             digest, size = sha256_file(file_path)

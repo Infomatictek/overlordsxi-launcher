@@ -222,13 +222,6 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/overlords_gear/README.md",
-      "targetPath": "overlords_gear/README.md",
-      "sha256": "e597a8bc7de7eb5be0cb8452eadd16da7f9ff1c07472886e223badc0f936e22b",
-      "size": 3743
-    },
-    {
-      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/data/augments.lua",
       "targetPath": "overlords_gear/data/augments.lua",
       "sha256": "310d32472e84d1adc4a12a753be86033c79b9145774553d66ea6b0ac1a1109dd",
@@ -338,6 +331,13 @@
       "targetPath": "overlords_gear/overlords_gear.lua",
       "sha256": "5a638c42ed0c868a95b2d6df6351172b0a87079368897677b562a8d1e48c3aa6",
       "size": 4407
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/README.md",
+      "targetPath": "overlords_gear/README.md",
+      "sha256": "e597a8bc7de7eb5be0cb8452eadd16da7f9ff1c07472886e223badc0f936e22b",
+      "size": 3743
     },
     {
       "category": "addon",
