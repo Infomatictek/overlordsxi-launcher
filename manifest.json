@@ -222,6 +222,83 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/ashita/ability.lua",
+      "targetPath": "metrics/ashita/ability.lua",
+      "sha256": "68b87eec4ec0754ccf64d4ed553703794e0143a9ebba7f4a15385a96aca71d09",
+      "size": 3990
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/database/_enum.lua",
+      "targetPath": "metrics/database/_enum.lua",
+      "sha256": "b32929688ac0c56711c620d13e8867272103461736f3e0bc9fc5d4f5cca2f998",
+      "size": 10068
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/handlers/abilities.lua",
+      "targetPath": "metrics/handlers/abilities.lua",
+      "sha256": "0c4c623d29a559bacc8e62d554572c816526f29868808678825320f928a65eeb",
+      "size": 21614
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/handlers/ranged.lua",
+      "targetPath": "metrics/handlers/ranged.lua",
+      "sha256": "6a13aabdb816d69a715f30bc138b2719955abb3f458db0873bb153a24bbb3ad5",
+      "size": 10628
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/handlers/tp_action.lua",
+      "targetPath": "metrics/handlers/tp_action.lua",
+      "sha256": "bfd47fa16175e39af4b7113ce3ce2e38cc03e76d04ed9ebae86c9ef802a49994",
+      "size": 24593
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/metrics.lua",
+      "targetPath": "metrics/metrics.lua",
+      "sha256": "debda356e548a94affa827d91739ddb6057a91579c5957bbc00cc5fd68e57490",
+      "size": 7167
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/modules/focus/pets.lua",
+      "targetPath": "metrics/modules/focus/pets.lua",
+      "sha256": "96bf2f4404b774d59f7c2de8b795842870daeb34b410faaf5cf84890a07430b6",
+      "size": 18120
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/overlords.lua",
+      "targetPath": "metrics/overlords.lua",
+      "sha256": "92c2855890bf08a333b2801fae72de8c40ee3601a9b0020afff9d86d4dfd2d20",
+      "size": 9484
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/resources/abilities.lua",
+      "targetPath": "metrics/resources/abilities.lua",
+      "sha256": "a2713ef4599d8337b354b2e148c8c842bfced8e92efae3ecad470a30dcc47107",
+      "size": 61138
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/resources/buffs.lua",
+      "targetPath": "metrics/resources/buffs.lua",
+      "sha256": "dcd98429880bcfb5564134be6f1e38988215f1cb8a889149d7dc835dcf1b8f22",
+      "size": 67447
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/resources/weapon_skills.lua",
+      "targetPath": "metrics/resources/weapon_skills.lua",
+      "sha256": "b09f1fbeedfa189abfed69785c98f7c009fe1bc35592985b6c5a5d8c5c1a0dce",
+      "size": 50388
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/data/augments.lua",
       "targetPath": "overlords_gear/data/augments.lua",
       "sha256": "310d32472e84d1adc4a12a753be86033c79b9145774553d66ea6b0ac1a1109dd",

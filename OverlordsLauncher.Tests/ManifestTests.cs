@@ -48,6 +48,22 @@ public sealed class ManifestTests
             f.TargetPath == "overlords_gear/data/items.lua" &&
             !string.IsNullOrWhiteSpace(f.Sha256));
         Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "metrics/overlords.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "metrics/metrics.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "metrics/resources/abilities.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "metrics/resources/weapon_skills.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
             f.Category == "dat" &&
             f.TargetPath == "ROM/118/108.DAT" &&
             !string.IsNullOrWhiteSpace(f.Sha256));

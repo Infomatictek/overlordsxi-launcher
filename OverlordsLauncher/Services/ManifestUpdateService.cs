@@ -275,7 +275,10 @@ public sealed class ManifestUpdateService
             await InstallLatestXipivotAsync(manifest.Bootstrap.XipivotLatestApiUrl, ashitaDir, cancellationToken).ConfigureAwait(false);
         }
 
-        if (!File.Exists(Path.Combine(ashitaDir, "addons", "metrics", "metrics.lua")))
+        var metricsDir = Path.Combine(ashitaDir, "addons", "metrics");
+        if (!File.Exists(Path.Combine(metricsDir, "metrics.lua")) ||
+            !File.Exists(Path.Combine(metricsDir, "horizon.lua")) ||
+            !File.Exists(Path.Combine(metricsDir, "initialization.lua")))
         {
             progress?.Report(new SyncProgress { Message = "Downloading Metrics parse addon for Ashita v4...", Percent = 80 });
             await InstallLatestGitHubAddonAsync(
