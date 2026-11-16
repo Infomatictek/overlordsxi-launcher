@@ -20,6 +20,16 @@ local bit   = require('bit')
 local imgui = require('imgui')
 
 local PROTO_TAG         = '[OXTAL]|'
+local PACKET_C2S_ID     = 0x11F
+local PACKET_S2C_ID     = 0x1FD
+local OP_SYNC           = 1
+local OP_STATE          = 2
+local OP_WS             = 3
+local OP_INVEST         = 4
+local OP_REFUND         = 5
+local OP_CYCLE_SC       = 6
+local OP_RESET_WS       = 7
+local OP_RESET_ALL      = 8
 local CHILD_NONE        = ImGuiChildFlags_None or 0
 local CHILD_BORDERS     = ImGuiChildFlags_Borders or ImGuiChildFlags_Border or 1
 local COL_TEXT          = ImGuiCol_Text or 0
@@ -79,6 +89,7 @@ local state =
     synced          = false,
     syncRequestedAt = 0,
     jobKey          = '---',
+    specName        = 'Base',
     jobLevel        = 1,
     avail           = 0,
     spent           = 0,
@@ -89,7 +100,9 @@ local state =
     catalogById     = {},
     tempCatalog     = nil,
     spentByWs       = {},
+    unlockedByWs    = {},
     tempSpent       = nil,
+    tempUnlocked    = nil,
     selectedSkill   = -1,       -- -1 = Equipped
     selectedWsId    = nil,
     wsDetail        = nil,      -- { id, name, skillName, wsType, spent, orig, nodes = {} }
@@ -144,8 +157,15 @@ local function splitPipe(str)
     return out
 end
 
-local function queueServerCmd(subcmd)
-    AshitaCore:GetChatManager():QueueCommand(1, '/say !talent ' .. subcmd)
+local function sendTalentPacket(op, wsId, arg1, arg2)
+    local w = tonumber(wsId) or 0
+    local a1 = (tonumber(arg1) or 0) % 256
+    local a2 = (tonumber(arg2) or 0) % 256
+    local pkt = string.char(0x1F, 0x09, 0x00, 0x00)
+        .. 'OXTL'
+        .. string.char(1, op % 256, w % 256, math.floor(w / 256) % 256, a1, a2, 0, 0)
+    local bytes = { pkt:byte(1, #pkt) }
+    AshitaCore:GetPacketManager():AddOutgoingPacket(PACKET_C2S_ID, bytes)
 end
 
 local function setStatus(msg)
@@ -158,12 +178,12 @@ local function requestWS(wsId)
         return
     end
     state.selectedWsId = wsId
-    queueServerCmd('ws ' .. tostring(wsId))
+    sendTalentPacket(OP_WS, wsId, 0, 0)
 end
 
 local function requestFullSync()
     state.syncRequestedAt = os.clock()
-    queueServerCmd('sync')
+    sendTalentPacket(OP_SYNC, 0, 0, 0)
 end
 
 -----------------------------------
@@ -174,6 +194,8 @@ local function handleProtoLine(payload)
     local kind = parts[1]
 
     if kind == 'META' then
+        local prevJob  = state.jobKey
+        local prevSpec = state.specName
         state.jobKey      = parts[2] or '---'
         state.jobLevel    = tonumber(parts[3]) or 1
         state.avail       = tonumber(parts[4]) or 0
@@ -181,22 +203,36 @@ local function handleProtoLine(payload)
         state.earned      = tonumber(parts[6]) or 1
         state.mainSkill   = tonumber(parts[7]) or 0
         state.rangedSkill = tonumber(parts[8]) or 0
+        state.specName    = (parts[9] and parts[9] ~= '') and parts[9] or 'Base'
+        if (prevJob ~= state.jobKey or prevSpec ~= state.specName) and state.selectedWsId ~= nil and state.open[1] then
+            requestWS(state.selectedWsId)
+        end
     elseif kind == 'SPENT_BEGIN' then
-        state.tempSpent = {}
+        state.tempSpent    = {}
+        state.tempUnlocked = {}
     elseif kind == 'SPENT' then
-        state.tempSpent = state.tempSpent or {}
+        state.tempSpent    = state.tempSpent or {}
+        state.tempUnlocked = state.tempUnlocked or {}
         if parts[2] and parts[2] ~= '' then
             for entry in string.gmatch(parts[2], '([^,]+)') do
-                local wsId, pts = string.match(entry, '^(%d+):(%d+)$')
+                local wsId, pts, unl = string.match(entry, '^(%d+):(%d+):(%d+)$')
+                if not wsId then
+                    wsId, pts = string.match(entry, '^(%d+):(%d+)$')
+                    unl = (tonumber(pts) or 0) > 0 and '1' or '0'
+                end
                 if wsId and pts then
-                    state.tempSpent[tonumber(wsId)] = tonumber(pts)
+                    local idNum = tonumber(wsId)
+                    state.tempSpent[idNum]    = tonumber(pts)
+                    state.tempUnlocked[idNum] = (tonumber(unl) or 0) == 1
                 end
             end
         end
     elseif kind == 'SPENT_END' then
         if state.tempSpent ~= nil then
-            state.spentByWs = state.tempSpent
-            state.tempSpent = nil
+            state.spentByWs    = state.tempSpent
+            state.unlockedByWs = state.tempUnlocked or {}
+            state.tempSpent    = nil
+            state.tempUnlocked = nil
         end
     elseif kind == 'CAT_BEGIN' then
         state.tempCatalog = {}
@@ -250,8 +286,10 @@ local function handleProtoLine(payload)
         }
     elseif kind == 'NODE' then
         if state.tempWs ~= nil and tonumber(parts[2]) == state.tempWs.id then
+            local nodeIdx = #state.tempWs.nodes + 1
             local node =
             {
+                idx         = nodeIdx,
                 key         = parts[3],
                 tier        = tonumber(parts[4]) or 1,
                 col         = tonumber(parts[5]) or 1,
@@ -318,7 +356,7 @@ ashita.events.register('command', 'ox_talents_cmd', function(e)
         if not state.synced then
             requestFullSync()
         else
-            queueServerCmd('state')
+            sendTalentPacket(OP_STATE, 0, 0, 0)
             if state.selectedWsId ~= nil then
                 requestWS(state.selectedWsId)
             end
@@ -327,6 +365,24 @@ ashita.events.register('command', 'ox_talents_cmd', function(e)
 end)
 
 ashita.events.register('packet_in', 'ox_talents_packet_in', function(e)
+    if e.id == PACKET_S2C_ID then
+        local buf = e.data_modified or e.data
+        local sz  = e.size or (type(buf) == 'string' and #buf or 0)
+        if type(buf) == 'string' and sz >= 12 and buf:sub(5, 8) == 'OXTL' then
+            e.blocked = true
+            local b11, b12 = buf:byte(11, 12)
+            local payLen = (b11 or 0) + (b12 or 0) * 256
+            if payLen > 0 and #buf >= 12 + payLen then
+                local line = buf:sub(13, 12 + payLen)
+                if line:sub(1, #PROTO_TAG) == PROTO_TAG then
+                    line = line:sub(#PROTO_TAG + 1)
+                end
+                handleProtoLine(line)
+            end
+            return
+        end
+    end
+
     if e.id ~= 0x017 then
         return
     end
@@ -376,6 +432,18 @@ local function getFilteredCatalog()
     return list
 end
 
+local function isWsUnlockedInDetail(detail)
+    if detail == nil then
+        return false
+    end
+    for _, node in ipairs(detail.nodes or {}) do
+        if node.tier == 1 and (node.rank or 0) >= 1 then
+            return true
+        end
+    end
+    return state.unlockedByWs[detail.id] == true
+end
+
 local function drawTreeCanvas()
     local detail = state.wsDetail
     if detail == nil then
@@ -389,17 +457,25 @@ local function drawTreeCanvas()
         return
     end
 
+    local unlocked = isWsUnlockedInDetail(detail)
+
     -- WS Header
     drawTextColored({ 1.0, 0.85, 0.35, 1.0 }, detail.name)
     imgui.SameLine()
     drawTextDisabled(string.format('(%s | %s)', detail.skillName, detail.wsType))
+    imgui.SameLine()
+    if unlocked then
+        drawTextColored({ 0.40, 0.95, 0.55, 1.0 }, '  [UNLOCKED]')
+    else
+        drawTextColored({ 1.0, 0.50, 0.45, 1.0 }, '  [LOCKED — Invest 1 pt in Tier 1 to unlock WS]')
+    end
 
     drawTextColored({ 0.72, 0.86, 1.0, 1.0 }, detail.orig)
-    drawText(string.format('Points in %s: %d   |   Available Job Points: %d', detail.name, detail.spent, state.avail))
+    drawText(string.format('Points in %s: %d   |   Available %s (%s) Points: %d', detail.name, detail.spent, state.jobKey, state.specName, state.avail))
     imgui.SameLine()
     if detail.spent > 0 then
         if imgui.SmallButton('Reset WS') then
-            queueServerCmd('uresetws ' .. tostring(detail.id))
+            sendTalentPacket(OP_RESET_WS, detail.id, 0, 0)
         end
     end
 
@@ -416,10 +492,10 @@ local function drawTreeCanvas()
 
     local tierLabels =
     {
-        [1] = 'Tier 1: Foundation (Lv 1+, 0+ WS pts)',
-        [2] = 'Tier 2: Specialization (Lv 20+, 10+ WS pts)',
-        [3] = 'Tier 3: Mastery (Lv 42+, 22+ WS pts)',
-        [4] = 'Tier 4: Capstone (Lv 62+, 35+ WS pts)',
+        [1] = 'Tier 1: Foundation (Lv 1+, 0+ WS pts — Unlocks Weaponskill)',
+        [2] = 'Tier 2: Specialization (Lv 5+, 2+ WS pts)',
+        [3] = 'Tier 3: Mastery (Lv 10+, 5+ WS pts)',
+        [4] = 'Tier 4: Capstone (Lv 15+, 8+ WS pts)',
     }
 
     -- Compute node screen coordinates
@@ -505,28 +581,32 @@ local function drawTreeCanvas()
         local hovered = imgui.IsItemHovered()
 
         if imgui.IsItemClicked(0) then
-            queueServerCmd(string.format('uadd %u %s', detail.id, node.key))
+            sendTalentPacket(OP_INVEST, detail.id, node.idx or 1, 0)
         elseif imgui.IsItemClicked(1) then
-            queueServerCmd(string.format('usub %u %s', detail.id, node.key))
+            sendTalentPacket(OP_REFUND, detail.id, node.idx or 1, 0)
         end
 
         -- Card Text Overlay
         imgui.SetCursorScreenPos({ x + 7, y + 5 })
         drawTextColored(titleCol, node.name)
         imgui.SetCursorScreenPos({ x + 7, y + 23 })
-        drawText(string.format('Rank: %d / %d', node.rank, node.maxRank))
+        if isMaxed then
+            drawText(string.format('Rank: %d / %d (MAX)', node.rank, node.maxRank))
+        else
+            drawText(string.format('Rank: %d / %d (Lv.%d)', node.rank, node.maxRank, node.reqLevel or 1))
+        end
 
         if isScNode then
             imgui.SetCursorScreenPos({ x + 7, y + 48 })
             if imgui.SmallButton('<##sc_prev_' .. node.key) then
-                queueServerCmd(string.format('uscc %u %u -1', detail.id, node.scTier))
+                sendTalentPacket(OP_CYCLE_SC, detail.id, node.scTier, 255)
             end
             imgui.SameLine()
             drawTextColored({ 0.85, 0.92, 1.0, 1.0 }, node.scName ~= '' and node.scName or 'Pick')
             imgui.SameLine()
             imgui.SetCursorScreenPos({ x + cardW - 24, y + 48 })
             if imgui.SmallButton('>##sc_next_' .. node.key) then
-                queueServerCmd(string.format('uscc %u %u 1', detail.id, node.scTier))
+                sendTalentPacket(OP_CYCLE_SC, detail.id, node.scTier, 1)
             end
         else
             imgui.SetCursorScreenPos({ x + 7, y + 42 })
@@ -542,8 +622,13 @@ local function drawTreeCanvas()
                 imgui.PushTextWrapPos(290)
                 local okWrap, errWrap = pcall(function()
                     drawText(node.desc)
-                    if (node.reqLevel or 1) > 1 and state.jobLevel < node.reqLevel then
-                        drawTextColored({ 1.0, 0.45, 0.45, 1.0 }, string.format('Requires Level %d %s (currently %d).', node.reqLevel, state.jobKey, state.jobLevel))
+                    if not isMaxed then
+                        local reqLvl = node.reqLevel or 1
+                        if state.jobLevel < reqLvl then
+                            drawTextColored({ 1.0, 0.45, 0.45, 1.0 }, string.format('Next Rank (%d/%d) requires Level %d %s (currently %d).', node.rank + 1, node.maxRank, reqLvl, state.jobKey, state.jobLevel))
+                        else
+                            drawTextDisabled(string.format('Next Rank (%d/%d) Level Req: Lv.%d', node.rank + 1, node.maxRank, reqLvl))
+                        end
                     end
                     if node.reqWsPoints > 0 and detail.spent < node.reqWsPoints then
                         drawTextColored({ 1.0, 0.45, 0.45, 1.0 }, string.format('Requires %d points invested in %s.', node.reqWsPoints, detail.name))
@@ -617,8 +702,10 @@ local function drawSidebar()
         local okList, errList = pcall(function()
             for _, ws in ipairs(filtered) do
                 local pts = state.spentByWs[ws.id] or 0
+                local unl = state.unlockedByWs[ws.id] == true
                 local eqMark = (ws.skill == state.mainSkill or (state.rangedSkill ~= 0 and ws.skill == state.rangedSkill)) and '* ' or ''
-                local label = pts > 0 and string.format('%s%s [%d]##ws_%u', eqMark, ws.name, pts, ws.id)
+                local unlMark = unl and '' or ''
+                local label = pts > 0 and string.format('%s%s [%d%s]##ws_%u', eqMark, ws.name, pts, unl and '' or ' L', ws.id)
                                       or string.format('%s%s##ws_%u', eqMark, ws.name, ws.id)
                 local isSelected = (state.selectedWsId == ws.id)
                 if imgui.Selectable(label, isSelected) then
@@ -635,7 +722,7 @@ end
 
 local function drawMainContents()
     -- Top Header Bar
-    drawTextColored({ 1.0, 0.85, 0.35, 1.0 }, string.format('%s Lv.%d', state.jobKey, state.jobLevel))
+    drawTextColored({ 1.0, 0.85, 0.35, 1.0 }, string.format('%s (%s) Lv.%d', state.jobKey, state.specName, state.jobLevel))
     imgui.SameLine()
     drawText(string.format('  |  Available Points: %d  (Spent: %d / Earned: %d)', state.avail, state.spent, state.earned))
     imgui.SameLine()
@@ -644,7 +731,7 @@ local function drawMainContents()
     end
     imgui.SameLine()
     if not state.confirmResetAll then
-        if imgui.Button('Reset All') then
+        if imgui.Button('Reset Spec') then
             state.confirmResetAll = true
             state.confirmResetAt = os.clock()
         end
@@ -652,13 +739,13 @@ local function drawMainContents()
         if os.clock() - state.confirmResetAt > 5.0 then
             state.confirmResetAll = false
         else
-            if imgui.Button('Confirm Reset All!') then
+            if imgui.Button('Confirm Reset Spec!') then
                 state.confirmResetAll = false
-                queueServerCmd('ureset')
+                sendTalentPacket(OP_RESET_ALL, 0, 0, 0)
                 if state.selectedWsId ~= nil then
                     requestWS(state.selectedWsId)
                 end
-                setStatus('Reset all weaponskill talents for ' .. state.jobKey .. '.')
+                setStatus(string.format('Reset all weaponskill talents for %s (%s).', state.jobKey, state.specName))
             end
             imgui.SameLine()
             if imgui.Button('Cancel') then
@@ -715,7 +802,7 @@ ashita.events.register('d3d_present', 'ox_talents_present', function()
             local l = getLvl and getLvl(player) or 1
             if state.lastKnownJob ~= nil and (j ~= state.lastKnownJob or l ~= state.lastKnownLvl) then
                 if state.open[1] then
-                    queueServerCmd('state')
+                    sendTalentPacket(OP_STATE, 0, 0, 0)
                 end
             end
             state.lastKnownJob = j
