@@ -9,6 +9,7 @@
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         ResizeMode="CanResize"
+        Icon="pack://application:,,,/Assets/app.ico"
         Background="{StaticResource BgPrimary}">
 
     <WindowChrome.WindowChrome>
@@ -35,7 +36,7 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="16,0">
-                    <Border Width="10" Height="10" CornerRadius="5" Background="{StaticResource GoldAccent}" Margin="0,0,10,0" />
+                    <Image Source="pack://application:,,,/Assets/app.png" Width="22" Height="22" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,10,0" />
                     <TextBlock Text="OVERLORDS XI" FontWeight="Bold" FontSize="13" Foreground="{StaticResource GoldAccent}" VerticalAlignment="Center" />
                     <TextBlock Text="  •  CLIENT LAUNCHER  •  " FontSize="12" Foreground="{StaticResource TextSecondary}" VerticalAlignment="Center" />
                     <TextBlock Text="{Binding LauncherVersionText}" FontSize="12" Foreground="{StaticResource CyanAccent}" FontWeight="SemiBold" VerticalAlignment="Center" />
@@ -102,16 +103,19 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel>
-                                <TextBlock Text="{Binding ServerName}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource GoldAccent}" />
-                                <TextBlock Text="{Binding Tagline}" FontSize="14" Foreground="{StaticResource TextSecondary}" Margin="0,4,0,10" />
-                                <StackPanel Orientation="Horizontal">
-                                    <Border Background="#1A2B3C" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
-                                        <TextBlock Text="{Binding UpdateBadgeText}" FontSize="12" Foreground="{StaticResource CyanAccent}" FontWeight="SemiBold" />
-                                    </Border>
-                                    <Border Background="#1A2334" CornerRadius="4" Padding="8,4">
-                                        <TextBlock Text="Ashita v4  •  Pivot  •  talents  •  crystalsocket  •  metrics  •  mobdb  •  kazenoeye" FontSize="12" Foreground="{StaticResource TextSecondary}" />
-                                    </Border>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Image Source="pack://application:,,,/Assets/app.png" Width="64" Height="64" RenderOptions.BitmapScalingMode="HighQuality" Margin="0,0,18,0" VerticalAlignment="Center" />
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding ServerName}" FontSize="28" FontWeight="Bold" Foreground="{StaticResource GoldAccent}" />
+                                    <TextBlock Text="{Binding Tagline}" FontSize="14" Foreground="{StaticResource TextSecondary}" Margin="0,4,0,10" />
+                                    <StackPanel Orientation="Horizontal">
+                                        <Border Background="#1A2B3C" CornerRadius="4" Padding="8,4" Margin="0,0,8,0">
+                                            <TextBlock Text="{Binding UpdateBadgeText}" FontSize="12" Foreground="{StaticResource CyanAccent}" FontWeight="SemiBold" />
+                                        </Border>
+                                        <Border Background="#1A2334" CornerRadius="4" Padding="8,4">
+                                            <TextBlock Text="Ashita v4  •  Pivot  •  talents  •  crystalsocket  •  metrics  •  mobdb  •  kazenoeye" FontSize="12" Foreground="{StaticResource TextSecondary}" />
+                                        </Border>
+                                    </StackPanel>
                                 </StackPanel>
                             </StackPanel>
 

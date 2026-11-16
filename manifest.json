@@ -210,6 +210,11 @@
   "news": [
     {
       "date": "2026-11-16",
+      "title": "Custom OverlordsXI Launcher Icon & Branding (v1.0.9)",
+      "body": "Added a custom high-contrast OverlordsXI gold & cyan crystal emblem for OverlordsLauncher.exe, the taskbar, title bar, and hero banner."
+    },
+    {
+      "date": "2026-11-16",
       "title": "Kazenoeye Server-Synced Debuff Timers (v1.0.8)",
       "body": "kazenoeye now pulls active mob status effects and exact remaining durations directly from the OverlordsXI server (0x1FE OXKE sync) so timers are always real and never guessed."
     },
