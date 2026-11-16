@@ -116,6 +116,7 @@ local state =
     lastKnownJob    = nil,
     lastKnownLvl    = nil,
     lastAutoCheck   = 0,
+    inspectedNodeKey = nil,
     renderError     = nil,
 }
 
@@ -444,13 +445,179 @@ local function isWsUnlockedInDetail(detail)
     return state.unlockedByWs[detail.id] == true
 end
 
+-- FFXI / CrystalSocket-inspired Palette (packed ABGR for ImGui DrawList)
+local THEME =
+{
+    bgDark       = 0xFF140D0A,
+    bgPanel      = 0xFF21150F,
+    bgCardMax    = 0xFF2B2213,
+    bgCardActive = 0xFF1A2530,
+    bgCardAvail  = 0xFF17271D,
+    bgCardLocked = 0xFF171312,
+    edge         = 0xFF523929,
+    silver       = 0xFFAD9789,
+    shadow       = 0x77000000,
+    gold         = 0xFFD9C38C,
+    goldBright   = 0xFFE8CA62,
+    goldGlow     = 0x44E8CA62,
+    cyan         = 0xFFEFBA52, -- ABGR: warm sky-azure (R=82,G=186,B=239)
+    green        = 0xFF6EE072, -- ABGR: emerald (R=114,G=224,B=110)
+    red          = 0xFF6868F0, -- ABGR: soft crimson (R=240,G=104,B=104)
+    muted        = 0xFF7B6557,
+    text         = 0xFFE2E8E9,
+    secondary    = 0xFFB8A89C,
+    linkInactive = 0x88523929,
+    barBg        = 0xFF0E0907,
+}
+
+local function formatReadableDesc(raw)
+    local s = tostring(raw or '')
+    if s == '' then
+        return 'No description available.'
+    end
+    s = s:gsub('NextWS', 'Next WS')
+    s = s:gsub('CrDmg', 'Crit Dmg')
+    s = s:gsub('DEF Ignored', 'DEF Ignore')
+    s = s:gsub('DEF Ign', 'DEF Ignore')
+    s = s:gsub('SC Dmg', 'Skillchain Dmg')
+    s = s:gsub('M%.Def', 'Magic Def')
+    s = s:gsub('MDEF', 'Magic Def')
+    s = s:gsub('M%.Eva', 'Magic Eva')
+    s = s:gsub('MEVA', 'Magic Eva')
+    s = s:gsub('M%.Atk', 'Magic Atk')
+    s = s:gsub('fTP ALL Hits', 'fTP All Hits')
+    s = s:gsub('fTP ALL', 'fTP All Hits')
+    s = s:gsub('(%d)h([,%s])', '%1 Hits%2')
+    s = s:gsub('(%d)h$', '%1 Hits')
+    s = s:gsub('STP', 'Store TP')
+    s = s:gsub('Pet Heal', 'Pet/Eos Heal')
+    return s
+end
+
+local function wrapLines(str, maxChars)
+    local lines = {}
+    local cur = ''
+    for word in tostring(str or ''):gmatch('%S+') do
+        if cur == '' then
+            cur = word
+        elseif #cur + 1 + #word <= maxChars then
+            cur = cur .. ' ' .. word
+        else
+            table.insert(lines, cur)
+            cur = word
+        end
+    end
+    if cur ~= '' then
+        table.insert(lines, cur)
+    end
+    return lines
+end
+
+local function drawBevelPanel(dl, x, y, w, h, fillCol, outerCol, innerCol, rounding)
+    local r = rounding or 5.0
+    dl:AddRectFilled({ x + 2, y + 3 }, { x + w + 2, y + h + 3 }, THEME.shadow, r)
+    dl:AddRectFilled({ x, y }, { x + w, y + h }, fillCol, r)
+    dl:AddRect({ x, y }, { x + w, y + h }, outerCol, r, 0, 1.5)
+    dl:AddRect({ x + 1, y + 1 }, { x + w - 1, y + h - 1 }, innerCol or THEME.edge, math.max(1.0, r - 1.0), 0, 1.0)
+end
+
+local function getNodeRequirements(node, detail)
+    local reqs = {}
+    local lvl = node.reqLevel or 1
+    local lvlOk = state.jobLevel >= lvl
+    table.insert(reqs, {
+        ok = lvlOk,
+        text = string.format('Level %d+ %s (Current: %d)', lvl, state.jobKey, state.jobLevel),
+        short = string.format('Lv.%d', lvl),
+    })
+    if (node.reqWsPoints or 0) > 0 then
+        local ptsOk = detail.spent >= node.reqWsPoints
+        table.insert(reqs, {
+            ok = ptsOk,
+            text = string.format('%d+ points in %s (Current: %d)', node.reqWsPoints, detail.name, detail.spent),
+            short = string.format('%d WS pts', node.reqWsPoints),
+        })
+    end
+    if node.reqKey ~= nil then
+        local pNode = detail.byKey[node.reqKey]
+        if pNode ~= nil then
+            local pOk = pNode.rank >= (node.reqRank or 1)
+            table.insert(reqs, {
+                ok = pOk,
+                text = string.format('%s Rank %d+ (Current: %d)', pNode.name, node.reqRank or 1, pNode.rank),
+                short = string.format('%s R%d', pNode.name, node.reqRank or 1),
+            })
+        end
+    end
+    return reqs
+end
+
+local function drawNodeTooltip(node, detail, isMaxed, isScNode, titleCol)
+    local readable = formatReadableDesc(node.desc)
+    local reqs = getNodeRequirements(node, detail)
+    local tierNames = { 'Tier 1 — Foundation', 'Tier 2 — Specialization', 'Tier 3 — Mastery', 'Tier 4 — Capstone' }
+
+    imgui.BeginTooltip()
+    local okTip, errTip = pcall(function()
+        drawTextColored(titleCol, string.format('%s   [%d / %d]', node.name, node.rank, node.maxRank))
+        drawTextDisabled(tierNames[node.tier] or ('Tier ' .. tostring(node.tier)))
+        imgui.Separator()
+        imgui.PushTextWrapPos(340)
+        local okWrap, errWrap = pcall(function()
+            if node.rank > 0 then
+                drawTextColored({ 0.55, 0.95, 0.65, 1.0 }, 'Active Effect:')
+            else
+                drawTextColored({ 0.85, 0.78, 0.55, 1.0 }, 'Effect Preview:')
+            end
+            drawText(readable)
+            imgui.Spacing()
+
+            if isScNode then
+                local scLabel = (node.scName ~= '' and node.scName) or 'None'
+                drawTextColored({ 0.65, 0.85, 1.0, 1.0 }, 'Selected Skillchain: ' .. scLabel)
+                drawTextDisabled('Use < / > on the card to cycle Skillchain properties.')
+                imgui.Spacing()
+            end
+
+            if not isMaxed then
+                imgui.Separator()
+                drawTextColored({ 0.85, 0.78, 0.55, 1.0 }, string.format('Next Rank (%d/%d) Requirements:', node.rank + 1, node.maxRank))
+                for _, req in ipairs(reqs) do
+                    if req.ok then
+                        drawTextColored({ 0.42, 0.88, 0.50, 1.0 }, '  [OK] ' .. req.text)
+                    else
+                        drawTextColored({ 1.00, 0.45, 0.45, 1.0 }, '  [X]  ' .. req.text)
+                    end
+                end
+            else
+                imgui.Separator()
+                drawTextColored({ 1.00, 0.85, 0.35, 1.0 }, 'Maximum Rank Reached')
+            end
+
+            imgui.Spacing()
+            drawTextDisabled('Left-Click: +1 Rank   |   Right-Click: -1 Rank')
+        end)
+        imgui.PopTextWrapPos()
+        if not okWrap then
+            error(errWrap)
+        end
+    end)
+    imgui.EndTooltip()
+    if not okTip then
+        state.renderError = tostring(errTip)
+    end
+end
+
 local function drawTreeCanvas()
     local detail = state.wsDetail
     if detail == nil then
-        imgui.TextDisabled('Select a weaponskill on the left to customize its talent tree.')
+        imgui.Spacing()
+        drawTextColored({ 0.85, 0.78, 0.55, 1.0 }, '  No Weaponskill Selected')
+        drawTextDisabled('  Choose a weaponskill from the list on the left to view and customize its talent tree.')
         if not state.synced then
             imgui.Spacing()
-            if imgui.Button('Sync Catalog Now', { 160, 28 }) then
+            imgui.SetCursorPosX(imgui.GetCursorPosX() + 10)
+            if imgui.Button('Sync Catalog Now', { 170, 30 }) then
                 requestFullSync()
             end
         end
@@ -458,208 +625,318 @@ local function drawTreeCanvas()
     end
 
     local unlocked = isWsUnlockedInDetail(detail)
+    local dl = imgui.GetWindowDrawList()
 
-    -- WS Header
-    drawTextColored({ 1.0, 0.85, 0.35, 1.0 }, detail.name)
+    -- WS Header Banner
+    drawTextColored({ 0.95, 0.84, 0.52, 1.0 }, detail.name)
     imgui.SameLine()
-    drawTextDisabled(string.format('(%s | %s)', detail.skillName, detail.wsType))
+    drawTextDisabled(string.format('  •  %s  •  %s', detail.skillName, detail.wsType))
     imgui.SameLine()
     if unlocked then
-        drawTextColored({ 0.40, 0.95, 0.55, 1.0 }, '  [UNLOCKED]')
+        drawTextColored({ 0.45, 0.92, 0.55, 1.0 }, '   [UNLOCKED]')
     else
-        drawTextColored({ 1.0, 0.50, 0.45, 1.0 }, '  [LOCKED — Invest 1 pt in Tier 1 to unlock WS]')
+        drawTextColored({ 1.00, 0.52, 0.42, 1.0 }, '   [LOCKED — Invest 1 pt in Tier 1 to unlock]')
     end
 
-    drawTextColored({ 0.72, 0.86, 1.0, 1.0 }, detail.orig)
-    drawText(string.format('Points in %s: %d   |   Available %s (%s) Points: %d', detail.name, detail.spent, state.jobKey, state.specName, state.avail))
-    imgui.SameLine()
+    drawTextColored({ 0.72, 0.82, 0.94, 1.0 }, detail.orig)
+    drawText(string.format('WS Points: %d / 56   |   Available %s (%s) Points: %d', detail.spent, state.jobKey, state.specName, state.avail))
     if detail.spent > 0 then
-        if imgui.SmallButton('Reset WS') then
+        imgui.SameLine()
+        if imgui.SmallButton('Reset This WS') then
             sendTalentPacket(OP_RESET_WS, detail.id, 0, 0)
         end
     end
-
-    drawTextDisabled('Left-Click node: +1 Rank  |  Right-Click node: -1 Rank  |  Col 4 < >: Pick Skillchain')
     imgui.Separator()
 
-    -- Draw Tree Grid (4 Tiers x 4 Columns)
-    local canvasPosX, canvasPosY = toXY(imgui.GetCursorScreenPos())
-    local availW, availH = toXY(imgui.GetContentRegionAvail())
-    local cardW = 160
-    local cardH = 74
-    local gapX  = 14
-    local gapY  = 34
+    -- Reserve bottom ~88px for the Pinned Node Inspector Panel
+    local totalAvailW, totalAvailH = toXY(imgui.GetContentRegionAvail())
+    local inspectorH = 88
+    local treeRegionH = math.max(260, totalAvailH - inspectorH - 6)
 
-    local tierLabels =
-    {
-        [1] = 'Tier 1: Foundation (Lv 1+, 0+ WS pts — Unlocks Weaponskill)',
-        [2] = 'Tier 2: Specialization (Lv 5+, 2+ WS pts)',
-        [3] = 'Tier 3: Mastery (Lv 10+, 5+ WS pts)',
-        [4] = 'Tier 4: Capstone (Lv 15+, 8+ WS pts)',
-    }
+    local hoveredNode = nil
 
-    -- Compute node screen coordinates
-    local coords = {}
-    local maxCol = 1
-    local maxTier = 1
-    for _, node in ipairs(detail.nodes) do
-        local tierRow = node.tier - 1
-        local colIdx  = node.col - 1
-        if node.col > maxCol then
-            maxCol = node.col
-        end
-        if node.tier > maxTier then
-            maxTier = node.tier
-        end
-        local x = canvasPosX + 10 + colIdx * (cardW + gapX)
-        local y = canvasPosY + 24 + tierRow * (cardH + gapY)
-        coords[node.key] = { x = x, y = y }
-    end
+    if imgui.BeginChild('ox_tree_scroll', { 0, treeRegionH }, CHILD_NONE) then
+        local canvasPosX, canvasPosY = toXY(imgui.GetCursorScreenPos())
+        local availW, availH = toXY(imgui.GetContentRegionAvail())
+        local cardW = 194
+        local cardH = 88
+        local gapX  = 16
+        local gapY  = 34
+        local leftPad = 10
 
-    local dl = imgui.GetWindowDrawList()
+        local tierLabels =
+        {
+            [1] = 'TIER 1 • FOUNDATION (Lv 1+, 0+ WS pts — Unlocks WS)',
+            [2] = 'TIER 2 • SPECIALIZATION (Lv 5+, 2+ WS pts)',
+            [3] = 'TIER 3 • MASTERY (Lv 10+, 5+ WS pts)',
+            [4] = 'TIER 4 • CAPSTONE (Lv 15+, 8+ WS pts)',
+        }
 
-    -- Draw Tier Headers
-    for t = 1, maxTier do
-        local hy = canvasPosY + 4 + (t - 1) * (cardH + gapY)
-        imgui.SetCursorScreenPos({ canvasPosX + 10, hy })
-        imgui.TextDisabled(tierLabels[t] or ('Tier ' .. tostring(t)))
-    end
-
-    -- Draw Prerequisite Connector Lines
-    for _, node in ipairs(detail.nodes) do
-        if node.reqKey ~= nil and coords[node.reqKey] ~= nil and coords[node.key] ~= nil then
-            local p = coords[node.reqKey]
-            local c = coords[node.key]
-            local parentNode = detail.byKey[node.reqKey]
-            local activeLink = (parentNode ~= nil and parentNode.rank >= node.reqRank)
-                and (detail.spent >= node.reqWsPoints)
-                and (state.jobLevel >= (node.reqLevel or 1))
-            local lineCol = activeLink and abgr(0.95, 0.78, 0.25, 0.90) or abgr(0.38, 0.42, 0.48, 0.65)
-            local x1 = p.x + cardW * 0.5
-            local y1 = p.y + cardH
-            local x2 = c.x + cardW * 0.5
-            local y2 = c.y
-            local midY = (y1 + y2) * 0.5
-            dl:AddLine({ x1, y1 }, { x1, midY }, lineCol, 2.0)
-            dl:AddLine({ x1, midY }, { x2, midY }, lineCol, 2.0)
-            dl:AddLine({ x2, midY }, { x2, y2 }, lineCol, 2.0)
-        end
-    end
-
-    -- Draw Node Cards
-    for _, node in ipairs(detail.nodes) do
-        local pos = coords[node.key]
-        local x, y = pos.x, pos.y
-
-        local isMaxed = node.rank >= node.maxRank
-        local bgCol, borderCol, titleCol
-        if isMaxed then
-            bgCol     = abgr(0.14, 0.25, 0.28, 0.95)
-            borderCol = abgr(1.00, 0.80, 0.22, 1.00)
-            titleCol  = { 1.00, 0.88, 0.35, 1.00 }
-        elseif node.rank > 0 then
-            bgCol     = abgr(0.11, 0.22, 0.32, 0.95)
-            borderCol = abgr(0.32, 0.76, 1.00, 1.00)
-            titleCol  = { 0.55, 0.88, 1.00, 1.00 }
-        elseif node.canLearn then
-            bgCol     = abgr(0.11, 0.24, 0.16, 0.95)
-            borderCol = abgr(0.30, 0.85, 0.45, 1.00)
-            titleCol  = { 0.60, 1.00, 0.68, 1.00 }
-        else
-            bgCol     = abgr(0.12, 0.13, 0.16, 0.90)
-            borderCol = abgr(0.35, 0.37, 0.42, 0.85)
-            titleCol  = { 0.62, 0.64, 0.68, 1.00 }
+        local coords = {}
+        local maxCol = 1
+        local maxTier = 1
+        for _, node in ipairs(detail.nodes) do
+            if node.col > maxCol then maxCol = node.col end
+            if node.tier > maxTier then maxTier = node.tier end
+            local x = canvasPosX + leftPad + (node.col - 1) * (cardW + gapX)
+            local y = canvasPosY + 24 + (node.tier - 1) * (cardH + gapY)
+            coords[node.key] = { x = x, y = y }
         end
 
-        dl:AddRectFilled({ x, y }, { x + cardW, y + cardH }, bgCol, 6.0)
-        dl:AddRect({ x, y }, { x + cardW, y + cardH }, borderCol, 6.0, 0, 2.0)
+        dl = imgui.GetWindowDrawList()
 
-        local isScNode = (node.scTier or 0) > 0
-        local btnH = isScNode and (cardH - 22) or cardH
-        imgui.SetCursorScreenPos({ x, y })
-        imgui.InvisibleButton('##node_' .. node.key, { cardW, btnH })
-        local hovered = imgui.IsItemHovered()
-
-        if imgui.IsItemClicked(0) then
-            sendTalentPacket(OP_INVEST, detail.id, node.idx or 1, 0)
-        elseif imgui.IsItemClicked(1) then
-            sendTalentPacket(OP_REFUND, detail.id, node.idx or 1, 0)
-        end
-
-        -- Card Text Overlay
-        imgui.SetCursorScreenPos({ x + 7, y + 5 })
-        drawTextColored(titleCol, node.name)
-        imgui.SetCursorScreenPos({ x + 7, y + 23 })
-        if isMaxed then
-            drawText(string.format('Rank: %d / %d (MAX)', node.rank, node.maxRank))
-        else
-            drawText(string.format('Rank: %d / %d (Lv.%d)', node.rank, node.maxRank, node.reqLevel or 1))
-        end
-
-        if isScNode then
-            imgui.SetCursorScreenPos({ x + 7, y + 48 })
-            if imgui.SmallButton('<##sc_prev_' .. node.key) then
-                sendTalentPacket(OP_CYCLE_SC, detail.id, node.scTier, 255)
+        -- Draw Tier Section Headers & subtle horizontal rule
+        for t = 1, maxTier do
+            local hy = canvasPosY + 4 + (t - 1) * (cardH + gapY)
+            imgui.SetCursorScreenPos({ canvasPosX + leftPad, hy })
+            local gateMet = (t == 1)
+                or (t == 2 and detail.spent >= 2 and state.jobLevel >= 5)
+                or (t == 3 and detail.spent >= 5 and state.jobLevel >= 10)
+                or (t == 4 and detail.spent >= 8 and state.jobLevel >= 15)
+            if gateMet then
+                drawTextColored({ 0.85, 0.77, 0.55, 0.95 }, tierLabels[t] or ('TIER ' .. tostring(t)))
+            else
+                drawTextDisabled(tierLabels[t] or ('TIER ' .. tostring(t)))
             end
-            imgui.SameLine()
-            drawTextColored({ 0.85, 0.92, 1.0, 1.0 }, node.scName ~= '' and node.scName or 'Pick')
-            imgui.SameLine()
-            imgui.SetCursorScreenPos({ x + cardW - 24, y + 48 })
-            if imgui.SmallButton('>##sc_next_' .. node.key) then
-                sendTalentPacket(OP_CYCLE_SC, detail.id, node.scTier, 1)
-            end
-        else
-            imgui.SetCursorScreenPos({ x + 7, y + 42 })
-            local shortDesc = #node.desc > 23 and (string.sub(node.desc, 1, 20) .. '...') or node.desc
-            drawTextDisabled(shortDesc)
         end
 
-        if hovered then
-            imgui.BeginTooltip()
-            local okTip, errTip = pcall(function()
-                drawTextColored(titleCol, string.format('%s (%d/%d)', node.name, node.rank, node.maxRank))
-                imgui.Separator()
-                imgui.PushTextWrapPos(290)
-                local okWrap, errWrap = pcall(function()
-                    drawText(node.desc)
-                    if not isMaxed then
-                        local reqLvl = node.reqLevel or 1
-                        if state.jobLevel < reqLvl then
-                            drawTextColored({ 1.0, 0.45, 0.45, 1.0 }, string.format('Next Rank (%d/%d) requires Level %d %s (currently %d).', node.rank + 1, node.maxRank, reqLvl, state.jobKey, state.jobLevel))
-                        else
-                            drawTextDisabled(string.format('Next Rank (%d/%d) Level Req: Lv.%d', node.rank + 1, node.maxRank, reqLvl))
-                        end
-                    end
-                    if node.reqWsPoints > 0 and detail.spent < node.reqWsPoints then
-                        drawTextColored({ 1.0, 0.45, 0.45, 1.0 }, string.format('Requires %d points invested in %s.', node.reqWsPoints, detail.name))
-                    end
-                    if node.reqKey ~= nil then
-                        local pNode = detail.byKey[node.reqKey]
-                        if pNode ~= nil and pNode.rank < node.reqRank then
-                            drawTextColored({ 1.0, 0.45, 0.45, 1.0 }, string.format('Requires %s Rank %d.', pNode.name, node.reqRank))
-                        end
-                    end
-                    if isScNode then
-                        drawTextDisabled('Use < / > at bottom of card to choose Skillchain property.')
-                    end
-                end)
-                imgui.PopTextWrapPos()
-                if not okWrap then
-                    error(errWrap)
+        -- Draw Prerequisite Connector Lines with glow for active links
+        for _, node in ipairs(detail.nodes) do
+            if node.reqKey ~= nil and coords[node.reqKey] ~= nil and coords[node.key] ~= nil then
+                local p = coords[node.reqKey]
+                local c = coords[node.key]
+                local parentNode = detail.byKey[node.reqKey]
+                local activeLink = (parentNode ~= nil and parentNode.rank >= node.reqRank)
+                    and (detail.spent >= node.reqWsPoints)
+                    and (state.jobLevel >= (node.reqLevel or 1))
+                local x1 = p.x + cardW * 0.5
+                local y1 = p.y + cardH
+                local x2 = c.x + cardW * 0.5
+                local y2 = c.y
+                local midY = (y1 + y2) * 0.5
+
+                if activeLink then
+                    dl:AddLine({ x1, y1 }, { x1, midY }, THEME.goldGlow, 6.0)
+                    dl:AddLine({ x1, midY }, { x2, midY }, THEME.goldGlow, 6.0)
+                    dl:AddLine({ x2, midY }, { x2, y2 }, THEME.goldGlow, 6.0)
+                    dl:AddLine({ x1, y1 }, { x1, midY }, THEME.goldBright, 2.0)
+                    dl:AddLine({ x1, midY }, { x2, midY }, THEME.goldBright, 2.0)
+                    dl:AddLine({ x2, midY }, { x2, y2 }, THEME.goldBright, 2.0)
+                    dl:AddRectFilled({ x2 - 3, y2 - 4 }, { x2 + 3, y2 + 1 }, THEME.goldBright, 1.0)
+                else
+                    dl:AddLine({ x1, y1 }, { x1, midY }, THEME.linkInactive, 1.5)
+                    dl:AddLine({ x1, midY }, { x2, midY }, THEME.linkInactive, 1.5)
+                    dl:AddLine({ x2, midY }, { x2, y2 }, THEME.linkInactive, 1.5)
                 end
-            end)
-            imgui.EndTooltip()
-            if not okTip then
-                state.renderError = tostring(errTip)
             end
         end
+
+        -- Draw Modern Node Cards
+        for _, node in ipairs(detail.nodes) do
+            local pos = coords[node.key]
+            local x, y = pos.x, pos.y
+
+            local isMaxed = node.rank >= node.maxRank
+            local isInspected = (state.inspectedNodeKey == node.key)
+            local bgCol, outerCol, innerCol, accentCol, titleCol, pillCol
+            if isMaxed then
+                bgCol     = THEME.bgCardMax
+                outerCol  = THEME.goldBright
+                innerCol  = 0xFF705828
+                accentCol = THEME.goldBright
+                titleCol  = { 1.00, 0.88, 0.42, 1.00 }
+                pillCol   = { 1.00, 0.88, 0.42, 1.00 }
+            elseif node.rank > 0 then
+                bgCol     = THEME.bgCardActive
+                outerCol  = THEME.cyan
+                innerCol  = 0xFF344B5E
+                accentCol = THEME.cyan
+                titleCol  = { 0.56, 0.88, 1.00, 1.00 }
+                pillCol   = { 0.56, 0.88, 1.00, 1.00 }
+            elseif node.canLearn then
+                bgCol     = THEME.bgCardAvail
+                outerCol  = THEME.green
+                innerCol  = 0xFF284D35
+                accentCol = THEME.green
+                titleCol  = { 0.62, 0.96, 0.68, 1.00 }
+                pillCol   = { 0.62, 0.96, 0.68, 1.00 }
+            else
+                bgCol     = THEME.bgCardLocked
+                outerCol  = THEME.edge
+                innerCol  = 0xFF2B201A
+                accentCol = THEME.muted
+                titleCol  = { 0.64, 0.60, 0.56, 1.00 }
+                pillCol   = { 0.64, 0.60, 0.56, 1.00 }
+            end
+
+            local isScNode = (node.scTier or 0) > 0
+            local btnH = isScNode and (cardH - 26) or cardH
+            imgui.SetCursorScreenPos({ x, y })
+            imgui.InvisibleButton('##node_' .. node.key, { cardW, btnH })
+            local hovered = imgui.IsItemHovered()
+            if hovered then
+                hoveredNode = node
+                state.inspectedNodeKey = node.key
+            end
+
+            if imgui.IsItemClicked(0) then
+                state.inspectedNodeKey = node.key
+                sendTalentPacket(OP_INVEST, detail.id, node.idx or 1, 0)
+            elseif imgui.IsItemClicked(1) then
+                state.inspectedNodeKey = node.key
+                sendTalentPacket(OP_REFUND, detail.id, node.idx or 1, 0)
+            end
+
+            if hovered or isInspected then
+                outerCol = THEME.silver
+            end
+
+            drawBevelPanel(dl, x, y, cardW, cardH, bgCol, outerCol, innerCol, 5.0)
+            -- Top 3px state bar
+            dl:AddRectFilled({ x + 4, y + 2 }, { x + cardW - 4, y + 4 }, accentCol, 1.0)
+
+            -- Rank Pill Badge (top-right)
+            local rankLabel = isMaxed and 'MAX' or string.format('%d/%d', node.rank, node.maxRank)
+            local pillW = isMaxed and 36 or 32
+            local pillX = x + cardW - pillW - 6
+            local pillY = y + 7
+            dl:AddRectFilled({ pillX, pillY }, { pillX + pillW, pillY + 16 }, THEME.barBg, 3.0)
+            dl:AddRect({ pillX, pillY }, { pillX + pillW, pillY + 16 }, accentCol, 3.0, 0, 1.0)
+            imgui.SetCursorScreenPos({ pillX + (isMaxed and 5 or 6), pillY + 1 })
+            drawTextColored(pillCol, rankLabel)
+
+            -- Title (left)
+            local maxTitleChars = 19
+            local titleStr = #node.name > maxTitleChars and (string.sub(node.name, 1, maxTitleChars - 2) .. '..') or node.name
+            imgui.SetCursorScreenPos({ x + 8, y + 7 })
+            drawTextColored(titleCol, titleStr)
+
+            -- Body
+            if isScNode then
+                local scBonusPct = node.rank * (node.scTier == 4 and 15 or (node.scTier == 3 and 10 or (node.scTier == 2 and 8 or 5)))
+                imgui.SetCursorScreenPos({ x + 8, y + 26 })
+                drawTextColored({ 0.82, 0.80, 0.76, 1.0 }, string.format('+%d%% Skillchain Dmg', scBonusPct))
+
+                imgui.SetCursorScreenPos({ x + 8, y + 46 })
+                if imgui.SmallButton('<##sc_prev_' .. node.key) then
+                    state.inspectedNodeKey = node.key
+                    sendTalentPacket(OP_CYCLE_SC, detail.id, node.scTier, 255)
+                end
+                imgui.SameLine()
+                local scDisp = (node.scName ~= '' and node.scName) or 'None'
+                drawTextColored({ 0.86, 0.92, 1.0, 1.0 }, scDisp)
+                imgui.SetCursorScreenPos({ x + cardW - 26, y + 46 })
+                if imgui.SmallButton('>##sc_next_' .. node.key) then
+                    state.inspectedNodeKey = node.key
+                    sendTalentPacket(OP_CYCLE_SC, detail.id, node.scTier, 1)
+                end
+            else
+                local readable = formatReadableDesc(node.desc)
+                local wrapped = wrapLines(readable, 27)
+                local line1 = wrapped[1] or ''
+                local line2 = wrapped[2] or ''
+                if #wrapped > 2 then
+                    line2 = string.sub(line2, 1, 24) .. '...'
+                end
+                local descCol = (node.rank > 0 or node.canLearn) and { 0.85, 0.87, 0.90, 1.0 } or { 0.56, 0.52, 0.49, 1.0 }
+                imgui.SetCursorScreenPos({ x + 8, y + 26 })
+                drawTextColored(descCol, line1)
+                if line2 ~= '' then
+                    imgui.SetCursorScreenPos({ x + 8, y + 41 })
+                    drawTextColored(descCol, line2)
+                end
+            end
+
+            -- Footer Gate / Next Level Hint
+            if not isMaxed then
+                local reqLvl = node.reqLevel or 1
+                imgui.SetCursorScreenPos({ x + 8, y + cardH - 21 })
+                if state.jobLevel < reqLvl then
+                    drawTextColored({ 1.00, 0.48, 0.45, 1.0 }, string.format('Req Lv.%d', reqLvl))
+                elseif node.reqWsPoints > 0 and detail.spent < node.reqWsPoints then
+                    drawTextColored({ 0.95, 0.68, 0.35, 1.0 }, string.format('Req %d WS pts', node.reqWsPoints))
+                elseif node.canLearn then
+                    drawTextColored({ 0.48, 0.90, 0.56, 1.0 }, string.format('Next: Lv.%d', reqLvl))
+                else
+                    drawTextDisabled(string.format('Locked (Lv.%d)', reqLvl))
+                end
+            else
+                imgui.SetCursorScreenPos({ x + 8, y + cardH - 21 })
+                drawTextColored({ 0.95, 0.84, 0.45, 1.0 }, 'Mastered')
+            end
+
+            -- Bottom Rank Progress Bar
+            local barX1 = x + 6
+            local barX2 = x + cardW - 6
+            local barY1 = y + cardH - 6
+            local barY2 = y + cardH - 3
+            dl:AddRectFilled({ barX1, barY1 }, { barX2, barY2 }, THEME.barBg, 1.0)
+            local pct = math.max(0, math.min(1, (node.rank or 0) / math.max(1, node.maxRank or 1)))
+            if pct > 0 then
+                dl:AddRectFilled({ barX1, barY1 }, { barX1 + (barX2 - barX1) * pct, barY2 }, accentCol, 1.0)
+            end
+
+            if hovered then
+                drawNodeTooltip(node, detail, isMaxed, isScNode, titleCol)
+            end
+        end
+
+        local contentW = 24 + maxCol * cardW + math.max(0, maxCol - 1) * gapX
+        local contentH = 26 + maxTier * (cardH + gapY)
+        imgui.SetCursorScreenPos({ canvasPosX, canvasPosY + math.max(availH - 10, contentH) })
+        imgui.Dummy({ math.max(availW - 10, contentW), 4 })
+    end
+    imgui.EndChild()
+
+    -- Pinned Node Inspector Panel at bottom of canvas
+    local inspectNode = hoveredNode
+    if inspectNode == nil and state.inspectedNodeKey ~= nil then
+        inspectNode = detail.byKey[state.inspectedNodeKey]
+    end
+    if inspectNode == nil and detail.nodes and #detail.nodes > 0 then
+        inspectNode = detail.nodes[1]
     end
 
-    -- Reserve canvas bounds for scrolling
-    local contentW = 24 + maxCol * cardW + math.max(0, maxCol - 1) * gapX
-    local contentH = 24 + maxTier * (cardH + gapY)
-    imgui.SetCursorScreenPos({ canvasPosX, canvasPosY + math.max(availH - 10, contentH) })
-    imgui.Dummy({ math.max(availW - 10, contentW), 4 })
+    if imgui.BeginChild('ox_node_inspector', { 0, 0 }, CHILD_BORDERS) then
+        if inspectNode ~= nil then
+            local isMaxed = inspectNode.rank >= inspectNode.maxRank
+            local titleCol = isMaxed and { 1.0, 0.88, 0.42, 1.0 }
+                or (inspectNode.rank > 0 and { 0.56, 0.88, 1.0, 1.0 }
+                or (inspectNode.canLearn and { 0.62, 0.96, 0.68, 1.0 } or { 0.72, 0.68, 0.64, 1.0 }))
+            drawTextColored(titleCol, string.format('%s  (%d / %d)', inspectNode.name, inspectNode.rank, inspectNode.maxRank))
+            imgui.SameLine()
+            drawTextDisabled(string.format('  •  Tier %d  |  Left-Click: +1 Rank  |  Right-Click: -1 Rank', inspectNode.tier))
+
+            imgui.PushTextWrapPos(math.max(300, totalAvailW - 24))
+            pcall(function()
+                drawText(formatReadableDesc(inspectNode.desc))
+            end)
+            imgui.PopTextWrapPos()
+
+            if not isMaxed then
+                local reqs = getNodeRequirements(inspectNode, detail)
+                local first = true
+                for _, req in ipairs(reqs) do
+                    if not first then
+                        imgui.SameLine()
+                        drawTextDisabled('  |  ')
+                        imgui.SameLine()
+                    end
+                    first = false
+                    if req.ok then
+                        drawTextColored({ 0.42, 0.88, 0.50, 1.0 }, '[OK] ' .. req.short)
+                    else
+                        drawTextColored({ 1.00, 0.45, 0.45, 1.0 }, '[X] ' .. req.text)
+                    end
+                end
+            else
+                drawTextColored({ 1.0, 0.85, 0.35, 1.0 }, '[MAX] Maximum rank reached.')
+            end
+        else
+            drawTextDisabled('Hover or click any talent node to inspect its full details.')
+        end
+    end
+    imgui.EndChild()
 end
 
 local function drawSidebar()
@@ -700,15 +977,32 @@ local function drawSidebar()
     local filtered = getFilteredCatalog()
     if imgui.BeginChild('ox_ws_list', { 0, 0 }, CHILD_NONE) then
         local okList, errList = pcall(function()
+            local dl = imgui.GetWindowDrawList()
             for _, ws in ipairs(filtered) do
                 local pts = state.spentByWs[ws.id] or 0
                 local unl = state.unlockedByWs[ws.id] == true
-                local eqMark = (ws.skill == state.mainSkill or (state.rangedSkill ~= 0 and ws.skill == state.rangedSkill)) and '* ' or ''
-                local unlMark = unl and '' or ''
-                local label = pts > 0 and string.format('%s%s [%d%s]##ws_%u', eqMark, ws.name, pts, unl and '' or ' L', ws.id)
-                                      or string.format('%s%s##ws_%u', eqMark, ws.name, ws.id)
+                local isEquipped = (ws.skill == state.mainSkill or (state.rangedSkill ~= 0 and ws.skill == state.rangedSkill))
+                local prefix = isEquipped and '[EQ] ' or ''
+                local statusTag = unl and string.format(' [%d]', pts) or (pts > 0 and string.format(' [%d L]', pts) or '')
+                local label = string.format('%s%s%s##ws_%u', prefix, ws.name, statusTag, ws.id)
                 local isSelected = (state.selectedWsId == ws.id)
-                if imgui.Selectable(label, isSelected) then
+
+                if not unl and not isSelected then
+                    imgui.PushStyleColor(COL_TEXT, { 0.62, 0.58, 0.54, 1.0 })
+                elseif unl and not isSelected then
+                    imgui.PushStyleColor(COL_TEXT, { 0.88, 0.92, 0.94, 1.0 })
+                end
+                local clicked = imgui.Selectable(label, isSelected)
+                if not isSelected then
+                    imgui.PopStyleColor()
+                end
+                if isSelected and dl then
+                    local rx, ry = toXY(imgui.GetItemRectMin())
+                    local _, rmaxY = toXY(imgui.GetItemRectMax())
+                    dl:AddRectFilled({ rx - 2, ry + 2 }, { rx + 1, rmaxY - 2 }, THEME.goldBright, 1.0)
+                end
+                if clicked then
+                    state.inspectedNodeKey = nil
                     requestWS(ws.id)
                 end
             end
@@ -722,9 +1016,13 @@ end
 
 local function drawMainContents()
     -- Top Header Bar
-    drawTextColored({ 1.0, 0.85, 0.35, 1.0 }, string.format('%s (%s) Lv.%d', state.jobKey, state.specName, state.jobLevel))
+    drawTextColored({ 0.95, 0.84, 0.52, 1.0 }, string.format('%s (%s) Lv.%d', state.jobKey, state.specName, state.jobLevel))
     imgui.SameLine()
-    drawText(string.format('  |  Available Points: %d  (Spent: %d / Earned: %d)', state.avail, state.spent, state.earned))
+    drawTextDisabled('   |   ')
+    imgui.SameLine()
+    drawTextColored({ 0.45, 0.92, 0.55, 1.0 }, string.format('Available: %d pts', state.avail))
+    imgui.SameLine()
+    drawText(string.format('   (Spent: %d / Earned: %d)', state.spent, state.earned))
     imgui.SameLine()
     if imgui.Button('Sync') then
         requestFullSync()
@@ -770,7 +1068,7 @@ local function drawMainContents()
     imgui.Separator()
 
     -- Left Sidebar: Weapon Type + WS List
-    if imgui.BeginChild('ox_ws_sidebar', { 255, 0 }, CHILD_BORDERS) then
+    if imgui.BeginChild('ox_ws_sidebar', { 265, 0 }, CHILD_BORDERS) then
         local okSide, errSide = xpcall(drawSidebar, debug.traceback)
         if not okSide then
             state.renderError = tostring(errSide)
@@ -788,6 +1086,35 @@ local function drawMainContents()
         end
     end
     imgui.EndChild()
+end
+
+local function pushThemeStyles()
+    local pushed = 0
+    if not (imgui.PushStyleColor and imgui.PopStyleColor) then
+        return 0
+    end
+    local function pushCol(colId, rgba)
+        if colId ~= nil then
+            imgui.PushStyleColor(colId, rgba)
+            pushed = pushed + 1
+        end
+    end
+    pushCol(ImGuiCol_WindowBg,       { 0.08, 0.05, 0.04, 0.96 })
+    pushCol(ImGuiCol_ChildBg,        { 0.11, 0.07, 0.05, 0.92 })
+    pushCol(ImGuiCol_PopupBg,        { 0.10, 0.06, 0.05, 0.96 })
+    pushCol(ImGuiCol_Border,         { 0.35, 0.25, 0.18, 0.90 })
+    pushCol(ImGuiCol_TitleBg,        { 0.12, 0.08, 0.06, 1.00 })
+    pushCol(ImGuiCol_TitleBgActive,  { 0.20, 0.13, 0.09, 1.00 })
+    pushCol(ImGuiCol_FrameBg,        { 0.16, 0.10, 0.07, 1.00 })
+    pushCol(ImGuiCol_FrameBgHovered, { 0.24, 0.15, 0.10, 1.00 })
+    pushCol(ImGuiCol_Button,         { 0.26, 0.17, 0.11, 1.00 })
+    pushCol(ImGuiCol_ButtonHovered,  { 0.38, 0.25, 0.16, 1.00 })
+    pushCol(ImGuiCol_ButtonActive,   { 0.46, 0.31, 0.19, 1.00 })
+    pushCol(ImGuiCol_Header,         { 0.32, 0.21, 0.13, 0.90 })
+    pushCol(ImGuiCol_HeaderHovered,  { 0.40, 0.27, 0.17, 0.95 })
+    pushCol(ImGuiCol_HeaderActive,   { 0.48, 0.33, 0.20, 1.00 })
+    pushCol(ImGuiCol_Separator,      { 0.35, 0.25, 0.18, 0.85 })
+    return pushed
 end
 
 ashita.events.register('d3d_present', 'ox_talents_present', function()
@@ -814,7 +1141,8 @@ ashita.events.register('d3d_present', 'ox_talents_present', function()
         return
     end
 
-    imgui.SetNextWindowSize({ 940, 570 }, ImGuiCond_FirstUseEver or 4)
+    local pushedCols = pushThemeStyles()
+    imgui.SetNextWindowSize({ 1160, 680 }, ImGuiCond_FirstUseEver or 4)
     if imgui.Begin('OverlordsXI - Weaponskill Talents###OXTalentsWin', state.open) then
         local okWin, errWin = xpcall(drawMainContents, debug.traceback)
         if not okWin then
@@ -823,4 +1151,7 @@ ashita.events.register('d3d_present', 'ox_talents_present', function()
         end
     end
     imgui.End()
+    if pushedCols > 0 then
+        imgui.PopStyleColor(pushedCols)
+    end
 end)
