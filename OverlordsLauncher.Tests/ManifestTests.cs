@@ -253,4 +253,16 @@ public sealed class ManifestTests
             }
         }
     }
+
+    [Fact]
+    public void EmbeddedManifest_ContainsKazenoeyeServerSyncOverlayFiles()
+    {
+        var embedded = new ManifestUpdateService().LoadEmbeddedManifest();
+
+        Assert.Contains(embedded.Files, f => f.Category == "addon" && f.TargetPath == "kazenoeye/util/debuffhandler.lua");
+        Assert.Contains(embedded.Files, f => f.Category == "addon" && f.TargetPath == "kazenoeye/mobhud.lua");
+        Assert.Contains(embedded.Files, f => f.Category == "addon" && f.TargetPath == "kazenoeye/setting.lua");
+        Assert.Contains(embedded.Files, f => f.Category == "addon" && f.TargetPath == "kazenoeye/util/texture.lua");
+        Assert.Contains(embedded.Files, f => f.Category == "addon" && f.TargetPath == "kazenoeye/util/hidestatus.lua");
+    }
 }

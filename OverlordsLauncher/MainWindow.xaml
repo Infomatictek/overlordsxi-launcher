@@ -630,7 +630,7 @@
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
                                                 <TextBlock Text="kazenoeye Addon" FontWeight="Bold" FontSize="13" />
-                                                <TextBlock Text="Debuff icons, timers &amp; HP bar above mob models (/ke)" Foreground="{StaticResource TextSecondary}" FontSize="11.5" />
+                                                <TextBlock Text="Server-synced debuff icons, real timers &amp; HP bar (/ke)" Foreground="{StaticResource TextSecondary}" FontSize="11.5" />
                                             </StackPanel>
                                             <TextBlock Grid.Column="2" Text="{Binding Diagnostics.KazenoeyeAddonSynced, Converter={StaticResource BoolToReadyText}}"
                                                        Foreground="{Binding Diagnostics.KazenoeyeAddonSynced, Converter={StaticResource BoolToStatusBrush}}"

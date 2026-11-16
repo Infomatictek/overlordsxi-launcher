@@ -299,9 +299,11 @@ public sealed class ManifestUpdateService
                 cancellationToken).ConfigureAwait(false);
         }
 
-        if (!File.Exists(Path.Combine(ashitaDir, "addons", "kazenoeye", "kazenoeye.lua")))
+        var kazenoeyeDir = Path.Combine(ashitaDir, "addons", "kazenoeye");
+        if (!File.Exists(Path.Combine(kazenoeyeDir, "kazenoeye.lua")) ||
+            !File.Exists(Path.Combine(kazenoeyeDir, "assets", "icons", "0.png")))
         {
-            progress?.Report(new SyncProgress { Message = "Downloading Kazenoeye mob debuff HUD addon...", Percent = 94 });
+            progress?.Report(new SyncProgress { Message = "Downloading Kazenoeye mob debuff HUD icons & base files...", Percent = 94 });
             await InstallLatestGitHubAddonAsync(
                 manifest.Bootstrap.KazenoeyeLatestApiUrl,
                 ashitaDir,

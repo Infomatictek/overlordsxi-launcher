@@ -145,6 +145,41 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/kazenoeye/mobhud.lua",
+      "targetPath": "kazenoeye/mobhud.lua",
+      "sha256": "7cb8bd83aa5ad33b241ab74404915a36a286418d64746c006ccdaf822860cb92",
+      "size": 16562
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/kazenoeye/setting.lua",
+      "targetPath": "kazenoeye/setting.lua",
+      "sha256": "1b0f9cbd5b8d466bdedf01c887006798b95704151f743a69c2c03da88b4bbfcb",
+      "size": 7845
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/kazenoeye/util/debuffhandler.lua",
+      "targetPath": "kazenoeye/util/debuffhandler.lua",
+      "sha256": "f531658964300aaedb7ff866028582f0f26625bfd3a5fc400629ac8ecdaa2f34",
+      "size": 5745
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/kazenoeye/util/hidestatus.lua",
+      "targetPath": "kazenoeye/util/hidestatus.lua",
+      "sha256": "ef30c328e27a0762a1d6c2733a58c0e810f6f9e7fffea2f107e8cfeecbf3a9e8",
+      "size": 3166
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/kazenoeye/util/texture.lua",
+      "targetPath": "kazenoeye/util/texture.lua",
+      "sha256": "8f8ebb9a1f3d549f7d57cc639389b49eff10716602b95660c791db105fdbcaeb",
+      "size": 3210
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
       "sha256": "9e79984b9dcbc683d94bbf7292e9aa83e7da7e5939101442f72b416c5a6f63c9",
@@ -152,6 +187,11 @@
     }
   ],
   "news": [
+    {
+      "date": "2026-11-16",
+      "title": "Kazenoeye Server-Synced Debuff Timers (v1.0.8)",
+      "body": "kazenoeye now pulls active mob status effects and exact remaining durations directly from the OverlordsXI server (0x1FE OXKE sync) so timers are always real and never guessed."
+    },
     {
       "date": "2026-11-16",
       "title": "QOL Addons Included: Mob Levels & Mob Debuff HUD",

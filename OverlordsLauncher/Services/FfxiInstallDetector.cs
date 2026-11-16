@@ -60,7 +60,9 @@ public sealed class FfxiInstallDetector
                                 File.Exists(Path.Combine(ashitaDir, "addons", "mobdb", "mobdb.lua"));
 
         diag.KazenoeyeAddonSynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
-                                    File.Exists(Path.Combine(ashitaDir, "addons", "kazenoeye", "kazenoeye.lua"));
+                                    File.Exists(Path.Combine(ashitaDir, "addons", "kazenoeye", "kazenoeye.lua")) &&
+                                    File.Exists(Path.Combine(ashitaDir, "addons", "kazenoeye", "assets", "icons", "0.png")) &&
+                                    File.Exists(Path.Combine(ashitaDir, "addons", "kazenoeye", "util", "debuffhandler.lua"));
 
         var datFiles = manifest.Files.Where(f => f.Category == "dat").ToList();
         diag.DatOverlaySynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
