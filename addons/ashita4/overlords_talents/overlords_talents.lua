@@ -470,11 +470,18 @@ local THEME =
     barBg        = 0xFF0E0907,
 }
 
+local descCache = {}
 local function formatReadableDesc(raw)
-    local s = tostring(raw or '')
-    if s == '' then
-        return 'No description available.'
+    local key = tostring(raw or '')
+    local cached = descCache[key]
+    if cached ~= nil then
+        return cached
     end
+    if key == '' then
+        descCache[key] = 'No description available.'
+        return descCache[key]
+    end
+    local s = key
     s = s:gsub('NextWS', 'Next WS')
     s = s:gsub('CrDmg', 'Crit Dmg')
     s = s:gsub('DEF Ignored', 'DEF Ignore')
@@ -491,13 +498,21 @@ local function formatReadableDesc(raw)
     s = s:gsub('(%d)h$', '%1 Hits')
     s = s:gsub('STP', 'Store TP')
     s = s:gsub('Pet Heal', 'Pet/Eos Heal')
+    descCache[key] = s
     return s
 end
 
+local wrapCache = {}
 local function wrapLines(str, maxChars)
+    local s = tostring(str or '')
+    local key = tostring(maxChars) .. '|' .. s
+    local cached = wrapCache[key]
+    if cached ~= nil then
+        return cached
+    end
     local lines = {}
     local cur = ''
-    for word in tostring(str or ''):gmatch('%S+') do
+    for word in s:gmatch('%S+') do
         if cur == '' then
             cur = word
         elseif #cur + 1 + #word <= maxChars then
@@ -510,6 +525,7 @@ local function wrapLines(str, maxChars)
     if cur ~= '' then
         table.insert(lines, cur)
     end
+    wrapCache[key] = lines
     return lines
 end
 
