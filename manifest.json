@@ -86,6 +86,13 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/necromancer.png",
+      "targetPath": "crystalsocket/assets/necromancer.png",
+      "sha256": "e7322d8792f8938a5ae29df3825e715b379cc31df40d8693b2a6eac62d63d698",
+      "size": 13658
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/sage.png",
       "targetPath": "crystalsocket/assets/sage.png",
       "sha256": "0bfa8460f77ebe8750c2ed177bd36868e8ab4f02d9d4262778ae5bbca66f5f2a",
