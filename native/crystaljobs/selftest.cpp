@@ -211,6 +211,8 @@ static void multi_job_checks() {
     assert(std::strcmp(label_for(1, 2, false), "BRZ") == 0 && std::strcmp(label_for(1, 2, true), "Berserker") == 0);
     assert(std::strcmp(label_for(1, 3, false), "GLA") == 0 && std::strcmp(label_for(1, 3, true), "Gladiator") == 0);
     assert(std::strcmp(label_for(2, 1, false), "SEN") == 0 && std::strcmp(label_for(2, 1, true), "Sensei") == 0);
+    assert(std::strcmp(label_for(2, 2, false), "BLB") == 0 && std::strcmp(label_for(2, 2, true), "Black Belt") == 0);
+    assert(std::strcmp(label_for(2, 3, false), "CHW") == 0 && std::strcmp(label_for(2, 3, true), "Chi Weaver") == 0);
     assert(std::strcmp(label_for(4, 1, false), "NEC") == 0 && std::strcmp(label_for(4, 1, true), "Necromancer") == 0);
     assert(std::strcmp(label_for(19, 1, false), "BLW") == 0 && std::strcmp(label_for(19, 1, true), "Bladewheel") == 0);
     assert(std::strcmp(label_for(20, 1, false), "MED") == 0 && std::strcmp(label_for(20, 1, true), "Medic") == 0);
@@ -225,10 +227,14 @@ static void multi_job_checks() {
     native_text = &fake_text;
     selftest_alive = true;
 
-    // Test Search rows for MNK Sensei, BLM Necromancer, DNC Bladewheel, SCH Sage, RUN Spellblade.
+    // Test Search rows for MNK Sensei/Black Belt/Chi Weaver, BLM Necromancer, DNC Bladewheel, SCH Sage, RUN Spellblade.
     state = {};
     make_row(row_a, 301, marker | 1, 2); state.decoded(row_a);
     assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 2), "Sensei") == 0);
+    make_row(row_a, 306, marker | 2, 2); state.decoded(row_a);
+    assert(state.row_branch(row_a) == 2 && std::strcmp(full_abi(row_a, 2), "Black Belt") == 0);
+    make_row(row_a, 307, marker | 3, 2); state.decoded(row_a);
+    assert(state.row_branch(row_a) == 3 && std::strcmp(full_abi(row_a, 2), "Chi Weaver") == 0);
     make_row(row_a, 302, marker | 1, 4); state.decoded(row_a);
     assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 4), "Necromancer") == 0);
     make_row(row_a, 303, marker | 1, 19); state.decoded(row_a);
@@ -259,7 +265,7 @@ int main() {
     assert(u32(row_a + 20) == 0 && state.row_branch(row_a) == 1 && state.row_branch(row_b) == 3);
     make_row(row_b, 102, 0); state.decoded(row_b);
     assert(state.row_branch(row_b) == 0 && state.row_branch(row_a) == 1);
-    make_row(row_b, 102, marker | 2, 2); state.decoded(row_b); assert(state.row_branch(row_b) == 0);
+    make_row(row_b, 102, marker | 1, 3); state.decoded(row_b); assert(state.row_branch(row_b) == 0);
     make_row(row_b, 102, marker | 2, 1, 0x4000); state.decoded(row_b); assert(state.row_branch(row_b) == 0);
     make_row(row_b, 102, marker | 4); state.decoded(row_b); assert(state.row_branch(row_b) == 0 && u32(row_b + 20) == 0);
     make_row(row_b, 102, 0x12345678); state.decoded(row_b); assert(u32(row_b + 20) == 0x12345678);

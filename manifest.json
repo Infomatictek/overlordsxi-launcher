@@ -75,10 +75,24 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/blackbelt.png",
+      "targetPath": "crystalsocket/assets/blackbelt.png",
+      "sha256": "0aa6550a825a47a6d2367e33f9e0891b3a7878a3e14fc1fa5151f930cef7766a",
+      "size": 23081
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/bladewheel.png",
       "targetPath": "crystalsocket/assets/bladewheel.png",
       "sha256": "6bfa0964991fb85fe0996ed7b4386d1524d44d8d45e1875b9129df02c291902f",
       "size": 23710
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/chiweaver.png",
+      "targetPath": "crystalsocket/assets/chiweaver.png",
+      "sha256": "29c5b962ea1e7ac3f49901e50560f80169098a25df54cd82238d58ffdb035538",
+      "size": 19669
     },
     {
       "category": "addon",
@@ -154,8 +168,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "2517d31553be8f46560bfea58e3cc91702dd8a1ee5096dbf4e7ee8e8ba2b707b",
-      "size": 15355
+      "sha256": "b6cc6b1061094cfb581d28772c6d205d8c4d0404346c5291cbb78682fc05d4d5",
+      "size": 15381
     },
     {
       "category": "addon",
@@ -189,8 +203,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "1378585544f262dc0972fae2d805b77e9f3b25976c0d66a4a8da96c06d2596d4",
-      "size": 18549
+      "sha256": "a70c48b874cc2b9d2fb50be4dc0ccb7496c6b8a3698f452739362f72a6c5acc1",
+      "size": 18617
     },
     {
       "category": "addon",
@@ -280,8 +294,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/metrics/overlords.lua",
       "targetPath": "metrics/overlords.lua",
-      "sha256": "92c2855890bf08a333b2801fae72de8c40ee3601a9b0020afff9d86d4dfd2d20",
-      "size": 9484
+      "sha256": "d0e65e0e81f5074a591755b1bf7e58823d11afcdf6ba9a289b80328c1415d38b",
+      "size": 9644
     },
     {
       "category": "addon",
@@ -371,15 +385,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/jobs.lua",
       "targetPath": "overlords_gear/og/jobs.lua",
-      "sha256": "fc5a5156408271cda3f651963bbbb7d5e79aca6501f41c6123d4b3bf7e1ec29b",
-      "size": 38042
+      "sha256": "ac4d0d585935f1976b4b3f330ed24e1cbf8015ba18b69d982ddc904d4cc4a7a7",
+      "size": 40132
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/ox_sync.lua",
       "targetPath": "overlords_gear/og/ox_sync.lua",
-      "sha256": "ee3647dcb8cb01cc5a01fd913db12d5fe738adab5a410191030d2ab9c5e50be4",
-      "size": 10016
+      "sha256": "8b37be520ea833bd0ddfb9b6ee48ba14c99b7c6f88ef12580f887cf5b924ba0e",
+      "size": 10216
     },
     {
       "category": "addon",

@@ -27,7 +27,9 @@ ox_sync.SPECS_BY_JOB = {
         { id = 3, key = 'gladiator', name = 'Gladiator', role = 'Bloodthirsty Club & Shield Tank' },
     },
     [2] = { -- MNK
-        { id = 1, key = 'sensei',    name = 'Sensei',    role = 'Staff Evasion, Parry & Counter Tank' },
+        { id = 1, key = 'sensei',    name = 'Sensei',     role = 'Staff Evasion, Parry & Counter Tank' },
+        { id = 2, key = 'blackbelt', name = 'Black Belt', role = 'Hand-to-Hand Martial DPS' },
+        { id = 3, key = 'chiweaver', name = 'Chi Weaver', role = 'Unarmed Ranged Chi & Pulse Healer' },
     },
     [4] = { -- BLM
         { id = 1, key = 'necromancer', name = 'Necromancer', role = 'Scythe & Undead Summoner' },

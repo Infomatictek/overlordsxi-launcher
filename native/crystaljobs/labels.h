@@ -17,7 +17,12 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
                 default: return nullptr;
             }
         case 2: // MNK
-            return branch == 1 ? (full ? "Sensei" : "SEN") : nullptr;
+            switch (branch) {
+                case 1: return full ? "Sensei" : "SEN";
+                case 2: return full ? "Black Belt" : "BLB";
+                case 3: return full ? "Chi Weaver" : "CHW";
+                default: return nullptr;
+            }
         case 4: // BLM
             return branch == 1 ? (full ? "Necromancer" : "NEC") : nullptr;
         case 19: // DNC

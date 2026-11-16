@@ -49,6 +49,11 @@ Overlords.CustomAbilities =
     [928] = 'Runic Sever',           -- 416
     [929] = 'Font of Life',          -- 417
     [930] = 'Sanctified Ward',       -- 418
+
+    -- MNK Chi Weaver Spec
+    [941] = 'Resonant Chi',          -- 429
+    [942] = 'Tranquil Lotus',        -- 430
+    [943] = 'Inner Harmony',         -- 431
 }
 
 ------------------------------------------------------------------------------------------------------

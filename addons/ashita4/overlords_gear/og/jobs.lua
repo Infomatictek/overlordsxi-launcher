@@ -151,6 +151,50 @@ jobs.Catalog = {
                     },
                 },
             },
+            blackbelt = {
+                Tweaks = {
+                    TP_Default = {
+                        Label = 'Engaged (Black Belt H2H DPS)',
+                        Stats = {
+                            MARTIAL_ARTS = 2.8, KICK_ATTACK_RATE = 2.4, KICK_DMG = 1.4,
+                            DOUBLE_ATTACK = 2.6, CRITHITRATE = 1.6, CRIT_DMG_INCREASE = 1.2,
+                            STORETP = 1.8, SUBTLE_BLOW = 0.8, HASTE_GEAR = 3.4,
+                            STR = 0.55, DEX = 0.45, ACC = 0.8, ATT = 0.55,
+                        },
+                    },
+                    WS_Default = {
+                        Stats = {
+                            STR = 1.4, DEX = 1.0, VIT = 0.8, KICK_DMG = 1.0,
+                            ALL_WSDMG_ALL_HITS = 4.0, ATT = 0.7, CRIT_DMG_INCREASE = 1.2,
+                        },
+                    },
+                },
+            },
+            chiweaver = {
+                Caster = true,
+                Tweaks = {
+                    Idle = {
+                        Label = 'Idle (Chi Weaver Healer)',
+                        Stats = { REFRESH = 8.0, CURE_POTENCY = 2.0, MND = 0.6, PDT = -5.0, MDT = -4.0, ENMITY = -0.4, MEVA = 0.12 },
+                    },
+                    TP_Default = {
+                        Label = 'Engaged (Chi Weaver Ranged Chi & Pulse)',
+                        Stats = {
+                            CURE_POTENCY = 3.2, MND = 0.95, MATT = 1.6, MACC = 1.2,
+                            MARTIAL_ARTS = 2.2, HASTE_GEAR = 3.0, REFRESH = 4.0,
+                            STORETP = 1.4, ENMITY = -0.5, PDT = -2.0, MDT = -1.5,
+                        },
+                    },
+                    WS_Default = {
+                        Stats = { MND = 1.2, STR = 0.9, MATT = 1.2, MACC = 0.8, ALL_WSDMG_ALL_HITS = 3.5 },
+                    },
+                },
+                Abilities = {
+                    ['Resonant Chi']  = { Base = 'Cure' },
+                    ['Tranquil Lotus'] = { Base = 'Cure' },
+                    ['Inner Harmony'] = { Base = 'Cure' },
+                },
+            },
         },
     },
 
