@@ -218,6 +218,8 @@ public sealed class AshitaConfigGenerator
                     trimmed.Equals("/addon unload overlords_talents", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon load crystalsocket", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload crystalsocket", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load metrics", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon unload metrics", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.StartsWith("/fps ", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
@@ -245,6 +247,11 @@ public sealed class AshitaConfigGenerator
         if (settings.AutoLoadCrystalSocketAddon)
         {
             EnsureLine(lines, "/addon load crystalsocket", insertAtTop: false);
+        }
+
+        if (settings.AutoLoadMetricsAddon)
+        {
+            EnsureLine(lines, "/addon load metrics", insertAtTop: false);
         }
 
         if (settings.FpsCap is 30 or 60 or 0)

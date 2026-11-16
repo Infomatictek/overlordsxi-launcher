@@ -49,6 +49,7 @@ public sealed class LauncherSettings
     public bool EnablePivotOverlay { get; set; } = true;
     public bool AutoLoadTalentsAddon { get; set; } = true;
     public bool AutoLoadCrystalSocketAddon { get; set; } = true;
+    public bool AutoLoadMetricsAddon { get; set; } = true;
     public bool AutoCloseOnLaunch { get; set; }
     public bool AutoCheckUpdatesOnStartup { get; set; } = true;
     public bool AutoUpdateLauncher { get; set; } = true;

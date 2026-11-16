@@ -13,6 +13,7 @@ public sealed class InstallDiagnostics
     public bool PivotPluginInstalled { get; set; }
     public bool TalentsAddonSynced { get; set; }
     public bool CrystalSocketAddonSynced { get; set; }
+    public bool MetricsAddonSynced { get; set; }
     public bool DatOverlaySynced { get; set; }
 
     public bool DirectPlayEnabled { get; set; }

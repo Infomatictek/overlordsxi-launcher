@@ -110,7 +110,7 @@
                                         <TextBlock Text="{Binding UpdateBadgeText}" FontSize="12" Foreground="{StaticResource CyanAccent}" FontWeight="SemiBold" />
                                     </Border>
                                     <Border Background="#1A2334" CornerRadius="4" Padding="8,4">
-                                        <TextBlock Text="Ashita v4  •  Pivot DAT Overlay  •  overlords_talents" FontSize="12" Foreground="{StaticResource TextSecondary}" />
+                                        <TextBlock Text="Ashita v4  •  Pivot  •  talents  •  crystalsocket  •  metrics" FontSize="12" Foreground="{StaticResource TextSecondary}" />
                                     </Border>
                                 </StackPanel>
                             </StackPanel>
@@ -150,6 +150,7 @@
                                     <CheckBox Content="Auto-login via xiloader arguments" IsChecked="{Binding AutoLogin}" />
                                     <CheckBox Content="Auto-load overlords_talents (/talents)" IsChecked="{Binding AutoLoadTalentsAddon}" />
                                     <CheckBox Content="Auto-load crystalsocket (Equipment Soul Crystal UI)" IsChecked="{Binding AutoLoadCrystalSocketAddon}" />
+                                    <CheckBox Content="Auto-load metrics DPS parser (/metrics)" IsChecked="{Binding AutoLoadMetricsAddon}" />
                                     <CheckBox Content="Enable Pivot DAT overlay (Call Eos)" IsChecked="{Binding EnablePivotOverlay}" />
                                     <CheckBox Content="Close launcher when game starts" IsChecked="{Binding AutoCloseOnLaunch}" />
 
@@ -549,7 +550,7 @@
                                         </Grid>
                                     </Border>
 
-                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,8">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -574,6 +575,23 @@
                                                 <ColumnDefinition Width="Auto" />
                                             </Grid.ColumnDefinitions>
                                             <StackPanel Grid.Column="0">
+                                                <TextBlock Text="metrics Parse Addon" FontWeight="Bold" FontSize="13" />
+                                                <TextBlock Text="Ashita v4 DPS &amp; Combat Parser (/metrics)" Foreground="{StaticResource TextSecondary}" FontSize="11.5" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding Diagnostics.MetricsAddonSynced, Converter={StaticResource BoolToReadyText}}"
+                                                       Foreground="{Binding Diagnostics.MetricsAddonSynced, Converter={StaticResource BoolToStatusBrush}}"
+                                                       FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
                                                 <TextBlock Text="OverlordsXI DAT Overlay" FontWeight="Bold" FontSize="13" />
                                                 <TextBlock Text="ROM/118 &amp; ROM/181 client text/ability tables" Foreground="{StaticResource TextSecondary}" FontSize="11.5" />
                                             </StackPanel>
@@ -583,7 +601,7 @@
                                         </Grid>
                                     </Border>
 
-                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,0">
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -600,7 +618,7 @@
                                         </Grid>
                                     </Border>
 
-                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12">
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,0">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />

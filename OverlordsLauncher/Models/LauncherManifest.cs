@@ -72,6 +72,9 @@ public sealed class ManifestBootstrap
 
     [JsonPropertyName("xipivotLatestApiUrl")]
     public string XipivotLatestApiUrl { get; set; } = "https://api.github.com/repos/HealsCodes/XIPivot/releases/latest";
+
+    [JsonPropertyName("metricsLatestApiUrl")]
+    public string MetricsLatestApiUrl { get; set; } = "https://api.github.com/repos/RaraProjects/metrics/releases/latest";
 }
 
 public sealed class ManifestFileEntry

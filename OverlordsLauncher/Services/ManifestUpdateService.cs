@@ -271,8 +271,14 @@ public sealed class ManifestUpdateService
 
         if (settings.EnablePivotOverlay && !File.Exists(Path.Combine(ashitaDir, "polplugins", "pivot.dll")))
         {
-            progress?.Report(new SyncProgress { Message = "Downloading XIPivot plugin for Ashita v4...", Percent = 75 });
+            progress?.Report(new SyncProgress { Message = "Downloading XIPivot plugin for Ashita v4...", Percent = 70 });
             await InstallLatestXipivotAsync(manifest.Bootstrap.XipivotLatestApiUrl, ashitaDir, cancellationToken).ConfigureAwait(false);
+        }
+
+        if (!File.Exists(Path.Combine(ashitaDir, "addons", "metrics", "metrics.lua")))
+        {
+            progress?.Report(new SyncProgress { Message = "Downloading Metrics parse addon for Ashita v4...", Percent = 85 });
+            await InstallLatestMetricsAddonAsync(manifest.Bootstrap.MetricsLatestApiUrl, ashitaDir, cancellationToken).ConfigureAwait(false);
         }
 
         progress?.Report(new SyncProgress { Message = "Ashita v4 prerequisites verified.", Percent = 100 });
@@ -453,6 +459,119 @@ public sealed class ManifestUpdateService
         finally
         {
             TryDeleteFile(tempZip);
+        }
+    }
+
+    private async Task InstallLatestMetricsAddonAsync(string releaseApiUrl, string ashitaDir, CancellationToken cancellationToken)
+    {
+        var json = await _http.GetStringAsync(releaseApiUrl, cancellationToken).ConfigureAwait(false);
+        using var doc = JsonDocument.Parse(json);
+
+        string? metricsZipUrl = null;
+        if (doc.RootElement.TryGetProperty("assets", out var assetsProp) && assetsProp.ValueKind == JsonValueKind.Array)
+        {
+            string? fallbackZip = null;
+            foreach (var asset in assetsProp.EnumerateArray())
+            {
+                var name = asset.GetProperty("name").GetString() ?? string.Empty;
+                var url = asset.GetProperty("browser_download_url").GetString();
+                if (!name.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(url))
+                {
+                    continue;
+                }
+
+                fallbackZip ??= url;
+                if (name.Contains("metrics", StringComparison.OrdinalIgnoreCase))
+                {
+                    metricsZipUrl = url;
+                    break;
+                }
+            }
+
+            metricsZipUrl ??= fallbackZip;
+        }
+
+        if (string.IsNullOrWhiteSpace(metricsZipUrl) &&
+            doc.RootElement.TryGetProperty("zipball_url", out var zipballProp))
+        {
+            metricsZipUrl = zipballProp.GetString();
+        }
+
+        if (string.IsNullOrWhiteSpace(metricsZipUrl))
+        {
+            throw new InvalidOperationException("Could not find Metrics addon archive in latest GitHub release.");
+        }
+
+        var tempZip = Path.Combine(Path.GetTempPath(), $"overlords_metrics_{Guid.NewGuid():N}.zip");
+        try
+        {
+            await DownloadFileAsync(metricsZipUrl, tempZip, cancellationToken).ConfigureAwait(false);
+            var metricsDir = Path.Combine(ashitaDir, "addons", "metrics");
+            ExtractMetricsZipToDirectory(tempZip, metricsDir);
+        }
+        finally
+        {
+            TryDeleteFile(tempZip);
+        }
+    }
+
+    public static void ExtractMetricsZipToDirectory(string zipPath, string metricsDir)
+    {
+        Directory.CreateDirectory(metricsDir);
+        var rootFull = Path.GetFullPath(metricsDir);
+
+        using var archive = ZipFile.OpenRead(zipPath);
+        var entryPoint = archive.Entries.FirstOrDefault(e =>
+            !string.IsNullOrEmpty(e.Name) &&
+            e.Name.Equals("metrics.lua", StringComparison.OrdinalIgnoreCase));
+
+        var stripPrefix = string.Empty;
+        if (entryPoint is not null)
+        {
+            var normalized = entryPoint.FullName.Replace('\\', '/').TrimStart('/');
+            var slashIdx = normalized.LastIndexOf('/');
+            if (slashIdx >= 0)
+            {
+                stripPrefix = normalized[..(slashIdx + 1)];
+            }
+        }
+
+        foreach (var entry in archive.Entries)
+        {
+            if (string.IsNullOrEmpty(entry.Name))
+            {
+                continue;
+            }
+
+            var relPath = entry.FullName.Replace('\\', '/').TrimStart('/');
+            if (!string.IsNullOrEmpty(stripPrefix))
+            {
+                if (!relPath.StartsWith(stripPrefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                relPath = relPath[stripPrefix.Length..];
+            }
+
+            if (string.IsNullOrWhiteSpace(relPath))
+            {
+                continue;
+            }
+
+            var dest = Path.GetFullPath(Path.Combine(rootFull, relPath.Replace('/', Path.DirectorySeparatorChar)));
+            if (!dest.StartsWith(rootFull, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+            entry.ExtractToFile(dest, overwrite: true);
+        }
+
+        if (!File.Exists(Path.Combine(rootFull, "metrics.lua")))
+        {
+            throw new InvalidOperationException("metrics.lua was not found inside downloaded Metrics archive.");
         }
     }
 

@@ -50,6 +50,9 @@ public sealed class FfxiInstallDetector
         diag.CrystalSocketAddonSynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
                                         File.Exists(Path.Combine(ashitaDir, "addons", "crystalsocket", "crystalsocket.lua"));
 
+        diag.MetricsAddonSynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
+                                  File.Exists(Path.Combine(ashitaDir, "addons", "metrics", "metrics.lua"));
+
         var datFiles = manifest.Files.Where(f => f.Category == "dat").ToList();
         diag.DatOverlaySynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
                                 datFiles.Count > 0 &&

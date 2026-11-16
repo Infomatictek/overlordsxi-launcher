@@ -1,4 +1,5 @@
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using OverlordsLauncher.Models;
 using OverlordsLauncher.Services;
@@ -142,6 +143,48 @@ public sealed class ManifestTests
 
             var forced = service.GetOutdatedFiles(manifest, settings, forceAll: true);
             Assert.Equal(2, forced.Count);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
+    [Fact]
+    public void ExtractMetricsZipToDirectory_HandlesFlatAndNestedArchives()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"overlords_metrics_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+
+        try
+        {
+            var zipPath = Path.Combine(tempRoot, "metrics.zip");
+            using (var archive = ZipFile.Open(zipPath, ZipArchiveMode.Create))
+            {
+                var mainEntry = archive.CreateEntry("metrics/metrics.lua");
+                using (var writer = new StreamWriter(mainEntry.Open()))
+                {
+                    writer.Write("-- metrics entry");
+                }
+
+                var subEntry = archive.CreateEntry("metrics/modules/parse/_parse.lua");
+                using (var writer = new StreamWriter(subEntry.Open()))
+                {
+                    writer.Write("-- parse module");
+                }
+            }
+
+            var targetDir = Path.Combine(tempRoot, "addons", "metrics");
+            ManifestUpdateService.ExtractMetricsZipToDirectory(zipPath, targetDir);
+
+            Assert.True(File.Exists(Path.Combine(targetDir, "metrics.lua")));
+            Assert.True(File.Exists(Path.Combine(targetDir, "modules", "parse", "_parse.lua")));
+
+            var embedded = new ManifestUpdateService().LoadEmbeddedManifest();
+            Assert.Contains("RaraProjects/metrics", embedded.Bootstrap.MetricsLatestApiUrl);
         }
         finally
         {

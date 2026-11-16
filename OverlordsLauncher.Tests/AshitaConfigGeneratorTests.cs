@@ -240,4 +240,24 @@ public sealed class AshitaConfigGeneratorTests
 
         Assert.Equal("-1", AshitaConfigGenerator.BuildEffectivePadMode(settings));
     }
+
+    [Fact]
+    public void MergeBootScriptContent_IncludesAndRemovesMetricsAddon()
+    {
+        var added = _generator.MergeBootScriptContent(null, new LauncherSettings
+        {
+            AutoLoadMetricsAddon = true
+        });
+        Assert.Contains("/addon load metrics", added);
+
+        var removed = _generator.MergeBootScriptContent(
+            "/load addons\r\n/addon load metrics\r\n/fps 1",
+            new LauncherSettings
+            {
+                AutoLoadMetricsAddon = false,
+                FpsCap = 60
+            });
+        Assert.DoesNotContain("metrics", removed);
+        Assert.Contains("/fps 1", removed);
+    }
 }

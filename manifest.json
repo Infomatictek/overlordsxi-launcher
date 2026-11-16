@@ -18,7 +18,8 @@
   "bootstrap": {
     "ashitaZipUrl": "https://github.com/AshitaXI/Ashita-v4beta/archive/refs/heads/main.zip",
     "xiloaderLatestApiUrl": "https://api.github.com/repos/LandSandBoat/xiloader/releases/latest",
-    "xipivotLatestApiUrl": "https://api.github.com/repos/HealsCodes/XIPivot/releases/latest"
+    "xipivotLatestApiUrl": "https://api.github.com/repos/HealsCodes/XIPivot/releases/latest",
+    "metricsLatestApiUrl": "https://api.github.com/repos/RaraProjects/metrics/releases/latest"
   },
   "files": [
     {
