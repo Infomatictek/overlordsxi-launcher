@@ -193,6 +193,29 @@ public sealed class AshitaConfigGeneratorTests
 
         Assert.DoesNotContain("crystalsocket", merged);
         Assert.Contains("/addon load overlords_talents", merged);
+        Assert.Contains("/addon load overlords_gear", merged);
+        Assert.Contains("/fps 1", merged);
+    }
+
+    [Fact]
+    public void MergeBootScriptContent_RemovesGearAddon_WhenDisabled()
+    {
+        var existing = string.Join(Environment.NewLine,
+            "/load addons",
+            "/addon load overlords_gear",
+            "/fps 1");
+
+        var settings = new LauncherSettings
+        {
+            AutoLoadTalentsAddon = true,
+            AutoLoadGearAddon = false,
+            FpsCap = 60
+        };
+
+        var merged = _generator.MergeBootScriptContent(existing, settings);
+
+        Assert.DoesNotContain("overlords_gear", merged);
+        Assert.Contains("/addon load overlords_talents", merged);
         Assert.Contains("/fps 1", merged);
     }
 

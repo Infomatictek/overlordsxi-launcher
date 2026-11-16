@@ -8,7 +8,7 @@
     <UseWPF>true</UseWPF>
     <AssemblyName>OverlordsLauncher</AssemblyName>
     <RootNamespace>OverlordsLauncher</RootNamespace>
-    <Version>1.0.9</Version>
+    <Version>1.1.0</Version>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <AssemblyTitle>OverlordsXI Launcher</AssemblyTitle>
     <Product>OverlordsXI Launcher</Product>

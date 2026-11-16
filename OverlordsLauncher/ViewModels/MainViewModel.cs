@@ -534,6 +534,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         set { if (_settings.AutoLoadKazenoeyeAddon != value) { _settings.AutoLoadKazenoeyeAddon = value; OnPropertyChanged(); } }
     }
 
+    public bool AutoLoadGearAddon
+    {
+        get => _settings.AutoLoadGearAddon;
+        set { if (_settings.AutoLoadGearAddon != value) { _settings.AutoLoadGearAddon = value; OnPropertyChanged(); } }
+    }
+
     public bool AutoCloseOnLaunch
     {
         get => _settings.AutoCloseOnLaunch;

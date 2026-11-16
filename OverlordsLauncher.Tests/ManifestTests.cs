@@ -40,6 +40,14 @@ public sealed class ManifestTests
             f.TargetPath == "crystalsocket/assets/sensei.png" &&
             !string.IsNullOrWhiteSpace(f.Sha256));
         Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "overlords_gear/overlords_gear.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "overlords_gear/data/items.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
             f.Category == "dat" &&
             f.TargetPath == "ROM/118/108.DAT" &&
             !string.IsNullOrWhiteSpace(f.Sha256));

@@ -66,6 +66,10 @@ public sealed class FfxiInstallDetector
                                     File.Exists(Path.Combine(ashitaDir, "addons", "kazenoeye", "assets", "icons", "0.png")) &&
                                     File.Exists(Path.Combine(ashitaDir, "addons", "kazenoeye", "util", "debuffhandler.lua"));
 
+        diag.GearAddonSynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
+                               File.Exists(Path.Combine(ashitaDir, "addons", "overlords_gear", "overlords_gear.lua")) &&
+                               File.Exists(Path.Combine(ashitaDir, "addons", "overlords_gear", "data", "items.lua"));
+
         var datFiles = manifest.Files.Where(f => f.Category == "dat").ToList();
         diag.DatOverlaySynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
                                 datFiles.Count > 0 &&

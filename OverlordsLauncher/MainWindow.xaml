@@ -158,6 +158,7 @@
                                     <CheckBox Content="Auto-load checker (/check exact mob levels)" IsChecked="{Binding AutoLoadCheckerAddon}" />
                                     <CheckBox Content="Auto-load mobdb (Target level, aggro &amp; info)" IsChecked="{Binding AutoLoadMobDbAddon}" />
                                     <CheckBox Content="Auto-load kazenoeye (Debuffs &amp; HP over mobs)" IsChecked="{Binding AutoLoadKazenoeyeAddon}" />
+                                    <CheckBox Content="Auto-load overlords_gear (/og Gear Manager)" IsChecked="{Binding AutoLoadGearAddon}" />
                                     <CheckBox Content="Enable Pivot DAT overlay (Call Eos)" IsChecked="{Binding EnablePivotOverlay}" />
                                     <CheckBox Content="Close launcher when game starts" IsChecked="{Binding AutoCloseOnLaunch}" />
 
@@ -638,6 +639,23 @@
                                             </StackPanel>
                                             <TextBlock Grid.Column="2" Text="{Binding Diagnostics.KazenoeyeAddonSynced, Converter={StaticResource BoolToReadyText}}"
                                                        Foreground="{Binding Diagnostics.KazenoeyeAddonSynced, Converter={StaticResource BoolToStatusBrush}}"
+                                                       FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="overlords_gear Addon" FontWeight="Bold" FontSize="13" />
+                                                <TextBlock Text="Ashita v4 Automatic Gear Builder &amp; Swapper (/og)" Foreground="{StaticResource TextSecondary}" FontSize="11.5" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding Diagnostics.GearAddonSynced, Converter={StaticResource BoolToReadyText}}"
+                                                       Foreground="{Binding Diagnostics.GearAddonSynced, Converter={StaticResource BoolToStatusBrush}}"
                                                        FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
                                         </Grid>
                                     </Border>

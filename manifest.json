@@ -215,6 +215,125 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/data/augments.lua",
+      "targetPath": "overlords_gear/data/augments.lua",
+      "sha256": "310d32472e84d1adc4a12a753be86033c79b9145774553d66ea6b0ac1a1109dd",
+      "size": 21304
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/data/gearsets.lua",
+      "targetPath": "overlords_gear/data/gearsets.lua",
+      "sha256": "709080836d1e92976e72701232188f0b78967fc4107b6e9854b00e4295e82bfa",
+      "size": 3226
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/data/items.lua",
+      "targetPath": "overlords_gear/data/items.lua",
+      "sha256": "60e906862717049b1bac3e30f98fa305c758d77157a1c20b7843d6a3e1b35a9d",
+      "size": 1338973
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/data/latents.lua",
+      "targetPath": "overlords_gear/data/latents.lua",
+      "sha256": "7257c5dee867cf643f6b1edb52ca87c6037d08bf6fcb5c1c16e3669295b9c19b",
+      "size": 59841
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/data/mods.lua",
+      "targetPath": "overlords_gear/data/mods.lua",
+      "sha256": "fba7ca4a6fab08117565c3ccac8589dbb5e378e601e9f6db894e46ad45c3400a",
+      "size": 23777
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/data/weaponskills.lua",
+      "targetPath": "overlords_gear/data/weaponskills.lua",
+      "sha256": "2ef541f370b6e35b57370d148759057f6483a11c50538021e11eccf369616c9f",
+      "size": 22271
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/og/bags.lua",
+      "targetPath": "overlords_gear/og/bags.lua",
+      "sha256": "922848fddf7f0fd855cd2007d2d5aa44abf823a145edc83ff765a96a827804d5",
+      "size": 10886
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/og/db.lua",
+      "targetPath": "overlords_gear/og/db.lua",
+      "sha256": "4860a5f05806ce92683915f86cbb797d1dde5454a323d826b0f424abc85d0e11",
+      "size": 6826
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/og/jobs.lua",
+      "targetPath": "overlords_gear/og/jobs.lua",
+      "sha256": "fc5a5156408271cda3f651963bbbb7d5e79aca6501f41c6123d4b3bf7e1ec29b",
+      "size": 38042
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/og/ox_sync.lua",
+      "targetPath": "overlords_gear/og/ox_sync.lua",
+      "sha256": "ee3647dcb8cb01cc5a01fd913db12d5fe738adab5a410191030d2ab9c5e50be4",
+      "size": 10016
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/og/roles.lua",
+      "targetPath": "overlords_gear/og/roles.lua",
+      "sha256": "712965c1e2a010a71044c55011c6903dd1b365fd836f60cab9ee45bf4f0f004f",
+      "size": 14681
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/og/scorer.lua",
+      "targetPath": "overlords_gear/og/scorer.lua",
+      "sha256": "7bc094aadec6419a785280e8ad9c9863a967949f94ad583e7510cd78f8454d81",
+      "size": 25854
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/og/state.lua",
+      "targetPath": "overlords_gear/og/state.lua",
+      "sha256": "c3da222f8d2047a1e95885b519e5ab1a014de0b87155eead41b7efec35d4fb71",
+      "size": 22994
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/og/swapper.lua",
+      "targetPath": "overlords_gear/og/swapper.lua",
+      "sha256": "b4c1b926bb90d3de554497ee0dec4b9ae1099822b2e9e871e60b1f8f7b71dd13",
+      "size": 21957
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/og/ui.lua",
+      "targetPath": "overlords_gear/og/ui.lua",
+      "sha256": "68e2cd2583e35b3a94ad2e3366883afbc46028cc5a5beb8a60c47852dfb516cd",
+      "size": 23750
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/overlords_gear.lua",
+      "targetPath": "overlords_gear/overlords_gear.lua",
+      "sha256": "5a638c42ed0c868a95b2d6df6351172b0a87079368897677b562a8d1e48c3aa6",
+      "size": 4407
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_gear/README.md",
+      "targetPath": "overlords_gear/README.md",
+      "sha256": "e597a8bc7de7eb5be0cb8452eadd16da7f9ff1c07472886e223badc0f936e22b",
+      "size": 3743
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
       "sha256": "9e79984b9dcbc683d94bbf7292e9aa83e7da7e5939101442f72b416c5a6f63c9",
