@@ -1,6 +1,6 @@
 addon.name = 'crystalsocket'
 addon.author = 'OverlordsXI / Crystal Socket'
-addon.version = '0.3.0'
+addon.version = '0.3.1'
 addon.desc = 'OverlordsXI Soul Job crystal socket integrated with the Equipment menu.'
 
 require('common')
@@ -14,13 +14,14 @@ local Menu = require('menu')
 
 local ui, menu
 local textures, asset_status = {}, {}
-local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'medic', 'sage', 'bladewheel' }
+local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'medic', 'sage', 'bladewheel', 'necromancer' }
 local epoch, transitioning = 0, false
-local captured = {}
+local key_owner = {} -- nil: new press; false: native/chat; true: addon, until physical release.
 local last_mouse
 local was_anchored, last_anchor_refresh = false, 0
 local transport = { queued = 0, outgoing = 0, incoming = 0 }
-local keys = { [1] = 'back', [200] = 'up', [208] = 'down', [28] = 'enter', [156] = 'enter' }
+local keys = { [1] = 'back', [200] = 'up', [208] = 'down', [203] = 'left', [205] = 'right',
+    [28] = 'enter', [156] = 'enter' }
 
 local function now()
     return ashita.time.get_tick64() / 1000
@@ -29,7 +30,7 @@ end
 local function reset(reason)
     epoch = epoch + 1
     state:reset(reason, false)
-    if ui then ui:close() end
+    if ui then ui:blur() end
 end
 
 local function load_icon_texture(name)
@@ -73,12 +74,13 @@ local function context()
     local id, name = party:GetMemberServerId(0), party:GetMemberName(0)
     if transitioning or id == 0 or name == nil or name == '' or party:GetMemberTargetIndex(0) == 0 then
         state:set_context(nil, nil, nil, nil)
+        if ui then ui:blur() end
         return
     end
     local lvl = player.GetMainJobLevel and player:GetMainJobLevel() or nil
     local changed = state:set_context(tostring(id) .. ':' .. name .. ':' .. epoch,
         player:GetMainJob(), party:GetMemberZone(0), lvl)
-    if changed and ui then ui.feedback = nil end
+    if changed and ui then ui:blur(); ui.feedback = nil end
 end
 
 local function send(packet)
@@ -104,8 +106,30 @@ local function event_packet(e)
     return buffer:sub(1, size)
 end
 
-local function can_capture_keys()
-    return state:snapshot().open and AshitaCore:GetChatManager():IsInputOpen() == 0
+local function view()
+    context()
+    local snapshot = state:snapshot()
+    local can_show = snapshot.session_key ~= nil and ui ~= nil and ui:has_socket(snapshot)
+    local native = menu and can_show and menu:context() or nil
+    if ui and (not native or (ui.focus_window and ui.focus_window ~= native.window)
+        or (ui.focus_cursor ~= nil and ui.focus_cursor ~= native.cursor)) then
+        ui:blur()
+    end
+    return native
+end
+
+local function input(scan, key, down)
+    local native = view() -- Read current native ownership for every input, not the last rendered frame.
+    if key_owner[scan] ~= nil then return key_owner[scan] end
+    if not down then return false end
+    key_owner[scan] = false
+    if not native or AshitaCore:GetChatManager():IsInputOpen() ~= 0 then return false end
+    local navigation = native.window == native.equipment and native.selected and native or nil
+    if ui:key(key, now(), navigation) then
+        key_owner[scan] = true
+        return true
+    end
+    return false
 end
 
 ashita.events.register('command', 'crystalsocket_command', function(e)
@@ -150,6 +174,11 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
         tostring(transport.in_expected), tostring(transport.in_matched), tostring(transport.in_result),
         tostring(transport.in_error)))
     if ui then
+        local native = menu and menu:context()
+        report(('[crystalsocket] focus=%s origin=%s current=%s form=%s selected=%s cursor=%s/%s'):format(
+            tostring(ui.focused), tostring(ui.focus_window), tostring(native and native.window),
+            tostring(native and native.name), tostring(native and native.selected),
+            tostring(ui.focus_cursor), tostring(native and native.cursor)))
         local slot = ui.lastslot
         local function n(value) return value and ('%.1f'):format(value) or '?' end
         report(('[crystalsocket] slot=%s hover=%s clicks=%d scale=%s,%s anchor=%s,%s'):format(
@@ -240,24 +269,18 @@ end)
 ashita.events.register('key_data', 'crystalsocket_key_data', function(e)
     local key = keys[e.key]
     if not ui or not key then return end
-    if captured[e.key] then e.blocked = true end
-    if e.down and can_capture_keys() then
-        if not captured[e.key] then ui:key(key, now()) end
-        captured[e.key] = true
-        e.blocked = true
-    end
+    if input(e.key, key, e.down) then e.blocked = true end
 end)
 
 ashita.events.register('key_state', 'crystalsocket_key_state', function(e)
     if not ui or not e.data_raw or e.size < 209 then return end
+    -- Ashita's supported event buffer is writable; no game code or native callback is patched.
     local data = ffi.cast('uint8_t*', e.data_raw)
     for scan, key in pairs(keys) do
         if data[scan] == 0 then
-            captured[scan] = nil
-        elseif captured[scan] or can_capture_keys() then
-            if not captured[scan] then ui:key(key, now()) end
-            captured[scan] = true
-            data[scan] = 0
+            key_owner[scan] = nil
+        elseif input(scan, key, true) then
+            data[scan] = 0 -- Consume the complete press, including repeats after Back closes the panel.
         end
     end
 end)
@@ -267,21 +290,22 @@ ashita.events.register('d3d_present', 'crystalsocket_present', function()
     local ts = now()
     state:tick(ts)
     state:ensure_loaded(ts, send)
+    local native = view()
+    local anchor = native and native.anchor or nil
     local snap = state:snapshot()
-    local anchor = snap.session_key and menu and menu:anchor() or nil
     if anchor and not was_anchored and snap.loaded and not snap.pending and (ts - last_anchor_refresh) >= 2 then
         last_anchor_refresh = ts
         state:sync_current(ts, send, false)
     end
     was_anchored = anchor ~= nil
     if ui then
-        ui:draw(anchor, ts)
+        ui:draw(anchor, ts, native and native.window or nil, native and native.cursor or nil)
     end
 end)
 
 ashita.events.register('unload', 'crystalsocket_unload', function()
     state:set_context(nil, nil, nil, nil)
-    if ui then ui:close(); ui.icons = {} end
+    if ui then ui:blur(); ui.icons = {} end
     ui, menu = nil, nil
     for name, texture in pairs(textures) do
         texture:Release()

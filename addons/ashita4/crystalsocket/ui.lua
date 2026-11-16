@@ -29,20 +29,52 @@ local fallback_tints = {
 
 function UI.new(imgui, state, send, scaling, icon_loader)
     return setmetatable({
-        imgui       = imgui,
-        state       = state,
-        send        = send,
-        icon_loader = icon_loader,
-        icons       = {},
-        sx          = scaling.scale_w(1),
-        sy          = scaling.scale_h(1),
-        selected    = 1,
-        lastslot    = { visible = false, clicks = 0 },
+        imgui        = imgui,
+        state        = state,
+        send         = send,
+        icon_loader  = icon_loader,
+        icons        = {},
+        sx           = scaling.scale_w(1),
+        sy           = scaling.scale_h(1),
+        selected     = 1,
+        focused      = false,
+        focus_window = nil,
+        focus_cursor = nil,
+        lastslot     = { visible = false, clicks = 0 },
     }, UI)
+end
+
+function UI:has_socket(snapshot)
+    snapshot = snapshot or self.state:snapshot()
+    if snapshot.open or snapshot.status == 'error' then return true end
+    local entries = snapshot.catalog and snapshot.catalog.entries
+    return snapshot.loaded and type(entries) == 'table' and #entries > 0
 end
 
 function UI:close()
     self.state:cancel()
+end
+
+function UI:blur()
+    self:close()
+    self.focused, self.focus_window, self.focus_cursor = false, nil, nil
+end
+
+function UI:show(now, window, cursor)
+    local snapshot = self.state:snapshot()
+    local entries = (snapshot.catalog and snapshot.catalog.entries) or {}
+    self.focused = true
+    self.focus_window = window or self.focus_window
+    self.focus_cursor = cursor or self.focus_cursor
+    self.feedback = nil
+    local sel = 1
+    if snapshot.active and snapshot.active > 0 then
+        for idx, e in ipairs(entries) do
+            if e.id == snapshot.active then sel = idx; break end
+        end
+    end
+    self.selected = sel
+    return self.state:show(now, self.send)
 end
 
 function UI:entry_count()
@@ -58,29 +90,50 @@ function UI:activate(branch, now)
     self.feedback = ok and nil or why
 end
 
-function UI:key(key, now)
+function UI:key(key, now, navigation)
     local snapshot = self.state:snapshot()
-    if not snapshot.open then return false end
-    local entries = snapshot.catalog and snapshot.catalog.entries or {}
+    local entries = (snapshot.catalog and snapshot.catalog.entries) or {}
     local total_rows = #entries + 1
     if total_rows < 1 then total_rows = 1 end
 
-    if key == 'back' then
-        self:close()
-    elseif key == 'up' then
-        self.selected = ((self.selected - 2) % total_rows) + 1
-    elseif key == 'down' then
-        self.selected = (self.selected % total_rows) + 1
-    elseif key == 'enter' then
-        if self.selected <= #entries and entries[self.selected] then
-            self:activate(entries[self.selected].id, now)
-        elseif self.selected == total_rows then
-            self:activate(0, now)
+    if snapshot.open then
+        if key == 'back' then
+            self:close()
+        elseif key == 'up' then
+            self.selected = ((self.selected - 2) % total_rows) + 1
+        elseif key == 'down' then
+            self.selected = (self.selected % total_rows) + 1
+        elseif key == 'enter' then
+            if self.selected <= #entries and entries[self.selected] then
+                self:activate(entries[self.selected].id, now)
+            elseif self.selected == total_rows then
+                self:activate(0, now)
+            end
+        elseif key ~= 'left' and key ~= 'right' then
+            return false
         end
-    else
-        return false
+        return true
     end
-    return true
+
+    if self.focused then
+        if key == 'up' or key == 'back' then
+            self:blur()
+        elseif key == 'enter' then
+            self:show(now)
+        elseif key ~= 'down' and key ~= 'left' and key ~= 'right' then
+            return false
+        end
+        return true
+    end
+
+    if key == 'down' and self:has_socket(snapshot) and navigation
+        and navigation.selected and navigation.selected >= 13 and navigation.selected <= 16 then
+        self.focused = true
+        self.focus_window = navigation.window
+        self.focus_cursor = navigation.cursor or navigation.selected
+        return true
+    end
+    return false
 end
 
 function UI:resolve_icon(entry)
@@ -164,11 +217,11 @@ function UI:draw_crystal_tooltip(entry, owned, is_active)
     imgui.EndTooltip()
 end
 
-function UI:draw(anchor, now)
+function UI:draw(anchor, now, window, cursor)
     local imgui, sx, sy = self.imgui, self.sx, self.sy
     local slot = self.lastslot
     slot.visible, slot.hovered = false, false
-    if not anchor then self:close(); return end
+    if not anchor then self:blur(); return end
     slot.anchor_x, slot.anchor_y = anchor.x, anchor.y
 
     local snapshot = self.state:snapshot()
@@ -176,10 +229,8 @@ function UI:draw(anchor, now)
     local entries = (catalog and catalog.entries) or {}
 
     -- Hide the socket cleanly for jobs that have no Soul Crystals configured.
-    if snapshot.loaded and catalog and #entries == 0 and not snapshot.open then
-        return
-    end
-    if not snapshot.open and not snapshot.loaded and snapshot.status ~= 'error' then
+    if not self:has_socket(snapshot) then
+        self:blur()
         return
     end
 
@@ -245,25 +296,18 @@ function UI:draw(anchor, now)
         slot.button_x, slot.button_y = imgui.GetCursorScreenPos()
         local clicked = imgui.InvisibleButton('##socket', { 44 * sx, 44 * sy })
         slot.hovered = imgui.IsItemHovered()
-        if slot.hovered then
+        if slot.hovered or self.focused then
             draw:AddRect({ anchor.x + 4 * sx, anchor.y + 4 * sy },
                 { anchor.x + 40 * sx, anchor.y + 40 * sy }, colors.text, 3 * sy)
         end
 
         if clicked then
             slot.clicks = slot.clicks + 1
+            self.focused, self.focus_window, self.focus_cursor = true, window, cursor
             if snapshot.open then
                 self:close()
             else
-                self.feedback = nil
-                local sel = 1
-                if active_entry then
-                    for idx, e in ipairs(entries) do
-                        if e.id == active_entry.id then sel = idx; break end
-                    end
-                end
-                self.selected = sel
-                self.state:show(now, self.send)
+                self:show(now, window, cursor)
             end
         end
 

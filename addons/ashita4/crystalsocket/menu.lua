@@ -23,12 +23,15 @@ function Menu.new(memory, scaling, operand)
     return self
 end
 
-function Menu:anchor()
+function Menu:context()
     if not self.manager or not self.scaling then return nil end
-    local ok, anchor = pcall(function()
+    local ok, context = pcall(function()
         local memory, scaling = self.memory, self.scaling
+        local current = memory.read_uint32(self.manager + 0x54)
+        if not pointer(current, 0x71) or memory.read_uint32(current + 0x10) == 0xE
+            or memory.read_uint8(current + 0x70) ~= 0 then return nil end
         local node = memory.read_uint32(self.manager)
-        local seen, equipment, description = {}, false, nil
+        local seen, equipment, description, current_name = {}, nil, nil, nil
         for _ = 1, 128 do
             if node == 0 then break end
             if not pointer(node, 0x15) or seen[node] then return nil end
@@ -41,7 +44,8 @@ function Menu:anchor()
                     local form = memory.read_uint32(window + 4)
                     if not pointer(form, 86) then return nil end
                     local name = memory.read_string(form + 70, 16):gsub('%z', ''):gsub('%s+$', '')
-                    if name == 'menu    equip' then equipment = true end
+                    if name == 'menu    equip' then equipment = window end
+                    if window == current then current_name = name end
                     if name == 'menu    iteminfo' or name:match('^menu    item[4-9]inf$')
                         or name:match('^menu    item1[0-2]in$') then
                         local left = memory.read_int16(window + 0x3A)
@@ -59,10 +63,27 @@ function Menu:anchor()
             node = memory.read_uint32(node)
             if node ~= 0 and seen[node] then return nil end
         end
-        if node ~= 0 or not equipment then return nil end
-        return description
+        if node ~= 0 or not equipment or not description
+            or (current_name ~= 'menu    equip' and current_name ~= 'menu    inventor') then return nil end
+        local cursor = memory.read_int16(current + 0x4C)
+        local selected
+        if current == equipment then
+            if cursor >= 1 and cursor <= 16 then selected = cursor end
+        end
+        return { anchor = description, window = current, equipment = equipment,
+            name = current_name, cursor = cursor, selected = selected }
     end)
-    return ok and anchor or nil
+    return ok and context or nil
+end
+
+function Menu:anchor()
+    local context = self:context()
+    return context and context.anchor or nil
+end
+
+function Menu:navigation()
+    local context = self:context()
+    if context and context.window == context.equipment and context.selected then return context end
 end
 
 return Menu
