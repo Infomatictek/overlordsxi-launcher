@@ -35,21 +35,21 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "78aec19458abc9458c6cbebc53859088bd8375fabd18ad040afbcc00c84cbc02",
+      "sha256": "e31040e1cf70b604e88e65b6a4d750f41dac16128f0cd4e02ec2c86f0a557108",
       "size": 403280
     },
     {
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/72.DAT",
       "targetPath": "ROM/181/72.DAT",
-      "sha256": "9281e5fd8efa5799aaa10f2b06b10b593e22113d75902792e9aeac9f968b2842",
+      "sha256": "5f3360c8490c2c6072610d1f5066aaa7b03e03a51bdb5ca3a9b46c81fae533e1",
       "size": 471104
     },
     {
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/74.DAT",
       "targetPath": "ROM/181/74.DAT",
-      "sha256": "effcba4f5d916bcea1bab8db5b0e21de72ad91c5ded42182052398d22364f676",
+      "sha256": "32c6d775b10d0144c949c8f006d24af1ff16f36dba48c0475bad0f16efa81ce5",
       "size": 1507392
     },
     {
@@ -82,6 +82,20 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/inquisitor.png",
+      "targetPath": "crystalsocket/assets/inquisitor.png",
+      "sha256": "f2d18ba9843384e72a8d04d306bda29273cb677924323e2ccc5f7ecb0743c45d",
+      "size": 17256
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/lifebinder.png",
+      "targetPath": "crystalsocket/assets/lifebinder.png",
+      "sha256": "4043059d5b50f73d86772d0c2b12937a4e142e2463ff00cfeb77e794888fad93",
+      "size": 18090
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/medic.png",
       "targetPath": "crystalsocket/assets/medic.png",
       "sha256": "1eaf008e397b3696a28923e9422c962bafc74675dd8698ce2ed97b0d4c623218",
@@ -110,10 +124,17 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/spellblade.png",
+      "targetPath": "crystalsocket/assets/spellblade.png",
+      "sha256": "049bf08998e9a06a67b116e25b0fd047a00cd2d128df6d97a96100d57963cc13",
+      "size": 20081
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "474b440fddf4c34e71aaa9bbdb05b71a239166ec922c5b63db9393a7dada3a6b",
-      "size": 13711
+      "sha256": "27fb2627335df0952abc3ac3abd5d37c0d8f478bb3398268df41a2ea072ec80c",
+      "size": 13753
     },
     {
       "category": "addon",

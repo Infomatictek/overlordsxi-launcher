@@ -14,7 +14,7 @@ local Menu = require('menu')
 
 local ui, menu
 local textures, asset_status = {}, {}
-local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'medic', 'sage', 'bladewheel', 'necromancer' }
+local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'medic', 'sage', 'bladewheel', 'necromancer', 'inquisitor', 'spellblade', 'lifebinder' }
 local epoch, transitioning = 0, false
 local key_owner = {} -- nil: new press; false: native/chat; true: addon, until physical release.
 local last_mouse
