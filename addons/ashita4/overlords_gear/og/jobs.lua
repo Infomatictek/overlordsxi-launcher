@@ -171,18 +171,17 @@ jobs.Catalog = {
                 },
             },
             chiweaver = {
-                Caster = true,
                 Tweaks = {
                     Idle = {
                         Label = 'Idle (Chi Weaver Healer)',
-                        Stats = { REFRESH = 8.0, CURE_POTENCY = 2.0, MND = 0.6, PDT = -5.0, MDT = -4.0, ENMITY = -0.4, MEVA = 0.12 },
+                        Stats = { REGEN = 4.0, CURE_POTENCY = 2.0, MND = 0.65, HP = 0.04, PDT = -5.0, MDT = -4.0, ENMITY = -0.4, MEVA = 0.14 },
                     },
                     TP_Default = {
                         Label = 'Engaged (Chi Weaver Ranged Chi & Pulse)',
                         Stats = {
                             CURE_POTENCY = 3.2, MND = 0.95, MATT = 1.6, MACC = 1.2,
-                            MARTIAL_ARTS = 2.2, HASTE_GEAR = 3.0, REFRESH = 4.0,
-                            STORETP = 1.4, ENMITY = -0.5, PDT = -2.0, MDT = -1.5,
+                            MARTIAL_ARTS = 2.2, HASTE_GEAR = 3.2, REGEN = 2.5,
+                            STORETP = 1.6, ENMITY = -0.5, PDT = -2.0, MDT = -1.5,
                         },
                     },
                     WS_Default = {
@@ -190,9 +189,9 @@ jobs.Catalog = {
                     },
                 },
                 Abilities = {
-                    ['Resonant Chi']  = { Base = 'Cure' },
+                    ['Resonant Chi']   = { Base = 'Cure' },
                     ['Tranquil Lotus'] = { Base = 'Cure' },
-                    ['Inner Harmony'] = { Base = 'Cure' },
+                    ['Inner Harmony']  = { Base = 'Cure' },
                 },
             },
         },

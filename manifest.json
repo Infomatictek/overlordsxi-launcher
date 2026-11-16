@@ -385,8 +385,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/jobs.lua",
       "targetPath": "overlords_gear/og/jobs.lua",
-      "sha256": "ac4d0d585935f1976b4b3f330ed24e1cbf8015ba18b69d982ddc904d4cc4a7a7",
-      "size": 40132
+      "sha256": "4c68d75e051aa80a65009b3e401360d0c05eb90d88574c7ef6bb004c687905b8",
+      "size": 40111
     },
     {
       "category": "addon",
