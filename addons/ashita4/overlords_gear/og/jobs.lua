@@ -608,7 +608,7 @@ jobs.Catalog = {
         Fighter = true,
         Tank    = true,
         Caster  = true,
-        Meals   = { 'Tank_Engaged', 'Precast', 'Enhancing_Precast', 'Enhancing', 'Phalanx', 'Regen', 'Stoneskin', 'Enmity', 'Midcast_Interrupt' },
+        Meals   = { 'Precast', 'Enhancing_Precast', 'Enhancing', 'Phalanx', 'Regen', 'Stoneskin', 'Enmity', 'Midcast_Interrupt' },
         Tweaks  = {
             Idle       = { Stats = { PDT = -7.0, MDT = -6.0, MEVA = 0.18, HP = 0.06, REFRESH = 4.0, REGEN = 3.0 } },
             TP_Default = { Stats = { PDT = -5.5, MDT = -4.5, PARRY = 1.2, INQUARTATA = 2.0, HASTE_GEAR = 3.0, STORETP = 1.6, DOUBLE_ATTACK = 2.0, ENMITY = 1.2, ACC = 0.8, MEVA = 0.15 } },
@@ -644,6 +644,8 @@ jobs.Catalog = {
                 },
             },
             spellblade = {
+                Tank  = false,
+                Meals = { 'Nuke', 'Nuke_Acc', 'Burst' },
                 Tweaks = {
                     TP_Default = {
                         Label = 'Engaged (Spellblade Hybrid DPS)',
@@ -654,8 +656,8 @@ jobs.Catalog = {
                     },
                 },
                 Abilities = {
-                    ['Effusion Slash']   = { Base = 'WS_Default' },
-                    ['Overcharge Runes'] = { Base = 'Nuke' },
+                    ['Runic Bolt']  = { Base = 'Nuke' },
+                    ['Runic Sever'] = { Base = 'Burst' },
                 },
             },
             lifebinder = {
@@ -809,11 +811,17 @@ function jobs.PlanSets(who, currentEquip)
     end
 
     -- 2. Melee / Tank / Ranged Sets
-    local isFighter = jobDef.Fighter or (specDef and specDef.Fighter)
-    local isTank    = jobDef.Tank or (specDef and specDef.Tank)
-    local isRanged  = jobDef.Ranged or (specDef and specDef.Ranged)
-    local isCaster  = jobDef.Caster or (specDef and specDef.Caster)
-    local isPet     = jobDef.Pet or (specDef and specDef.Pet)
+    local function resolveRoleFlag(field)
+        if specDef and specDef[field] ~= nil then
+            return specDef[field]
+        end
+        return jobDef[field] or false
+    end
+    local isFighter = resolveRoleFlag('Fighter')
+    local isTank    = resolveRoleFlag('Tank')
+    local isRanged  = resolveRoleFlag('Ranged')
+    local isCaster  = resolveRoleFlag('Caster')
+    local isPet     = resolveRoleFlag('Pet')
 
     -- Subjob checks (e.g. /NIN, /DNC, /WHM, /RDM, /BLM, /SCH, /WAR)
     local subAbbr = db.JOB_ABBR[who.Sub or 0]

@@ -35,7 +35,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "1fce64e2cbdf08b4176b697a105ba0b33c067ed2e555cf9c9b894e3fc28f0275",
+      "sha256": "ce0f7d4be13431eca33b2db9651af8c2ef59982897f2808e185e7f2ea2daed86",
       "size": 403280
     },
     {
@@ -49,7 +49,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/73.DAT",
       "targetPath": "ROM/181/73.DAT",
-      "sha256": "ccd210bbdfd39ec1418eff13ba1aba7eac4f781344f2e4fe46879af7074ee07a",
+      "sha256": "15232a517942bcbd6c778afed9cd7aa338495f7f6e6c1ece0d13bab1eb0053f5",
       "size": 81984
     },
     {
@@ -63,7 +63,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/75.DAT",
       "targetPath": "ROM/181/75.DAT",
-      "sha256": "58e7af6694f7bb4d261c86bf35ea8da0e634e624587be4a38b10c6d5610598fa",
+      "sha256": "c87f59caaf30b1f12663d79d7bbc69095f4282ee4c6a10a71dc334d204ca38e0",
       "size": 262208
     },
     {
@@ -385,8 +385,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/jobs.lua",
       "targetPath": "overlords_gear/og/jobs.lua",
-      "sha256": "4c68d75e051aa80a65009b3e401360d0c05eb90d88574c7ef6bb004c687905b8",
-      "size": 40111
+      "sha256": "5730f3e2ce4c4c4c8bc48899ef1c43d08f70461b9f87db1d0132b6dae0d26e37",
+      "size": 40256
     },
     {
       "category": "addon",
