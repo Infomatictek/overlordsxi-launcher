@@ -260,4 +260,32 @@ public sealed class AshitaConfigGeneratorTests
         Assert.DoesNotContain("metrics", removed);
         Assert.Contains("/fps 1", removed);
     }
+
+    [Fact]
+    public void MergeBootScriptContent_IncludesAndRemovesQolAddons()
+    {
+        var added = _generator.MergeBootScriptContent(null, new LauncherSettings
+        {
+            AutoLoadCheckerAddon = true,
+            AutoLoadMobDbAddon = true,
+            AutoLoadKazenoeyeAddon = true
+        });
+        Assert.Contains("/addon load checker", added);
+        Assert.Contains("/addon load mobdb", added);
+        Assert.Contains("/addon load kazenoeye", added);
+
+        var removed = _generator.MergeBootScriptContent(
+            "/load addons\r\n/addon load checker\r\n/addon load mobdb\r\n/addon load kazenoeye\r\n/fps 1",
+            new LauncherSettings
+            {
+                AutoLoadCheckerAddon = false,
+                AutoLoadMobDbAddon = false,
+                AutoLoadKazenoeyeAddon = false,
+                FpsCap = 60
+            });
+        Assert.DoesNotContain("checker", removed);
+        Assert.DoesNotContain("mobdb", removed);
+        Assert.DoesNotContain("kazenoeye", removed);
+        Assert.Contains("/fps 1", removed);
+    }
 }

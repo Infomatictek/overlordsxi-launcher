@@ -220,6 +220,12 @@ public sealed class AshitaConfigGenerator
                     trimmed.Equals("/addon unload crystalsocket", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon load metrics", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload metrics", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load checker", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon unload checker", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load mobdb", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon unload mobdb", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load kazenoeye", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon unload kazenoeye", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.StartsWith("/fps ", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
@@ -252,6 +258,21 @@ public sealed class AshitaConfigGenerator
         if (settings.AutoLoadMetricsAddon)
         {
             EnsureLine(lines, "/addon load metrics", insertAtTop: false);
+        }
+
+        if (settings.AutoLoadCheckerAddon)
+        {
+            EnsureLine(lines, "/addon load checker", insertAtTop: false);
+        }
+
+        if (settings.AutoLoadMobDbAddon)
+        {
+            EnsureLine(lines, "/addon load mobdb", insertAtTop: false);
+        }
+
+        if (settings.AutoLoadKazenoeyeAddon)
+        {
+            EnsureLine(lines, "/addon load kazenoeye", insertAtTop: false);
         }
 
         if (settings.FpsCap is 30 or 60 or 0)

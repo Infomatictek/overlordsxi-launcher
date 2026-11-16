@@ -185,6 +185,65 @@ public sealed class ManifestTests
 
             var embedded = new ManifestUpdateService().LoadEmbeddedManifest();
             Assert.Contains("RaraProjects/metrics", embedded.Bootstrap.MetricsLatestApiUrl);
+            Assert.Contains("ThornyFFXI/mobdb", embedded.Bootstrap.MobDbLatestApiUrl);
+            Assert.Contains("kazenohito/kazenoeye", embedded.Bootstrap.KazenoeyeLatestApiUrl);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
+    }
+
+    [Fact]
+    public void ExtractAddonZipToDirectory_HandlesMobDbAndKazenoeyeArchiveLayouts()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"overlords_qol_addons_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+
+        try
+        {
+            // Layout 1: mobdb release zip (addons/mobdb/...)
+            var mobdbZip = Path.Combine(tempRoot, "mobdb.zip");
+            using (var archive = ZipFile.Open(mobdbZip, ZipArchiveMode.Create))
+            {
+                using (var writer = new StreamWriter(archive.CreateEntry("addons/mobdb/mobdb.lua").Open()))
+                {
+                    writer.Write("-- mobdb entry");
+                }
+
+                using (var writer = new StreamWriter(archive.CreateEntry("addons/mobdb/data/1.lua").Open()))
+                {
+                    writer.Write("-- zone 1");
+                }
+            }
+
+            var mobdbDir = Path.Combine(tempRoot, "addons", "mobdb");
+            ManifestUpdateService.ExtractAddonZipToDirectory(mobdbZip, mobdbDir, "mobdb.lua");
+            Assert.True(File.Exists(Path.Combine(mobdbDir, "mobdb.lua")));
+            Assert.True(File.Exists(Path.Combine(mobdbDir, "data", "1.lua")));
+
+            // Layout 2: GitHub zipball archive (kazenohito-kazenoeye-sha/...)
+            var kazenoeyeZip = Path.Combine(tempRoot, "kazenoeye.zip");
+            using (var archive = ZipFile.Open(kazenoeyeZip, ZipArchiveMode.Create))
+            {
+                using (var writer = new StreamWriter(archive.CreateEntry("kazenohito-kazenoeye-abc123/kazenoeye.lua").Open()))
+                {
+                    writer.Write("-- kazenoeye entry");
+                }
+
+                using (var writer = new StreamWriter(archive.CreateEntry("kazenohito-kazenoeye-abc123/util/debuffhandler.lua").Open()))
+                {
+                    writer.Write("-- debuff handler");
+                }
+            }
+
+            var kazenoeyeDir = Path.Combine(tempRoot, "addons", "kazenoeye");
+            ManifestUpdateService.ExtractAddonZipToDirectory(kazenoeyeZip, kazenoeyeDir, "kazenoeye.lua");
+            Assert.True(File.Exists(Path.Combine(kazenoeyeDir, "kazenoeye.lua")));
+            Assert.True(File.Exists(Path.Combine(kazenoeyeDir, "util", "debuffhandler.lua")));
         }
         finally
         {

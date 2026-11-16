@@ -50,6 +50,9 @@ public sealed class LauncherSettings
     public bool AutoLoadTalentsAddon { get; set; } = true;
     public bool AutoLoadCrystalSocketAddon { get; set; } = true;
     public bool AutoLoadMetricsAddon { get; set; } = true;
+    public bool AutoLoadCheckerAddon { get; set; } = true;
+    public bool AutoLoadMobDbAddon { get; set; } = true;
+    public bool AutoLoadKazenoeyeAddon { get; set; } = true;
     public bool AutoCloseOnLaunch { get; set; }
     public bool AutoCheckUpdatesOnStartup { get; set; } = true;
     public bool AutoUpdateLauncher { get; set; } = true;

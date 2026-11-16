@@ -277,8 +277,38 @@ public sealed class ManifestUpdateService
 
         if (!File.Exists(Path.Combine(ashitaDir, "addons", "metrics", "metrics.lua")))
         {
-            progress?.Report(new SyncProgress { Message = "Downloading Metrics parse addon for Ashita v4...", Percent = 85 });
-            await InstallLatestMetricsAddonAsync(manifest.Bootstrap.MetricsLatestApiUrl, ashitaDir, cancellationToken).ConfigureAwait(false);
+            progress?.Report(new SyncProgress { Message = "Downloading Metrics parse addon for Ashita v4...", Percent = 80 });
+            await InstallLatestGitHubAddonAsync(
+                manifest.Bootstrap.MetricsLatestApiUrl,
+                ashitaDir,
+                addonFolderName: "metrics",
+                entryFileName: "metrics.lua",
+                displayName: "Metrics",
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        if (!File.Exists(Path.Combine(ashitaDir, "addons", "mobdb", "mobdb.lua")))
+        {
+            progress?.Report(new SyncProgress { Message = "Downloading MobDB mob level & info addon...", Percent = 88 });
+            await InstallLatestGitHubAddonAsync(
+                manifest.Bootstrap.MobDbLatestApiUrl,
+                ashitaDir,
+                addonFolderName: "mobdb",
+                entryFileName: "mobdb.lua",
+                displayName: "MobDB",
+                cancellationToken).ConfigureAwait(false);
+        }
+
+        if (!File.Exists(Path.Combine(ashitaDir, "addons", "kazenoeye", "kazenoeye.lua")))
+        {
+            progress?.Report(new SyncProgress { Message = "Downloading Kazenoeye mob debuff HUD addon...", Percent = 94 });
+            await InstallLatestGitHubAddonAsync(
+                manifest.Bootstrap.KazenoeyeLatestApiUrl,
+                ashitaDir,
+                addonFolderName: "kazenoeye",
+                entryFileName: "kazenoeye.lua",
+                displayName: "Kazenoeye",
+                cancellationToken).ConfigureAwait(false);
         }
 
         progress?.Report(new SyncProgress { Message = "Ashita v4 prerequisites verified.", Percent = 100 });
@@ -462,12 +492,18 @@ public sealed class ManifestUpdateService
         }
     }
 
-    private async Task InstallLatestMetricsAddonAsync(string releaseApiUrl, string ashitaDir, CancellationToken cancellationToken)
+    private async Task InstallLatestGitHubAddonAsync(
+        string releaseApiUrl,
+        string ashitaDir,
+        string addonFolderName,
+        string entryFileName,
+        string displayName,
+        CancellationToken cancellationToken)
     {
         var json = await _http.GetStringAsync(releaseApiUrl, cancellationToken).ConfigureAwait(false);
         using var doc = JsonDocument.Parse(json);
 
-        string? metricsZipUrl = null;
+        string? addonZipUrl = null;
         if (doc.RootElement.TryGetProperty("assets", out var assetsProp) && assetsProp.ValueKind == JsonValueKind.Array)
         {
             string? fallbackZip = null;
@@ -481,33 +517,33 @@ public sealed class ManifestUpdateService
                 }
 
                 fallbackZip ??= url;
-                if (name.Contains("metrics", StringComparison.OrdinalIgnoreCase))
+                if (name.Contains(addonFolderName, StringComparison.OrdinalIgnoreCase))
                 {
-                    metricsZipUrl = url;
+                    addonZipUrl = url;
                     break;
                 }
             }
 
-            metricsZipUrl ??= fallbackZip;
+            addonZipUrl ??= fallbackZip;
         }
 
-        if (string.IsNullOrWhiteSpace(metricsZipUrl) &&
+        if (string.IsNullOrWhiteSpace(addonZipUrl) &&
             doc.RootElement.TryGetProperty("zipball_url", out var zipballProp))
         {
-            metricsZipUrl = zipballProp.GetString();
+            addonZipUrl = zipballProp.GetString();
         }
 
-        if (string.IsNullOrWhiteSpace(metricsZipUrl))
+        if (string.IsNullOrWhiteSpace(addonZipUrl))
         {
-            throw new InvalidOperationException("Could not find Metrics addon archive in latest GitHub release.");
+            throw new InvalidOperationException($"Could not find {displayName} addon archive in latest GitHub release.");
         }
 
-        var tempZip = Path.Combine(Path.GetTempPath(), $"overlords_metrics_{Guid.NewGuid():N}.zip");
+        var tempZip = Path.Combine(Path.GetTempPath(), $"overlords_{addonFolderName}_{Guid.NewGuid():N}.zip");
         try
         {
-            await DownloadFileAsync(metricsZipUrl, tempZip, cancellationToken).ConfigureAwait(false);
-            var metricsDir = Path.Combine(ashitaDir, "addons", "metrics");
-            ExtractMetricsZipToDirectory(tempZip, metricsDir);
+            await DownloadFileAsync(addonZipUrl, tempZip, cancellationToken).ConfigureAwait(false);
+            var addonDir = Path.Combine(ashitaDir, "addons", addonFolderName);
+            ExtractAddonZipToDirectory(tempZip, addonDir, entryFileName);
         }
         finally
         {
@@ -515,15 +551,19 @@ public sealed class ManifestUpdateService
         }
     }
 
-    public static void ExtractMetricsZipToDirectory(string zipPath, string metricsDir)
+    public static void ExtractMetricsZipToDirectory(string zipPath, string metricsDir) =>
+        ExtractAddonZipToDirectory(zipPath, metricsDir, "metrics.lua");
+
+    public static void ExtractAddonZipToDirectory(string zipPath, string addonDir, string entryFileName)
     {
-        Directory.CreateDirectory(metricsDir);
-        var rootFull = Path.GetFullPath(metricsDir);
+        Directory.CreateDirectory(addonDir);
+        var rootFull = Path.GetFullPath(addonDir);
+        var rootWithSep = rootFull.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar) + Path.DirectorySeparatorChar;
 
         using var archive = ZipFile.OpenRead(zipPath);
         var entryPoint = archive.Entries.FirstOrDefault(e =>
             !string.IsNullOrEmpty(e.Name) &&
-            e.Name.Equals("metrics.lua", StringComparison.OrdinalIgnoreCase));
+            e.Name.Equals(entryFileName, StringComparison.OrdinalIgnoreCase));
 
         var stripPrefix = string.Empty;
         if (entryPoint is not null)
@@ -560,7 +600,7 @@ public sealed class ManifestUpdateService
             }
 
             var dest = Path.GetFullPath(Path.Combine(rootFull, relPath.Replace('/', Path.DirectorySeparatorChar)));
-            if (!dest.StartsWith(rootFull, StringComparison.OrdinalIgnoreCase))
+            if (!dest.StartsWith(rootWithSep, StringComparison.OrdinalIgnoreCase))
             {
                 continue;
             }
@@ -569,9 +609,9 @@ public sealed class ManifestUpdateService
             entry.ExtractToFile(dest, overwrite: true);
         }
 
-        if (!File.Exists(Path.Combine(rootFull, "metrics.lua")))
+        if (!File.Exists(Path.Combine(rootFull, entryFileName)))
         {
-            throw new InvalidOperationException("metrics.lua was not found inside downloaded Metrics archive.");
+            throw new InvalidOperationException($"{entryFileName} was not found inside downloaded archive.");
         }
     }
 

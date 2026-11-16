@@ -53,6 +53,15 @@ public sealed class FfxiInstallDetector
         diag.MetricsAddonSynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
                                   File.Exists(Path.Combine(ashitaDir, "addons", "metrics", "metrics.lua"));
 
+        diag.CheckerAddonInstalled = !string.IsNullOrWhiteSpace(ashitaDir) &&
+                                     File.Exists(Path.Combine(ashitaDir, "addons", "checker", "checker.lua"));
+
+        diag.MobDbAddonSynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
+                                File.Exists(Path.Combine(ashitaDir, "addons", "mobdb", "mobdb.lua"));
+
+        diag.KazenoeyeAddonSynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
+                                    File.Exists(Path.Combine(ashitaDir, "addons", "kazenoeye", "kazenoeye.lua"));
+
         var datFiles = manifest.Files.Where(f => f.Category == "dat").ToList();
         diag.DatOverlaySynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
                                 datFiles.Count > 0 &&

@@ -14,6 +14,9 @@ public sealed class InstallDiagnostics
     public bool TalentsAddonSynced { get; set; }
     public bool CrystalSocketAddonSynced { get; set; }
     public bool MetricsAddonSynced { get; set; }
+    public bool CheckerAddonInstalled { get; set; }
+    public bool MobDbAddonSynced { get; set; }
+    public bool KazenoeyeAddonSynced { get; set; }
     public bool DatOverlaySynced { get; set; }
 
     public bool DirectPlayEnabled { get; set; }

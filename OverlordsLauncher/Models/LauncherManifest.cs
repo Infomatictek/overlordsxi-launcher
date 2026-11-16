@@ -75,6 +75,12 @@ public sealed class ManifestBootstrap
 
     [JsonPropertyName("metricsLatestApiUrl")]
     public string MetricsLatestApiUrl { get; set; } = "https://api.github.com/repos/RaraProjects/metrics/releases/latest";
+
+    [JsonPropertyName("mobdbLatestApiUrl")]
+    public string MobDbLatestApiUrl { get; set; } = "https://api.github.com/repos/ThornyFFXI/mobdb/releases/latest";
+
+    [JsonPropertyName("kazenoeyeLatestApiUrl")]
+    public string KazenoeyeLatestApiUrl { get; set; } = "https://api.github.com/repos/kazenohito/kazenoeye/releases/latest";
 }
 
 public sealed class ManifestFileEntry

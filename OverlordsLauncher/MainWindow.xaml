@@ -110,7 +110,7 @@
                                         <TextBlock Text="{Binding UpdateBadgeText}" FontSize="12" Foreground="{StaticResource CyanAccent}" FontWeight="SemiBold" />
                                     </Border>
                                     <Border Background="#1A2334" CornerRadius="4" Padding="8,4">
-                                        <TextBlock Text="Ashita v4  •  Pivot  •  talents  •  crystalsocket  •  metrics" FontSize="12" Foreground="{StaticResource TextSecondary}" />
+                                        <TextBlock Text="Ashita v4  •  Pivot  •  talents  •  crystalsocket  •  metrics  •  mobdb  •  kazenoeye" FontSize="12" Foreground="{StaticResource TextSecondary}" />
                                     </Border>
                                 </StackPanel>
                             </StackPanel>
@@ -151,6 +151,9 @@
                                     <CheckBox Content="Auto-load overlords_talents (/talents)" IsChecked="{Binding AutoLoadTalentsAddon}" />
                                     <CheckBox Content="Auto-load crystalsocket (Equipment Soul Crystal UI)" IsChecked="{Binding AutoLoadCrystalSocketAddon}" />
                                     <CheckBox Content="Auto-load metrics DPS parser (/metrics)" IsChecked="{Binding AutoLoadMetricsAddon}" />
+                                    <CheckBox Content="Auto-load checker (/check exact mob levels)" IsChecked="{Binding AutoLoadCheckerAddon}" />
+                                    <CheckBox Content="Auto-load mobdb (Target level, aggro &amp; info)" IsChecked="{Binding AutoLoadMobDbAddon}" />
+                                    <CheckBox Content="Auto-load kazenoeye (Debuffs &amp; HP over mobs)" IsChecked="{Binding AutoLoadKazenoeyeAddon}" />
                                     <CheckBox Content="Enable Pivot DAT overlay (Call Eos)" IsChecked="{Binding EnablePivotOverlay}" />
                                     <CheckBox Content="Close launcher when game starts" IsChecked="{Binding AutoCloseOnLaunch}" />
 
@@ -550,7 +553,7 @@
                                         </Grid>
                                     </Border>
 
-                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,8">
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -567,7 +570,7 @@
                                         </Grid>
                                     </Border>
 
-                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,8">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*" />
@@ -580,6 +583,57 @@
                                             </StackPanel>
                                             <TextBlock Grid.Column="2" Text="{Binding Diagnostics.MetricsAddonSynced, Converter={StaticResource BoolToReadyText}}"
                                                        Foreground="{Binding Diagnostics.MetricsAddonSynced, Converter={StaticResource BoolToStatusBrush}}"
+                                                       FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="checker Addon" FontWeight="Bold" FontSize="13" />
+                                                <TextBlock Text="Shows exact monster level &amp; defense/eva on /check" Foreground="{StaticResource TextSecondary}" FontSize="11.5" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding Diagnostics.CheckerAddonInstalled, Converter={StaticResource BoolToReadyText}}"
+                                                       Foreground="{Binding Diagnostics.CheckerAddonInstalled, Converter={StaticResource BoolToStatusBrush}}"
+                                                       FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,8,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="mobdb Addon" FontWeight="Bold" FontSize="13" />
+                                                <TextBlock Text="Target mob level range, aggro, &amp; weaknesses (/mobdb)" Foreground="{StaticResource TextSecondary}" FontSize="11.5" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding Diagnostics.MobDbAddonSynced, Converter={StaticResource BoolToReadyText}}"
+                                                       Foreground="{Binding Diagnostics.MobDbAddonSynced, Converter={StaticResource BoolToStatusBrush}}"
+                                                       FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
+                                        </Grid>
+                                    </Border>
+
+                                    <Border Background="{StaticResource BgCardAlt}" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,0,0,8">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="10" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="kazenoeye Addon" FontWeight="Bold" FontSize="13" />
+                                                <TextBlock Text="Debuff icons, timers &amp; HP bar above mob models (/ke)" Foreground="{StaticResource TextSecondary}" FontSize="11.5" />
+                                            </StackPanel>
+                                            <TextBlock Grid.Column="2" Text="{Binding Diagnostics.KazenoeyeAddonSynced, Converter={StaticResource BoolToReadyText}}"
+                                                       Foreground="{Binding Diagnostics.KazenoeyeAddonSynced, Converter={StaticResource BoolToStatusBrush}}"
                                                        FontWeight="Bold" FontSize="12" VerticalAlignment="Center" />
                                         </Grid>
                                     </Border>
@@ -693,14 +747,24 @@
                                     2. Enable Windows DirectPlay (Turn Windows features on or off -> Legacy Components -> DirectPlay).
                                 </TextBlock>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondary}" FontSize="13" Margin="0,0,0,10">
-                                    3. Click PLAY OVERLORDSXI — the launcher automatically downloads Ashita v4, xiloader.exe, XIPivot, the OverlordsXI DAT overlay, and overlords_talents if missing.
+                                    3. Click PLAY OVERLORDSXI — the launcher automatically downloads Ashita v4, xiloader.exe, XIPivot, the OverlordsXI DAT overlay, and all default addons if missing.
                                 </TextBlock>
                                 <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondary}" FontSize="13" Margin="0,0,0,10">
                                     4. On your first launch, leave Auto-login unchecked and choose option 2 in xiloader to create an account on the server.
                                 </TextBlock>
-                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondary}" FontSize="13">
+                                <TextBlock TextWrapping="Wrap" Foreground="{StaticResource TextSecondary}" FontSize="13" Margin="0,0,0,14">
                                     5. For the best alt-tab stability on Windows 10/11, keep Window Mode set to Borderless or Windowed.
                                 </TextBlock>
+
+                                <TextBlock Text="QOL ADDONS &amp; COMMANDS" FontSize="14" FontWeight="Bold" Foreground="{StaticResource GoldAccent}" Margin="0,0,0,8" />
+                                <Border Background="#0E1420" CornerRadius="6" Padding="12">
+                                    <StackPanel>
+                                        <TextBlock Text="/check (checker) — Shows exact mob level, eva &amp; def" FontFamily="Consolas" FontSize="12" Foreground="{StaticResource CyanAccent}" Margin="0,0,0,4" />
+                                        <TextBlock Text="/mobdb (or /md) — Configure target level &amp; aggro bar" FontFamily="Consolas" FontSize="12" Foreground="{StaticResource TextPrimary}" Margin="0,0,0,4" />
+                                        <TextBlock Text="/kazenoeye (/ke) — Customize mob HP &amp; debuff HUD" FontFamily="Consolas" FontSize="12" Foreground="{StaticResource TextPrimary}" Margin="0,0,0,4" />
+                                        <TextBlock Text="/metrics — Open/configure the DPS combat parser" FontFamily="Consolas" FontSize="12" Foreground="{StaticResource TextPrimary}" />
+                                    </StackPanel>
+                                </Border>
                             </StackPanel>
                         </Border>
                     </Grid>

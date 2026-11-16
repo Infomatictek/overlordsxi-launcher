@@ -516,6 +516,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
         set { if (_settings.AutoLoadMetricsAddon != value) { _settings.AutoLoadMetricsAddon = value; OnPropertyChanged(); } }
     }
 
+    public bool AutoLoadCheckerAddon
+    {
+        get => _settings.AutoLoadCheckerAddon;
+        set { if (_settings.AutoLoadCheckerAddon != value) { _settings.AutoLoadCheckerAddon = value; OnPropertyChanged(); } }
+    }
+
+    public bool AutoLoadMobDbAddon
+    {
+        get => _settings.AutoLoadMobDbAddon;
+        set { if (_settings.AutoLoadMobDbAddon != value) { _settings.AutoLoadMobDbAddon = value; OnPropertyChanged(); } }
+    }
+
+    public bool AutoLoadKazenoeyeAddon
+    {
+        get => _settings.AutoLoadKazenoeyeAddon;
+        set { if (_settings.AutoLoadKazenoeyeAddon != value) { _settings.AutoLoadKazenoeyeAddon = value; OnPropertyChanged(); } }
+    }
+
     public bool AutoCloseOnLaunch
     {
         get => _settings.AutoCloseOnLaunch;

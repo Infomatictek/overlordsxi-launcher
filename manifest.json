@@ -19,7 +19,9 @@
     "ashitaZipUrl": "https://github.com/AshitaXI/Ashita-v4beta/archive/refs/heads/main.zip",
     "xiloaderLatestApiUrl": "https://api.github.com/repos/LandSandBoat/xiloader/releases/latest",
     "xipivotLatestApiUrl": "https://api.github.com/repos/HealsCodes/XIPivot/releases/latest",
-    "metricsLatestApiUrl": "https://api.github.com/repos/RaraProjects/metrics/releases/latest"
+    "metricsLatestApiUrl": "https://api.github.com/repos/RaraProjects/metrics/releases/latest",
+    "mobdbLatestApiUrl": "https://api.github.com/repos/ThornyFFXI/mobdb/releases/latest",
+    "kazenoeyeLatestApiUrl": "https://api.github.com/repos/kazenohito/kazenoeye/releases/latest"
   },
   "files": [
     {
@@ -150,6 +152,11 @@
     }
   ],
   "news": [
+    {
+      "date": "2026-11-16",
+      "title": "QOL Addons Included: Mob Levels & Mob Debuff HUD",
+      "body": "The launcher now includes checker (exact monster level on /check), mobdb (target mob level range, aggro & weaknesses), and kazenoeye (floating HP bar and debuff icons/timers above mob models) by default."
+    },
     {
       "date": "2026-11-14",
       "title": "Scholar Call Eos & Call Titania Companions",
