@@ -330,6 +330,12 @@ local function handleProtoLine(payload)
     elseif kind == 'WS_END' then
         if state.tempWs ~= nil and tonumber(parts[2]) == state.tempWs.id then
             state.avail = tonumber(parts[3]) or state.avail
+            state.spentByWs[state.tempWs.id] = state.tempWs.spent or 0
+            if parts[4] ~= nil then
+                state.unlockedByWs[state.tempWs.id] = (tonumber(parts[4]) or 0) == 1
+            else
+                state.unlockedByWs[state.tempWs.id] = (state.tempWs.spent or 0) > 0
+            end
             state.wsDetail = state.tempWs
             state.tempWs = nil
         end
@@ -595,7 +601,9 @@ local function drawNodeTooltip(node, detail, isMaxed, isScNode, titleCol)
         drawTextColored(titleCol, string.format('%s   [%d / %d]', node.name, node.rank, node.maxRank))
         drawTextDisabled(tierNames[node.tier] or ('Tier ' .. tostring(node.tier)))
         imgui.Separator()
-        imgui.PushTextWrapPos(340)
+        if imgui.PushTextWrapPos and imgui.PopTextWrapPos then
+            imgui.PushTextWrapPos(340)
+        end
         local okWrap, errWrap = pcall(function()
             if node.rank > 0 then
                 drawTextColored({ 0.55, 0.95, 0.65, 1.0 }, 'Active Effect:')
@@ -630,7 +638,9 @@ local function drawNodeTooltip(node, detail, isMaxed, isScNode, titleCol)
             imgui.Spacing()
             drawTextDisabled('Left-Click: +1 Rank   |   Right-Click: -1 Rank')
         end)
-        imgui.PopTextWrapPos()
+        if imgui.PushTextWrapPos and imgui.PopTextWrapPos then
+            imgui.PopTextWrapPos()
+        end
         if not okWrap then
             error(errWrap)
         end
@@ -680,6 +690,18 @@ local function drawTreeCanvas()
         end
     end
     imgui.Separator()
+
+    if detail.nodes == nil or #detail.nodes == 0 then
+        imgui.Spacing()
+        drawTextColored({ 1.00, 0.55, 0.45, 1.0 }, '  No talent nodes received for ' .. tostring(detail.name) .. '.')
+        drawTextDisabled('  Click below to re-request the talent tree from the server.')
+        imgui.Spacing()
+        imgui.SetCursorPosX(imgui.GetCursorPosX() + 10)
+        if imgui.Button('Reload WS Tree', { 150, 28 }) then
+            requestWS(detail.id)
+        end
+        return
+    end
 
     -- Reserve bottom ~88px for the Pinned Node Inspector Panel
     local totalAvailW, totalAvailH = toXY(imgui.GetContentRegionAvail())
@@ -940,11 +962,15 @@ local function drawTreeCanvas()
             imgui.SameLine()
             drawTextDisabled(string.format('  •  Tier %d  |  Left-Click: +1 Rank  |  Right-Click: -1 Rank', inspectNode.tier))
 
-            imgui.PushTextWrapPos(math.max(300, totalAvailW - 24))
+            if imgui.PushTextWrapPos and imgui.PopTextWrapPos then
+                imgui.PushTextWrapPos(math.max(300, totalAvailW - 24))
+            end
             pcall(function()
                 drawText(formatReadableDesc(inspectNode.desc))
             end)
-            imgui.PopTextWrapPos()
+            if imgui.PushTextWrapPos and imgui.PopTextWrapPos then
+                imgui.PopTextWrapPos()
+            end
 
             if not isMaxed then
                 local reqs = getNodeRequirements(inspectNode, detail)
