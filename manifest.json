@@ -306,6 +306,13 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/metrics/windows/!window.lua",
+      "targetPath": "metrics/windows/!window.lua",
+      "sha256": "f59a438ac6118a6323bc9fd1ed6ca2223ad6f30e5ab5ee6b6ad0620e35007727",
+      "size": 8824
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/data/augments.lua",
       "targetPath": "overlords_gear/data/augments.lua",
       "sha256": "310d32472e84d1adc4a12a753be86033c79b9145774553d66ea6b0ac1a1109dd",
