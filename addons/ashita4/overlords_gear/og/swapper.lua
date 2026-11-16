@@ -252,6 +252,10 @@ local function resolveSpellMidcastSet(spell, state)
         end
     elseif string.find(lower, '^indi%-') or string.find(lower, '^geo%-') then
         return 'Geomancy'
+    elseif lower == 'runic bolt' or lower == 'runic sever' then
+        if state.Toggles.Burst and state.Sets.Burst then return 'Burst' end
+        if state.Toggles.Nuke == 'Acc' and state.Sets.Nuke_Acc then return 'Nuke_Acc' end
+        return 'Nuke'
     end
 
     -- Skill-based fallback (32=Divine, 33=Healing, 34=Enhancing, 35=Enfeebling, 36=Elemental, 37=Dark, 38=Summoning, 39=Ninjutsu, 40=Singing, 43=Blue, 44=Geomancy)
@@ -295,7 +299,19 @@ local function resolveSpellPrecastSet(spell, state)
     return 'Precast'
 end
 
+-- Build a locked-slot mask for action swaps that preserves Main/Sub/Range weapons (slots 1..3) so TP is never wiped
+local function actionLockedSlots(baseLocks)
+    local locks = { [1] = true, [2] = true, [3] = true }
+    if baseLocks then
+        for k, v in pairs(baseLocks) do
+            if v then locks[k] = true end
+        end
+    end
+    return locks
+end
+
 -- Handle outgoing packets (0x15 position, 0x1A action)
+-- IMPORTANT: Never set e.blocked = true on 0x1A packets; queue 0x50/0x51 alongside the native 0x1A packet.
 function swapper.HandlePacketOut(e, state)
     if e.id == 0x15 then
         swapper.OnPositionPacket()
@@ -316,11 +332,12 @@ function swapper.HandlePacketOut(e, state)
     local pktMgr   = AshitaCore:GetPacketManager()
     if not resMgr or not pktMgr then return end
 
-    local now = os.clock()
+    local now   = os.clock()
+    local locks = actionLockedSlots(state.Prefs.LockedSlots)
 
     -- Category 0x03: Cast Spell
     if category == 0x03 then
-        local spell = resMgr:GetSpellById(actionId)
+        local spell   = resMgr:GetSpellById(actionId)
         local preName = resolveSpellPrecastSet(spell, state)
         local midName = resolveSpellMidcastSet(spell, state)
         local preSet  = state.Sets[preName] or state.Sets.Precast
@@ -332,28 +349,27 @@ function swapper.HandlePacketOut(e, state)
             castSec = ((spell.CastTime * 0.25) * (100 - math.min(80, fc))) / 100 + 0.6
         end
 
-        e.blocked = true
-        if preSet then
-            swapper.EquipSlots(preSet.Slots, state.Prefs.LockedSlots, preSet.Label or preName)
+        local midSlots = midSet and midSet.Slots or nil
+        if midSlots and state.Toggles.TH and state.Sets.TH then
+            midSlots = mergeSetSlots(midSlots, state.Sets.TH.Slots)
         end
 
-        isInjecting1A = true
-        pktMgr:AddOutgoingPacket(0x1A, raw:totable())
-        isInjecting1A = false
-
-        if midSet then
-            local midSlots = midSet.Slots
-            if state.Toggles.TH and state.Sets.TH then
-                midSlots = mergeSetSlots(midSlots, state.Sets.TH.Slots)
-            end
-            swapper.EquipSlots(midSlots, state.Prefs.LockedSlots, midSet.Label or midName)
+        if preSet and castSec > 0.8 then
+            swapper.EquipSlots(preSet.Slots, locks, preSet.Label or preName)
+        elseif midSlots then
+            swapper.EquipSlots(midSlots, locks, (midSet and midSet.Label) or midName)
+            midSlots = nil
         end
 
         swapper.ActiveAction = {
-            Type    = 'Spell',
-            Name    = (spell and spell.Name and spell.Name[1]) or ('Spell #' .. tostring(actionId)),
-            SetName = midName,
-            EndsAt  = now + math.max(1.2, castSec),
+            Type        = 'Spell',
+            Name        = (spell and spell.Name and spell.Name[1]) or ('Spell #' .. tostring(actionId)),
+            SetName     = midName,
+            MidSlots    = midSlots,
+            MidLabel    = (midSet and midSet.Label) or midName,
+            MidAt       = now + 0.15,
+            MidEquipped = (midSlots == nil),
+            EndsAt      = now + math.max(1.2, castSec),
         }
         return
     end
@@ -366,12 +382,7 @@ function swapper.HandlePacketOut(e, state)
         local wsSet = state.Sets[wsSetKey] or state.Sets.WS_Default
 
         if wsSet then
-            e.blocked = true
-            swapper.EquipSlots(wsSet.Slots, state.Prefs.LockedSlots, wsSet.Label or wsSetKey)
-            isInjecting1A = true
-            pktMgr:AddOutgoingPacket(0x1A, raw:totable())
-            isInjecting1A = false
-
+            swapper.EquipSlots(wsSet.Slots, locks, wsSet.Label or wsSetKey)
             swapper.ActiveAction = {
                 Type    = 'WS',
                 Name    = wsName ~= '' and wsName or ('WS #' .. tostring(actionId)),
@@ -390,12 +401,7 @@ function swapper.HandlePacketOut(e, state)
         local jaSet = state.Sets[jaSetKey]
 
         if jaSet then
-            e.blocked = true
-            swapper.EquipSlots(jaSet.Slots, state.Prefs.LockedSlots, jaSet.Label or jaSetKey)
-            isInjecting1A = true
-            pktMgr:AddOutgoingPacket(0x1A, raw:totable())
-            isInjecting1A = false
-
+            swapper.EquipSlots(jaSet.Slots, locks, jaSet.Label or jaSetKey)
             swapper.ActiveAction = {
                 Type    = 'JA',
                 Name    = jaName,
@@ -411,21 +417,20 @@ function swapper.HandlePacketOut(e, state)
         local preSet = state.Sets.Preshot
         local midSet = state.Sets.Midshot
         if preSet or midSet then
-            e.blocked = true
             if preSet then
-                swapper.EquipSlots(preSet.Slots, state.Prefs.LockedSlots, preSet.Label or 'Preshot')
-            end
-            isInjecting1A = true
-            pktMgr:AddOutgoingPacket(0x1A, raw:totable())
-            isInjecting1A = false
-            if midSet then
-                swapper.EquipSlots(midSet.Slots, state.Prefs.LockedSlots, midSet.Label or 'Midshot')
+                swapper.EquipSlots(preSet.Slots, locks, preSet.Label or 'Preshot')
+            elseif midSet then
+                swapper.EquipSlots(midSet.Slots, locks, midSet.Label or 'Midshot')
             end
             swapper.ActiveAction = {
-                Type    = 'Ranged',
-                Name    = 'Ranged Attack',
-                SetName = 'Midshot',
-                EndsAt  = now + 2.8,
+                Type        = 'Ranged',
+                Name        = 'Ranged Attack',
+                SetName     = 'Midshot',
+                MidSlots    = (preSet and midSet) and midSet.Slots or nil,
+                MidLabel    = (midSet and midSet.Label) or 'Midshot',
+                MidAt       = now + 0.15,
+                MidEquipped = not (preSet and midSet),
+                EndsAt      = now + 2.8,
             }
         end
         return
@@ -485,13 +490,17 @@ local function updatePlayerMovement()
     return lastPos.moving
 end
 
--- Periodic state tick (equips Idle / Engaged / Resting when no action is in flight)
+-- Periodic state tick (equips Midcast when due, or Idle / Engaged / Resting when no action is in flight)
 function swapper.Tick(state)
     if not state or state.Toggles.Dress or state.Toggles.Paused then return end
     if swapper.IsZoneHolding(state.Prefs.ZoneWait) then return end
 
     local now = os.clock()
     if swapper.ActiveAction ~= nil then
+        if not swapper.ActiveAction.MidEquipped and swapper.ActiveAction.MidSlots and now >= (swapper.ActiveAction.MidAt or 0) then
+            swapper.ActiveAction.MidEquipped = true
+            swapper.EquipSlots(swapper.ActiveAction.MidSlots, actionLockedSlots(state.Prefs.LockedSlots), swapper.ActiveAction.MidLabel)
+        end
         if now < swapper.ActiveAction.EndsAt then
             return
         end

@@ -338,6 +338,24 @@
       "targetPath": "overlords_talents/overlords_talents.lua",
       "sha256": "9e79984b9dcbc683d94bbf7292e9aa83e7da7e5939101442f72b416c5a6f63c9",
       "size": 25724
+    },
+    {
+      "repoPath": "dat-overlay/ROM/118/114.DAT",
+      "installPath": "OVERLORDSXI/ROM/118/114.DAT",
+      "sha256": "7cbd0768bf7bcdac46e49e1f5aac7e9d4784603eee560959a3b74fa3c76469b9",
+      "size": 403280
+    },
+    {
+      "repoPath": "dat-overlay/ROM/181/73.DAT",
+      "installPath": "OVERLORDSXI/ROM/181/73.DAT",
+      "sha256": "bcb5eb935a593a73366175bdc23e5c6a61de9b49a7f2c413eea8afeab85610aa",
+      "size": 81984
+    },
+    {
+      "repoPath": "addons/ashita4/overlords_gear/og/swapper.lua",
+      "installPath": "Ashita/addons/overlords_gear/og/swapper.lua",
+      "sha256": "91068eac15a8d8eba6b6b72c34ae01cf00159d5ba4479b2e054c2f331fe4219a",
+      "size": 22901
     }
   ],
   "news": [
