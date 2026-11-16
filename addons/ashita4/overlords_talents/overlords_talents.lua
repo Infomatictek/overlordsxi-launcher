@@ -285,6 +285,23 @@ local function handleProtoLine(payload)
             nodes     = {},
             byKey     = {},
         }
+    elseif kind == 'NODES' then
+        local body = string.sub(payload, 7)
+        local startPos = 1
+        while startPos <= #body do
+            local sepStart, sepEnd = string.find(body, ';;', startPos, true)
+            local entry
+            if sepStart then
+                entry = string.sub(body, startPos, sepStart - 1)
+                startPos = sepEnd + 1
+            else
+                entry = string.sub(body, startPos)
+                startPos = #body + 1
+            end
+            if entry ~= '' then
+                handleProtoLine('NODE|' .. entry)
+            end
+        end
     elseif kind == 'NODE' then
         if state.tempWs ~= nil and tonumber(parts[2]) == state.tempWs.id then
             local nodeIdx = #state.tempWs.nodes + 1
