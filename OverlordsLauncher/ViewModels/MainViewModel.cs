@@ -61,10 +61,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
         CheckUpdatesCommand = new AsyncRelayCommand(() => SyncUpdatesAsync(forceAll: false), () => !IsBusy);
         RepairFilesCommand = new AsyncRelayCommand(() => SyncUpdatesAsync(forceAll: true), () => !IsBusy);
         CheckLauncherUpdateCommand = new AsyncRelayCommand(
-            () => CheckAndApplyLauncherUpdateAsync(autoApply: false, showUpToDateDialog: true),
+            async () => await CheckAndApplyLauncherUpdateAsync(autoApply: false, showUpToDateDialog: true),
             () => !IsBusy);
         ApplyLauncherUpdateCommand = new AsyncRelayCommand(
-            ApplyAvailableLauncherUpdateAsync,
+            async () => await ApplyAvailableLauncherUpdateAsync(),
             () => !IsBusy && IsLauncherUpdateAvailable);
         InstallPrerequisitesCommand = new AsyncRelayCommand(InstallPrerequisitesAsync, () => !IsBusy);
         RefreshStatusCommand = new AsyncRelayCommand(RefreshServerStatusAsync);
@@ -663,15 +663,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 _settingsService.LoadLocalServerOverride());
 
             _manifest = manifest;
-            OnPropertyChanged(nameof(ServerName));
-            OnPropertyChanged(nameof(Tagline));
-            NotifyEffectiveServerChanged();
-
-            NewsItems.Clear();
-            foreach (var item in _manifest.News)
-            {
-                NewsItems.Add(item);
-            }
+            ApplyManifest(manifest);
 
             var pending = _manifestService.GetOutdatedFiles(_manifest, _settings);
             PendingUpdatesCount = pending.Count;
@@ -689,7 +681,24 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    private async Task CheckAndApplyLauncherUpdateAsync(bool autoApply, bool showUpToDateDialog)
+    private void ApplyManifest(LauncherManifest manifest)
+    {
+        _manifest = manifest;
+        OnPropertyChanged(nameof(ServerName));
+        OnPropertyChanged(nameof(Tagline));
+        NotifyEffectiveServerChanged();
+
+        NewsItems.Clear();
+        foreach (var item in _manifest.News)
+        {
+            NewsItems.Add(item);
+        }
+    }
+
+    private async Task<bool> CheckAndApplyLauncherUpdateAsync(
+        bool autoApply,
+        bool showUpToDateDialog,
+        bool promptOnUpdateIfManual = false)
     {
         try
         {
@@ -710,35 +719,37 @@ public sealed class MainViewModel : INotifyPropertyChanged
                         MessageBoxImage.Information);
                 }
 
-                return;
+                return false;
             }
 
             Log($"Launcher update available: {result.LatestTag} (current {LauncherVersionText})");
 
-            if (autoApply && !IsBusy)
+            if (autoApply)
             {
                 if (LauncherSelfUpdateService.CanSelfUpdateInPlace(out _, out var reason))
                 {
-                    await ApplyAvailableLauncherUpdateAsync();
-                    return;
+                    return await ApplyAvailableLauncherUpdateAsync();
                 }
 
                 Log($"Automatic launcher update skipped: {reason}");
                 StatusMessage = $"Launcher {result.LatestTag} available (click Update Launcher).";
-                return;
+                return false;
             }
 
             StatusMessage = $"Launcher {result.LatestTag} is available!";
-            if (showUpToDateDialog)
+            if (showUpToDateDialog || promptOnUpdateIfManual)
             {
+                var prompt = promptOnUpdateIfManual
+                    ? $"A new OverlordsXI Launcher release ({result.LatestTag}) is available.\nCurrent version: {LauncherVersionText}\n\nDownload and restart before playing?"
+                    : $"A new OverlordsXI Launcher release ({result.LatestTag}) is available.\nCurrent version: {LauncherVersionText}\n\nDownload and restart now?";
                 var choice = MessageBox.Show(
-                    $"A new OverlordsXI Launcher release ({result.LatestTag}) is available.\nCurrent version: {LauncherVersionText}\n\nDownload and restart now?",
+                    prompt,
                     "Launcher Update Available",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Information);
                 if (choice == MessageBoxResult.Yes)
                 {
-                    await ApplyAvailableLauncherUpdateAsync();
+                    return await ApplyAvailableLauncherUpdateAsync();
                 }
             }
         }
@@ -754,13 +765,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
                     MessageBoxImage.Warning);
             }
         }
+
+        return false;
     }
 
-    private async Task ApplyAvailableLauncherUpdateAsync()
+    private async Task<bool> ApplyAvailableLauncherUpdateAsync()
     {
         if (_availableLauncherUpdate is null || !_availableLauncherUpdate.UpdateAvailable)
         {
-            return;
+            return false;
         }
 
         if (!LauncherSelfUpdateService.CanSelfUpdateInPlace(out var targetExePath, out var reason) ||
@@ -784,10 +797,15 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 }
             }
 
-            return;
+            return false;
         }
 
-        IsBusy = true;
+        var wasBusy = IsBusy;
+        if (!wasBusy)
+        {
+            IsBusy = true;
+        }
+
         ProgressPercent = 0;
         try
         {
@@ -804,6 +822,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
 
             _selfUpdateService.LaunchUpdaterAndPrepareRestart(stagedExe, targetExePath);
             Application.Current?.Shutdown();
+            return true;
         }
         catch (Exception ex)
         {
@@ -814,10 +833,14 @@ public sealed class MainViewModel : INotifyPropertyChanged
                 "Launcher Update Error",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
+            return false;
         }
         finally
         {
-            IsBusy = false;
+            if (!wasBusy)
+            {
+                IsBusy = false;
+            }
         }
     }
 
@@ -831,7 +854,7 @@ public sealed class MainViewModel : INotifyPropertyChanged
             var (manifest, _) = await _manifestService.FetchManifestAsync(
                 embedded,
                 _settingsService.LoadLocalServerOverride());
-            _manifest = manifest;
+            ApplyManifest(manifest);
 
             var progress = new Progress<SyncProgress>(p =>
             {
@@ -906,24 +929,43 @@ public sealed class MainViewModel : INotifyPropertyChanged
         {
             _settingsService.Save(_settings, PlainPassword);
 
+            StatusMessage = "Checking for launcher updates...";
+            var updatedLauncher = await CheckAndApplyLauncherUpdateAsync(
+                autoApply: _settings.AutoUpdateLauncher,
+                showUpToDateDialog: false,
+                promptOnUpdateIfManual: true);
+            if (updatedLauncher)
+            {
+                return;
+            }
+
             var progress = new Progress<SyncProgress>(p =>
             {
                 StatusMessage = p.Message;
                 ProgressPercent = p.Percent;
             });
 
+            StatusMessage = "Checking latest OverlordsXI manifest...";
+            var embedded = _manifestService.LoadEmbeddedManifest();
+            var (manifest, fromRemote) = await _manifestService.FetchManifestAsync(
+                embedded,
+                _settingsService.LoadLocalServerOverride());
+            ApplyManifest(manifest);
+
+            if (!fromRemote)
+            {
+                Log("Warning: Could not reach GitHub for remote manifest; checking against bundled manifest.");
+            }
+
             StatusMessage = "Checking Ashita v4 prerequisites...";
             await _manifestService.EnsureAshitaAndToolsAsync(_manifest, _settings, progress);
 
-            StatusMessage = "Checking OverlordsXI files...";
-            var embedded = _manifestService.LoadEmbeddedManifest();
-            var (manifest, _) = await _manifestService.FetchManifestAsync(
-                embedded,
-                _settingsService.LoadLocalServerOverride());
-            _manifest = manifest;
-
-            await _manifestService.SyncOverlordsFilesAsync(_manifest, _settings, forceAll: false, progress);
+            StatusMessage = "Checking for OverlordsXI file updates...";
+            var updatedCount = await _manifestService.SyncOverlordsFilesAsync(_manifest, _settings, forceAll: false, progress);
             PendingUpdatesCount = _manifestService.GetOutdatedFiles(_manifest, _settings).Count;
+            Log(updatedCount > 0
+                ? $"Updated {updatedCount} OverlordsXI client file(s) before launch."
+                : "All OverlordsXI client files are up to date.");
 
             var xiloaderPath = FfxiInstallDetector.ResolveXiloaderPath(_settings.AshitaPath);
             if (string.IsNullOrEmpty(xiloaderPath))

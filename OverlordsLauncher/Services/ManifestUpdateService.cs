@@ -1,6 +1,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -35,6 +36,12 @@ public sealed class ManifestUpdateService
             Timeout = TimeSpan.FromSeconds(60)
         };
         client.DefaultRequestHeaders.UserAgent.ParseAdd("OverlordsLauncher/1.0 (+https://github.com/Infomatictek/overlordsxi-launcher)");
+        client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue
+        {
+            NoCache = true,
+            NoStore = true
+        };
+        client.DefaultRequestHeaders.Pragma.ParseAdd("no-cache");
         return client;
     }
 
