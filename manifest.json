@@ -131,10 +131,24 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/crystaljobs.dll",
+      "targetPath": "crystalsocket/crystaljobs.dll",
+      "sha256": "1f06ba94a4e82fa31c44ed2adcad2043b043fdada3ff246e2a7cb7ca50856fa5",
+      "size": 94720
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "27fb2627335df0952abc3ac3abd5d37c0d8f478bb3398268df41a2ea072ec80c",
-      "size": 13753
+      "sha256": "2517d31553be8f46560bfea58e3cc91702dd8a1ee5096dbf4e7ee8e8ba2b707b",
+      "size": 15355
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/job_labels.lua",
+      "targetPath": "crystalsocket/job_labels.lua",
+      "sha256": "5adc90c1a3d93a7f2ff51e67558dce35be2883330e3721e6ff6c513cdfb9ed3f",
+      "size": 6519
     },
     {
       "category": "addon",
@@ -154,15 +168,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/state.lua",
       "targetPath": "crystalsocket/state.lua",
-      "sha256": "4dcedba411b545d969126894d1583104814577c77089b1bc1986a9c10011a8b6",
-      "size": 10852
+      "sha256": "0fdec7163f98558344908ddbf93bf3a00c87f7b6edb15b682362341dea7a5f7d",
+      "size": 10853
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "9012cbbfd978c9c138c4faaff7fd4ea6150b0d0695c7cdb41b4904f70c9b5877",
-      "size": 18447
+      "sha256": "1378585544f262dc0972fae2d805b77e9f3b25976c0d66a4a8da96c06d2596d4",
+      "size": 18549
     },
     {
       "category": "addon",

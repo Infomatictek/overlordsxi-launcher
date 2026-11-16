@@ -1,7 +1,7 @@
 addon.name = 'crystalsocket'
 addon.author = 'OverlordsXI / Crystal Socket'
-addon.version = '0.3.1'
-addon.desc = 'OverlordsXI Soul Job crystal socket integrated with the Equipment menu.'
+addon.version = '0.3.2'
+addon.desc = 'OverlordsXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
 
 require('common')
 local ffi = require('ffi')
@@ -11,7 +11,9 @@ local protocol = require('protocol')
 local state = require('state').new()
 local UI = require('ui')
 local Menu = require('menu')
+local labels = require('job_labels').new()
 
+local character_id = 0
 local ui, menu
 local textures, asset_status = {}, {}
 local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'medic', 'sage', 'bladewheel', 'necromancer', 'inquisitor', 'spellblade', 'lifebinder' }
@@ -30,6 +32,8 @@ end
 local function reset(reason)
     epoch = epoch + 1
     state:reset(reason, false)
+    character_id = 0
+    labels:sync(state:snapshot(), character_id, now())
     if ui then ui:blur() end
 end
 
@@ -72,15 +76,20 @@ local function context()
     local party = memory:GetParty()
     local player = memory:GetPlayer()
     local id, name = party:GetMemberServerId(0), party:GetMemberName(0)
-    if transitioning or id == 0 or name == nil or name == '' or party:GetMemberTargetIndex(0) == 0 then
+    if transitioning or type(id) ~= 'number' or id < 1 or id > 4294967295 or id % 1 ~= 0
+        or name == nil or name == '' or party:GetMemberTargetIndex(0) == 0 then
         state:set_context(nil, nil, nil, nil)
+        character_id = 0
+        labels:sync(state:snapshot(), character_id, now())
         if ui then ui:blur() end
         return
     end
     local lvl = player.GetMainJobLevel and player:GetMainJobLevel() or nil
     local changed = state:set_context(tostring(id) .. ':' .. name .. ':' .. epoch,
         player:GetMainJob(), party:GetMemberZone(0), lvl)
+    character_id = id
     if changed and ui then ui:blur(); ui.feedback = nil end
+    labels:sync(state:snapshot(), character_id, now())
 end
 
 local function send(packet)
@@ -165,6 +174,14 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
         tostring(snapshot.open), tostring(snapshot.active), tostring(snapshot.owned_mask)))
     report(('[crystalsocket] catalog_entries=%d'):format(snapshot.catalog and #(snapshot.catalog.entries or {}) or -1))
     report('[crystalsocket] ' .. tostring(snapshot.message))
+    local dll_st = labels:status()
+    report(('[crystalsocket] labels dll=%s known=%s branch=%s error=%s'):format(
+        tostring(labels.native), tostring(labels.known), tostring(labels.branch), tostring(labels.error)))
+    if dll_st then
+        report(('[crystalsocket] native enabled=%d hooks=%d job=%d known=%d branch=%d items=%d search=%d full=%d rows=%d err=%d'):format(
+            dll_st.enabled, dll_st.hooks, dll_st.job, dll_st.known, dll_st.branch,
+            dll_st.item_labels, dll_st.search_labels, dll_st.full_labels, dll_st.search_rows, dll_st.last_error))
+    end
     report(('[crystalsocket] tx queued=%d request=%s observed=%d size=%s buffer=%s injected=%s blocked=%s'):format(
         transport.queued, tostring(transport.request_id), transport.outgoing, tostring(transport.out_size),
         tostring(transport.out_buffer), tostring(transport.out_injected), tostring(transport.out_blocked)))
@@ -201,6 +218,10 @@ ashita.events.register('mouse', 'crystalsocket_mouse_diagnostic', function(e)
 end)
 
 ashita.events.register('load', 'crystalsocket_load', function()
+    if type(addon.path) == 'string' and addon.path ~= '' then
+        labels:set_dll_path(addon.path:gsub('[/\\]+$', '') .. '\\crystaljobs.dll')
+        labels:ensure_loaded()
+    end
     local ok, scaling = pcall(require, 'scaling')
     if not ok or scaling.scaled.w <= 0 or scaling.scaled.h <= 0 then
         print('[crystalsocket] Menu scaling is unavailable; socket hidden.')
@@ -219,11 +240,15 @@ end)
 
 ashita.events.register('packet_in', 'crystalsocket_packet_in', function(e)
     if e.id == protocol.RESPONSE_ID then
+        local packet, boundary_error = event_packet(e)
+        local decoded = packet and protocol.decode_packet(packet) or nil
+        -- The active DLL consumes its high-ID CRYS replies after host filters and before stock dispatch.
+        if decoded and decoded.kind == 'state' and decoded.request_id >= 0x8000 and labels:native_decoder_ready() then
+            return
+        end
         -- Reserved replies must never reach the stock packet dispatcher, including malformed replies.
         e.blocked = true
         context()
-        local packet, boundary_error = event_packet(e)
-        local decoded = packet and protocol.decode_packet(packet) or nil
         transport.incoming = transport.incoming + 1
         local buffer = e.data_modified or e.data
         transport.in_size, transport.in_buffer = e.size, type(buffer) == 'string' and #buffer or nil
@@ -237,6 +262,7 @@ ashita.events.register('packet_in', 'crystalsocket_packet_in', function(e)
         else
             transport.in_error = boundary_error
         end
+        labels:sync(state:snapshot(), character_id, now())
         return
     end
     if e.id == 0x00A then
@@ -301,10 +327,13 @@ ashita.events.register('d3d_present', 'crystalsocket_present', function()
     if ui then
         ui:draw(anchor, ts, native and native.window or nil, native and native.cursor or nil)
     end
+    labels:sync(state:snapshot(), character_id, ts)
 end)
 
 ashita.events.register('unload', 'crystalsocket_unload', function()
     state:set_context(nil, nil, nil, nil)
+    character_id = 0
+    labels:sync(state:snapshot(), character_id, now())
     if ui then ui:blur(); ui.icons = {} end
     ui, menu = nil, nil
     for name, texture in pairs(textures) do

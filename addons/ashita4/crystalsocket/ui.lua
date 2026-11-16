@@ -25,6 +25,9 @@ local fallback_tints = {
     white_prism     = 0xFFE6E6D8,
     onyx_tome       = 0xFFAA6688,
     chakram_crystal = 0xFF8844BB,
+    inquisitor      = 0xFFD89848,
+    spellblade      = 0xFF5566EE,
+    lifebinder      = 0xFF66CC77,
 }
 
 function UI.new(imgui, state, send, scaling, icon_loader)

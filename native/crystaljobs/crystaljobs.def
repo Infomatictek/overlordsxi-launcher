@@ -1,0 +1,6 @@
+LIBRARY crystaljobs
+EXPORTS
+    CrystalJobsInitialize=_CrystalJobsInitialize@0
+    CrystalJobsShutdown=_CrystalJobsShutdown@0
+    CrystalJobsGetStatus=_CrystalJobsGetStatus@8
+    CrystalJobsSetState=_CrystalJobsSetState@8

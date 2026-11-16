@@ -111,7 +111,7 @@ function State:request(operation, branch, now, send, target_job)
     end
     if self.pending then return nil, 'A crystal request is already pending.' end
     if type(send) ~= 'function' then return nil, 'Crystal transport is unavailable.' end
-    if self.next_request >= 65535 then
+    if self.next_request >= 0x7fff then
         return nil, 'Crystal request IDs exhausted; reload the addon.'
     end
 

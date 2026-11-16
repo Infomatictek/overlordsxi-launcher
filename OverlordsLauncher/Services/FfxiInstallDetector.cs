@@ -48,7 +48,9 @@ public sealed class FfxiInstallDetector
                                   File.Exists(Path.Combine(ashitaDir, "addons", "overlords_talents", "overlords_talents.lua"));
 
         diag.CrystalSocketAddonSynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
-                                        File.Exists(Path.Combine(ashitaDir, "addons", "crystalsocket", "crystalsocket.lua"));
+                                        File.Exists(Path.Combine(ashitaDir, "addons", "crystalsocket", "crystalsocket.lua")) &&
+                                        File.Exists(Path.Combine(ashitaDir, "addons", "crystalsocket", "job_labels.lua")) &&
+                                        File.Exists(Path.Combine(ashitaDir, "addons", "crystalsocket", "crystaljobs.dll"));
 
         diag.MetricsAddonSynced = !string.IsNullOrWhiteSpace(ashitaDir) &&
                                   File.Exists(Path.Combine(ashitaDir, "addons", "metrics", "metrics.lua"));
