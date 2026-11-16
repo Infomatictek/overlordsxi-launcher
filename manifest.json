@@ -28,7 +28,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/108.DAT",
       "targetPath": "ROM/118/108.DAT",
-      "sha256": "b10e33782ad9fb16db2e028d89993b817f7fd035bfaf9c5512d0696ba000ddc6",
+      "sha256": "bf6570514ea513344c0de6d08cbf38a8686c96e6f1be2a96677cc40cf2828436",
       "size": 34078720
     },
     {
@@ -49,15 +49,22 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/73.DAT",
       "targetPath": "ROM/181/73.DAT",
-      "sha256": "bcb5eb935a593a73366175bdc23e5c6a61de9b49a7f2c413eea8afeab85610aa",
+      "sha256": "ccd210bbdfd39ec1418eff13ba1aba7eac4f781344f2e4fe46879af7074ee07a",
       "size": 81984
     },
     {
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/74.DAT",
       "targetPath": "ROM/181/74.DAT",
-      "sha256": "65863a5133ecb903155217c22dd7eed2f2679fc899e18262689d64e23b1846a9",
+      "sha256": "8519f8814cea2511128f294e027736eb6f243cc6f9d4bf68a9a666ea65b8428d",
       "size": 1507392
+    },
+    {
+      "category": "dat",
+      "sourcePath": "dat-overlay/ROM/181/75.DAT",
+      "targetPath": "ROM/181/75.DAT",
+      "sha256": "d87aaa0e853714f14c6a5781949ca37714f9633d6223e3862c6ca71d7b2906d5",
+      "size": 262208
     },
     {
       "category": "addon",
