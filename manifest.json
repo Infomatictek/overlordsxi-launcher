@@ -327,6 +327,20 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_boost/assets/chiweaver.png",
+      "targetPath": "overlords_boost/assets/chiweaver.png",
+      "sha256": "29c5b962ea1e7ac3f49901e50560f80169098a25df54cd82238d58ffdb035538",
+      "size": 19669
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_boost/overlords_boost.lua",
+      "targetPath": "overlords_boost/overlords_boost.lua",
+      "sha256": "7c7f062e8d03948992a52c81087e56b6aa15bc30fc5e1583a9fb4ddfaf489fce",
+      "size": 21210
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/data/augments.lua",
       "targetPath": "overlords_gear/data/augments.lua",
       "sha256": "310d32472e84d1adc4a12a753be86033c79b9145774553d66ea6b0ac1a1109dd",

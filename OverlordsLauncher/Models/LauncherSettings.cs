@@ -55,6 +55,7 @@ public sealed class LauncherSettings
     public bool AutoLoadMobDbAddon { get; set; } = true;
     public bool AutoLoadKazenoeyeAddon { get; set; } = true;
     public bool AutoLoadGearAddon { get; set; } = true;
+    public bool AutoLoadBoostAddon { get; set; } = true;
     public bool AutoCloseOnLaunch { get; set; }
     public bool AutoCheckUpdatesOnStartup { get; set; } = true;
     public bool AutoUpdateLauncher { get; set; } = true;

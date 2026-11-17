@@ -228,6 +228,8 @@ public sealed class AshitaConfigGenerator
                     trimmed.Equals("/addon unload kazenoeye", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon load overlords_gear", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload overlords_gear", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load overlords_boost", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon unload overlords_boost", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.StartsWith("/fps ", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
@@ -280,6 +282,11 @@ public sealed class AshitaConfigGenerator
         if (settings.AutoLoadGearAddon)
         {
             EnsureLine(lines, "/addon load overlords_gear", insertAtTop: false);
+        }
+
+        if (settings.AutoLoadBoostAddon)
+        {
+            EnsureLine(lines, "/addon load overlords_boost", insertAtTop: false);
         }
 
         if (settings.FpsCap is 30 or 60 or 0)
