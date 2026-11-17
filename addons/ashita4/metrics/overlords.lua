@@ -55,8 +55,9 @@ Overlords.CustomAbilities =
     [942] = 'Tranquil Lotus',        -- 430
     [943] = 'Inner Harmony',         -- 431
 
-    -- SAM Imperial Archer Spec
+    -- SAM Imperial Archer & Warlord Specs
     [950] = 'Oisoya Shot',           -- 438
+    [965] = 'Onimaru Tithe',         -- 453
 
     -- PLD Aegis Templar Spec
     [951] = 'Aegis Consecration',    -- 439

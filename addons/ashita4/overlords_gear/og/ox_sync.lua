@@ -49,7 +49,7 @@ ox_sync.SPECS_BY_JOB = {
     [12] = { -- SAM
         { id = 1, key = 'ronin',          name = 'Ronin',           role = 'Mushin Seigan & Stagger Tank' },
         { id = 2, key = 'imperialarcher', name = 'Imperial Archer', role = 'Oisoya Bow & Blade Skirmisher' },
-        { id = 3, key = 'warlord',        name = 'Warlord',         role = 'Iaijutsu & Onimaru Melee DPS' },
+        { id = 3, key = 'warlord',        name = 'Warlord',         role = 'Cursed Onimaru & Iaijutsu Tactical Support' },
     },
     [13] = { -- NIN
         { id = 1, key = 'kagemusha',      name = 'Kagemusha',       role = 'Shadow & Ninjutsu Tank' },

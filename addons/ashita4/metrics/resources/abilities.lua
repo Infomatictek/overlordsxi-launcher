@@ -48,6 +48,7 @@ Res.Abilities.Damaging =
     [958] = {id = 958, old_id = 446, en = "Diamond Shell"},
     [959] = {id = 959, old_id = 447, en = "Hex Volley"},
     [960] = {id = 960, old_id = 448, en = "Crimson Fleche"},
+    [965] = {id = 965, old_id = 453, en = "Onimaru Tithe"},
     [961] = {id = 961, old_id = 449, en = "Pirouette Deflect"},
     [962] = {id = 962, old_id = 450, en = "Dazzling Cadence"},
     [961] = {id = 961, old_id = 449, en = "Abyssal Cleave"},
