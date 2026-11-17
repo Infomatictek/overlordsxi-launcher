@@ -34,6 +34,9 @@ ox_sync.SPECS_BY_JOB = {
     [4] = { -- BLM
         { id = 1, key = 'necromancer', name = 'Necromancer', role = 'Scythe & Undead Summoner' },
     },
+    [5] = { -- RDM
+        { id = 1, key = 'crimsonduelist', name = 'Crimson Duelist', role = 'Hex-Crippling Fencer & Barrier Weaver' },
+    },
     [7] = { -- PLD
         { id = 1, key = 'aegistemplar', name = 'Aegis Templar', role = 'Party-Intercepting Holy Bastion' },
     },
@@ -48,8 +51,12 @@ ox_sync.SPECS_BY_JOB = {
     [13] = { -- NIN
         { id = 1, key = 'kagemusha',      name = 'Kagemusha',       role = 'Shadow & Ninjutsu Tank' },
     },
+    [16] = { -- BLU
+        { id = 1, key = 'azurebastion',   name = 'Azure Bastion',   role = 'Monster-Core Assimilator & Dual-Wield Tank' },
+    },
     [19] = { -- DNC
-        { id = 1, key = 'bladewheel', name = 'Bladewheel', role = 'Ranged Chakram Dancer' },
+        { id = 1, key = 'bladewheel',     name = 'Bladewheel',      role = 'Ranged Chakram Dancer' },
+        { id = 2, key = 'miragesentinel', name = 'Mirage Sentinel', role = 'Fan-Dance Rhythm & Waltz-Shield Tank' },
     },
     [20] = { -- SCH
         { id = 1, key = 'medic',     name = 'Medic',     role = 'Light Arts & Eos Faerie Healer' },

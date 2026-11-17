@@ -36,6 +36,8 @@ local fallback_tints = {
     aegistemplar    = 0xFFD8D0A8,
     alphawarden     = 0xFF55AA66,
     kagemusha       = 0xFFAA55CC,
+    azurebastion    = 0xFF3377EE,
+    crimsonduelist  = 0xFFCC3344,
 }
 
 function UI.new(imgui, state, send, scaling, icon_loader)

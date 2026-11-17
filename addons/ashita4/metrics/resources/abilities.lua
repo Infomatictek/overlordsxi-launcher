@@ -44,6 +44,10 @@ Res.Abilities.Damaging =
     [954] = {id = 954, old_id = 442, en = "Feral Roar"},
     [955] = {id = 955, old_id = 443, en = "Kage Bunshin"},
     [956] = {id = 956, old_id = 444, en = "Smoke Lotus"},
+    [957] = {id = 957, old_id = 445, en = "Behemoth Roar"},
+    [958] = {id = 958, old_id = 446, en = "Diamond Shell"},
+    [959] = {id = 959, old_id = 447, en = "Hex Volley"},
+    [960] = {id = 960, old_id = 448, en = "Crimson Fleche"},
 }
 
 -- Based off of job_abilities.lua from Windower.

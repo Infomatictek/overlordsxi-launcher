@@ -69,6 +69,14 @@ Overlords.CustomAbilities =
     -- NIN Kagemusha Spec
     [955] = 'Kage Bunshin',          -- 443
     [956] = 'Smoke Lotus',           -- 444
+
+    -- BLU Azure Bastion Spec
+    [957] = 'Behemoth Roar',         -- 445
+    [958] = 'Diamond Shell',         -- 446
+
+    -- RDM Crimson Duelist Spec
+    [959] = 'Hex Volley',            -- 447
+    [960] = 'Crimson Fleche',        -- 448
 }
 
 ------------------------------------------------------------------------------------------------------
