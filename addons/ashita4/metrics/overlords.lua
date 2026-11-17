@@ -54,6 +54,9 @@ Overlords.CustomAbilities =
     [941] = 'Resonant Chi',          -- 429
     [942] = 'Tranquil Lotus',        -- 430
     [943] = 'Inner Harmony',         -- 431
+
+    -- SAM Imperial Archer Spec
+    [950] = 'Oisoya Shot',           -- 438
 }
 
 ------------------------------------------------------------------------------------------------------

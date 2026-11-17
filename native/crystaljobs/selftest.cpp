@@ -20,6 +20,7 @@ static const char* __cdecl fake_lookup(int table, int job) {
             case 1: return "WAR";
             case 2: return "MNK";
             case 4: return "BLM";
+            case 12: return "SAM";
             case 19: return "DNC";
             case 20: return "SCH";
             case 22: return "RUN";
@@ -206,7 +207,7 @@ static void transport_checks() {
 }
 
 static void multi_job_checks() {
-    // Check all 6 OverlordsXI soul jobs (WAR, MNK, BLM, DNC, SCH, RUN).
+    // Check all 8 OverlordsXI soul jobs (WAR, MNK, BLM, BRD, SAM, DNC, SCH, RUN).
     assert(std::strcmp(label_for(1, 1, false), "CDR") == 0 && std::strcmp(label_for(1, 1, true), "Commander") == 0);
     assert(std::strcmp(label_for(1, 2, false), "BRZ") == 0 && std::strcmp(label_for(1, 2, true), "Berserker") == 0);
     assert(std::strcmp(label_for(1, 3, false), "GLA") == 0 && std::strcmp(label_for(1, 3, true), "Gladiator") == 0);
@@ -217,6 +218,9 @@ static void multi_job_checks() {
     assert(std::strcmp(label_for(10, 1, false), "ADV") == 0 && std::strcmp(label_for(10, 1, true), "Adventurer") == 0);
     assert(std::strcmp(label_for(10, 2, false), "MUS") == 0 && std::strcmp(label_for(10, 2, true), "Musician") == 0);
     assert(std::strcmp(label_for(10, 3, false), "MIN") == 0 && std::strcmp(label_for(10, 3, true), "Minstrel") == 0);
+    assert(std::strcmp(label_for(12, 1, false), "RON") == 0 && std::strcmp(label_for(12, 1, true), "Ronin") == 0);
+    assert(std::strcmp(label_for(12, 2, false), "IMP") == 0 && std::strcmp(label_for(12, 2, true), "Imperial Archer") == 0);
+    assert(std::strcmp(label_for(12, 3, false), "WRL") == 0 && std::strcmp(label_for(12, 3, true), "Warlord") == 0);
     assert(std::strcmp(label_for(19, 1, false), "BLW") == 0 && std::strcmp(label_for(19, 1, true), "Bladewheel") == 0);
     assert(std::strcmp(label_for(20, 1, false), "MED") == 0 && std::strcmp(label_for(20, 1, true), "Medic") == 0);
     assert(std::strcmp(label_for(20, 2, false), "SAG") == 0 && std::strcmp(label_for(20, 2, true), "Sage") == 0);
@@ -230,7 +234,7 @@ static void multi_job_checks() {
     native_text = &fake_text;
     selftest_alive = true;
 
-    // Test Search rows for MNK Sensei/Black Belt/Chi Weaver, BLM Necromancer, DNC Bladewheel, SCH Sage, RUN Spellblade.
+    // Test Search rows for MNK Sensei/Black Belt/Chi Weaver, BLM Necromancer, SAM Ronin/Imperial Archer/Warlord, DNC Bladewheel, SCH Sage, RUN Spellblade.
     state = {};
     make_row(row_a, 301, marker | 1, 2); state.decoded(row_a);
     assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 2), "Sensei") == 0);
@@ -240,6 +244,12 @@ static void multi_job_checks() {
     assert(state.row_branch(row_a) == 3 && std::strcmp(full_abi(row_a, 2), "Chi Weaver") == 0);
     make_row(row_a, 302, marker | 1, 4); state.decoded(row_a);
     assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 4), "Necromancer") == 0);
+    make_row(row_a, 308, marker | 1, 12); state.decoded(row_a);
+    assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 12), "Ronin") == 0);
+    make_row(row_a, 309, marker | 2, 12); state.decoded(row_a);
+    assert(state.row_branch(row_a) == 2 && std::strcmp(full_abi(row_a, 12), "Imperial Archer") == 0);
+    make_row(row_a, 310, marker | 3, 12); state.decoded(row_a);
+    assert(state.row_branch(row_a) == 3 && std::strcmp(full_abi(row_a, 12), "Warlord") == 0);
     make_row(row_a, 303, marker | 1, 19); state.decoded(row_a);
     assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 19), "Bladewheel") == 0);
     make_row(row_a, 304, marker | 2, 20); state.decoded(row_a);
@@ -247,11 +257,14 @@ static void multi_job_checks() {
     make_row(row_a, 305, marker | 2, 22); state.decoded(row_a);
     assert(state.row_branch(row_a) == 2 && std::strcmp(full_abi(row_a, 22), "Spellblade") == 0);
 
-    // Test item_label for RUN Lifebinder.
+    // Test item_label for RUN Lifebinder and SAM Ronin.
     uint8_t run_event[8] = {1, 1, 22, 3, 100, 0, 0, 0};
     state.update(run_event, 8, GetTickCount());
     assert(std::strcmp(item_label(2, 22), "LFB") == 0);
     assert(std::strcmp(item_label(2, 1), "WAR") == 0);
+    uint8_t sam_event[8] = {1, 1, 12, 2, 100, 0, 0, 0};
+    state.update(sam_event, 8, GetTickCount());
+    assert(std::strcmp(item_label(2, 12), "IMP") == 0);
     selftest_alive = false;
 }
 
@@ -351,5 +364,5 @@ int main() {
     assert(initialize() == 1 && status(&snapshot, sizeof(snapshot)) == 0 && snapshot.hooks == 0 && snapshot.last_error == 1);
     assert(shutdown() == 0);
     FreeLibrary(dll);
-    std::puts("PASS: all 6 OverlordsXI soul jobs (WAR/MNK/BLM/DNC/SCH/RUN), mixed rows/privacy/revoke/lease, x86 adapter ABI, patch restore/conflict, native codec preservation/correlation/bounds, timeout/nonce exhaustion, late-reply sink.");
+    std::puts("PASS: all 7 OverlordsXI soul jobs (WAR/MNK/BLM/SAM/DNC/SCH/RUN), mixed rows/privacy/revoke/lease, x86 adapter ABI, patch restore/conflict, native codec preservation/correlation/bounds, timeout/nonce exhaustion, late-reply sink.");
 }

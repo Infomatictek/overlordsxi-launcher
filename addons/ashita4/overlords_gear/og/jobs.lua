@@ -379,8 +379,83 @@ jobs.Catalog = {
             ['Warding Circle'] = { Stats = { WARDING_CIRCLE_DURATION = 2 } },
             ['Third Eye']      = { Stats = { THIRD_EYE_COUNTER_RATE = 2 } },
             ['Sengikori']      = { Stats = { SENGIKORI_BONUS = 2 } },
-            ['Hasso']          = { Base = 'TP_Default' },
             ['Seigan']         = { Base = 'DT' },
+            ['Hasso']          = { Base = 'TP_Default' },
+            ['Shikikoyo']      = { Base = 'TP_Default' },
+            ['Blade Bash']     = { Base = 'Enmity' },
+            ['Hamanoha']       = { Base = 'Enmity' },
+            ['Hagakure']       = { Base = 'WS_Default' },
+            ['Konzen-ittai']   = { Base = 'WS_Default' },
+        },
+        Specs = {
+            ronin = {
+                Tank   = true,
+                Ranged = false,
+                Meals  = { 'Tank_Engaged', 'Enmity' },
+                Tweaks = {
+                    Idle       = { Stats = { PDT = -8.0, MDT = -6.5, PARRY = 1.6, MEVA = 0.20, HP = 0.08, ENMITY = 1.2, REGEN = 2.0 } },
+                    TP_Default = {
+                        Label = 'Engaged (Ronin Mushin Tank)',
+                        Stats = { PDT = -6.5, MDT = -5.0, PARRY = 1.8, HP = 0.06, ENMITY = 1.8, ENMITY_LOSS_REDUCTION = 1.5, STORETP = 1.6, HASTE_GEAR = 3.0, ZANSHIN = 1.2, ACC = 0.8, MEVA = 0.16 },
+                    },
+                    Tank_Engaged = {
+                        Label = 'Engaged (Ronin Seigan / Third Eye)',
+                        Stats = { PDT = -7.5, MDT = -6.0, PARRY = 2.0, ENMITY = 2.0, ENMITY_LOSS_REDUCTION = 1.8, THIRD_EYE_COUNTER_RATE = 2.5, HP = 0.07, MEVA = 0.18, STORETP = 1.4 },
+                    },
+                },
+                Abilities = {
+                    ['Third Eye']      = { Stats = { THIRD_EYE_COUNTER_RATE = 3, ENMITY = 2.0 } },
+                    ['Seigan']         = { Base = 'Tank_Engaged' },
+                    ['Blade Bash']     = { Base = 'Enmity' },
+                    ['Warding Circle'] = { Stats = { WARDING_CIRCLE_DURATION = 2, ENMITY = 2.0 } },
+                    ['Hamanoha']       = { Base = 'Enmity' },
+                    ['Meditate']       = { Stats = { MEDITATE_DURATION = 3, PDT = -3.0 } },
+                },
+            },
+            imperialarcher = {
+                Ranged = true,
+                Meals  = { 'Preshot', 'Midshot' },
+                Tweaks = {
+                    TP_Default = {
+                        Label = 'Engaged (Imperial Archer Bow & Blade)',
+                        Stats = { RACC = 1.2, RATT = 1.0, AGI = 0.65, STR = 0.55, STORETP = 2.4, HASTE_GEAR = 3.0, DOUBLE_ATTACK = 2.0, ACC = 0.75, RECYCLE = 1.5 },
+                    },
+                    Preshot = {
+                        Label = 'Ranged Precast (Oisoya Snapshot)',
+                        Stats = { SNAPSHOT = 3.5, RAPID_SHOT = 2.0, RECYCLE = 1.5 },
+                    },
+                    Midshot = {
+                        Label = 'Ranged Midshot (Imperial Archer Oisoya)',
+                        Stats = { RACC = 1.4, RATT = 1.2, AGI = 0.85, STR = 0.45, STORETP = 2.2, RECYCLE = 2.0, CRITHITRATE = 1.2, CRIT_DMG_INCREASE = 1.0 },
+                    },
+                    WS_Default = {
+                        Stats = { STR = 1.3, AGI = 1.3, RATT = 1.0, RACC = 0.9, ATT = 0.6, ALL_WSDMG_ALL_HITS = 3.6, ALL_WSDMG_FIRST_HIT = 3.2, TP_BONUS = 0.015 },
+                    },
+                },
+                Abilities = {
+                    ['Oisoya Shot'] = { Base = 'Midshot' },
+                    ['Hasso']       = { Base = 'Midshot' },
+                    ['Sengikori']   = { Base = 'WS_Default' },
+                },
+            },
+            warlord = {
+                Ranged = false,
+                Meals  = {},
+                Tweaks = {
+                    TP_Default = {
+                        Label = 'Engaged (Warlord Iaijutsu DPS)',
+                        Stats = { STR = 0.6, DEX = 0.5, ATT = 0.75, ACC = 0.8, CRITHITRATE = 1.8, CRIT_DMG_INCREASE = 1.6, ZANSHIN = 2.2, STORETP = 2.2, HASTE_GEAR = 3.2, DOUBLE_ATTACK = 2.4 },
+                    },
+                    WS_Default = {
+                        Stats = { STR = 1.5, DEX = 0.8, ALL_WSDMG_ALL_HITS = 4.0, ALL_WSDMG_FIRST_HIT = 3.8, CRITHITRATE = 2.0, CRIT_DMG_INCREASE = 1.8, ATT = 0.75, TP_BONUS = 0.018 },
+                    },
+                },
+                Abilities = {
+                    ['Hagakure']     = { Base = 'WS_Default' },
+                    ['Sengikori']    = { Base = 'WS_Default' },
+                    ['Konzen-ittai'] = { Base = 'WS_Default' },
+                },
+            },
         },
     },
 
@@ -866,6 +941,11 @@ function jobs.PlanSets(who, currentEquip)
         activeSkills[7] = true
     elseif specDef and who.SpecKey == 'sensei' then
         activeSkills[12] = true
+    elseif specDef and who.SpecKey == 'imperialarcher' then
+        activeSkills[10] = true
+        activeSkills[25] = true
+    elseif specDef and (who.SpecKey == 'ronin' or who.SpecKey == 'warlord') then
+        activeSkills[10] = true
     end
 
     for _, ws in pairs(db.Weaponskills()) do

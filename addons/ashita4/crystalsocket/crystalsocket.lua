@@ -16,7 +16,7 @@ local labels = require('job_labels').new()
 local character_id = 0
 local ui, menu
 local textures, asset_status = {}, {}
-local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'blackbelt', 'chiweaver', 'medic', 'sage', 'bladewheel', 'necromancer', 'inquisitor', 'spellblade', 'lifebinder' }
+local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'blackbelt', 'chiweaver', 'medic', 'sage', 'ronin', 'imperialarcher', 'warlord', 'bladewheel', 'necromancer', 'inquisitor', 'spellblade', 'lifebinder' }
 local epoch, transitioning = 0, false
 local key_owner = {} -- nil: new press; false: native/chat; true: addon, until physical release.
 local last_mouse
