@@ -245,8 +245,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "00cbe9dec8b97cd6f4cea3e91bdd67eaef67140bb6df175d0065310cf62e98b0",
-      "size": 15532
+      "sha256": "22b2e1942a4ba0431a85581cefe484e2f1005496ea1c2655236e9524fb38f307",
+      "size": 15544
     },
     {
       "category": "addon",
@@ -280,8 +280,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "1fe2e6ca02806167fc72cfcfba1c35d6e626f34d02081cb722426c74a34e7a00",
-      "size": 19694
+      "sha256": "d975440e2e501ba399ef667b5cb4a62da0b7a9b965061488b20f04b70a86d39e",
+      "size": 19729
     },
     {
       "category": "addon",
@@ -371,15 +371,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/metrics/overlords.lua",
       "targetPath": "metrics/overlords.lua",
-      "sha256": "72f4c2834de5273026d865e24b054d9e8f31bbe4abe42ee83b4a6e811ed4c331",
-      "size": 10839
+      "sha256": "936599f4ead63e9a64915a4d7b303b3edf47299d743459d91de335166d4a3cd1",
+      "size": 10957
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/metrics/resources/abilities.lua",
       "targetPath": "metrics/resources/abilities.lua",
-      "sha256": "f16648b0630dfdf112ff97acce44659988efa7e23d7739f6f52a20c5da4d959a",
-      "size": 61932
+      "sha256": "a596b2e961bcb7e96b4e0234224101698c3ae014fc0a8fe40f8b04e28a41543e",
+      "size": 62051
     },
     {
       "category": "addon",
@@ -483,8 +483,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/ox_sync.lua",
       "targetPath": "overlords_gear/og/ox_sync.lua",
-      "sha256": "aa23eddca4ac396c0669b6115919f98114ad2551c60fbe5b17a2d6671eaed06b",
-      "size": 11528
+      "sha256": "d750efc1274f89fee40072dde1365c6692c8a88d7294c986bbf36efeef020ea6",
+      "size": 11672
     },
     {
       "category": "addon",
