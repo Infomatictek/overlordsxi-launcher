@@ -61,6 +61,10 @@ Overlords.CustomAbilities =
     -- PLD Aegis Templar Spec
     [951] = 'Aegis Consecration',    -- 439
     [952] = 'Judgment Gavel',        -- 440
+
+    -- BST Alpha Warden Spec
+    [953] = 'Soul Bond',             -- 441
+    [954] = 'Feral Roar',            -- 442
 }
 
 ------------------------------------------------------------------------------------------------------

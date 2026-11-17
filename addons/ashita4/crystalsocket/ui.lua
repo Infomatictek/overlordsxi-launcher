@@ -34,6 +34,7 @@ local fallback_tints = {
     spellblade      = 0xFF5566EE,
     lifebinder      = 0xFF66CC77,
     aegistemplar    = 0xFFD8D0A8,
+    alphawarden     = 0xFF55AA66,
 }
 
 function UI.new(imgui, state, send, scaling, icon_loader)

@@ -37,6 +37,9 @@ ox_sync.SPECS_BY_JOB = {
     [7] = { -- PLD
         { id = 1, key = 'aegistemplar', name = 'Aegis Templar', role = 'Party-Intercepting Holy Bastion' },
     },
+    [9] = { -- BST
+        { id = 1, key = 'alphawarden', name = 'Alpha Warden', role = 'Symbiotic Soul-Link & Pack-Mitigation Tank' },
+    },
     [12] = { -- SAM
         { id = 1, key = 'ronin',          name = 'Ronin',           role = 'Mushin Seigan & Stagger Tank' },
         { id = 2, key = 'imperialarcher', name = 'Imperial Archer', role = 'Oisoya Bow & Blade Skirmisher' },

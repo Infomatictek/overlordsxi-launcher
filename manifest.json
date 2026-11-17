@@ -35,14 +35,14 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "4a0d3c4c09d9615299941dee9e1f43d2a36fc7135066057ce29b7de8136c173c",
+      "sha256": "0da8f582d5c96173f54322606c1eee4cb694e6c3ee8c1ff998cd72c768163ca1",
       "size": 403280
     },
     {
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/72.DAT",
       "targetPath": "ROM/181/72.DAT",
-      "sha256": "092f63853fca9ac12a1862c4260a2e6328652c396544aa3fd991b4be4f778764",
+      "sha256": "48fe96a2a133ac0b20d57fc40df03b1dc79e7a272f1d202894d1689f16c9a4a8",
       "size": 471104
     },
     {
@@ -56,7 +56,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/74.DAT",
       "targetPath": "ROM/181/74.DAT",
-      "sha256": "caaefee68699b27b5a09e7007f5373efd3d89b90e7014a719bf699bd5d61df34",
+      "sha256": "132b7ac01186d44ae9bdd2b9f0d9b554d99b56fbb8ccfaaeb649634baf5abf9c",
       "size": 1507392
     },
     {
@@ -79,6 +79,13 @@
       "targetPath": "crystalsocket/assets/aegistemplar.png",
       "sha256": "cd4b56498075d725f9bc33b00de7293006a41d300007d0e8bd9f48500f84b1a5",
       "size": 17959
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/alphawarden.png",
+      "targetPath": "crystalsocket/assets/alphawarden.png",
+      "sha256": "51b0e0f653791a17d757f9d1ff76dc8192de5cf760dc44fd33bf50d64484ccb7",
+      "size": 28300
     },
     {
       "category": "addon",
@@ -196,8 +203,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "afbb8c43a6ec3d089d730974107cc520b1091be2272ab8d2579f8611fe0d20f1",
-      "size": 15436
+      "sha256": "3b2959725bc4255d2159d24a8e0985b45645c40cb77b61d08df8db3d14b74737",
+      "size": 15467
     },
     {
       "category": "addon",
@@ -231,8 +238,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "4d1cd4823aaa702a87549601f94456e0afccbf46760fbc16725e2918172ab79a",
-      "size": 18988
+      "sha256": "bab0283c83b51ae0cce1756530b9add3c7b955178dd59e2a1ba5f68e98e7daaa",
+      "size": 19022
     },
     {
       "category": "addon",
@@ -322,15 +329,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/metrics/overlords.lua",
       "targetPath": "metrics/overlords.lua",
-      "sha256": "da231ea5432dfad12c6b52b4e816543d47b96b411bf4a4cbb1841ede17fef5cf",
-      "size": 9840
+      "sha256": "8550d481ce8fc250bcbab74827ee730799748e97b8d7d927a1cabc37ae66201d",
+      "size": 9958
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/metrics/resources/abilities.lua",
       "targetPath": "metrics/resources/abilities.lua",
-      "sha256": "bd8807cb04c2b5cb155ea6b19fad2e9ed17b7551df6474f70acbe5cfe205b552",
-      "size": 60769
+      "sha256": "0141f4691fe109b7865468d799a878c4da202c8fb9a83980d7611b347edb5f98",
+      "size": 60882
     },
     {
       "category": "addon",
@@ -434,8 +441,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/ox_sync.lua",
       "targetPath": "overlords_gear/og/ox_sync.lua",
-      "sha256": "d28d1efda4972f2db254a749534df564f358295b095c3b8e50183d4c8ec86c87",
-      "size": 10705
+      "sha256": "847a0af8218b8c0d9099cce678b0e2f4205a7b648f9a9b539554aec705b70b2e",
+      "size": 10848
     },
     {
       "category": "addon",
