@@ -219,7 +219,7 @@ end)
 
 ashita.events.register('load', 'crystalsocket_load', function()
     if type(addon.path) == 'string' and addon.path ~= '' then
-        labels:set_dll_path(addon.path:gsub('[/\\]+$', '') .. '\\crystaljobs.dll')
+        labels:set_dll_path(addon.path:gsub('[/\\]+$', '') .. '\\..\\..\\plugins\\crystaljobs.dll')
         labels:ensure_loaded()
     end
     local ok, scaling = pcall(require, 'scaling')

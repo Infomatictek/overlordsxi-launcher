@@ -214,7 +214,9 @@ public sealed class AshitaConfigGenerator
             while ((rawLine = reader.ReadLine()) is not null)
             {
                 var trimmed = rawLine.Trim();
-                if (trimmed.Equals("/addon load overlords_talents", StringComparison.OrdinalIgnoreCase) ||
+                if (trimmed.Equals("/load crystaljobs", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/unload crystaljobs", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load overlords_talents", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload overlords_talents", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon load crystalsocket", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload crystalsocket", StringComparison.OrdinalIgnoreCase) ||
@@ -248,6 +250,19 @@ public sealed class AshitaConfigGenerator
         }
 
         EnsureLine(lines, "/load addons", insertAtTop: false);
+
+        if (settings.AutoLoadCrystalSocketAddon)
+        {
+            var addonsIdx = lines.FindIndex(l => l.Trim().Equals("/load addons", StringComparison.OrdinalIgnoreCase));
+            if (addonsIdx >= 0)
+            {
+                lines.Insert(addonsIdx + 1, "/load crystaljobs");
+            }
+            else
+            {
+                EnsureLine(lines, "/load crystaljobs", insertAtTop: false);
+            }
+        }
 
         if (settings.AutoLoadTalentsAddon)
         {

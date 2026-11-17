@@ -33,8 +33,8 @@ public sealed class ManifestTests
             f.TargetPath == "crystalsocket/job_labels.lua" &&
             !string.IsNullOrWhiteSpace(f.Sha256));
         Assert.Contains(manifest.Files, f =>
-            f.Category == "addon" &&
-            f.TargetPath == "crystalsocket/crystaljobs.dll" &&
+            f.Category == "plugin" &&
+            f.TargetPath == "crystaljobs.dll" &&
             !string.IsNullOrWhiteSpace(f.Sha256));
         Assert.Contains(manifest.Files, f =>
             f.Category == "addon" &&

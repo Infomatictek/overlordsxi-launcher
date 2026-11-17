@@ -212,9 +212,17 @@ public sealed class ManifestUpdateService
     public static string ResolveTargetFilePath(LauncherSettings settings, ManifestFileEntry entry)
     {
         var relative = entry.TargetPath.Replace('/', Path.DirectorySeparatorChar);
-        return entry.Category.Equals("dat", StringComparison.OrdinalIgnoreCase)
-            ? Path.Combine(settings.AshitaPath, "polplugins", "DATs", AshitaConfigGenerator.OverlayFolderName, relative)
-            : Path.Combine(settings.AshitaPath, "addons", relative);
+        if (entry.Category.Equals("dat", StringComparison.OrdinalIgnoreCase))
+        {
+            return Path.Combine(settings.AshitaPath, "polplugins", "DATs", AshitaConfigGenerator.OverlayFolderName, relative);
+        }
+
+        if (entry.Category.Equals("plugin", StringComparison.OrdinalIgnoreCase))
+        {
+            return Path.Combine(settings.AshitaPath, "plugins", relative);
+        }
+
+        return Path.Combine(settings.AshitaPath, "addons", relative);
     }
 
     public List<ManifestFileEntry> GetOutdatedFiles(

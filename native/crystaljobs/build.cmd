@@ -32,8 +32,9 @@ if errorlevel 1 exit /b 1
 selftest.exe
 if errorlevel 1 exit /b 1
 
-copy /y "%CJ_DIR%crystaljobs.dll" "%CJ_DIR%..\..\addons\ashita4\crystalsocket\crystaljobs.dll" >nul
+if not exist "%CJ_DIR%..\..\plugins\ashita4" mkdir "%CJ_DIR%..\..\plugins\ashita4"
+copy /y "%CJ_DIR%crystaljobs.dll" "%CJ_DIR%..\..\plugins\ashita4\crystaljobs.dll" >nul
 if errorlevel 1 exit /b 1
 
 del /q *.obj *.exp *.lib selftest.exe 2>nul
-echo Built and verified crystaljobs.dll to addons\ashita4\crystalsocket\crystaljobs.dll
+echo Built and verified crystaljobs.dll to plugins\ashita4\crystaljobs.dll

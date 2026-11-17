@@ -214,6 +214,9 @@ static void multi_job_checks() {
     assert(std::strcmp(label_for(2, 2, false), "BLB") == 0 && std::strcmp(label_for(2, 2, true), "Black Belt") == 0);
     assert(std::strcmp(label_for(2, 3, false), "CHW") == 0 && std::strcmp(label_for(2, 3, true), "Chi Weaver") == 0);
     assert(std::strcmp(label_for(4, 1, false), "NEC") == 0 && std::strcmp(label_for(4, 1, true), "Necromancer") == 0);
+    assert(std::strcmp(label_for(10, 1, false), "ADV") == 0 && std::strcmp(label_for(10, 1, true), "Adventurer") == 0);
+    assert(std::strcmp(label_for(10, 2, false), "MUS") == 0 && std::strcmp(label_for(10, 2, true), "Musician") == 0);
+    assert(std::strcmp(label_for(10, 3, false), "MIN") == 0 && std::strcmp(label_for(10, 3, true), "Minstrel") == 0);
     assert(std::strcmp(label_for(19, 1, false), "BLW") == 0 && std::strcmp(label_for(19, 1, true), "Bladewheel") == 0);
     assert(std::strcmp(label_for(20, 1, false), "MED") == 0 && std::strcmp(label_for(20, 1, true), "Medic") == 0);
     assert(std::strcmp(label_for(20, 2, false), "SAG") == 0 && std::strcmp(label_for(20, 2, true), "Sage") == 0);
@@ -311,9 +314,16 @@ int main() {
     const uint32_t target = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(&fake_text) - reinterpret_cast<uintptr_t>(memory + 5));
     std::memcpy(memory + 1, &target, 4); std::memset(memory + 5, 0x90, 5);
     assert(host_detour(memory, expected, 24, 10, GetModuleHandleW(nullptr)));
+    std::memset(memory + 5, 0xcc, 5); // Microsoft Detours 0xCC padding
+    assert(host_detour(memory, expected, 24, 10, GetModuleHandleW(nullptr)));
     assert(!host_detour(memory, expected, 24, 10, nullptr));
     memory[10] ^= 1; assert(!host_detour(memory, expected, 24, 10, GetModuleHandleW(nullptr)));
     VirtualFree(memory, 0, MEM_RELEASE);
+    // Verify signature relocation when FFXiMain.dll is relocated (e.g. 0x04860000 under Ashita v4).
+    uint8_t reloc_sig[24];
+    std::memcpy(reloc_sig, signatures[2].bytes, 24);
+    relocate_signature(0x13C302, reloc_sig, static_cast<uint32_t>(0x04860000u - 0x10000000u));
+    assert(u32(reloc_sig + 11) == 0x04860000u + 0x370DF8u);
     transport_checks();
     multi_job_checks();
     enabled.store(false); state = {};
@@ -327,7 +337,15 @@ int main() {
     const auto initialize = reinterpret_cast<uint32_t(__stdcall*)()>(GetProcAddress(dll, "CrystalJobsInitialize"));
     const auto shutdown = reinterpret_cast<uint32_t(__stdcall*)()>(GetProcAddress(dll, "CrystalJobsShutdown"));
     const auto status = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetStatus"));
+    const auto get_iface = reinterpret_cast<double(__stdcall*)()>(GetProcAddress(dll, "expGetInterfaceVersion"));
+    const auto create_plugin = reinterpret_cast<void*(__stdcall*)(const char*)>(GetProcAddress(dll, "expCreatePlugin"));
+    const auto destroy_plugin = reinterpret_cast<void(__stdcall*)(void*)>(GetProcAddress(dll, "expDestroyPlugin"));
     assert(initialize != nullptr && shutdown != nullptr && status != nullptr && GetProcAddress(dll, "CrystalJobsSetState") != nullptr);
+    assert(get_iface != nullptr && create_plugin != nullptr && destroy_plugin != nullptr);
+    assert(get_iface() == 4.30);
+    void* plugin = create_plugin("");
+    assert(plugin != nullptr);
+    destroy_plugin(plugin);
     CrystalJobsStatus snapshot{};
     assert(status(&snapshot, sizeof(snapshot)) == 0 && snapshot.version == 1 && snapshot.hooks == 0);
     assert(initialize() == 1 && status(&snapshot, sizeof(snapshot)) == 0 && snapshot.hooks == 0 && snapshot.last_error == 1);

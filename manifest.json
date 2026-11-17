@@ -67,6 +67,13 @@
       "size": 262208
     },
     {
+      "category": "plugin",
+      "sourcePath": "plugins/ashita4/crystaljobs.dll",
+      "targetPath": "crystaljobs.dll",
+      "sha256": "d9f72179bd8b2fe94471795c459541332cc3ae01fb73991f0b5fd9f33858c247",
+      "size": 97280
+    },
+    {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/berserker.png",
       "targetPath": "crystalsocket/assets/berserker.png",
@@ -159,17 +166,10 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/crystalsocket/crystaljobs.dll",
-      "targetPath": "crystalsocket/crystaljobs.dll",
-      "sha256": "1f06ba94a4e82fa31c44ed2adcad2043b043fdada3ff246e2a7cb7ca50856fa5",
-      "size": 94720
-    },
-    {
-      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "b6cc6b1061094cfb581d28772c6d205d8c4d0404346c5291cbb78682fc05d4d5",
-      "size": 15381
+      "sha256": "a2a456cc63bbf4ff0edd9ca15c6a60fc80d508fe80fc9409add4d2d5edc4821c",
+      "size": 15398
     },
     {
       "category": "addon",

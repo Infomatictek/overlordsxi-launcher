@@ -192,6 +192,7 @@ public sealed class AshitaConfigGeneratorTests
         var merged = _generator.MergeBootScriptContent(existing, settings);
 
         Assert.DoesNotContain("crystalsocket", merged);
+        Assert.DoesNotContain("crystaljobs", merged);
         Assert.Contains("/addon load overlords_talents", merged);
         Assert.Contains("/addon load overlords_gear", merged);
         Assert.Contains("/fps 1", merged);

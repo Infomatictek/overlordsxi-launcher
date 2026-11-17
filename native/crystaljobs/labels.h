@@ -25,6 +25,13 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
             }
         case 4: // BLM
             return branch == 1 ? (full ? "Necromancer" : "NEC") : nullptr;
+        case 10: // BRD
+            switch (branch) {
+                case 1: return full ? "Adventurer" : "ADV";
+                case 2: return full ? "Musician" : "MUS";
+                case 3: return full ? "Minstrel" : "MIN";
+                default: return nullptr;
+            }
         case 19: // DNC
             return branch == 1 ? (full ? "Bladewheel" : "BLW") : nullptr;
         case 20: // SCH

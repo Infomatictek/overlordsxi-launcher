@@ -296,7 +296,9 @@ static Patch patches[] = {
 
 static bool host_detour(uint8_t* entry, const uint8_t* expected, size_t length, size_t stolen, HMODULE host) noexcept {
     if (host == nullptr || entry[0] != 0xe9 || stolen < 5 || stolen >= length) return false;
-    for (size_t at = 5; at < stolen; ++at) if (entry[at] != 0x90) return false;
+    for (size_t at = 5; at < stolen; ++at) {
+        if (entry[at] != 0x90 && entry[at] != 0xcc && entry[at] != expected[at]) return false;
+    }
     if (std::memcmp(entry + stolen, expected + stolen, length - stolen) != 0) return false;
     const uintptr_t target = reinterpret_cast<uintptr_t>(entry + 5) + u32(entry + 1);
     MEMORY_BASIC_INFORMATION region{};
@@ -306,22 +308,37 @@ static bool host_detour(uint8_t* entry, const uint8_t* expected, size_t length, 
     return protection == PAGE_EXECUTE || protection == PAGE_EXECUTE_READ || protection == PAGE_EXECUTE_READWRITE || protection == PAGE_EXECUTE_WRITECOPY;
 }
 
+static void relocate_signature(uintptr_t rva, uint8_t (&expected)[24], uint32_t delta) noexcept {
+    if (delta == 0) return;
+    if (rva == 0x13C302) {
+        const uint32_t relocated = u32(expected + 11) + delta;
+        std::memcpy(expected + 11, &relocated, 4);
+    } else if (rva == 0x1DEEFB) {
+        const uint32_t relocated = u32(expected + 20) + delta;
+        std::memcpy(expected + 20, &relocated, 4);
+    }
+}
+
 static bool supported(uint8_t* base) noexcept {
     __try {
-        if (reinterpret_cast<uintptr_t>(base) != 0x10000000) return false;
+        if (base == nullptr || (reinterpret_cast<uintptr_t>(base) & 0xFFFFu) != 0) return false;
         const auto* dos = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
         if (dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew < 0 || dos->e_lfanew > 0x1000) return false;
         const auto* pe = reinterpret_cast<IMAGE_NT_HEADERS32*>(base + dos->e_lfanew);
         if (pe->Signature != IMAGE_NT_SIGNATURE || pe->FileHeader.Machine != IMAGE_FILE_MACHINE_I386 ||
             pe->FileHeader.TimeDateStamp != 0x6ae818b4 || pe->OptionalHeader.SizeOfImage != 0xc17000) return false;
+        const uint32_t delta = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(base) - 0x10000000u);
         for (const auto& signature : signatures) {
+            uint8_t expected[24];
+            std::memcpy(expected, signature.bytes, sizeof(expected));
+            relocate_signature(signature.rva, expected, delta);
             if ((signature.rva == 0xDD6C0 || signature.rva == 0xDF7C0) && host_detour(base + signature.rva,
-                signature.bytes, sizeof(signature.bytes), signature.rva == 0xDD6C0 ? 10 : 5, GetModuleHandleW(L"Ashita.dll"))) continue;
+                expected, sizeof(expected), signature.rva == 0xDD6C0 ? 10 : 5, GetModuleHandleW(L"Ashita.dll"))) continue;
             size_t skip = 0;
             for (const auto& patch : patches) {
                 if (patch.rva == signature.rva && patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) skip = 5;
             }
-            if (std::memcmp(base + signature.rva + skip, signature.bytes + skip, sizeof(signature.bytes) - skip) != 0) return false;
+            if (std::memcmp(base + signature.rva + skip, expected + skip, sizeof(expected) - skip) != 0) return false;
         }
         return true;
     } __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
@@ -421,3 +438,91 @@ extern "C" uint32_t __stdcall CrystalJobsGetStatus(CrystalJobsStatus* output, ui
     return 0;
 }
 static_assert(sizeof(CrystalJobsStatus) == 68);
+
+// Ashita v4 IPlugin interface (ASHITA_INTERFACE_VERSION = 4.30)
+namespace {
+constexpr double kAshitaInterfaceVersion = 4.30;
+
+struct AshitaPluginBase {
+    virtual const char* GetName(void) const = 0;
+    virtual const char* GetAuthor(void) const = 0;
+    virtual const char* GetDescription(void) const = 0;
+    virtual const char* GetLink(void) const = 0;
+    virtual double GetVersion(void) const = 0;
+    virtual double GetInterfaceVersion(void) const = 0;
+    virtual int32_t GetPriority(void) const = 0;
+    virtual uint32_t GetFlags(void) const = 0;
+    virtual bool Initialize(void* core, void* logger, uint32_t id) = 0;
+    virtual void Release(void) = 0;
+    virtual void HandleEvent(const char* eventName, const void* eventData, uint32_t eventSize) = 0;
+    virtual bool HandleCommand(int32_t mode, const char* command, bool injected) = 0;
+    virtual bool HandleIncomingText(int32_t mode, bool indent, const char* message, int32_t* modifiedMode, bool* modifiedIndent, char* modifiedMessage, bool injected, bool blocked) = 0;
+    virtual bool HandleOutgoingText(int32_t mode, const char* message, int32_t* modifiedMode, char* modifiedMessage, bool injected, bool blocked) = 0;
+    virtual bool HandleIncomingPacket(uint16_t id, uint32_t size, const uint8_t* data, uint8_t* modified, uint32_t sizeChunk, const uint8_t* dataChunk, bool injected, bool blocked) = 0;
+    virtual bool HandleOutgoingPacket(uint16_t id, uint32_t size, const uint8_t* data, uint8_t* modified, uint32_t sizeChunk, const uint8_t* dataChunk, bool injected, bool blocked) = 0;
+    virtual bool Direct3DInitialize(void* device) = 0;
+    virtual void Direct3DBeginScene(bool isRenderingBackBuffer) = 0;
+    virtual void Direct3DEndScene(bool isRenderingBackBuffer) = 0;
+    virtual void Direct3DPresent(const RECT* pSourceRect, const RECT* pDestRect, HWND hDestWindowOverride, const RGNDATA* pDirtyRegion) = 0;
+    virtual bool Direct3DSetRenderState(uint32_t State, DWORD* Value) = 0;
+    virtual bool Direct3DDrawPrimitive(uint32_t PrimitiveType, UINT StartVertex, UINT PrimitiveCount) = 0;
+    virtual bool Direct3DDrawIndexedPrimitive(uint32_t PrimitiveType, UINT minIndex, UINT NumVertices, UINT startIndex, UINT primCount) = 0;
+    virtual bool Direct3DDrawPrimitiveUP(uint32_t PrimitiveType, UINT PrimitiveCount, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) = 0;
+    virtual bool Direct3DDrawIndexedPrimitiveUP(uint32_t PrimitiveType, UINT MinVertexIndex, UINT NumVertexIndices, UINT PrimitiveCount, const void* pIndexData, uint32_t IndexDataFormat, const void* pVertexStreamZeroData, UINT VertexStreamZeroStride) = 0;
+};
+
+class CrystalJobsPlugin final : public AshitaPluginBase {
+public:
+    CrystalJobsPlugin() = default;
+    virtual ~CrystalJobsPlugin() = default;
+
+    const char* GetName(void) const override { return "crystaljobs"; }
+    const char* GetAuthor(void) const override { return "OverlordsXI"; }
+    const char* GetDescription(void) const override { return "OverlordsXI native soul job labels for Inventory and Search."; }
+    const char* GetLink(void) const override { return "https://github.com/Infomatictek/overlordsxi-launcher"; }
+    double GetVersion(void) const override { return 1.00; }
+    double GetInterfaceVersion(void) const override { return kAshitaInterfaceVersion; }
+    int32_t GetPriority(void) const override { return 0; }
+    uint32_t GetFlags(void) const override { return 0; }
+
+    bool Initialize(void*, void*, uint32_t) override {
+        CrystalJobsInitialize();
+        return true;
+    }
+
+    void Release(void) override {
+        CrystalJobsShutdown();
+    }
+
+    void HandleEvent(const char*, const void*, uint32_t) override {}
+    bool HandleCommand(int32_t, const char*, bool) override { return false; }
+    bool HandleIncomingText(int32_t, bool, const char*, int32_t*, bool*, char*, bool, bool) override { return false; }
+    bool HandleOutgoingText(int32_t, const char*, int32_t*, char*, bool, bool) override { return false; }
+    bool HandleIncomingPacket(uint16_t, uint32_t, const uint8_t*, uint8_t*, uint32_t, const uint8_t*, bool, bool) override { return false; }
+    bool HandleOutgoingPacket(uint16_t, uint32_t, const uint8_t*, uint8_t*, uint32_t, const uint8_t*, bool, bool) override { return false; }
+    bool Direct3DInitialize(void*) override {
+        CrystalJobsInitialize();
+        return true;
+    }
+    void Direct3DBeginScene(bool) override {}
+    void Direct3DEndScene(bool) override {}
+    void Direct3DPresent(const RECT*, const RECT*, HWND, const RGNDATA*) override {}
+    bool Direct3DSetRenderState(uint32_t, DWORD*) override { return false; }
+    bool Direct3DDrawPrimitive(uint32_t, UINT, UINT) override { return false; }
+    bool Direct3DDrawIndexedPrimitive(uint32_t, UINT, UINT, UINT, UINT) override { return false; }
+    bool Direct3DDrawPrimitiveUP(uint32_t, UINT, const void*, UINT) override { return false; }
+    bool Direct3DDrawIndexedPrimitiveUP(uint32_t, UINT, UINT, UINT, const void*, uint32_t, const void*, UINT) override { return false; }
+};
+} // namespace
+
+extern "C" double __stdcall expGetInterfaceVersion(void) {
+    return kAshitaInterfaceVersion;
+}
+
+extern "C" void* __stdcall expCreatePlugin(const char*) {
+    return new (std::nothrow) CrystalJobsPlugin();
+}
+
+extern "C" void __stdcall expDestroyPlugin(void* instance) {
+    delete static_cast<CrystalJobsPlugin*>(instance);
+}

@@ -44,6 +44,25 @@ def main() -> None:
                 }
             )
 
+    plugins_root = repo_root / "plugins" / "ashita4"
+    if plugins_root.exists():
+        for file_path in sorted(
+            (p for p in plugins_root.rglob("*") if p.is_file()),
+            key=lambda p: p.relative_to(repo_root).as_posix().lower(),
+        ):
+            rel_repo = file_path.relative_to(repo_root).as_posix()
+            rel_plugin = file_path.relative_to(plugins_root).as_posix()
+            digest, size = sha256_file(file_path)
+            entries.append(
+                {
+                    "category": "plugin",
+                    "sourcePath": rel_repo,
+                    "targetPath": rel_plugin,
+                    "sha256": digest,
+                    "size": size,
+                }
+            )
+
     addons_root = repo_root / "addons" / "ashita4"
     if addons_root.exists():
         for file_path in sorted(
