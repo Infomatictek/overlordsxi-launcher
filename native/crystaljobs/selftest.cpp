@@ -265,6 +265,32 @@ static void multi_job_checks() {
     uint8_t sam_event[8] = {1, 1, 12, 2, 100, 0, 0, 0};
     state.update(sam_event, 8, GetTickCount());
     assert(std::strcmp(item_label(2, 12), "IMP") == 0);
+
+    // Test menu2fon 3-glyph sprite rendering (24px wide: x0 = 0, 8, 16) and tile restoration.
+    uint8_t mock_tile[0xE0]{}, mock_node[0x20]{}, mock_sprite[0x30]{};
+    const int16_t war_corners[8] = {0, -1, 24, -1, 0, 9, 24, 9};
+    const float war_uv[2] = {0.0f, 184.0f / 256.0f};
+    std::memcpy(mock_tile + 0xC0, war_corners, sizeof(war_corners));
+    std::memcpy(mock_tile + 0x64, war_uv, sizeof(war_uv));
+    uint8_t* tile_ptr = mock_tile;
+    std::memcpy(mock_node + 0x10, &tile_ptr, sizeof(tile_ptr));
+    uint8_t* node_ptr = mock_node;
+    std::memcpy(mock_sprite + 0x04, &node_ptr, sizeof(node_ptr));
+    const uint32_t one_tile = 1;
+    std::memcpy(mock_sprite + 0x14, &one_tile, sizeof(one_tile));
+    uint8_t* sprite_entries[2] = {nullptr, mock_sprite};
+    uint8_t** sprite_table = sprite_entries;
+    void* sheet_obj = &sprite_table;
+    pname_sheet_slot = &sheet_obj;
+
+    sprite_calls = 0; text_calls = 0;
+    make_row(row_a, 320, marker | 2, 1); state.decoded(row_a); // WAR branch 2 = BRZ
+    assert(sprite_abi(reinterpret_cast<void*>(&normal_sprite_hook), row_a));
+    assert(sprite_calls == 3 && text_calls == 0);
+    assert(std::memcmp(mock_tile + 0xC0, war_corners, sizeof(war_corners)) == 0);
+    assert(std::memcmp(mock_tile + 0x64, war_uv, sizeof(war_uv)) == 0);
+    pname_sheet_slot = nullptr;
+
     selftest_alive = false;
 }
 

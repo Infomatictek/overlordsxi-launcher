@@ -70,8 +70,8 @@
       "category": "plugin",
       "sourcePath": "plugins/ashita4/crystaljobs.dll",
       "targetPath": "crystaljobs.dll",
-      "sha256": "d9f72179bd8b2fe94471795c459541332cc3ae01fb73991f0b5fd9f33858c247",
-      "size": 97280
+      "sha256": "c42bcc9d3f3d33911e591a74f25fb4b1c3ddc32d0ae17afe1749d8f5e914c33b",
+      "size": 98304
     },
     {
       "category": "addon",

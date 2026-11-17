@@ -19,11 +19,13 @@ using Lookup = const char* (__cdecl*)(int, int);
 using Decode = void* (__cdecl*)(const uint8_t*, uint8_t*, int);
 using Encode = int (__cdecl*)(const void*, uint8_t*);
 using NativeText = int (__cdecl*)(int, int, const char*, uint32_t, float, float, int);
+using DrawSprite = int (__fastcall*)(void*, void*, int, int, float, float, uint32_t, int, int, int);
 static Lookup original_lookup;
 static Decode original_decode;
 static Encode original_encode;
 static NativeText native_text;
 static uintptr_t original_sprite;
+static void** pname_sheet_slot;
 #ifdef CRYSTALJOBS_SELFTEST
 static bool selftest_alive;
 #endif
@@ -96,13 +98,95 @@ static uint8_t branch_for(const uint8_t* row) noexcept {
 struct SpriteArgs { int x, y; float scale_x, scale_y; uint32_t color; int center, first, count; };
 static_assert(sizeof(SpriteArgs) == 32);
 
+struct MenuGlyph { uint8_t u, v, w; };
+// 8x10 job-abbreviation glyphs on 'menu    menu2fon' (256x256 texture in ROM/118/111.DAT).
+static constexpr MenuGlyph menu_glyphs[26] = {
+    {9, 184, 7},   // A (WAR)
+    {1, 214, 8},   // B (BLU)
+    {92, 214, 8},  // C (DNC)
+    {77, 194, 8},  // D (DRG)
+    {204, 214, 7}, // E (GEO)
+    {143, 184, 8}, // F (THF)
+    {196, 214, 8}, // G (GEO)
+    {59, 184, 7},  // H (WHM)
+    {59, 194, 8},  // I (NIN)
+    {94, 161, 8},  // J
+    {41, 184, 8},  // K (MNK)
+    {85, 184, 7},  // L (BLM)
+    {26, 184, 8},  // M (MNK)
+    {51, 194, 8},  // N (NIN)
+    {34, 214, 7},  // O (COR)
+    {67, 214, 8},  // P (PUP)
+    {169, 161, 8}, // Q
+    {16, 184, 8},  // R (WAR)
+    {26, 194, 8},  // S (SAM)
+    {219, 184, 7}, // T (BST)
+    {16, 214, 8},  // U (BLU)
+    {221, 161, 8}, // V
+    {0, 184, 8},   // W (WAR)
+    {244, 161, 8}, // X
+    {3, 173, 8},   // Y
+    {13, 173, 8},  // Z
+};
+
+static bool draw_menu2fon_label(const char* custom, const SpriteArgs* args) noexcept {
+    if (pname_sheet_slot == nullptr || original_sprite == 0) return false;
+    auto* sheet = static_cast<uint8_t***>(*pname_sheet_slot);
+    if (sheet == nullptr || *sheet == nullptr) return false;
+    uint8_t* sprite = (*sheet)[1]; // WAR sprite (1 tile on 'menu    menu2fon')
+    if (sprite == nullptr || *reinterpret_cast<const uint32_t*>(sprite + 0x14) != 1) return false;
+    uint8_t* node = *reinterpret_cast<uint8_t**>(sprite + 0x04);
+    if (node == nullptr) return false;
+    uint8_t* tile = *reinterpret_cast<uint8_t**>(node + 0x10);
+    if (tile == nullptr) return false;
+    for (int i = 0; i < 3; ++i) {
+        if (custom[i] < 'A' || custom[i] > 'Z') return false;
+    }
+
+    uint8_t saved_corners[16], saved_uv0[8], saved_uv1[8], saved_uv2[8], saved_uv3[8];
+    std::memcpy(saved_corners, tile + 0xC0, sizeof(saved_corners));
+    std::memcpy(saved_uv0, tile + 0x64, sizeof(saved_uv0));
+    std::memcpy(saved_uv1, tile + 0x80, sizeof(saved_uv1));
+    std::memcpy(saved_uv2, tile + 0x9C, sizeof(saved_uv2));
+    std::memcpy(saved_uv3, tile + 0xB8, sizeof(saved_uv3));
+
+    const auto draw_sprite = reinterpret_cast<DrawSprite>(original_sprite);
+    for (int i = 0; i < 3; ++i) {
+        const MenuGlyph g = menu_glyphs[custom[i] - 'A'];
+        const int16_t x0 = static_cast<int16_t>(i * 8);
+        const int16_t x1 = static_cast<int16_t>(x0 + g.w);
+        const int16_t corners[8] = {x0, -1, x1, -1, x0, 9, x1, 9};
+        const float u0 = static_cast<float>(g.u) * (1.0f / 256.0f);
+        const float u1 = static_cast<float>(g.u + g.w) * (1.0f / 256.0f);
+        const float v0 = static_cast<float>(g.v) * (1.0f / 256.0f);
+        const float v1 = static_cast<float>(g.v + 10) * (1.0f / 256.0f);
+        const float uv0[2] = {u0, v0}, uv1[2] = {u1, v0}, uv2[2] = {u0, v1}, uv3[2] = {u1, v1};
+        std::memcpy(tile + 0xC0, corners, sizeof(corners));
+        std::memcpy(tile + 0x64, uv0, sizeof(uv0));
+        std::memcpy(tile + 0x80, uv1, sizeof(uv1));
+        std::memcpy(tile + 0x9C, uv2, sizeof(uv2));
+        std::memcpy(tile + 0xB8, uv3, sizeof(uv3));
+        draw_sprite(sprite, nullptr, args->x, args->y, args->scale_x, args->scale_y, args->color, args->center, args->first, args->count);
+    }
+
+    std::memcpy(tile + 0xC0, saved_corners, sizeof(saved_corners));
+    std::memcpy(tile + 0x64, saved_uv0, sizeof(saved_uv0));
+    std::memcpy(tile + 0x80, saved_uv1, sizeof(saved_uv1));
+    std::memcpy(tile + 0x9C, saved_uv2, sizeof(saved_uv2));
+    std::memcpy(tile + 0xB8, saved_uv3, sizeof(saved_uv3));
+    return true;
+}
+
 static bool __stdcall draw_branch(const uint8_t* row, const SpriteArgs* args) noexcept {
     const uint8_t branch = branch_for(row);
     if (branch == 0 || row == nullptr) return false;
     const char* custom = label_for(row[32], branch, false);
     if (custom == nullptr) return false;
-    // Fit the native font into the existing 23-pixel job sprite column.
-    native_text(args->x, args->y, custom, args->color, 0.75f * args->scale_x, 0.75f * args->scale_y, 0);
+    // Render 3-letter Soul Job label using the native 'menu    menu2fon' job sprite sheet across 24px (0, 8, 16)
+    // so the font matches stock job abbreviations (WAR..RUN) and sits flush against the level digits at +23.
+    if (!draw_menu2fon_label(custom, args)) {
+        native_text(args->x, args->y, custom, args->color, 0.75f * args->scale_x, 0.75f * args->scale_y, 0);
+    }
     ++short_draws;
     return true;
 }
@@ -350,6 +434,7 @@ static bool ever_started;
 extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     AcquireSRWLockExclusive(&lifecycle_lock);
     enabled.store(false);
+    pname_sheet_slot = nullptr;
     AcquireSRWLockExclusive(&state_lock);
     transport.reset(state);
     ReleaseSRWLockExclusive(&state_lock);
@@ -377,6 +462,7 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     original_encode = reinterpret_cast<Encode>(base + 0x104330);
     native_text = reinterpret_cast<NativeText>(base + 0x1CAD80);
     original_sprite = reinterpret_cast<uintptr_t>(base + 0x121110);
+    pname_sheet_slot = reinterpret_cast<void**>(base + 0x664014);
     original_map_decode = reinterpret_cast<MapDecode>(base + 0xDD6C0);
     original_map_encode = reinterpret_cast<MapEncode>(base + 0xDF7C0);
     HMODULE pinned;
