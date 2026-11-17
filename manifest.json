@@ -180,12 +180,6 @@
     },
     {
       "category": "addon",
-<<<<<<< HEAD
-      "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
-      "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "a2a456cc63bbf4ff0edd9ca15c6a60fc80d508fe80fc9409add4d2d5edc4821c",
-      "size": 15398
-=======
       "sourcePath": "addons/ashita4/crystalsocket/assets/warlord.png",
       "targetPath": "crystalsocket/assets/warlord.png",
       "sha256": "a5b21e0b11b130a933d0252afb264bb8bccaff736708ddd2e8a185233f20056a",
@@ -193,18 +187,10 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/crystalsocket/crystaljobs.dll",
-      "targetPath": "crystalsocket/crystaljobs.dll",
-      "sha256": "1f06ba94a4e82fa31c44ed2adcad2043b043fdada3ff246e2a7cb7ca50856fa5",
-      "size": 94720
-    },
-    {
-      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "578beb3eb1b111df8138f131b3b8ca86e206a956b88dd8c8317e838f9d98f53e",
-      "size": 15419
->>>>>>> c2cd407 (feat(sam): add Samurai crystal icons, native labels, gear profiles, metrics, and DATs)
+      "sha256": "afbb8c43a6ec3d089d730974107cc520b1091be2272ab8d2579f8611fe0d20f1",
+      "size": 15436
     },
     {
       "category": "addon",
