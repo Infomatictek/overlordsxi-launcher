@@ -134,8 +134,11 @@ function UI:key(key, now, navigation)
         return true
     end
 
+    -- FFXI's 4x4 Equipment grid indexes slots column-major (col 1: 1..4, col 2: 5..8, col 3: 9..12, col 4: 13..16),
+    -- so the bottom row (Legs, Feet, Back, Waist) is slots 4, 8, 12, and 16.
     if key == 'down' and self:has_socket(snapshot) and navigation
-        and navigation.selected and navigation.selected >= 13 and navigation.selected <= 16 then
+        and navigation.selected and navigation.selected >= 1 and navigation.selected <= 16
+        and navigation.selected % 4 == 0 then
         self.focused = true
         self.focus_window = navigation.window
         self.focus_cursor = navigation.cursor or navigation.selected
