@@ -40,6 +40,7 @@ local fallback_tints = {
     crimsonduelist  = 0xFFCC3344,
     miragesentinel  = 0xFFE070C0,
     dreadnought     = 0xFFAA2233,
+    vanguard        = 0xFFD88838,
 }
 
 function UI.new(imgui, state, send, scaling, icon_loader)
