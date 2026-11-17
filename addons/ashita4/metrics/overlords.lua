@@ -45,8 +45,8 @@ Overlords.CustomAbilities =
     [924] = 'Iron Battuta',          -- 412
     [925] = 'Runic Aegis',           -- 413
     [926] = 'Runic Convergence',     -- 414
-    [927] = 'Runic Bolt',            -- 415
-    [928] = 'Runic Sever',           -- 416
+    [927] = 'Effusion Slash',        -- 415
+    [928] = 'Overcharge Runes',      -- 416
     [929] = 'Font of Life',          -- 417
     [930] = 'Sanctified Ward',       -- 418
 

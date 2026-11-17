@@ -656,8 +656,8 @@ jobs.Catalog = {
                     },
                 },
                 Abilities = {
-                    ['Runic Bolt']  = { Base = 'Nuke' },
-                    ['Runic Sever'] = { Base = 'Burst' },
+                    ['Effusion Slash']   = { Base = 'Burst' },
+                    ['Overcharge Runes'] = { Base = 'Idle' },
                 },
             },
             lifebinder = {
