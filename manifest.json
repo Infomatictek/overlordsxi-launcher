@@ -35,14 +35,14 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "c4c51a243e6924e65691f49dad305735f559770f442384f4880a7235f75358f1",
+      "sha256": "4a0d3c4c09d9615299941dee9e1f43d2a36fc7135066057ce29b7de8136c173c",
       "size": 403280
     },
     {
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/72.DAT",
       "targetPath": "ROM/181/72.DAT",
-      "sha256": "70e04c73763e4deb08f1058418fee38ae56933a6548165c379ae9bce2deda504",
+      "sha256": "092f63853fca9ac12a1862c4260a2e6328652c396544aa3fd991b4be4f778764",
       "size": 471104
     },
     {
@@ -56,7 +56,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/74.DAT",
       "targetPath": "ROM/181/74.DAT",
-      "sha256": "cab0ddddb1fcc800d1cd9d6ba447315a548d25d2d9a065abd72422d1a4f702cd",
+      "sha256": "caaefee68699b27b5a09e7007f5373efd3d89b90e7014a719bf699bd5d61df34",
       "size": 1507392
     },
     {
@@ -72,6 +72,13 @@
       "targetPath": "crystaljobs.dll",
       "sha256": "c42bcc9d3f3d33911e591a74f25fb4b1c3ddc32d0ae17afe1749d8f5e914c33b",
       "size": 98304
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/aegistemplar.png",
+      "targetPath": "crystalsocket/assets/aegistemplar.png",
+      "sha256": "cd4b56498075d725f9bc33b00de7293006a41d300007d0e8bd9f48500f84b1a5",
+      "size": 17959
     },
     {
       "category": "addon",
@@ -224,8 +231,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "25aa732ec8fdf9fa505bc1984a876ad18be1c75287f877ba2bf8b389419bd985",
-      "size": 18954
+      "sha256": "4d1cd4823aaa702a87549601f94456e0afccbf46760fbc16725e2918172ab79a",
+      "size": 18988
     },
     {
       "category": "addon",
@@ -315,15 +322,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/metrics/overlords.lua",
       "targetPath": "metrics/overlords.lua",
-      "sha256": "433fc86dcba680f8c44d07dc4c21e1a52c3bdc31d5f300d8903196ce24f50e12",
-      "size": 9721
+      "sha256": "da231ea5432dfad12c6b52b4e816543d47b96b411bf4a4cbb1841ede17fef5cf",
+      "size": 9840
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/metrics/resources/abilities.lua",
       "targetPath": "metrics/resources/abilities.lua",
-      "sha256": "ff5ea9199cf156dcf0411e8277de534a712ac3c50cd71ad75b04051b6c198b84",
-      "size": 60708
+      "sha256": "bd8807cb04c2b5cb155ea6b19fad2e9ed17b7551df6474f70acbe5cfe205b552",
+      "size": 60769
     },
     {
       "category": "addon",
@@ -427,8 +434,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/ox_sync.lua",
       "targetPath": "overlords_gear/og/ox_sync.lua",
-      "sha256": "3a60c760685f45506fa8d876d338e2a8a01cc6d360fb60abdc0240400fbc35f6",
-      "size": 10571
+      "sha256": "d28d1efda4972f2db254a749534df564f358295b095c3b8e50183d4c8ec86c87",
+      "size": 10705
     },
     {
       "category": "addon",

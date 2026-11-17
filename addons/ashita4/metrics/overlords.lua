@@ -57,6 +57,10 @@ Overlords.CustomAbilities =
 
     -- SAM Imperial Archer Spec
     [950] = 'Oisoya Shot',           -- 438
+
+    -- PLD Aegis Templar Spec
+    [951] = 'Aegis Consecration',    -- 439
+    [952] = 'Judgment Gavel',        -- 440
 }
 
 ------------------------------------------------------------------------------------------------------

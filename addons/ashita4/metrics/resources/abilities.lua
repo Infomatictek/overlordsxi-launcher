@@ -39,6 +39,7 @@ Res.Abilities.Damaging =
     [939] = {id = 939, old_id = 427, en = "Soul Harvest"},
     [940] = {id = 940, old_id = 428, en = "Danse Macabre"},
     [950] = {id = 950, old_id = 438, en = "Oisoya Shot"},
+    [952] = {id = 952, old_id = 440, en = "Judgment Gavel"},
 }
 
 -- Based off of job_abilities.lua from Windower.
