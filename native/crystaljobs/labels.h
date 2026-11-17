@@ -13,31 +13,77 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
             switch (branch) {
                 case 1: return full ? "Commander" : "CDR";
                 case 2: return full ? "Berserker" : "BRZ";
-                case 3: return full ? "Gladiator" : "GLA";
+                case 3: return full ? "Spartan" : "SPT";
                 default: return nullptr;
             }
         case 2: // MNK
             switch (branch) {
                 case 1: return full ? "Sensei" : "SEN";
-                case 2: return full ? "Black Belt" : "BLB";
-                case 3: return full ? "Chi Weaver" : "CHW";
+                case 2: return full ? "Chi Weaver" : "CWV";
+                case 3: return full ? "Black Belt" : "BLK";
+                default: return nullptr;
+            }
+        case 3: // WHM
+            switch (branch) {
+                case 1: return full ? "Bishop" : "BSH";
+                case 2: return full ? "Zealot" : "ZEL";
+                case 3: return full ? "Valkyrie" : "VLK";
                 default: return nullptr;
             }
         case 4: // BLM
-            return branch == 1 ? (full ? "Necromancer" : "NEC") : nullptr;
+            switch (branch) {
+                case 1: return full ? "Astromancer" : "AST";
+                case 2: return full ? "Channeler" : "CHN";
+                case 3: return full ? "Necromancer" : "NEC";
+                default: return nullptr;
+            }
         case 5: // RDM
-            return branch == 1 ? (full ? "Crimson Duelist" : "CRM") : nullptr;
+            switch (branch) {
+                case 1: return full ? "Crimson Duelist" : "DLS";
+                case 2: return full ? "Royal Tactician" : "RYT";
+                case 3: return full ? "Scarlet Weaver" : "SCW";
+                default: return nullptr;
+            }
+        case 6: // THF
+            switch (branch) {
+                case 1: return full ? "Trickster" : "TRK";
+                case 2: return full ? "Bandit" : "BND";
+                case 3: return full ? "Phantom" : "PHN";
+                default: return nullptr;
+            }
         case 7: // PLD
-            return branch == 1 ? (full ? "Aegis Templar" : "AEG") : nullptr;
+            switch (branch) {
+                case 1: return full ? "Templar" : "TMP";
+                case 2: return full ? "Defender" : "DFN";
+                case 3: return full ? "Oathbreaker" : "OTB";
+                default: return nullptr;
+            }
         case 8: // DRK
-            return branch == 1 ? (full ? "Dreadnought" : "DRD") : nullptr;
+            switch (branch) {
+                case 1: return full ? "Reaper" : "RPR";
+                case 2: return full ? "Dreadnought" : "DRN";
+                case 3: return full ? "Scourge" : "SCR";
+                default: return nullptr;
+            }
         case 9: // BST
-            return branch == 1 ? (full ? "Alpha Warden" : "AWD") : nullptr;
+            switch (branch) {
+                case 1: return full ? "Untamed" : "UNT";
+                case 2: return full ? "Soulbeast" : "SLB";
+                case 3: return full ? "Beastspeaker" : "BSP";
+                default: return nullptr;
+            }
         case 10: // BRD
             switch (branch) {
                 case 1: return full ? "Adventurer" : "ADV";
                 case 2: return full ? "Musician" : "MUS";
                 case 3: return full ? "Minstrel" : "MIN";
+                default: return nullptr;
+            }
+        case 11: // RNG
+            switch (branch) {
+                case 1: return full ? "Sniper" : "SNP";
+                case 2: return full ? "Huntsman" : "HNT";
+                case 3: return full ? "Arcane Archer" : "ACA";
                 default: return nullptr;
             }
         case 12: // SAM
@@ -48,28 +94,73 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
                 default: return nullptr;
             }
         case 13: // NIN
-            return branch == 1 ? (full ? "Kagemusha" : "KAG") : nullptr;
+            switch (branch) {
+                case 1: return full ? "Kurogane" : "KRG";
+                case 2: return full ? "Kagemusha" : "KGM";
+                case 3: return full ? "Nightblade" : "NGB";
+                default: return nullptr;
+            }
+        case 14: // DRG
+            switch (branch) {
+                case 1: return full ? "Lancer" : "LNC";
+                case 2: return full ? "Skyborn" : "SKY";
+                case 3: return full ? "Wyvernheart" : "WYV";
+                default: return nullptr;
+            }
+        case 15: // SMN
+            switch (branch) {
+                case 1: return full ? "Primalist" : "PRM";
+                case 2: return full ? "Celestial" : "CEL";
+                case 3: return full ? "Herald" : "HLD";
+                default: return nullptr;
+            }
         case 16: // BLU
-            return branch == 1 ? (full ? "Azure Bastion" : "AZB") : nullptr;
+            switch (branch) {
+                case 1: return full ? "Warmage" : "WMG";
+                case 2: return full ? "Magus" : "MAG";
+                case 3: return full ? "Azure Bastion" : "AZB";
+                default: return nullptr;
+            }
+        case 17: // COR
+            switch (branch) {
+                case 1: return full ? "Flintlock" : "FLT";
+                case 2: return full ? "Gambler" : "GMB";
+                case 3: return full ? "Buccaneer" : "BUC";
+                default: return nullptr;
+            }
         case 18: // PUP
-            return branch == 1 ? (full ? "Vanguard" : "VNG") : nullptr;
+            switch (branch) {
+                case 1: return full ? "Marionettist" : "MRN";
+                case 2: return full ? "Pugilist" : "PGL";
+                case 3: return full ? "Animist" : "ANM";
+                default: return nullptr;
+            }
         case 19: // DNC
             switch (branch) {
-                case 1: return full ? "Bladewheel" : "BLW";
-                case 2: return full ? "Mirage Sentinel" : "MRS";
+                case 1: return full ? "Freelancer" : "FRL";
+                case 2: return full ? "Vampire" : "VMP";
+                case 3: return full ? "Bladewheel" : "BLW";
                 default: return nullptr;
             }
         case 20: // SCH
             switch (branch) {
-                case 1: return full ? "Medic" : "MED";
+                case 1: return full ? "Medic" : "MDC";
                 case 2: return full ? "Sage" : "SAG";
+                case 3: return full ? "Archivist" : "ARC";
+                default: return nullptr;
+            }
+        case 21: // GEO
+            switch (branch) {
+                case 1: return full ? "Diviner" : "DIV";
+                case 2: return full ? "Verdant" : "VRD";
+                case 3: return full ? "Terramancer" : "TRM";
                 default: return nullptr;
             }
         case 22: // RUN
             switch (branch) {
-                case 1: return full ? "Inquisitor" : "INQ";
-                case 2: return full ? "Spellblade" : "SPB";
-                case 3: return full ? "Lifebinder" : "LFB";
+                case 1: return full ? "Spellblade" : "SPB";
+                case 2: return full ? "Lifebinder" : "LFB";
+                case 3: return full ? "Inquisitor" : "INQ";
                 default: return nullptr;
             }
         default:

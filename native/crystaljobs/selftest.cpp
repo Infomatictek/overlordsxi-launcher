@@ -154,11 +154,11 @@ static void transport_checks() {
     model.incoming(reply, 64, 2200, labels); assert(!labels.known);
     make_reply(reply, 20); assert(!model.incoming(reply, 64, 2250, labels));
     assert(model.refresh);
-    // Job 3 (WHM) has no soul crystals, so prepare() does not poll.
-    uint8_t job[16]; make_packet(job, 0x061, 16); job[12] = 3;
-    model.incoming(job, 16, 2300, labels); assert(model.job == 3 && !labels.known);
+    // Job 23 (MON) has no soul crystals, so prepare() does not poll.
+    uint8_t job[16]; make_packet(job, 0x061, 16); job[12] = 23;
+    model.incoming(job, 16, 2300, labels); assert(model.job == 23 && !labels.known);
     assert(!model.prepare(request, counter, 2400));
-    // Job 22 (RUN) has soul crystals (Inquisitor/Spellblade/Lifebinder), so prepare() polls with job=22.
+    // Job 22 (RUN) has soul crystals (Spellblade/Lifebinder/Inquisitor), so prepare() polls with job=22.
     job[12] = 22;
     model.incoming(job, 16, 2450, labels); assert(model.job == 22 && !labels.known);
     assert(model.prepare(request, counter, 2500) && request[12] == 22);
@@ -207,58 +207,105 @@ static void transport_checks() {
 }
 
 static void multi_job_checks() {
-    // Check all 8 OverlordsXI soul jobs (WAR, MNK, BLM, BRD, SAM, DNC, SCH, RUN).
+    // Check all 22 OverlordsXI jobs (66 soul specs).
     assert(std::strcmp(label_for(1, 1, false), "CDR") == 0 && std::strcmp(label_for(1, 1, true), "Commander") == 0);
     assert(std::strcmp(label_for(1, 2, false), "BRZ") == 0 && std::strcmp(label_for(1, 2, true), "Berserker") == 0);
-    assert(std::strcmp(label_for(1, 3, false), "GLA") == 0 && std::strcmp(label_for(1, 3, true), "Gladiator") == 0);
+    assert(std::strcmp(label_for(1, 3, false), "SPT") == 0 && std::strcmp(label_for(1, 3, true), "Spartan") == 0);
     assert(std::strcmp(label_for(2, 1, false), "SEN") == 0 && std::strcmp(label_for(2, 1, true), "Sensei") == 0);
-    assert(std::strcmp(label_for(2, 2, false), "BLB") == 0 && std::strcmp(label_for(2, 2, true), "Black Belt") == 0);
-    assert(std::strcmp(label_for(2, 3, false), "CHW") == 0 && std::strcmp(label_for(2, 3, true), "Chi Weaver") == 0);
-    assert(std::strcmp(label_for(4, 1, false), "NEC") == 0 && std::strcmp(label_for(4, 1, true), "Necromancer") == 0);
+    assert(std::strcmp(label_for(2, 2, false), "CWV") == 0 && std::strcmp(label_for(2, 2, true), "Chi Weaver") == 0);
+    assert(std::strcmp(label_for(2, 3, false), "BLK") == 0 && std::strcmp(label_for(2, 3, true), "Black Belt") == 0);
+    assert(std::strcmp(label_for(3, 1, false), "BSH") == 0 && std::strcmp(label_for(3, 1, true), "Bishop") == 0);
+    assert(std::strcmp(label_for(3, 2, false), "ZEL") == 0 && std::strcmp(label_for(3, 2, true), "Zealot") == 0);
+    assert(std::strcmp(label_for(3, 3, false), "VLK") == 0 && std::strcmp(label_for(3, 3, true), "Valkyrie") == 0);
+    assert(std::strcmp(label_for(4, 1, false), "AST") == 0 && std::strcmp(label_for(4, 1, true), "Astromancer") == 0);
+    assert(std::strcmp(label_for(4, 2, false), "CHN") == 0 && std::strcmp(label_for(4, 2, true), "Channeler") == 0);
+    assert(std::strcmp(label_for(4, 3, false), "NEC") == 0 && std::strcmp(label_for(4, 3, true), "Necromancer") == 0);
+    assert(std::strcmp(label_for(5, 1, false), "DLS") == 0 && std::strcmp(label_for(5, 1, true), "Crimson Duelist") == 0);
+    assert(std::strcmp(label_for(5, 2, false), "RYT") == 0 && std::strcmp(label_for(5, 2, true), "Royal Tactician") == 0);
+    assert(std::strcmp(label_for(5, 3, false), "SCW") == 0 && std::strcmp(label_for(5, 3, true), "Scarlet Weaver") == 0);
+    assert(std::strcmp(label_for(6, 1, false), "TRK") == 0 && std::strcmp(label_for(6, 1, true), "Trickster") == 0);
+    assert(std::strcmp(label_for(6, 2, false), "BND") == 0 && std::strcmp(label_for(6, 2, true), "Bandit") == 0);
+    assert(std::strcmp(label_for(6, 3, false), "PHN") == 0 && std::strcmp(label_for(6, 3, true), "Phantom") == 0);
+    assert(std::strcmp(label_for(7, 1, false), "TMP") == 0 && std::strcmp(label_for(7, 1, true), "Templar") == 0);
+    assert(std::strcmp(label_for(7, 2, false), "DFN") == 0 && std::strcmp(label_for(7, 2, true), "Defender") == 0);
+    assert(std::strcmp(label_for(7, 3, false), "OTB") == 0 && std::strcmp(label_for(7, 3, true), "Oathbreaker") == 0);
+    assert(std::strcmp(label_for(8, 1, false), "RPR") == 0 && std::strcmp(label_for(8, 1, true), "Reaper") == 0);
+    assert(std::strcmp(label_for(8, 2, false), "DRN") == 0 && std::strcmp(label_for(8, 2, true), "Dreadnought") == 0);
+    assert(std::strcmp(label_for(8, 3, false), "SCR") == 0 && std::strcmp(label_for(8, 3, true), "Scourge") == 0);
+    assert(std::strcmp(label_for(9, 1, false), "UNT") == 0 && std::strcmp(label_for(9, 1, true), "Untamed") == 0);
+    assert(std::strcmp(label_for(9, 2, false), "SLB") == 0 && std::strcmp(label_for(9, 2, true), "Soulbeast") == 0);
+    assert(std::strcmp(label_for(9, 3, false), "BSP") == 0 && std::strcmp(label_for(9, 3, true), "Beastspeaker") == 0);
     assert(std::strcmp(label_for(10, 1, false), "ADV") == 0 && std::strcmp(label_for(10, 1, true), "Adventurer") == 0);
     assert(std::strcmp(label_for(10, 2, false), "MUS") == 0 && std::strcmp(label_for(10, 2, true), "Musician") == 0);
     assert(std::strcmp(label_for(10, 3, false), "MIN") == 0 && std::strcmp(label_for(10, 3, true), "Minstrel") == 0);
+    assert(std::strcmp(label_for(11, 1, false), "SNP") == 0 && std::strcmp(label_for(11, 1, true), "Sniper") == 0);
+    assert(std::strcmp(label_for(11, 2, false), "HNT") == 0 && std::strcmp(label_for(11, 2, true), "Huntsman") == 0);
+    assert(std::strcmp(label_for(11, 3, false), "ACA") == 0 && std::strcmp(label_for(11, 3, true), "Arcane Archer") == 0);
     assert(std::strcmp(label_for(12, 1, false), "RON") == 0 && std::strcmp(label_for(12, 1, true), "Ronin") == 0);
     assert(std::strcmp(label_for(12, 2, false), "IMP") == 0 && std::strcmp(label_for(12, 2, true), "Imperial Archer") == 0);
     assert(std::strcmp(label_for(12, 3, false), "WRL") == 0 && std::strcmp(label_for(12, 3, true), "Warlord") == 0);
-    assert(std::strcmp(label_for(19, 1, false), "BLW") == 0 && std::strcmp(label_for(19, 1, true), "Bladewheel") == 0);
-    assert(std::strcmp(label_for(20, 1, false), "MED") == 0 && std::strcmp(label_for(20, 1, true), "Medic") == 0);
+    assert(std::strcmp(label_for(13, 1, false), "KRG") == 0 && std::strcmp(label_for(13, 1, true), "Kurogane") == 0);
+    assert(std::strcmp(label_for(13, 2, false), "KGM") == 0 && std::strcmp(label_for(13, 2, true), "Kagemusha") == 0);
+    assert(std::strcmp(label_for(13, 3, false), "NGB") == 0 && std::strcmp(label_for(13, 3, true), "Nightblade") == 0);
+    assert(std::strcmp(label_for(14, 1, false), "LNC") == 0 && std::strcmp(label_for(14, 1, true), "Lancer") == 0);
+    assert(std::strcmp(label_for(14, 2, false), "SKY") == 0 && std::strcmp(label_for(14, 2, true), "Skyborn") == 0);
+    assert(std::strcmp(label_for(14, 3, false), "WYV") == 0 && std::strcmp(label_for(14, 3, true), "Wyvernheart") == 0);
+    assert(std::strcmp(label_for(15, 1, false), "PRM") == 0 && std::strcmp(label_for(15, 1, true), "Primalist") == 0);
+    assert(std::strcmp(label_for(15, 2, false), "CEL") == 0 && std::strcmp(label_for(15, 2, true), "Celestial") == 0);
+    assert(std::strcmp(label_for(15, 3, false), "HLD") == 0 && std::strcmp(label_for(15, 3, true), "Herald") == 0);
+    assert(std::strcmp(label_for(16, 1, false), "WMG") == 0 && std::strcmp(label_for(16, 1, true), "Warmage") == 0);
+    assert(std::strcmp(label_for(16, 2, false), "MAG") == 0 && std::strcmp(label_for(16, 2, true), "Magus") == 0);
+    assert(std::strcmp(label_for(16, 3, false), "AZB") == 0 && std::strcmp(label_for(16, 3, true), "Azure Bastion") == 0);
+    assert(std::strcmp(label_for(17, 1, false), "FLT") == 0 && std::strcmp(label_for(17, 1, true), "Flintlock") == 0);
+    assert(std::strcmp(label_for(17, 2, false), "GMB") == 0 && std::strcmp(label_for(17, 2, true), "Gambler") == 0);
+    assert(std::strcmp(label_for(17, 3, false), "BUC") == 0 && std::strcmp(label_for(17, 3, true), "Buccaneer") == 0);
+    assert(std::strcmp(label_for(18, 1, false), "MRN") == 0 && std::strcmp(label_for(18, 1, true), "Marionettist") == 0);
+    assert(std::strcmp(label_for(18, 2, false), "PGL") == 0 && std::strcmp(label_for(18, 2, true), "Pugilist") == 0);
+    assert(std::strcmp(label_for(18, 3, false), "ANM") == 0 && std::strcmp(label_for(18, 3, true), "Animist") == 0);
+    assert(std::strcmp(label_for(19, 1, false), "FRL") == 0 && std::strcmp(label_for(19, 1, true), "Freelancer") == 0);
+    assert(std::strcmp(label_for(19, 2, false), "VMP") == 0 && std::strcmp(label_for(19, 2, true), "Vampire") == 0);
+    assert(std::strcmp(label_for(19, 3, false), "BLW") == 0 && std::strcmp(label_for(19, 3, true), "Bladewheel") == 0);
+    assert(std::strcmp(label_for(20, 1, false), "MDC") == 0 && std::strcmp(label_for(20, 1, true), "Medic") == 0);
     assert(std::strcmp(label_for(20, 2, false), "SAG") == 0 && std::strcmp(label_for(20, 2, true), "Sage") == 0);
-    assert(std::strcmp(label_for(22, 1, false), "INQ") == 0 && std::strcmp(label_for(22, 1, true), "Inquisitor") == 0);
-    assert(std::strcmp(label_for(22, 2, false), "SPB") == 0 && std::strcmp(label_for(22, 2, true), "Spellblade") == 0);
-    assert(std::strcmp(label_for(22, 3, false), "LFB") == 0 && std::strcmp(label_for(22, 3, true), "Lifebinder") == 0);
-    assert(label_for(3, 1, false) == nullptr);
+    assert(std::strcmp(label_for(20, 3, false), "ARC") == 0 && std::strcmp(label_for(20, 3, true), "Archivist") == 0);
+    assert(std::strcmp(label_for(21, 1, false), "DIV") == 0 && std::strcmp(label_for(21, 1, true), "Diviner") == 0);
+    assert(std::strcmp(label_for(21, 2, false), "VRD") == 0 && std::strcmp(label_for(21, 2, true), "Verdant") == 0);
+    assert(std::strcmp(label_for(21, 3, false), "TRM") == 0 && std::strcmp(label_for(21, 3, true), "Terramancer") == 0);
+    assert(std::strcmp(label_for(22, 1, false), "SPB") == 0 && std::strcmp(label_for(22, 1, true), "Spellblade") == 0);
+    assert(std::strcmp(label_for(22, 2, false), "LFB") == 0 && std::strcmp(label_for(22, 2, true), "Lifebinder") == 0);
+    assert(std::strcmp(label_for(22, 3, false), "INQ") == 0 && std::strcmp(label_for(22, 3, true), "Inquisitor") == 0);
+    assert(label_for(23, 1, false) == nullptr);
 
     original_lookup = &fake_lookup;
     original_sprite = reinterpret_cast<uintptr_t>(&fake_sprite);
     native_text = &fake_text;
     selftest_alive = true;
 
-    // Test Search rows for MNK Sensei/Black Belt/Chi Weaver, BLM Necromancer, SAM Ronin/Imperial Archer/Warlord, DNC Bladewheel, SCH Sage, RUN Spellblade.
+    // Test Search rows for MNK, BLM, SAM, DNC, SCH, RUN.
     state = {};
     make_row(row_a, 301, marker | 1, 2); state.decoded(row_a);
     assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 2), "Sensei") == 0);
     make_row(row_a, 306, marker | 2, 2); state.decoded(row_a);
-    assert(state.row_branch(row_a) == 2 && std::strcmp(full_abi(row_a, 2), "Black Belt") == 0);
+    assert(state.row_branch(row_a) == 2 && std::strcmp(full_abi(row_a, 2), "Chi Weaver") == 0);
     make_row(row_a, 307, marker | 3, 2); state.decoded(row_a);
-    assert(state.row_branch(row_a) == 3 && std::strcmp(full_abi(row_a, 2), "Chi Weaver") == 0);
-    make_row(row_a, 302, marker | 1, 4); state.decoded(row_a);
-    assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 4), "Necromancer") == 0);
+    assert(state.row_branch(row_a) == 3 && std::strcmp(full_abi(row_a, 2), "Black Belt") == 0);
+    make_row(row_a, 302, marker | 3, 4); state.decoded(row_a);
+    assert(state.row_branch(row_a) == 3 && std::strcmp(full_abi(row_a, 4), "Necromancer") == 0);
     make_row(row_a, 308, marker | 1, 12); state.decoded(row_a);
     assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 12), "Ronin") == 0);
     make_row(row_a, 309, marker | 2, 12); state.decoded(row_a);
     assert(state.row_branch(row_a) == 2 && std::strcmp(full_abi(row_a, 12), "Imperial Archer") == 0);
     make_row(row_a, 310, marker | 3, 12); state.decoded(row_a);
     assert(state.row_branch(row_a) == 3 && std::strcmp(full_abi(row_a, 12), "Warlord") == 0);
-    make_row(row_a, 303, marker | 1, 19); state.decoded(row_a);
-    assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 19), "Bladewheel") == 0);
+    make_row(row_a, 303, marker | 3, 19); state.decoded(row_a);
+    assert(state.row_branch(row_a) == 3 && std::strcmp(full_abi(row_a, 19), "Bladewheel") == 0);
     make_row(row_a, 304, marker | 2, 20); state.decoded(row_a);
     assert(state.row_branch(row_a) == 2 && std::strcmp(full_abi(row_a, 20), "Sage") == 0);
-    make_row(row_a, 305, marker | 2, 22); state.decoded(row_a);
-    assert(state.row_branch(row_a) == 2 && std::strcmp(full_abi(row_a, 22), "Spellblade") == 0);
+    make_row(row_a, 305, marker | 1, 22); state.decoded(row_a);
+    assert(state.row_branch(row_a) == 1 && std::strcmp(full_abi(row_a, 22), "Spellblade") == 0);
 
-    // Test item_label for RUN Lifebinder and SAM Ronin.
-    uint8_t run_event[8] = {1, 1, 22, 3, 100, 0, 0, 0};
+    // Test item_label for RUN Lifebinder and SAM Imperial Archer.
+    uint8_t run_event[8] = {1, 1, 22, 2, 100, 0, 0, 0};
     state.update(run_event, 8, GetTickCount());
     assert(std::strcmp(item_label(2, 22), "LFB") == 0);
     assert(std::strcmp(item_label(2, 1), "WAR") == 0);
@@ -307,7 +354,7 @@ int main() {
     assert(u32(row_a + 20) == 0 && state.row_branch(row_a) == 1 && state.row_branch(row_b) == 3);
     make_row(row_b, 102, 0); state.decoded(row_b);
     assert(state.row_branch(row_b) == 0 && state.row_branch(row_a) == 1);
-    make_row(row_b, 102, marker | 1, 3); state.decoded(row_b); assert(state.row_branch(row_b) == 0);
+    make_row(row_b, 102, marker | 1, 23); state.decoded(row_b); assert(state.row_branch(row_b) == 0);
     make_row(row_b, 102, marker | 2, 1, 0x4000); state.decoded(row_b); assert(state.row_branch(row_b) == 0);
     make_row(row_b, 102, marker | 4); state.decoded(row_b); assert(state.row_branch(row_b) == 0 && u32(row_b + 20) == 0);
     make_row(row_b, 102, 0x12345678); state.decoded(row_b); assert(u32(row_b + 20) == 0x12345678);
