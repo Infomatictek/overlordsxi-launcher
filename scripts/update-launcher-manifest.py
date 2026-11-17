@@ -8,14 +8,15 @@ import json
 from pathlib import Path
 
 
+TEXT_LF_SUFFIXES = {".lua", ".md", ".json", ".yml", ".yaml", ".py", ".cs", ".xaml", ".csproj"}
+
+
 def sha256_file(path: Path) -> tuple[str, int]:
-    h = hashlib.sha256()
-    size = 0
-    with path.open("rb") as f:
-        while chunk := f.read(65536):
-            h.update(chunk)
-            size += len(chunk)
-    return h.hexdigest(), size
+    raw = path.read_bytes()
+    if path.suffix.lower() in TEXT_LF_SUFFIXES and b"\r\n" in raw:
+        raw = raw.replace(b"\r\n", b"\n")
+        path.write_bytes(raw)
+    return hashlib.sha256(raw).hexdigest(), len(raw)
 
 
 def main() -> None:
