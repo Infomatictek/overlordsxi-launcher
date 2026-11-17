@@ -336,8 +336,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_boost/overlords_boost.lua",
       "targetPath": "overlords_boost/overlords_boost.lua",
-      "sha256": "ece0f0942b462efcff5146d1009e07552561a5ad08148f106f9ac9ed31bc2164",
-      "size": 30498
+      "sha256": "a1694053c96d2838c006ed7c8f1a9ebddd2f9eecdcdc95818492235a67d6edac",
+      "size": 31409
     },
     {
       "category": "addon",

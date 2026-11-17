@@ -830,6 +830,32 @@ ashita.events.register('unload', 'ox_boost_unload', function()
     end)
 end)
 
+local function extractBoostProtoPayload(text)
+    if type(text) ~= 'string' or text == '' then
+        return nil
+    end
+    local pos = string.find(text, PROTO_TAG, 1, true)
+    if not pos then
+        return nil
+    end
+    return string.sub(text, pos + #PROTO_TAG)
+end
+
+local function applyBoostProtoPayload(payload)
+    local parts = splitPipe(payload)
+    local active    = tonumber(parts[1]) or 0
+    local stacks    = tonumber(parts[2]) or 0
+    local maxStacks = tonumber(parts[3]) or 100
+    local remSec    = tonumber(parts[4]) or 0
+
+    state.synced          = true
+    state.chiWeaverActive = (active == 1)
+    state.stacks          = clamp(math.floor(stacks), 0, math.max(1, math.floor(maxStacks)))
+    state.maxStacks       = math.max(1, math.floor(maxStacks))
+    state.remSec          = math.max(0, math.floor(remSec))
+    state.timerUpdatedAt  = os.clock()
+end
+
 ashita.events.register('packet_in', 'ox_boost_packet_in', function(e)
     guard('packet_in', function()
         if type(e) ~= 'table' then
@@ -844,29 +870,43 @@ ashita.events.register('packet_in', 'ox_boost_packet_in', function(e)
             return
         end
 
-        local raw = e.data_modified or e.data
-        if e.id ~= 0x017 or type(raw) ~= 'string' or #raw < 25 then
+        if e.id ~= 0x017 then
             return
         end
 
-        local msg = string.sub(raw, 24):match('^([^%z]*)')
-        if msg == nil or string.sub(msg, 1, #PROTO_TAG) ~= PROTO_TAG then
+        local payload = nil
+        for _, raw in ipairs({ e.data, e.data_modified }) do
+            if type(raw) == 'string' and #raw >= 25 then
+                local msg = string.sub(raw, 24):match('^([^%z]*)')
+                payload = extractBoostProtoPayload(msg)
+                if payload ~= nil then
+                    break
+                end
+            end
+        end
+
+        if payload == nil then
             return
         end
 
         e.blocked = true
-        local parts = splitPipe(string.sub(msg, #PROTO_TAG + 1))
-        local active    = tonumber(parts[1]) or 0
-        local stacks    = tonumber(parts[2]) or 0
-        local maxStacks = tonumber(parts[3]) or 100
-        local remSec    = tonumber(parts[4]) or 0
+        applyBoostProtoPayload(payload)
+    end)
+end)
 
-        state.synced          = true
-        state.chiWeaverActive = (active == 1)
-        state.stacks          = clamp(math.floor(stacks), 0, math.max(1, math.floor(maxStacks)))
-        state.maxStacks       = math.max(1, math.floor(maxStacks))
-        state.remSec          = math.max(0, math.floor(remSec))
-        state.timerUpdatedAt  = os.clock()
+ashita.events.register('text_in', 'ox_boost_text_in', function(e)
+    guard('text_in', function()
+        if type(e) ~= 'table' then
+            return
+        end
+
+        local payload = extractBoostProtoPayload(e.message_modified) or extractBoostProtoPayload(e.message)
+        if payload == nil then
+            return
+        end
+
+        e.blocked = true
+        applyBoostProtoPayload(payload)
     end)
 end)
 
