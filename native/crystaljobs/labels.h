@@ -43,6 +43,8 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
                 case 3: return full ? "Warlord" : "WRL";
                 default: return nullptr;
             }
+        case 13: // NIN
+            return branch == 1 ? (full ? "Kagemusha" : "KAG") : nullptr;
         case 19: // DNC
             return branch == 1 ? (full ? "Bladewheel" : "BLW") : nullptr;
         case 20: // SCH

@@ -65,6 +65,10 @@ Overlords.CustomAbilities =
     -- BST Alpha Warden Spec
     [953] = 'Soul Bond',             -- 441
     [954] = 'Feral Roar',            -- 442
+
+    -- NIN Kagemusha Spec
+    [955] = 'Kage Bunshin',          -- 443
+    [956] = 'Smoke Lotus',           -- 444
 }
 
 ------------------------------------------------------------------------------------------------------

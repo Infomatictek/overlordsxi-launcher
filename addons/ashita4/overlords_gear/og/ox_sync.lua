@@ -45,6 +45,9 @@ ox_sync.SPECS_BY_JOB = {
         { id = 2, key = 'imperialarcher', name = 'Imperial Archer', role = 'Oisoya Bow & Blade Skirmisher' },
         { id = 3, key = 'warlord',        name = 'Warlord',         role = 'Iaijutsu & Onimaru Melee DPS' },
     },
+    [13] = { -- NIN
+        { id = 1, key = 'kagemusha',      name = 'Kagemusha',       role = 'Shadow & Ninjutsu Tank' },
+    },
     [19] = { -- DNC
         { id = 1, key = 'bladewheel', name = 'Bladewheel', role = 'Ranged Chakram Dancer' },
     },
