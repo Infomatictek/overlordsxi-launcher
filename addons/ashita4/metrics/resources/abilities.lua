@@ -48,6 +48,12 @@ Res.Abilities.Damaging =
     [958] = {id = 958, old_id = 446, en = "Diamond Shell"},
     [959] = {id = 959, old_id = 447, en = "Hex Volley"},
     [960] = {id = 960, old_id = 448, en = "Crimson Fleche"},
+    [961] = {id = 961, old_id = 449, en = "Pirouette Deflect"},
+    [962] = {id = 962, old_id = 450, en = "Dazzling Cadence"},
+    [961] = {id = 961, old_id = 449, en = "Abyssal Cleave"},
+    [962] = {id = 962, old_id = 450, en = "Dread Bastion"},
+    [963] = {id = 963, old_id = 451, en = "Aegis Protocol"},
+    [964] = {id = 964, old_id = 452, en = "Gyro Slam"},
 }
 
 -- Based off of job_abilities.lua from Windower.

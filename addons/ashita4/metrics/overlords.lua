@@ -77,6 +77,18 @@ Overlords.CustomAbilities =
     -- RDM Crimson Duelist Spec
     [959] = 'Hex Volley',            -- 447
     [960] = 'Crimson Fleche',        -- 448
+
+    -- DNC Mirage Sentinel Spec
+    [961] = 'Pirouette Deflect',     -- 449
+    [962] = 'Dazzling Cadence',      -- 450
+
+    -- DRK Dreadnought Spec
+    [961] = 'Abyssal Cleave',        -- 449
+    [962] = 'Dread Bastion',         -- 450
+
+    -- PUP Vanguard Spec
+    [963] = 'Aegis Protocol',        -- 451
+    [964] = 'Gyro Slam',             -- 452
 }
 
 ------------------------------------------------------------------------------------------------------

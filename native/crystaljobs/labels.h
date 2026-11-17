@@ -29,6 +29,8 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
             return branch == 1 ? (full ? "Crimson Duelist" : "CRM") : nullptr;
         case 7: // PLD
             return branch == 1 ? (full ? "Aegis Templar" : "AEG") : nullptr;
+        case 8: // DRK
+            return branch == 1 ? (full ? "Dreadnought" : "DRD") : nullptr;
         case 9: // BST
             return branch == 1 ? (full ? "Alpha Warden" : "AWD") : nullptr;
         case 10: // BRD
@@ -49,6 +51,8 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
             return branch == 1 ? (full ? "Kagemusha" : "KAG") : nullptr;
         case 16: // BLU
             return branch == 1 ? (full ? "Azure Bastion" : "AZB") : nullptr;
+        case 18: // PUP
+            return branch == 1 ? (full ? "Vanguard" : "VNG") : nullptr;
         case 19: // DNC
             switch (branch) {
                 case 1: return full ? "Bladewheel" : "BLW";

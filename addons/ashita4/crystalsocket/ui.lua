@@ -38,6 +38,8 @@ local fallback_tints = {
     kagemusha       = 0xFFAA55CC,
     azurebastion    = 0xFF3377EE,
     crimsonduelist  = 0xFFCC3344,
+    miragesentinel  = 0xFFE070C0,
+    dreadnought     = 0xFFAA2233,
 }
 
 function UI.new(imgui, state, send, scaling, icon_loader)

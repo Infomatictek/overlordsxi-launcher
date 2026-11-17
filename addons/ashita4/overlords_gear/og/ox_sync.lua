@@ -40,6 +40,9 @@ ox_sync.SPECS_BY_JOB = {
     [7] = { -- PLD
         { id = 1, key = 'aegistemplar', name = 'Aegis Templar', role = 'Party-Intercepting Holy Bastion' },
     },
+    [8] = { -- DRK
+        { id = 1, key = 'dreadnought', name = 'Dreadnought', role = 'Blood-Pool & Dread Spikes Tank' },
+    },
     [9] = { -- BST
         { id = 1, key = 'alphawarden', name = 'Alpha Warden', role = 'Symbiotic Soul-Link & Pack-Mitigation Tank' },
     },
@@ -53,6 +56,9 @@ ox_sync.SPECS_BY_JOB = {
     },
     [16] = { -- BLU
         { id = 1, key = 'azurebastion',   name = 'Azure Bastion',   role = 'Monster-Core Assimilator & Dual-Wield Tank' },
+    },
+    [18] = { -- PUP
+        { id = 1, key = 'vanguard',       name = 'Vanguard',        role = 'Automaton Proxy-Tank & Tactical Link' },
     },
     [19] = { -- DNC
         { id = 1, key = 'bladewheel',     name = 'Bladewheel',      role = 'Ranged Chakram Dancer' },
