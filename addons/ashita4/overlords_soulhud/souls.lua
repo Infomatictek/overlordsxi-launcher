@@ -28,7 +28,7 @@ return {
             element('cc_rem', 'Deck Effect Duration', 'timer', 'cc_rem', nil, 's'),
         },
     },
-    mirage_sentinel = {
+    miragesentinel = {
         title = 'DNC · Mirage Sentinel',
         elements = {
             element('fm', 'Finishing Moves', 'stack', 'fm', 5),
