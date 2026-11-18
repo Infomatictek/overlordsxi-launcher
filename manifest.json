@@ -644,8 +644,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/overlords_soulhud.lua",
       "targetPath": "overlords_soulhud/overlords_soulhud.lua",
-      "sha256": "403ddb3464098f827cfb8b2366a058df9d36ea95f34b25b0e69cce1fdd2e2bc7",
-      "size": 14070
+      "sha256": "dbdc56c5b1e015cdbb5b482da54412311612bde99fd48689bd67d7006c116305",
+      "size": 15265
     },
     {
       "category": "addon",
