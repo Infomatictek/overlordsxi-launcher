@@ -118,6 +118,14 @@ local state =
     lastAutoCheck   = 0,
     inspectedNodeKey = nil,
     renderError     = nil,
+    renderStyle     = 1,
+}
+
+local RENDER_STYLES =
+{
+    { id = 1, key = 'crystal',       name = 'Crystal Lattice' },
+    { id = 2, key = 'constellation', name = 'Astral Constellation' },
+    { id = 3, key = 'imperial',      name = 'Imperial Relic' },
 }
 
 local function abgr(r, g, b, a)
@@ -375,6 +383,27 @@ ashita.events.register('command', 'ox_talents_cmd', function(e)
         return
     end
 
+    if args[2] ~= nil and string.lower(args[2]) == 'style' then
+        local q = string.lower(tostring(args[3] or ''))
+        local num = tonumber(q)
+        if num ~= nil and RENDER_STYLES[num] ~= nil then
+            state.renderStyle = num
+            setStatus('Render style: ' .. RENDER_STYLES[num].name)
+        elseif q ~= '' then
+            for _, st in ipairs(RENDER_STYLES) do
+                if string.find(string.lower(st.name), q, 1, true) or st.key == q then
+                    state.renderStyle = st.id
+                    setStatus('Render style: ' .. st.name)
+                    break
+                end
+            end
+        else
+            state.renderStyle = (state.renderStyle % #RENDER_STYLES) + 1
+            setStatus('Render style: ' .. RENDER_STYLES[state.renderStyle].name)
+        end
+        return
+    end
+
     state.open[1] = not state.open[1]
     if state.open[1] then
         if not state.synced then
@@ -468,30 +497,156 @@ local function isWsUnlockedInDetail(detail)
     return state.unlockedByWs[detail.id] == true
 end
 
--- FFXI / CrystalSocket-inspired Palette (packed ABGR for ImGui DrawList)
-local THEME =
+local function colU32(r, g, b, a)
+    return abgr(r, g, b, a or 1.0)
+end
+
+local function buildPalette(cfg)
+    local p = {}
+    for k, v in pairs(cfg) do
+        p[k] = v
+    end
+    return p
+end
+
+local PALETTES =
 {
-    bgDark       = 0xFF140D0A,
-    bgPanel      = 0xFF21150F,
-    bgCardMax    = 0xFF2B2213,
-    bgCardActive = 0xFF1A2530,
-    bgCardAvail  = 0xFF17271D,
-    bgCardLocked = 0xFF171312,
-    edge         = 0xFF523929,
-    silver       = 0xFFAD9789,
-    shadow       = 0x77000000,
-    gold         = 0xFFD9C38C,
-    goldBright   = 0xFFE8CA62,
-    goldGlow     = 0x44E8CA62,
-    cyan         = 0xFFEFBA52, -- ABGR: warm sky-azure (R=82,G=186,B=239)
-    green        = 0xFF6EE072, -- ABGR: emerald (R=114,G=224,B=110)
-    red          = 0xFF6868F0, -- ABGR: soft crimson (R=240,G=104,B=104)
-    muted        = 0xFF7B6557,
-    text         = 0xFFE2E8E9,
-    secondary    = 0xFFB8A89C,
-    linkInactive = 0x88523929,
-    barBg        = 0xFF0E0907,
+    -- 1: Crystal Lattice (FFXI Obsidian-Bronze & Crystal Glow)
+    [1] = buildPalette({
+        id           = 1,
+        winBg        = { 0.07, 0.05, 0.04, 0.97 },
+        childBg      = { 0.10, 0.07, 0.05, 0.94 },
+        popupBg      = { 0.09, 0.06, 0.05, 0.97 },
+        border       = { 0.36, 0.25, 0.17, 0.92 },
+        titleBg      = { 0.11, 0.07, 0.05, 1.00 },
+        titleBgAct   = { 0.20, 0.13, 0.08, 1.00 },
+        frameBg      = { 0.15, 0.10, 0.07, 1.00 },
+        frameBgHov   = { 0.23, 0.15, 0.10, 1.00 },
+        button       = { 0.24, 0.16, 0.10, 1.00 },
+        buttonHov    = { 0.36, 0.24, 0.15, 1.00 },
+        buttonAct    = { 0.45, 0.30, 0.18, 1.00 },
+        header       = { 0.30, 0.20, 0.12, 0.90 },
+        headerHov    = { 0.38, 0.26, 0.16, 0.95 },
+        headerAct    = { 0.46, 0.32, 0.19, 1.00 },
+        separator    = { 0.36, 0.25, 0.17, 0.85 },
+
+        cardRounding = 5.0,
+        canvasDot    = colU32(0.45, 0.33, 0.23, 0.22),
+        tierRule     = colU32(0.34, 0.24, 0.17, 0.55),
+        tierRuleLit  = colU32(0.88, 0.73, 0.38, 0.65),
+        bgCardMax    = colU32(0.18, 0.14, 0.07, 0.98),
+        bgCardActive = colU32(0.09, 0.15, 0.21, 0.98),
+        bgCardAvail  = colU32(0.09, 0.16, 0.11, 0.98),
+        bgCardLocked = colU32(0.10, 0.08, 0.07, 0.95),
+        innerWell    = colU32(0.06, 0.04, 0.03, 0.85),
+        edge         = colU32(0.32, 0.22, 0.16, 1.00),
+        edgeHover    = colU32(0.82, 0.74, 0.60, 1.00),
+        shadow       = colU32(0.00, 0.00, 0.00, 0.50),
+        barBg        = colU32(0.05, 0.03, 0.03, 0.95),
+        linkInactive = colU32(0.36, 0.26, 0.19, 0.55),
+
+        gold         = colU32(0.92, 0.77, 0.38, 1.00),
+        goldGlow     = colU32(0.92, 0.77, 0.38, 0.24),
+        cyan         = colU32(0.32, 0.75, 0.96, 1.00),
+        cyanGlow     = colU32(0.32, 0.75, 0.96, 0.22),
+        green        = colU32(0.38, 0.86, 0.48, 1.00),
+        greenGlow    = colU32(0.38, 0.86, 0.48, 0.20),
+        muted        = colU32(0.45, 0.38, 0.33, 1.00),
+        bannerBg     = colU32(0.13, 0.09, 0.06, 0.95),
+    }),
+
+    -- 2: Astral Constellation (Midnight Indigo & Starlight)
+    [2] = buildPalette({
+        id           = 2,
+        winBg        = { 0.05, 0.06, 0.11, 0.97 },
+        childBg      = { 0.07, 0.09, 0.15, 0.94 },
+        popupBg      = { 0.06, 0.08, 0.14, 0.97 },
+        border       = { 0.22, 0.30, 0.46, 0.90 },
+        titleBg      = { 0.06, 0.08, 0.14, 1.00 },
+        titleBgAct   = { 0.11, 0.15, 0.26, 1.00 },
+        frameBg      = { 0.10, 0.13, 0.22, 1.00 },
+        frameBgHov   = { 0.15, 0.20, 0.32, 1.00 },
+        button       = { 0.14, 0.19, 0.31, 1.00 },
+        buttonHov    = { 0.21, 0.28, 0.44, 1.00 },
+        buttonAct    = { 0.27, 0.36, 0.56, 1.00 },
+        header       = { 0.16, 0.22, 0.36, 0.92 },
+        headerHov    = { 0.22, 0.30, 0.48, 0.95 },
+        headerAct    = { 0.28, 0.38, 0.58, 1.00 },
+        separator    = { 0.22, 0.30, 0.46, 0.80 },
+
+        cardRounding = 9.0,
+        canvasDot    = colU32(0.55, 0.72, 0.98, 0.26),
+        tierRule     = colU32(0.24, 0.32, 0.50, 0.45),
+        tierRuleLit  = colU32(0.45, 0.85, 1.00, 0.65),
+        bgCardMax    = colU32(0.16, 0.14, 0.08, 0.96),
+        bgCardActive = colU32(0.08, 0.14, 0.24, 0.96),
+        bgCardAvail  = colU32(0.07, 0.16, 0.15, 0.96),
+        bgCardLocked = colU32(0.08, 0.10, 0.16, 0.92),
+        innerWell    = colU32(0.05, 0.06, 0.11, 0.85),
+        edge         = colU32(0.22, 0.29, 0.44, 1.00),
+        edgeHover    = colU32(0.75, 0.88, 1.00, 1.00),
+        shadow       = colU32(0.00, 0.02, 0.08, 0.55),
+        barBg        = colU32(0.04, 0.05, 0.10, 0.95),
+        linkInactive = colU32(0.26, 0.34, 0.52, 0.50),
+
+        gold         = colU32(1.00, 0.84, 0.42, 1.00),
+        goldGlow     = colU32(1.00, 0.84, 0.42, 0.25),
+        cyan         = colU32(0.36, 0.88, 1.00, 1.00),
+        cyanGlow     = colU32(0.36, 0.88, 1.00, 0.24),
+        green        = colU32(0.36, 0.94, 0.66, 1.00),
+        greenGlow    = colU32(0.36, 0.94, 0.66, 0.22),
+        muted        = colU32(0.38, 0.44, 0.58, 1.00),
+        bannerBg     = colU32(0.09, 0.12, 0.20, 0.95),
+    }),
+
+    -- 3: Imperial Relic (Ornate Gold & Deep Crimson Lacquer)
+    [3] = buildPalette({
+        id           = 3,
+        winBg        = { 0.08, 0.04, 0.05, 0.97 },
+        childBg      = { 0.11, 0.06, 0.07, 0.94 },
+        popupBg      = { 0.10, 0.05, 0.06, 0.97 },
+        border       = { 0.48, 0.35, 0.18, 0.92 },
+        titleBg      = { 0.13, 0.05, 0.06, 1.00 },
+        titleBgAct   = { 0.25, 0.09, 0.10, 1.00 },
+        frameBg      = { 0.17, 0.09, 0.10, 1.00 },
+        frameBgHov   = { 0.25, 0.13, 0.14, 1.00 },
+        button       = { 0.28, 0.12, 0.12, 1.00 },
+        buttonHov    = { 0.40, 0.18, 0.16, 1.00 },
+        buttonAct    = { 0.50, 0.23, 0.19, 1.00 },
+        header       = { 0.34, 0.15, 0.13, 0.92 },
+        headerHov    = { 0.44, 0.20, 0.17, 0.95 },
+        headerAct    = { 0.54, 0.26, 0.20, 1.00 },
+        separator    = { 0.48, 0.35, 0.18, 0.85 },
+
+        cardRounding = 2.0,
+        canvasDot    = colU32(0.62, 0.46, 0.24, 0.18),
+        tierRule     = colU32(0.42, 0.30, 0.16, 0.55),
+        tierRuleLit  = colU32(0.95, 0.78, 0.30, 0.75),
+        bgCardMax    = colU32(0.20, 0.14, 0.06, 0.98),
+        bgCardActive = colU32(0.14, 0.11, 0.18, 0.98),
+        bgCardAvail  = colU32(0.09, 0.16, 0.12, 0.98),
+        bgCardLocked = colU32(0.11, 0.07, 0.07, 0.95),
+        innerWell    = colU32(0.07, 0.04, 0.04, 0.90),
+        edge         = colU32(0.38, 0.27, 0.16, 1.00),
+        edgeHover    = colU32(0.95, 0.82, 0.48, 1.00),
+        shadow       = colU32(0.00, 0.00, 0.00, 0.55),
+        barBg        = colU32(0.06, 0.03, 0.03, 0.95),
+        linkInactive = colU32(0.42, 0.30, 0.18, 0.55),
+
+        gold         = colU32(0.96, 0.79, 0.30, 1.00),
+        goldGlow     = colU32(0.96, 0.79, 0.30, 0.25),
+        cyan         = colU32(0.42, 0.68, 0.98, 1.00),
+        cyanGlow     = colU32(0.42, 0.68, 0.98, 0.22),
+        green        = colU32(0.36, 0.85, 0.55, 1.00),
+        greenGlow    = colU32(0.36, 0.85, 0.55, 0.20),
+        muted        = colU32(0.46, 0.35, 0.34, 1.00),
+        bannerBg     = colU32(0.15, 0.08, 0.08, 0.96),
+    }),
 }
+
+local function getPalette()
+    return PALETTES[state.renderStyle] or PALETTES[1]
+end
 
 local descCache = {}
 local function formatReadableDesc(raw)
@@ -552,12 +707,51 @@ local function wrapLines(str, maxChars)
     return lines
 end
 
-local function drawBevelPanel(dl, x, y, w, h, fillCol, outerCol, innerCol, rounding)
-    local r = rounding or 5.0
-    dl:AddRectFilled({ x + 2, y + 3 }, { x + w + 2, y + h + 3 }, THEME.shadow, r)
+local function drawDiamond(dl, cx, cy, rx, ry, fillCol, borderCol, thick)
+    local p1 = { cx, cy - ry }
+    local p2 = { cx + rx, cy }
+    local p3 = { cx, cy + ry }
+    local p4 = { cx - rx, cy }
+    if fillCol ~= nil then
+        dl:AddQuadFilled(p1, p2, p3, p4, fillCol)
+    end
+    if borderCol ~= nil then
+        dl:AddQuad(p1, p2, p3, p4, borderCol, thick or 1.0)
+    end
+end
+
+local function drawCornerBrackets(dl, x, y, w, h, len, col, thick)
+    local t = thick or 1.5
+    -- Top-left
+    dl:AddLine({ x, y }, { x + len, y }, col, t)
+    dl:AddLine({ x, y }, { x, y + len }, col, t)
+    -- Top-right
+    dl:AddLine({ x + w - len, y }, { x + w, y }, col, t)
+    dl:AddLine({ x + w, y }, { x + w, y + len }, col, t)
+    -- Bottom-left
+    dl:AddLine({ x, y + h - len }, { x, y + h }, col, t)
+    dl:AddLine({ x, y + h }, { x + len, y + h }, col, t)
+    -- Bottom-right
+    dl:AddLine({ x + w - len, y + h }, { x + w, y + h }, col, t)
+    dl:AddLine({ x + w, y + h - len }, { x + w, y + h }, col, t)
+end
+
+local function drawBevelPanel(dl, pal, x, y, w, h, fillCol, outerCol, innerCol, rounding)
+    local r = rounding or pal.cardRounding
+    dl:AddRectFilled({ x + 2, y + 3 }, { x + w + 2, y + h + 3 }, pal.shadow, r)
     dl:AddRectFilled({ x, y }, { x + w, y + h }, fillCol, r)
     dl:AddRect({ x, y }, { x + w, y + h }, outerCol, r, 0, 1.5)
-    dl:AddRect({ x + 1, y + 1 }, { x + w - 1, y + h - 1 }, innerCol or THEME.edge, math.max(1.0, r - 1.0), 0, 1.0)
+    dl:AddRect({ x + 1, y + 1 }, { x + w - 1, y + h - 1 }, innerCol or pal.edge, math.max(1.0, r - 1.0), 0, 1.0)
+end
+
+local function drawProgressBar(dl, pal, x, y, w, h, pct, fillCol, borderCol)
+    local r = math.min(3.0, h * 0.4)
+    dl:AddRectFilled({ x, y }, { x + w, y + h }, pal.barBg, r)
+    local clamped = math.max(0, math.min(1, pct or 0))
+    if clamped > 0 then
+        dl:AddRectFilled({ x, y }, { x + math.max(3, w * clamped), y + h }, fillCol, r)
+    end
+    dl:AddRect({ x, y }, { x + w, y + h }, borderCol or pal.edge, r, 0, 1.0)
 end
 
 local function getNodeRequirements(node, detail)
@@ -651,11 +845,267 @@ local function drawNodeTooltip(node, detail, isMaxed, isScNode, titleCol)
     end
 end
 
+local function getNodeVisualState(node, pal)
+    local isMaxed = node.rank >= node.maxRank
+    if isMaxed then
+        return {
+            isMaxed   = true,
+            bgCol     = pal.bgCardMax,
+            outerCol  = pal.gold,
+            innerCol  = colU32(0.45, 0.35, 0.14, 0.90),
+            accentCol = pal.gold,
+            glowCol   = pal.goldGlow,
+            titleCol  = { 1.00, 0.88, 0.44, 1.00 },
+            pillCol   = { 1.00, 0.90, 0.48, 1.00 },
+        }
+    elseif node.rank > 0 then
+        return {
+            isMaxed   = false,
+            bgCol     = pal.bgCardActive,
+            outerCol  = pal.cyan,
+            innerCol  = colU32(0.18, 0.32, 0.44, 0.90),
+            accentCol = pal.cyan,
+            glowCol   = pal.cyanGlow,
+            titleCol  = { 0.54, 0.88, 1.00, 1.00 },
+            pillCol   = { 0.56, 0.90, 1.00, 1.00 },
+        }
+    elseif node.canLearn then
+        return {
+            isMaxed   = false,
+            bgCol     = pal.bgCardAvail,
+            outerCol  = pal.green,
+            innerCol  = colU32(0.16, 0.34, 0.22, 0.90),
+            accentCol = pal.green,
+            glowCol   = pal.greenGlow,
+            titleCol  = { 0.58, 0.96, 0.68, 1.00 },
+            pillCol   = { 0.60, 0.96, 0.68, 1.00 },
+        }
+    else
+        return {
+            isMaxed   = false,
+            bgCol     = pal.bgCardLocked,
+            outerCol  = pal.edge,
+            innerCol  = colU32(0.16, 0.12, 0.10, 0.80),
+            accentCol = pal.muted,
+            glowCol   = nil,
+            titleCol  = { 0.62, 0.58, 0.55, 1.00 },
+            pillCol   = { 0.60, 0.56, 0.53, 1.00 },
+        }
+    end
+end
+
+local function drawCanvasBackground(dl, styleId, pal, x, y, w, h, maxTier, cardH, gapY, detail)
+    if styleId == 2 then
+        -- Astral Constellation: deterministic starfield dots
+        local step = 44
+        local idx = 0
+        for gx = x + 16, x + w - 12, step do
+            for gy = y + 14, y + h - 12, step do
+                idx = idx + 1
+                local ox = ((idx * 17) % 19) - 9
+                local oy = ((idx * 29) % 19) - 9
+                local rad = (idx % 5 == 0) and 1.6 or 1.0
+                dl:AddCircleFilled({ gx + ox, gy + oy }, rad, pal.canvasDot, 8)
+            end
+        end
+    elseif styleId == 3 then
+        -- Imperial Relic: subtle architectural cross-grid
+        local step = 48
+        for gx = x + step, x + w - 8, step do
+            dl:AddLine({ gx, y + 4 }, { gx, y + h - 4 }, pal.canvasDot, 1.0)
+        end
+        for gy = y + step, y + h - 8, step do
+            dl:AddLine({ x + 4, gy }, { x + w - 4, gy }, pal.canvasDot, 1.0)
+        end
+    else
+        -- Crystal Lattice: subtle dot matrix
+        local step = 28
+        for gx = x + 14, x + w - 10, step do
+            for gy = y + 14, y + h - 10, step do
+                dl:AddCircleFilled({ gx, gy }, 1.1, pal.canvasDot, 6)
+            end
+        end
+    end
+end
+
+local function drawTierHeader(dl, styleId, pal, x, hy, w, tier, label, gateMet)
+    local ruleCol = gateMet and pal.tierRuleLit or pal.tierRule
+    local textCol = gateMet and { 0.92, 0.82, 0.52, 0.98 } or COL_TEXT_DISABLED
+
+    if styleId == 2 then
+        local dotCol = gateMet and pal.cyan or pal.muted
+        dl:AddCircleFilled({ x + 6, hy + 7 }, 4.0, dotCol, 12)
+        if gateMet then
+            dl:AddCircle({ x + 6, hy + 7 }, 6.5, pal.cyanGlow, 12, 1.5)
+        end
+        imgui.SetCursorScreenPos({ x + 16, hy })
+        drawTextColored(textCol, label)
+        local lineX = x + 16 + #label * 7.2 + 8
+        if lineX < x + w - 12 then
+            dl:AddLine({ lineX, hy + 7 }, { x + w - 12, hy + 7 }, ruleCol, 1.0)
+        end
+    elseif styleId == 3 then
+        drawDiamond(dl, x + 6, hy + 7, 4.5, 4.5, gateMet and pal.gold or pal.muted, pal.edge, 1.0)
+        imgui.SetCursorScreenPos({ x + 16, hy })
+        drawTextColored(textCol, '[ ' .. label .. ' ]')
+        local lineX = x + 16 + (#label + 4) * 7.1 + 8
+        if lineX < x + w - 12 then
+            dl:AddLine({ lineX, hy + 6 }, { x + w - 12, hy + 6 }, ruleCol, 1.2)
+            dl:AddLine({ lineX, hy + 9 }, { x + w - 12, hy + 9 }, pal.tierRule, 1.0)
+        end
+    else
+        drawDiamond(dl, x + 6, hy + 7, 4.0, 4.0, gateMet and pal.gold or pal.muted, nil, 1.0)
+        imgui.SetCursorScreenPos({ x + 15, hy })
+        drawTextColored(textCol, label)
+        local lineX = x + 15 + #label * 7.1 + 8
+        if lineX < x + w - 12 then
+            dl:AddLine({ lineX, hy + 7 }, { x + w - 12, hy + 7 }, ruleCol, 1.0)
+            drawDiamond(dl, x + w - 10, hy + 7, 3.0, 3.0, ruleCol, nil, 1.0)
+        end
+    end
+end
+
+local function drawConnectorLine(dl, styleId, pal, x1, y1, x2, y2, activeLink, isMaxLink)
+    local coreCol = isMaxLink and pal.gold or (activeLink and pal.cyan or pal.linkInactive)
+    local glowCol = isMaxLink and pal.goldGlow or pal.cyanGlow
+
+    if styleId == 2 then
+        -- Astral Constellation: short stem + direct diagonal energy beam + glowing star endpoints
+        local stem = 8
+        local p1 = { x1, y1 }
+        local p2 = { x1, y1 + stem }
+        local p3 = { x2, y2 - stem }
+        local p4 = { x2, y2 }
+        if activeLink then
+            dl:AddLine(p1, p2, glowCol, 6.0)
+            dl:AddLine(p2, p3, glowCol, 6.0)
+            dl:AddLine(p3, p4, glowCol, 6.0)
+            dl:AddLine(p1, p2, coreCol, 2.0)
+            dl:AddLine(p2, p3, coreCol, 2.0)
+            dl:AddLine(p3, p4, coreCol, 2.0)
+            dl:AddCircleFilled(p1, 3.0, coreCol, 10)
+            dl:AddCircleFilled(p4, 3.5, coreCol, 10)
+        else
+            dl:AddLine(p1, p2, coreCol, 1.3)
+            dl:AddLine(p2, p3, coreCol, 1.3)
+            dl:AddLine(p3, p4, coreCol, 1.3)
+            dl:AddCircleFilled(p4, 2.2, coreCol, 8)
+        end
+    elseif styleId == 3 then
+        -- Imperial Relic: double-rail brass conduit with corner rivets
+        local midY = (y1 + y2) * 0.5
+        if activeLink then
+            dl:AddLine({ x1, y1 }, { x1, midY }, glowCol, 6.0)
+            dl:AddLine({ x1, midY }, { x2, midY }, glowCol, 6.0)
+            dl:AddLine({ x2, midY }, { x2, y2 }, glowCol, 6.0)
+            dl:AddLine({ x1, y1 }, { x1, midY }, coreCol, 2.2)
+            dl:AddLine({ x1, midY }, { x2, midY }, coreCol, 2.2)
+            dl:AddLine({ x2, midY }, { x2, y2 }, coreCol, 2.2)
+            drawDiamond(dl, x1, midY, 3.5, 3.5, coreCol, pal.barBg, 1.0)
+            if math.abs(x2 - x1) > 4 then
+                drawDiamond(dl, x2, midY, 3.5, 3.5, coreCol, pal.barBg, 1.0)
+            end
+            dl:AddRectFilled({ x2 - 3, y2 - 4 }, { x2 + 3, y2 + 1 }, coreCol, 0.0)
+        else
+            dl:AddLine({ x1, y1 }, { x1, midY }, coreCol, 1.5)
+            dl:AddLine({ x1, midY }, { x2, midY }, coreCol, 1.5)
+            dl:AddLine({ x2, midY }, { x2, y2 }, coreCol, 1.5)
+        end
+    else
+        -- Crystal Lattice: stepped glowing conduit + midpoint crystal junction
+        local midY = (y1 + y2) * 0.5
+        if activeLink then
+            dl:AddLine({ x1, y1 }, { x1, midY }, glowCol, 6.0)
+            dl:AddLine({ x1, midY }, { x2, midY }, glowCol, 6.0)
+            dl:AddLine({ x2, midY }, { x2, y2 }, glowCol, 6.0)
+            dl:AddLine({ x1, y1 }, { x1, midY }, coreCol, 2.0)
+            dl:AddLine({ x1, midY }, { x2, midY }, coreCol, 2.0)
+            dl:AddLine({ x2, midY }, { x2, y2 }, coreCol, 2.0)
+            drawDiamond(dl, (x1 + x2) * 0.5, midY, 4.0, 4.0, coreCol, pal.barBg, 1.0)
+            dl:AddCircleFilled({ x2, y2 - 2 }, 3.0, coreCol, 10)
+        else
+            dl:AddLine({ x1, y1 }, { x1, midY }, coreCol, 1.5)
+            dl:AddLine({ x1, midY }, { x2, midY }, coreCol, 1.5)
+            dl:AddLine({ x2, midY }, { x2, y2 }, coreCol, 1.5)
+        end
+    end
+end
+
+local function drawNodeEmblem(dl, styleId, pal, node, x, y, vs, isScNode)
+    local cx = x + 17
+    local cy = y + 17
+    local active = (node.rank > 0 or node.canLearn)
+    local fill = active and vs.accentCol or pal.muted
+
+    if styleId == 2 then
+        -- Astral circular medallion
+        dl:AddCircleFilled({ cx, cy }, 10.0, pal.innerWell, 16)
+        dl:AddCircle({ cx, cy }, 10.0, vs.accentCol, 16, 1.2)
+        if node.tier >= 4 or isScNode then
+            drawDiamond(dl, cx, cy, 5.5, 5.5, fill, nil, 1.0)
+        else
+            dl:AddCircleFilled({ cx, cy }, 4.2, fill, 12)
+        end
+    elseif styleId == 3 then
+        -- Imperial square crest with inner diamond
+        dl:AddRectFilled({ x + 7, y + 7 }, { x + 27, y + 27 }, pal.innerWell, 1.0)
+        dl:AddRect({ x + 7, y + 7 }, { x + 27, y + 27 }, vs.accentCol, 1.0, 0, 1.0)
+        drawDiamond(dl, cx, cy, 5.5, 5.5, fill, pal.barBg, 1.0)
+        if node.tier >= 4 then
+            drawDiamond(dl, cx, cy, 2.5, 2.5, pal.barBg, nil, 1.0)
+        end
+    else
+        -- Crystal Lattice socketed crystal
+        dl:AddRectFilled({ x + 7, y + 7 }, { x + 27, y + 27 }, pal.innerWell, 3.0)
+        dl:AddRect({ x + 7, y + 7 }, { x + 27, y + 27 }, vs.innerCol, 3.0, 0, 1.0)
+        drawDiamond(dl, cx, cy, 5.5, 7.0, fill, active and pal.edgeHover or pal.edge, 1.0)
+    end
+end
+
+local function drawRankIndicator(dl, styleId, pal, x, y, w, rank, maxRank, accentCol)
+    local mr = math.max(1, maxRank or 1)
+    local r = math.max(0, math.min(mr, rank or 0))
+
+    if styleId == 2 and mr <= 6 then
+        -- Astral Constellation: circular star pips
+        local spacing = 12
+        local startX = x + 2
+        local cy = y + 2
+        for i = 1, mr do
+            local px = startX + (i - 1) * spacing
+            if i <= r then
+                dl:AddCircleFilled({ px + 3, cy }, 3.2, accentCol, 10)
+            else
+                dl:AddCircle({ px + 3, cy }, 3.0, pal.edge, 10, 1.1)
+            end
+        end
+        return
+    end
+
+    if mr <= 6 then
+        local gap = 3
+        local segW = (w - (mr - 1) * gap) / mr
+        local round = (styleId == 3) and 0.5 or 1.5
+        for i = 1, mr do
+            local sx1 = x + (i - 1) * (segW + gap)
+            local sx2 = sx1 + segW
+            local col = (i <= r) and accentCol or pal.barBg
+            dl:AddRectFilled({ sx1, y }, { sx2, y + 4 }, col, round)
+            dl:AddRect({ sx1, y }, { sx2, y + 4 }, (i <= r) and accentCol or pal.edge, round, 0, 0.8)
+        end
+    else
+        drawProgressBar(dl, pal, x, y, w, 4, r / mr, accentCol, pal.edge)
+    end
+end
+
 local function drawTreeCanvas()
+    local pal = getPalette()
+    local styleId = pal.id
     local detail = state.wsDetail
+
     if detail == nil then
         imgui.Spacing()
-        drawTextColored({ 0.85, 0.78, 0.55, 1.0 }, '  No Weaponskill Selected')
+        drawTextColored({ 0.92, 0.80, 0.48, 1.0 }, '  No Weaponskill Selected')
         drawTextDisabled('  Choose a weaponskill from the list on the left to view and customize its talent tree.')
         if not state.synced then
             imgui.Spacing()
@@ -670,26 +1120,45 @@ local function drawTreeCanvas()
     local unlocked = isWsUnlockedInDetail(detail)
     local dl = imgui.GetWindowDrawList()
 
-    -- WS Header Banner
-    drawTextColored({ 0.95, 0.84, 0.52, 1.0 }, detail.name)
+    -- Styled WS Header Banner
+    local banX, banY = toXY(imgui.GetCursorScreenPos())
+    local banW, _ = toXY(imgui.GetContentRegionAvail())
+    banW = math.max(320, banW)
+    local banH = 58
+    drawBevelPanel(dl, pal, banX, banY, banW, banH, pal.bannerBg, unlocked and pal.gold or pal.edge, pal.edge, pal.cardRounding)
+    if styleId == 3 then
+        drawCornerBrackets(dl, banX + 2, banY + 2, banW - 4, banH - 4, 8, pal.gold, 1.2)
+    end
+
+    imgui.SetCursorScreenPos({ banX + 12, banY + 7 })
+    drawTextColored({ 0.98, 0.86, 0.50, 1.0 }, detail.name)
     imgui.SameLine()
     drawTextDisabled(string.format('  •  %s  •  %s', detail.skillName, detail.wsType))
     imgui.SameLine()
     if unlocked then
-        drawTextColored({ 0.45, 0.92, 0.55, 1.0 }, '   [UNLOCKED]')
+        drawTextColored({ 0.44, 0.94, 0.56, 1.0 }, '   [UNLOCKED]')
     else
-        drawTextColored({ 1.00, 0.52, 0.42, 1.0 }, '   [LOCKED — Invest 1 pt in Tier 1 to unlock]')
+        drawTextColored({ 1.00, 0.50, 0.42, 1.0 }, '   [LOCKED — Invest 1 pt in Tier 1]')
     end
 
-    drawTextColored({ 0.72, 0.82, 0.94, 1.0 }, detail.orig)
-    drawText(string.format('WS Points: %d / 56   |   Available %s (%s) Points: %d', detail.spent, state.jobKey, state.specName, state.avail))
+    imgui.SetCursorScreenPos({ banX + 12, banY + 24 })
+    drawTextColored({ 0.72, 0.84, 0.96, 1.0 }, detail.orig)
+
+    imgui.SetCursorScreenPos({ banX + 12, banY + 40 })
+    drawText(string.format('WS Points: %d / 56', detail.spent))
+    drawProgressBar(dl, pal, banX + 132, banY + 44, 140, 7, (detail.spent or 0) / 56, pal.cyan, pal.edge)
+
+    imgui.SetCursorScreenPos({ banX + 286, banY + 40 })
+    drawTextColored({ 0.58, 0.94, 0.66, 1.0 }, string.format('Available %s (%s): %d', state.jobKey, state.specName, state.avail))
+
     if detail.spent > 0 then
-        imgui.SameLine()
+        imgui.SetCursorScreenPos({ banX + banW - 108, banY + 8 })
         if imgui.SmallButton('Reset This WS') then
             sendTalentPacket(OP_RESET_WS, detail.id, 0, 0)
         end
     end
-    imgui.Separator()
+
+    imgui.SetCursorScreenPos({ banX, banY + banH + 6 })
 
     if detail.nodes == nil or #detail.nodes == 0 then
         imgui.Spacing()
@@ -703,9 +1172,9 @@ local function drawTreeCanvas()
         return
     end
 
-    -- Reserve bottom ~88px for the Pinned Node Inspector Panel
+    -- Reserve bottom ~94px for the Pinned Node Inspector Panel
     local totalAvailW, totalAvailH = toXY(imgui.GetContentRegionAvail())
-    local inspectorH = 88
+    local inspectorH = 94
     local treeRegionH = math.max(260, totalAvailH - inspectorH - 6)
 
     local hoveredNode = nil
@@ -713,11 +1182,11 @@ local function drawTreeCanvas()
     if imgui.BeginChild('ox_tree_scroll', { 0, treeRegionH }, CHILD_NONE) then
         local canvasPosX, canvasPosY = toXY(imgui.GetCursorScreenPos())
         local availW, availH = toXY(imgui.GetContentRegionAvail())
-        local cardW = 194
-        local cardH = 88
-        local gapX  = 16
-        local gapY  = 34
-        local leftPad = 10
+        local cardW   = 204
+        local cardH   = 92
+        local gapX    = 18
+        local gapY    = 36
+        local leftPad = 12
 
         local tierLabels =
         {
@@ -734,28 +1203,29 @@ local function drawTreeCanvas()
             if node.col > maxCol then maxCol = node.col end
             if node.tier > maxTier then maxTier = node.tier end
             local x = canvasPosX + leftPad + (node.col - 1) * (cardW + gapX)
-            local y = canvasPosY + 24 + (node.tier - 1) * (cardH + gapY)
+            local y = canvasPosY + 26 + (node.tier - 1) * (cardH + gapY)
             coords[node.key] = { x = x, y = y }
         end
 
-        dl = imgui.GetWindowDrawList()
+        local contentW = 28 + maxCol * cardW + math.max(0, maxCol - 1) * gapX
+        local contentH = 28 + maxTier * (cardH + gapY)
+        local bgW = math.max(availW, contentW)
+        local bgH = math.max(availH, contentH)
 
-        -- Draw Tier Section Headers & subtle horizontal rule
+        dl = imgui.GetWindowDrawList()
+        drawCanvasBackground(dl, styleId, pal, canvasPosX, canvasPosY, bgW, bgH, maxTier, cardH, gapY, detail)
+
+        -- Draw Tier Section Headers & rules
         for t = 1, maxTier do
-            local hy = canvasPosY + 4 + (t - 1) * (cardH + gapY)
-            imgui.SetCursorScreenPos({ canvasPosX + leftPad, hy })
+            local hy = canvasPosY + 5 + (t - 1) * (cardH + gapY)
             local gateMet = (t == 1)
                 or (t == 2 and detail.spent >= 2 and state.jobLevel >= 5)
                 or (t == 3 and detail.spent >= 5 and state.jobLevel >= 10)
                 or (t == 4 and detail.spent >= 8 and state.jobLevel >= 15)
-            if gateMet then
-                drawTextColored({ 0.85, 0.77, 0.55, 0.95 }, tierLabels[t] or ('TIER ' .. tostring(t)))
-            else
-                drawTextDisabled(tierLabels[t] or ('TIER ' .. tostring(t)))
-            end
+            drawTierHeader(dl, styleId, pal, canvasPosX + leftPad, hy, bgW - leftPad, t, tierLabels[t] or ('TIER ' .. tostring(t)), gateMet)
         end
 
-        -- Draw Prerequisite Connector Lines with glow for active links
+        -- Draw Prerequisite Connector Lines
         for _, node in ipairs(detail.nodes) do
             if node.reqKey ~= nil and coords[node.reqKey] ~= nil and coords[node.key] ~= nil then
                 local p = coords[node.reqKey]
@@ -764,67 +1234,20 @@ local function drawTreeCanvas()
                 local activeLink = (parentNode ~= nil and parentNode.rank >= node.reqRank)
                     and (detail.spent >= node.reqWsPoints)
                     and (state.jobLevel >= (node.reqLevel or 1))
-                local x1 = p.x + cardW * 0.5
-                local y1 = p.y + cardH
-                local x2 = c.x + cardW * 0.5
-                local y2 = c.y
-                local midY = (y1 + y2) * 0.5
-
-                if activeLink then
-                    dl:AddLine({ x1, y1 }, { x1, midY }, THEME.goldGlow, 6.0)
-                    dl:AddLine({ x1, midY }, { x2, midY }, THEME.goldGlow, 6.0)
-                    dl:AddLine({ x2, midY }, { x2, y2 }, THEME.goldGlow, 6.0)
-                    dl:AddLine({ x1, y1 }, { x1, midY }, THEME.goldBright, 2.0)
-                    dl:AddLine({ x1, midY }, { x2, midY }, THEME.goldBright, 2.0)
-                    dl:AddLine({ x2, midY }, { x2, y2 }, THEME.goldBright, 2.0)
-                    dl:AddRectFilled({ x2 - 3, y2 - 4 }, { x2 + 3, y2 + 1 }, THEME.goldBright, 1.0)
-                else
-                    dl:AddLine({ x1, y1 }, { x1, midY }, THEME.linkInactive, 1.5)
-                    dl:AddLine({ x1, midY }, { x2, midY }, THEME.linkInactive, 1.5)
-                    dl:AddLine({ x2, midY }, { x2, y2 }, THEME.linkInactive, 1.5)
-                end
+                local isMaxLink = activeLink and (parentNode.rank >= parentNode.maxRank) and (node.rank > 0)
+                drawConnectorLine(dl, styleId, pal, p.x + cardW * 0.5, p.y + cardH, c.x + cardW * 0.5, c.y, activeLink, isMaxLink)
             end
         end
 
-        -- Draw Modern Node Cards
+        -- Draw Node Cards
         for _, node in ipairs(detail.nodes) do
             local pos = coords[node.key]
             local x, y = pos.x, pos.y
 
-            local isMaxed = node.rank >= node.maxRank
-            local isInspected = (state.inspectedNodeKey == node.key)
-            local bgCol, outerCol, innerCol, accentCol, titleCol, pillCol
-            if isMaxed then
-                bgCol     = THEME.bgCardMax
-                outerCol  = THEME.goldBright
-                innerCol  = 0xFF705828
-                accentCol = THEME.goldBright
-                titleCol  = { 1.00, 0.88, 0.42, 1.00 }
-                pillCol   = { 1.00, 0.88, 0.42, 1.00 }
-            elseif node.rank > 0 then
-                bgCol     = THEME.bgCardActive
-                outerCol  = THEME.cyan
-                innerCol  = 0xFF344B5E
-                accentCol = THEME.cyan
-                titleCol  = { 0.56, 0.88, 1.00, 1.00 }
-                pillCol   = { 0.56, 0.88, 1.00, 1.00 }
-            elseif node.canLearn then
-                bgCol     = THEME.bgCardAvail
-                outerCol  = THEME.green
-                innerCol  = 0xFF284D35
-                accentCol = THEME.green
-                titleCol  = { 0.62, 0.96, 0.68, 1.00 }
-                pillCol   = { 0.62, 0.96, 0.68, 1.00 }
-            else
-                bgCol     = THEME.bgCardLocked
-                outerCol  = THEME.edge
-                innerCol  = 0xFF2B201A
-                accentCol = THEME.muted
-                titleCol  = { 0.64, 0.60, 0.56, 1.00 }
-                pillCol   = { 0.64, 0.60, 0.56, 1.00 }
-            end
-
+            local vs = getNodeVisualState(node, pal)
             local isScNode = (node.scTier or 0) > 0
+            local isInspected = (state.inspectedNodeKey == node.key)
+
             local btnH = isScNode and (cardH - 26) or cardH
             imgui.SetCursorScreenPos({ x, y })
             imgui.InvisibleButton('##node_' .. node.key, { cardW, btnH })
@@ -842,37 +1265,48 @@ local function drawTreeCanvas()
                 sendTalentPacket(OP_REFUND, detail.id, node.idx or 1, 0)
             end
 
-            if hovered or isInspected then
-                outerCol = THEME.silver
+            local outerCol = (hovered or isInspected) and pal.edgeHover or vs.outerCol
+
+            -- Optional outer aura for active/maxed/hovered nodes
+            if (vs.glowCol ~= nil and (vs.isMaxed or node.rank > 0 or hovered)) then
+                dl:AddRect({ x - 2, y - 2 }, { x + cardW + 2, y + cardH + 2 }, vs.glowCol, pal.cardRounding + 2, 0, 3.0)
             end
 
-            drawBevelPanel(dl, x, y, cardW, cardH, bgCol, outerCol, innerCol, 5.0)
-            -- Top 3px state bar
-            dl:AddRectFilled({ x + 4, y + 2 }, { x + cardW - 4, y + 4 }, accentCol, 1.0)
+            drawBevelPanel(dl, pal, x, y, cardW, cardH, vs.bgCol, outerCol, vs.innerCol, pal.cardRounding)
+
+            if styleId == 3 then
+                drawCornerBrackets(dl, x + 2, y + 2, cardW - 4, cardH - 4, 6, vs.accentCol, 1.2)
+            elseif styleId == 1 then
+                dl:AddRectFilled({ x + 6, y + 2 }, { x + cardW - 6, y + 4 }, vs.accentCol, 1.0)
+            end
+
+            -- Left Emblem
+            drawNodeEmblem(dl, styleId, pal, node, x, y, vs, isScNode)
 
             -- Rank Pill Badge (top-right)
-            local rankLabel = isMaxed and 'MAX' or string.format('%d/%d', node.rank, node.maxRank)
-            local pillW = isMaxed and 36 or 32
-            local pillX = x + cardW - pillW - 6
+            local rankLabel = vs.isMaxed and 'MAX' or string.format('%d/%d', node.rank, node.maxRank)
+            local pillW = vs.isMaxed and 36 or 32
+            local pillX = x + cardW - pillW - 7
             local pillY = y + 7
-            dl:AddRectFilled({ pillX, pillY }, { pillX + pillW, pillY + 16 }, THEME.barBg, 3.0)
-            dl:AddRect({ pillX, pillY }, { pillX + pillW, pillY + 16 }, accentCol, 3.0, 0, 1.0)
-            imgui.SetCursorScreenPos({ pillX + (isMaxed and 5 or 6), pillY + 1 })
-            drawTextColored(pillCol, rankLabel)
+            local pillR = (styleId == 2) and 7.0 or ((styleId == 3) and 1.0 or 3.0)
+            dl:AddRectFilled({ pillX, pillY }, { pillX + pillW, pillY + 16 }, pal.barBg, pillR)
+            dl:AddRect({ pillX, pillY }, { pillX + pillW, pillY + 16 }, vs.accentCol, pillR, 0, 1.0)
+            imgui.SetCursorScreenPos({ pillX + (vs.isMaxed and 5 or 6), pillY + 1 })
+            drawTextColored(vs.pillCol, rankLabel)
 
-            -- Title (left)
-            local maxTitleChars = 19
+            -- Title (next to emblem)
+            local maxTitleChars = 17
             local titleStr = #node.name > maxTitleChars and (string.sub(node.name, 1, maxTitleChars - 2) .. '..') or node.name
-            imgui.SetCursorScreenPos({ x + 8, y + 7 })
-            drawTextColored(titleCol, titleStr)
+            imgui.SetCursorScreenPos({ x + 32, y + 9 })
+            drawTextColored(vs.titleCol, titleStr)
 
             -- Body
             if isScNode then
                 local scBonusPct = node.rank * (node.scTier == 4 and 15 or (node.scTier == 3 and 10 or (node.scTier == 2 and 8 or 5)))
-                imgui.SetCursorScreenPos({ x + 8, y + 26 })
-                drawTextColored({ 0.82, 0.80, 0.76, 1.0 }, string.format('+%d%% Skillchain Dmg', scBonusPct))
+                imgui.SetCursorScreenPos({ x + 10, y + 30 })
+                drawTextColored({ 0.84, 0.82, 0.78, 1.0 }, string.format('+%d%% Skillchain Dmg', scBonusPct))
 
-                imgui.SetCursorScreenPos({ x + 8, y + 46 })
+                imgui.SetCursorScreenPos({ x + 10, y + 49 })
                 if imgui.SmallButton('<##sc_prev_' .. node.key) then
                     state.inspectedNodeKey = node.key
                     sendTalentPacket(OP_CYCLE_SC, detail.id, node.scTier, 255)
@@ -880,66 +1314,55 @@ local function drawTreeCanvas()
                 imgui.SameLine()
                 local scDisp = (node.scName ~= '' and node.scName) or 'None'
                 drawTextColored({ 0.86, 0.92, 1.0, 1.0 }, scDisp)
-                imgui.SetCursorScreenPos({ x + cardW - 26, y + 46 })
+                imgui.SetCursorScreenPos({ x + cardW - 26, y + 49 })
                 if imgui.SmallButton('>##sc_next_' .. node.key) then
                     state.inspectedNodeKey = node.key
                     sendTalentPacket(OP_CYCLE_SC, detail.id, node.scTier, 1)
                 end
             else
                 local readable = formatReadableDesc(node.desc)
-                local wrapped = wrapLines(readable, 27)
+                local wrapped = wrapLines(readable, 28)
                 local line1 = wrapped[1] or ''
                 local line2 = wrapped[2] or ''
                 if #wrapped > 2 then
-                    line2 = string.sub(line2, 1, 24) .. '...'
+                    line2 = string.sub(line2, 1, 25) .. '...'
                 end
-                local descCol = (node.rank > 0 or node.canLearn) and { 0.85, 0.87, 0.90, 1.0 } or { 0.56, 0.52, 0.49, 1.0 }
-                imgui.SetCursorScreenPos({ x + 8, y + 26 })
+                local descCol = (node.rank > 0 or node.canLearn) and { 0.87, 0.89, 0.92, 1.0 } or { 0.56, 0.53, 0.50, 1.0 }
+                imgui.SetCursorScreenPos({ x + 10, y + 30 })
                 drawTextColored(descCol, line1)
                 if line2 ~= '' then
-                    imgui.SetCursorScreenPos({ x + 8, y + 41 })
+                    imgui.SetCursorScreenPos({ x + 10, y + 45 })
                     drawTextColored(descCol, line2)
                 end
             end
 
             -- Footer Gate / Next Level Hint
-            if not isMaxed then
+            imgui.SetCursorScreenPos({ x + 10, y + cardH - 23 })
+            if not vs.isMaxed then
                 local reqLvl = node.reqLevel or 1
-                imgui.SetCursorScreenPos({ x + 8, y + cardH - 21 })
                 if state.jobLevel < reqLvl then
                     drawTextColored({ 1.00, 0.48, 0.45, 1.0 }, string.format('Req Lv.%d', reqLvl))
                 elseif node.reqWsPoints > 0 and detail.spent < node.reqWsPoints then
                     drawTextColored({ 0.95, 0.68, 0.35, 1.0 }, string.format('Req %d WS pts', node.reqWsPoints))
                 elseif node.canLearn then
-                    drawTextColored({ 0.48, 0.90, 0.56, 1.0 }, string.format('Next: Lv.%d', reqLvl))
+                    drawTextColored({ 0.48, 0.92, 0.58, 1.0 }, string.format('Available (Lv.%d)', reqLvl))
                 else
                     drawTextDisabled(string.format('Locked (Lv.%d)', reqLvl))
                 end
             else
-                imgui.SetCursorScreenPos({ x + 8, y + cardH - 21 })
-                drawTextColored({ 0.95, 0.84, 0.45, 1.0 }, 'Mastered')
+                drawTextColored({ 0.96, 0.84, 0.45, 1.0 }, 'Mastered')
             end
 
-            -- Bottom Rank Progress Bar
-            local barX1 = x + 6
-            local barX2 = x + cardW - 6
-            local barY1 = y + cardH - 6
-            local barY2 = y + cardH - 3
-            dl:AddRectFilled({ barX1, barY1 }, { barX2, barY2 }, THEME.barBg, 1.0)
-            local pct = math.max(0, math.min(1, (node.rank or 0) / math.max(1, node.maxRank or 1)))
-            if pct > 0 then
-                dl:AddRectFilled({ barX1, barY1 }, { barX1 + (barX2 - barX1) * pct, barY2 }, accentCol, 1.0)
-            end
+            -- Bottom Rank Pips / Progress
+            drawRankIndicator(dl, styleId, pal, x + 8, y + cardH - 8, cardW - 16, node.rank, node.maxRank, vs.accentCol)
 
             if hovered then
-                drawNodeTooltip(node, detail, isMaxed, isScNode, titleCol)
+                drawNodeTooltip(node, detail, vs.isMaxed, isScNode, vs.titleCol)
             end
         end
 
-        local contentW = 24 + maxCol * cardW + math.max(0, maxCol - 1) * gapX
-        local contentH = 26 + maxTier * (cardH + gapY)
-        imgui.SetCursorScreenPos({ canvasPosX, canvasPosY + math.max(availH - 10, contentH) })
-        imgui.Dummy({ math.max(availW - 10, contentW), 4 })
+        imgui.SetCursorScreenPos({ canvasPosX, canvasPosY + bgH - 4 })
+        imgui.Dummy({ bgW - 8, 4 })
     end
     imgui.EndChild()
 
@@ -954,25 +1377,32 @@ local function drawTreeCanvas()
 
     if imgui.BeginChild('ox_node_inspector', { 0, 0 }, CHILD_BORDERS) then
         if inspectNode ~= nil then
-            local isMaxed = inspectNode.rank >= inspectNode.maxRank
-            local titleCol = isMaxed and { 1.0, 0.88, 0.42, 1.0 }
-                or (inspectNode.rank > 0 and { 0.56, 0.88, 1.0, 1.0 }
-                or (inspectNode.canLearn and { 0.62, 0.96, 0.68, 1.0 } or { 0.72, 0.68, 0.64, 1.0 }))
-            drawTextColored(titleCol, string.format('%s  (%d / %d)', inspectNode.name, inspectNode.rank, inspectNode.maxRank))
+            local ivs = getNodeVisualState(inspectNode, pal)
+            local idl = imgui.GetWindowDrawList()
+            local ix, iy = toXY(imgui.GetWindowPos())
+            local _, ih = toXY(imgui.GetWindowSize())
+            if idl and ih > 8 then
+                idl:AddRectFilled({ ix + 2, iy + 4 }, { ix + 5, iy + ih - 4 }, ivs.accentCol, 2.0)
+            end
+
+            imgui.SetCursorPosX(imgui.GetCursorPosX() + 6)
+            drawTextColored(ivs.titleCol, string.format('%s  (%d / %d)', inspectNode.name, inspectNode.rank, inspectNode.maxRank))
             imgui.SameLine()
             drawTextDisabled(string.format('  •  Tier %d  |  Left-Click: +1 Rank  |  Right-Click: -1 Rank', inspectNode.tier))
 
             if imgui.PushTextWrapPos and imgui.PopTextWrapPos then
-                imgui.PushTextWrapPos(math.max(300, totalAvailW - 24))
+                imgui.PushTextWrapPos(math.max(300, totalAvailW - 28))
             end
             pcall(function()
+                imgui.SetCursorPosX(imgui.GetCursorPosX() + 6)
                 drawText(formatReadableDesc(inspectNode.desc))
             end)
             if imgui.PushTextWrapPos and imgui.PopTextWrapPos then
                 imgui.PopTextWrapPos()
             end
 
-            if not isMaxed then
+            imgui.SetCursorPosX(imgui.GetCursorPosX() + 6)
+            if not ivs.isMaxed then
                 local reqs = getNodeRequirements(inspectNode, detail)
                 local first = true
                 for _, req in ipairs(reqs) do
@@ -999,6 +1429,7 @@ local function drawTreeCanvas()
 end
 
 local function drawSidebar()
+    local pal = getPalette()
     local curSkillName = 'Equipped'
     for _, sk in ipairs(SKILL_LIST) do
         if sk.id == state.selectedSkill then
@@ -1024,6 +1455,14 @@ local function drawSidebar()
             end
         end
         imgui.InputText('##ws_search', state.searchBuf, 64)
+        local rawQ = (state.searchBuf[1] or ''):gsub('%z.*$', '')
+        if rawQ == '' and not imgui.IsItemActive() then
+            local dl = imgui.GetWindowDrawList()
+            local rx, ry = toXY(imgui.GetItemRectMin())
+            if dl then
+                dl:AddText({ rx + 6, ry + 3 }, pal.muted, 'Search weaponskills...')
+            end
+        end
     end)
     imgui.PopItemWidth()
     if not okFilter then
@@ -1043,7 +1482,7 @@ local function drawSidebar()
                 local isEquipped = (ws.skill == state.mainSkill or (state.rangedSkill ~= 0 and ws.skill == state.rangedSkill))
                 local prefix = isEquipped and '[EQ] ' or ''
                 local statusTag = unl and string.format(' [%d]', pts) or (pts > 0 and string.format(' [%d L]', pts) or '')
-                local label = string.format('%s%s%s##ws_%u', prefix, ws.name, statusTag, ws.id)
+                local label = string.format('  %s%s%s##ws_%u', prefix, ws.name, statusTag, ws.id)
                 local isSelected = (state.selectedWsId == ws.id)
 
                 if not unl and not isSelected then
@@ -1055,10 +1494,15 @@ local function drawSidebar()
                 if not isSelected then
                     imgui.PopStyleColor()
                 end
-                if isSelected and dl then
+                if dl then
                     local rx, ry = toXY(imgui.GetItemRectMin())
                     local _, rmaxY = toXY(imgui.GetItemRectMax())
-                    dl:AddRectFilled({ rx - 2, ry + 2 }, { rx + 1, rmaxY - 2 }, THEME.goldBright, 1.0)
+                    local midY = (ry + rmaxY) * 0.5
+                    local dotCol = unl and pal.green or (pts > 0 and pal.cyan or pal.muted)
+                    dl:AddCircleFilled({ rx + 5, midY }, 2.6, dotCol, 8)
+                    if isSelected then
+                        dl:AddRectFilled({ rx - 1, ry + 1 }, { rx + 2, rmaxY - 1 }, pal.gold, 1.0)
+                    end
                 end
                 if clicked then
                     state.inspectedNodeKey = nil
@@ -1074,15 +1518,18 @@ local function drawSidebar()
 end
 
 local function drawMainContents()
+    local pal = getPalette()
+
     -- Top Header Bar
-    drawTextColored({ 0.95, 0.84, 0.52, 1.0 }, string.format('%s (%s) Lv.%d', state.jobKey, state.specName, state.jobLevel))
+    drawTextColored({ 0.98, 0.86, 0.50, 1.0 }, string.format('%s (%s) Lv.%d', state.jobKey, state.specName, state.jobLevel))
     imgui.SameLine()
-    drawTextDisabled('   |   ')
+    drawTextDisabled('  |  ')
     imgui.SameLine()
-    drawTextColored({ 0.45, 0.92, 0.55, 1.0 }, string.format('Available: %d pts', state.avail))
+    drawTextColored({ 0.45, 0.94, 0.58, 1.0 }, string.format('Available: %d pts', state.avail))
     imgui.SameLine()
-    drawText(string.format('   (Spent: %d / Earned: %d)', state.spent, state.earned))
+    drawText(string.format('  (Spent: %d / %d)', state.spent, state.earned))
     imgui.SameLine()
+
     if imgui.Button('Sync') then
         requestFullSync()
     end
@@ -1109,6 +1556,32 @@ local function drawMainContents()
                 state.confirmResetAll = false
             end
         end
+    end
+
+    -- Render Style Selector
+    imgui.SameLine()
+    drawTextDisabled('  |  Style:')
+    imgui.SameLine()
+    imgui.PushItemWidth(155)
+    local curStyleName = (RENDER_STYLES[state.renderStyle] and RENDER_STYLES[state.renderStyle].name) or 'Crystal Lattice'
+    local okStyle, errStyle = pcall(function()
+        if imgui.BeginCombo('##render_style', curStyleName) then
+            local okStyleItems, errStyleItems = pcall(function()
+                for _, st in ipairs(RENDER_STYLES) do
+                    if imgui.Selectable(st.name, state.renderStyle == st.id) then
+                        state.renderStyle = st.id
+                    end
+                end
+            end)
+            imgui.EndCombo()
+            if not okStyleItems then
+                error(errStyleItems)
+            end
+        end
+    end)
+    imgui.PopItemWidth()
+    if not okStyle then
+        state.renderError = tostring(errStyle)
     end
 
     if state.statusText ~= nil then
@@ -1152,27 +1625,28 @@ local function pushThemeStyles()
     if not (imgui.PushStyleColor and imgui.PopStyleColor) then
         return 0
     end
+    local pal = getPalette()
     local function pushCol(colId, rgba)
-        if colId ~= nil then
+        if colId ~= nil and rgba ~= nil then
             imgui.PushStyleColor(colId, rgba)
             pushed = pushed + 1
         end
     end
-    pushCol(ImGuiCol_WindowBg,       { 0.08, 0.05, 0.04, 0.96 })
-    pushCol(ImGuiCol_ChildBg,        { 0.11, 0.07, 0.05, 0.92 })
-    pushCol(ImGuiCol_PopupBg,        { 0.10, 0.06, 0.05, 0.96 })
-    pushCol(ImGuiCol_Border,         { 0.35, 0.25, 0.18, 0.90 })
-    pushCol(ImGuiCol_TitleBg,        { 0.12, 0.08, 0.06, 1.00 })
-    pushCol(ImGuiCol_TitleBgActive,  { 0.20, 0.13, 0.09, 1.00 })
-    pushCol(ImGuiCol_FrameBg,        { 0.16, 0.10, 0.07, 1.00 })
-    pushCol(ImGuiCol_FrameBgHovered, { 0.24, 0.15, 0.10, 1.00 })
-    pushCol(ImGuiCol_Button,         { 0.26, 0.17, 0.11, 1.00 })
-    pushCol(ImGuiCol_ButtonHovered,  { 0.38, 0.25, 0.16, 1.00 })
-    pushCol(ImGuiCol_ButtonActive,   { 0.46, 0.31, 0.19, 1.00 })
-    pushCol(ImGuiCol_Header,         { 0.32, 0.21, 0.13, 0.90 })
-    pushCol(ImGuiCol_HeaderHovered,  { 0.40, 0.27, 0.17, 0.95 })
-    pushCol(ImGuiCol_HeaderActive,   { 0.48, 0.33, 0.20, 1.00 })
-    pushCol(ImGuiCol_Separator,      { 0.35, 0.25, 0.18, 0.85 })
+    pushCol(ImGuiCol_WindowBg,       pal.winBg)
+    pushCol(ImGuiCol_ChildBg,        pal.childBg)
+    pushCol(ImGuiCol_PopupBg,        pal.popupBg)
+    pushCol(ImGuiCol_Border,         pal.border)
+    pushCol(ImGuiCol_TitleBg,        pal.titleBg)
+    pushCol(ImGuiCol_TitleBgActive,  pal.titleBgAct)
+    pushCol(ImGuiCol_FrameBg,        pal.frameBg)
+    pushCol(ImGuiCol_FrameBgHovered, pal.frameBgHov)
+    pushCol(ImGuiCol_Button,         pal.button)
+    pushCol(ImGuiCol_ButtonHovered,  pal.buttonHov)
+    pushCol(ImGuiCol_ButtonActive,   pal.buttonAct)
+    pushCol(ImGuiCol_Header,         pal.header)
+    pushCol(ImGuiCol_HeaderHovered,  pal.headerHov)
+    pushCol(ImGuiCol_HeaderActive,   pal.headerAct)
+    pushCol(ImGuiCol_Separator,      pal.separator)
     return pushed
 end
 
