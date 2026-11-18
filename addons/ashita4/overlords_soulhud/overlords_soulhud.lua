@@ -16,7 +16,6 @@ local defaults = {
 local config = settings.load(defaults)
 local registry = Registry.new()
 local snapshot, lastPacketAt = nil, 0
-local STALE_AFTER = 15
 
 for key, definition in pairs(definitions) do
     local ok, err = pcall(registry.registerSoul, registry, key, definition)
@@ -61,10 +60,10 @@ ashita.events.register('packet_out', 'overlords_soulhud_zone_out', function(e)
 end)
 
 ashita.events.register('d3d_present', 'overlords_soulhud_present', function()
-    if not snapshot or not snapshot.unlocked or os.clock() - lastPacketAt > STALE_AFTER then return end
+    if not snapshot or not snapshot.unlocked then return end
     local soul = registry:getSoul(snapshot.soul)
     if not soul then return end
-    local items = registry:normalize(snapshot.soul, snapshot.state)
+    local items = registry:normalize(snapshot.soul, snapshot.state, os.clock() - lastPacketAt)
     if items then Render.draw(soul.title, items, config) end
 end)
 
