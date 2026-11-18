@@ -88,8 +88,8 @@ Overlords.CustomAbilities =
     [962] = 'Dread Bastion',         -- 450
 
     -- PUP Vanguard Spec
-    [963] = 'Aegis Protocol',        -- 451
-    [964] = 'Gyro Slam',             -- 452
+    [963] = 'Clockwork Bulwark',     -- 451
+    [964] = 'Hydraulic Slam',        -- 452
 
     -- 8 Healer Specs (456-471)
     [968] = 'Divine Veil',           -- 456 (WHM Bishop)
@@ -109,9 +109,17 @@ Overlords.CustomAbilities =
     [982] = 'Wyrmblood Pulse',       -- 470 (DRG Wyvernheart)
     [983] = 'Dragonscale Sanctuary', -- 471 (DRG Wyvernheart)
 
-    -- COR Gambler Spec (472-473)
+    -- COR Specs (472-477)
     [984] = 'House Advantage',       -- 472 (COR Gambler)
-    [985] = 'Ace in the Hole',       -- 473 (COR Gambler)
+    [985] = 'Dead Man\'s Hand',      -- 473 (COR Gambler)
+    [986] = 'Hair Trigger',          -- 474 (COR Flintlock)
+    [987] = 'Broadside Salvo',       -- 475 (COR Flintlock)
+    [988] = 'Grapeshot Broadside',   -- 476 (COR Buccaneer)
+    [989] = 'Iron Hull',             -- 477 (COR Buccaneer)
+
+    -- PUP Pugilist Spec (478-479)
+    [990] = 'Tandem Barrage',        -- 478 (PUP Pugilist)
+    [991] = 'Limiter Release',       -- 479 (PUP Pugilist)
 }
 
 ------------------------------------------------------------------------------------------------------

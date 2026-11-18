@@ -72,7 +72,13 @@ Res.Abilities.Damaging =
     [982] = {id = 982, old_id = 470, en = "Wyrmblood Pulse"},
     [983] = {id = 983, old_id = 471, en = "Dragonscale Sanctuary"},
     [984] = {id = 984, old_id = 472, en = "House Advantage"},
-    [985] = {id = 985, old_id = 473, en = "Ace in the Hole"},
+    [985] = {id = 985, old_id = 473, en = "Dead Man's Hand"},
+    [986] = {id = 986, old_id = 474, en = "Hair Trigger"},
+    [987] = {id = 987, old_id = 475, en = "Broadside Salvo"},
+    [988] = {id = 988, old_id = 476, en = "Grapeshot Broadside"},
+    [989] = {id = 989, old_id = 477, en = "Iron Hull"},
+    [990] = {id = 990, old_id = 478, en = "Tandem Barrage"},
+    [991] = {id = 991, old_id = 479, en = "Limiter Release"},
 }
 
 -- Based off of job_abilities.lua from Windower.
