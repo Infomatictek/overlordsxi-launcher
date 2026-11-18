@@ -26,6 +26,14 @@ texture.getImage = function(element)
 	return images[element]
 end
 
+-- Drop every cached texture so the gc_safe_release wrappers free the D3D8 resources.
+texture.releaseAll = function()
+	for k in pairs(images) do
+		images[k] = nil
+	end
+	collectgarbage();
+end
+
 function getImageDimensions(path)
 	-- Credit to https://sites.google.com/site/nullauahdark/getimagewidthheight
 	local file = io.open(path, 'rb')

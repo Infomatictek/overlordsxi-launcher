@@ -260,7 +260,7 @@ HUD_ICON_THEMES = {
     "status":   ("support", "#64748b", "#cbd5e1", "diamond_crest"),
 }
 
-CATALOG_ADDONS = ["overlords_soulhud", "debuffed"]          # always generated
+CATALOG_ADDONS = ["overlords_soulhud", "kazenoeye"]          # always generated
 OPTIONAL_ENEMY_BAR_ADDONS = ["enemybar", "targetbar", "mobbar", "enemyhud"]  # only if present
 
 
