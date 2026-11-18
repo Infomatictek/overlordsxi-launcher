@@ -42,7 +42,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/72.DAT",
       "targetPath": "ROM/181/72.DAT",
-      "sha256": "03e10c51d85205ebfb117ef8f24c26f6f24582f307426e7648b40c64f9b9617c",
+      "sha256": "44c9f9a13de8c7e9062aa3310f45e3ec6a010e022f416a6943e0bb265dd0b8ef",
       "size": 471104
     },
     {
@@ -56,7 +56,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/74.DAT",
       "targetPath": "ROM/181/74.DAT",
-      "sha256": "e5aa0dafc4244e9b9af9d2610e0977b24c4e270dcfdb6c3f2d6e3411329b92ff",
+      "sha256": "6e09aee8095aa7acd0f17cfd66f84fe02cac3bfa1d5830649079ae56a5a9c917",
       "size": 1507392
     },
     {
@@ -131,6 +131,13 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/buccaneer.png",
+      "targetPath": "crystalsocket/assets/buccaneer.png",
+      "sha256": "616a4b34987c43465fdb88baf930de575925b937da9a11a824c9c8c1ecba3ccd",
+      "size": 18185
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/celestial.png",
       "targetPath": "crystalsocket/assets/celestial.png",
       "sha256": "f91633ac1501ba3ca099e95450121023865ad237b1dfa2e1190f7afc7fcb9227",
@@ -166,6 +173,13 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/flintlock.png",
+      "targetPath": "crystalsocket/assets/flintlock.png",
+      "sha256": "3a65c8bb77154869362cca4f5dc7fb45a869e7b1447c20eee9f730ff27ab0c07",
+      "size": 18448
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/gambler.png",
       "targetPath": "crystalsocket/assets/gambler.png",
       "sha256": "24e47fc2625d9eee5bfad8dab809eb01549fec1bf8a5036e32c12c4b3d103791",
@@ -177,6 +191,13 @@
       "targetPath": "crystalsocket/assets/gladiator.png",
       "sha256": "d34ee2f4693e2da843774fecab95179093eb359b66261af2ac4d48eab1f9afab",
       "size": 25068
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/huntsman.png",
+      "targetPath": "crystalsocket/assets/huntsman.png",
+      "sha256": "e766e5bd691040a25bd78ba0fae45e4198a2b7cfbfa612de4c22d446bc034bb2",
+      "size": 20769
     },
     {
       "category": "addon",
@@ -236,6 +257,13 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/pugilist.png",
+      "targetPath": "crystalsocket/assets/pugilist.png",
+      "sha256": "c1d77e45048b9813542b677c0ba9ea4c1ab5a45210dbb1a246daf71dbf31f003",
+      "size": 18433
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/ronin.png",
       "targetPath": "crystalsocket/assets/ronin.png",
       "sha256": "5349992fe70637920c277028a81d29a336db19f07036752f4fc10b5454cc2c10",
@@ -254,6 +282,13 @@
       "targetPath": "crystalsocket/assets/sensei.png",
       "sha256": "a0244acdf6debc5c64ec9b3bb77acab6e94ee33ad7cfaff8e53438d88494c433",
       "size": 14292
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/spartan.png",
+      "targetPath": "crystalsocket/assets/spartan.png",
+      "sha256": "79f160854cf4fdb8a62d104a5ecff2e110e96a76c93fcd4aa1f6cd33c7908ed3",
+      "size": 19083
     },
     {
       "category": "addon",
@@ -315,8 +350,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "d1129e2fdfa5a05c89d3f099d53603667375785c530e4020f5f33a144e01bd4a",
-      "size": 15926
+      "sha256": "54e9f72b61e2eb064b03dd49aed856af3692bb209746fa533ec884a28cb34d68",
+      "size": 15938
     },
     {
       "category": "addon",
@@ -609,8 +644,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/overlords_soulhud.lua",
       "targetPath": "overlords_soulhud/overlords_soulhud.lua",
-      "sha256": "403ddb3464098f827cfb8b2366a058df9d36ea95f34b25b0e69cce1fdd2e2bc7",
-      "size": 14070
+      "sha256": "dbdc56c5b1e015cdbb5b482da54412311612bde99fd48689bd67d7006c116305",
+      "size": 15265
     },
     {
       "category": "addon",
@@ -674,34 +709,6 @@
       "targetPath": "overlords_talents/overlords_talents.lua",
       "sha256": "27c28ac7df8dff0de8f911156b49ffef889c1d1f30a5ef6394a348a321fadcd1",
       "size": 65329
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/crystalsocket/assets/buccaneer.png",
-      "targetPath": "crystalsocket/assets/buccaneer.png",
-      "sha256": "616a4b34987c43465fdb88baf930de575925b937da9a11a824c9c8c1ecba3ccd",
-      "size": 18185
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/crystalsocket/assets/flintlock.png",
-      "targetPath": "crystalsocket/assets/flintlock.png",
-      "sha256": "3a65c8bb77154869362cca4f5dc7fb45a869e7b1447c20eee9f730ff27ab0c07",
-      "size": 18448
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/crystalsocket/assets/pugilist.png",
-      "targetPath": "crystalsocket/assets/pugilist.png",
-      "sha256": "c1d77e45048b9813542b677c0ba9ea4c1ab5a45210dbb1a246daf71dbf31f003",
-      "size": 18433
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/crystalsocket/assets/spartan.png",
-      "targetPath": "crystalsocket/assets/spartan.png",
-      "sha256": "79f160854cf4fdb8a62d104a5ecff2e110e96a76c93fcd4aa1f6cd33c7908ed3",
-      "size": 19083
     }
   ],
   "news": [
