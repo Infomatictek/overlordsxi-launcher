@@ -115,16 +115,51 @@ local function fontScale(imgui, f)
     if imgui.SetWindowFontScale then imgui.SetWindowFontScale(f) end
 end
 
-local function textSize(imgui, str)
+-- Count UTF-8 visual characters (so multi-byte symbols like '•' don't inflate fallback width).
+local function utf8Len(str)
+    local _, count = tostring(str or ''):gsub('[^\128-\191]', '')
+    return count
+end
+
+local function textSize(imgui, str, fs)
+    local scale = fs or 1.0
+    local nChars = utf8Len(str)
     local ok, w, h = pcall(function() return toXY(imgui.CalcTextSize(str)) end)
-    if ok then return w, h end
-    return #str * 7, 13
+    if ok and type(w) == 'number' and w > 0 then
+        return w, (type(h) == 'number' and h > 0) and h or math.floor(13 * scale + 0.5)
+    end
+    -- Ashita v4's imgui.CalcTextSize(str) returns two numbers (w, h). When fallback is needed,
+    -- ProggyClean default ImGui font is 7px/char at scale 1.0, scaled by SetWindowFontScale(fs).
+    return math.floor(nChars * 7.0 * scale + 0.5), math.floor(13 * scale + 0.5)
+end
+
+-- Fit `str` into `maxW` pixels at font scale `fs`, truncating with '..' if necessary.
+local function fitText(imgui, str, maxW, fs)
+    str = tostring(str or '')
+    if maxW <= 0 or str == '' then return '' end
+    fontScale(imgui, fs)
+    local w = textSize(imgui, str, fs)
+    if w <= maxW then
+        fontScale(imgui, 1.0)
+        return str
+    end
+    local n = #str
+    while n > 1 do
+        n = n - 1
+        local cand = str:sub(1, n):gsub('%s+$', '') .. '..'
+        if textSize(imgui, cand, fs) <= maxW then
+            fontScale(imgui, 1.0)
+            return cand
+        end
+    end
+    fontScale(imgui, 1.0)
+    return ''
 end
 
 -- Crisp 1px drop-shadowed text. align: 'l' | 'r' | 'c'.
 local function text(imgui, dl, x, y, color, str, fs, align, alpha)
     fontScale(imgui, fs)
-    local w, h = textSize(imgui, str)
+    local w, h = textSize(imgui, str, fs)
     if align == 'r' then x = x - w elseif align == 'c' then x = x - w / 2 end
     x, y = math.floor(x + 0.5), math.floor(y + 0.5)
     dl:AddText({ x + 1, y + 1 }, col(BLACK, 0.85 * (alpha or 1)), str)
@@ -203,7 +238,7 @@ end
 
 local function measure(imgui, str, fs)
     fontScale(imgui, fs)
-    local w, h = textSize(imgui, str)
+    local w, h = textSize(imgui, str, fs)
     fontScale(imgui, 1.0)
     return w, h
 end
@@ -458,10 +493,17 @@ function M.render(imgui, ctx)
                 local rad = PILL_H * s / 2
                 dl:AddRectFilled({ x0, y0 }, { x1, y1 }, col(pal.deep, alpha * 0.92), rad)
                 dl:AddRect({ x0, y0 }, { x1, y1 }, p.glow and gold or col(pal.body, alpha * 0.85), rad)
-                text(imgui, dl, x0 + 10 * s, y0 + 4 * s, p.glow and gold or textCol, p.label, 0.80 * s, 'l', alpha)
-                if p.right and p.right ~= '' then
-                    text(imgui, dl, x1 - 10 * s, y0 + 5 * s, p.glow and gold or col(pal.body, alpha), p.right, 0.74 * s, 'r', alpha)
+                local innerW = (BAR_W - 20) * s
+                local rTxt = tostring(p.right or '')
+                local rW = 0
+                if rTxt ~= '' then
+                    rTxt = fitText(imgui, rTxt, innerW * 0.46, 0.72 * s)
+                    rW = measure(imgui, rTxt, 0.72 * s)
+                    text(imgui, dl, x1 - 10 * s, y0 + 5 * s, p.glow and gold or col(pal.body, alpha), rTxt, 0.72 * s, 'r', alpha)
                 end
+                local lMaxW = innerW - (rW > 0 and (rW + 8 * s) or 0)
+                local lTxt = fitText(imgui, p.label, lMaxW, 0.78 * s)
+                text(imgui, dl, x0 + 10 * s, y0 + 4 * s, p.glow and gold or textCol, lTxt, 0.78 * s, 'l', alpha)
             else
                 for i = 1, p.max do
                     local gx = sx + 2 * s + (i - 1) * PIP_PITCH * s
@@ -473,8 +515,12 @@ function M.render(imgui, ctx)
                     image(dl, icons and icons.ui(lit and ('gem_' .. gemKey) or 'gem_empty'),
                         gx, rowY, gx + PIP * s, rowY + PIP * s, tint)
                 end
+                local pipsEndX = sx + (2 + p.max * PIP_PITCH + 2) * s
+                local rightEdgeX = sx + (BAR_W - 6) * s
+                local availW = math.max(24 * s, rightEdgeX - pipsEndX)
                 local lab = p.right or ('%s %d/%d'):format(string.upper(p.label), p.cur, p.max)
-                text(imgui, dl, sx + (BAR_W - 6) * s, rowY + 5 * s, (p.glow or p.cur >= p.max) and gold or dimCol, lab, 0.76 * s, 'r', alpha)
+                lab = fitText(imgui, lab, availW, 0.74 * s)
+                text(imgui, dl, rightEdgeX, rowY + 5 * s, (p.glow or p.cur >= p.max) and gold or dimCol, lab, 0.74 * s, 'r', alpha)
             end
             imgui.SetCursorScreenPos({ sx, rowY })
             imgui.Dummy({ BAR_W * s, PIP * s })
@@ -570,8 +616,13 @@ function M.render(imgui, ctx)
 
             local ty = by + (TROUGH.y0 + 1.1) * s
             local labCol = b.warn and col(mixRgb(WARN, WHITE, 0.35), alpha) or textCol
-            text(imgui, dl, tx0 + 4 * s, ty, labCol, b.label, 0.74 * s, 'l', alpha)
-            text(imgui, dl, tx1 - 4 * s, ty, labCol, barValueText(b, cur, mxv), 0.74 * s, 'r', alpha)
+            local innerBarW = (tx1 - tx0) - 8 * s
+            local valTxt = fitText(imgui, barValueText(b, cur, mxv), innerBarW * 0.48, 0.74 * s)
+            local valW = measure(imgui, valTxt, 0.74 * s)
+            local labMaxW = math.max(20 * s, innerBarW - valW - 8 * s)
+            local labTxt = fitText(imgui, b.label, labMaxW, 0.74 * s)
+            text(imgui, dl, tx0 + 4 * s, ty, labCol, labTxt, 0.74 * s, 'l', alpha)
+            text(imgui, dl, tx1 - 4 * s, ty, labCol, valTxt, 0.74 * s, 'r', alpha)
 
             imgui.SetCursorScreenPos({ bx, by })
             imgui.Dummy({ BAR_W * s, BAR_H * s })

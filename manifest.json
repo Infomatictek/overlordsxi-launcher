@@ -7175,15 +7175,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_gauge.lua",
       "targetPath": "overlords_soulhud/soulhud_gauge.lua",
-      "sha256": "b64f21903533d131c6b92f2270365c4f5bc471e747eeb2ae3b4ca836f73a989f",
-      "size": 29868
+      "sha256": "384b69984cbc306dec101ad76c191344f99f630a705a4f46e1e0b830cc3e252d",
+      "size": 32112
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_layout.lua",
       "targetPath": "overlords_soulhud/soulhud_layout.lua",
-      "sha256": "94033355a2fcdcb7a0506c8067dd91b084e5c889c783bfbac2393008d2ed0ad6",
-      "size": 35607
+      "sha256": "549aa78e83e4fb4f6774c7ebee7988955f3d8d938df3f50e77c3006213a59de8",
+      "size": 34349
     },
     {
       "category": "addon",

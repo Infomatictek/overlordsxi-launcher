@@ -69,15 +69,15 @@ local WAR_STANCE_NAMES = {
     [1] = 'BERSERK',
     [2] = 'DEFENDER',
     [3] = 'AGGRESSOR',
-    [4] = 'RETALIATION',
+    [4] = 'RETALIATE',
     [5] = 'RESTRAINT',
 }
 
 local BST_BEAST_NAMES = {
-    [1] = 'CARRIE (CRAB)',
-    [2] = 'GALAHAD (BEETLE)',
-    [3] = 'RAPHIE (TORTOISE)',
-    [4] = 'SIRAVARDE (TIGER)',
+    [1] = 'CARRIE',
+    [2] = 'GALAHAD',
+    [3] = 'RAPHIE',
+    [4] = 'SIRAVARDE',
 }
 
 local PUP_HEAD_NAMES = {
@@ -85,8 +85,8 @@ local PUP_HEAD_NAMES = {
     [2] = 'VALOREDGE',
     [3] = 'SHARPSHOT',
     [4] = 'STORMWAKER',
-    [5] = 'SOULSOOTHER',
-    [6] = 'SPIRITREAVER',
+    [5] = 'SOULSOOTH',
+    [6] = 'SPIRITREAV',
 }
 
 local BESPOKE = {}
@@ -131,9 +131,9 @@ BESPOKE.berserker = function(kv)
     if sRem > 0 then
         bar = timerBar('surge', 'Bloodlust Surge', sRem, 'Idle', 10)
     elseif brRem > 0 then
-        bar = timerBar('rage', 'Blood Rage / Warcry', brRem, 'Idle', 45)
+        bar = timerBar('rage', 'Blood Rage', brRem, 'Idle', 45)
     else
-        bar = timerBar('berserk', 'Berserk Fury', bRem, 'Unleashed Ready', 240)
+        bar = timerBar('berserk', 'Berserk Fury', bRem, 'Ready', 240)
     end
     return {
         pips = pips('Fury', fury, 4, 'crimson', sRem > 0),
@@ -143,7 +143,7 @@ end
 
 BESPOKE.spartan = function(kv)
     local brace = math.floor(num(kv, 'brace'))
-    local right = brace >= 2 and 'HEAVY BRACE' or (brace == 1 and 'LIGHT BRACE' or nil)
+    local right = brace >= 2 and 'HVY BRACE' or (brace == 1 and 'LGT BRACE' or nil)
     return {
         pips = pips('Grit', num(kv, 'grit'), 5, 'gold', brace > 0, right),
         bar  = timerBar('ward', 'Phalanx Ward', num(kv, 'ward_rem'), 'Idle', 12),
@@ -170,10 +170,10 @@ BESPOKE.sensei = function(kv)
     elseif dodgeRem > 0 or focusRem > 0 then
         bar = timerBar('df', dodgeRem >= focusRem and 'Dodge Riposte' or 'Focus Guard', math.max(dodgeRem, focusRem), 'Idle', 60)
     else
-        bar = timerBar('cs', 'Counterstance', csRem, 'Stance Open', 300)
+        bar = timerBar('cs', 'Counterstance', csRem, 'Ready', 300)
     end
     return {
-        pips = pips('Kata', stances, 4, 'azure', pcRem > 0, staff and 'STAFF RIPOSTE' or 'NO STAFF'),
+        pips = pips('Kata', stances, 4, 'azure', pcRem > 0, staff and 'STAFF ON' or 'NO STAFF'),
         bar  = bar,
     }
 end
@@ -207,7 +207,7 @@ BESPOKE.chiweaver = function(kv)
     local tierPips = (chi >= 100 and 4) or (chi >= 80 and 3) or (chi >= 50 and 2) or (chi >= 25 and 1) or 0
     local hRem     = num(kv, 'harmony_rem')
     local lRem     = num(kv, 'lotus_rem')
-    local right    = hRem > 0 and ('HARMONY ' .. math.ceil(hRem) .. 's')
+    local right    = hRem > 0 and ('HARM ' .. math.ceil(hRem) .. 's')
         or (lRem > 0 and ('LOTUS ' .. math.ceil(lRem) .. 's') or ('CLEANSE x' .. math.min(3, tierPips)))
     return {
         pips = pips('Cleanse', tierPips, 4, 'emerald', chi >= 80, right),
@@ -224,17 +224,17 @@ BESPOKE.bishop = function(kv)
     local vRem    = num(kv, 'veil_rem')
     local wRem    = num(kv, 'ward_rem')
     local gRem    = num(kv, 'grace_rem')
-    local right   = solace == 1 and 'SOLACE 100% SIRD' or (solace == 2 and 'MISERY 100% SIRD' or string.format('GRACE %d/3', grace))
+    local right   = solace == 1 and 'SOLACE ON' or (solace == 2 and 'MISERY ON' or string.format('GRACE %d/3', grace))
     local bar
     if vRem > 0 then
         bar = timerBar('veil', 'Divine Veil', vRem, 'Idle', 15)
     elseif wRem > 0 then
         bar = timerBar('ward', 'Solace Ward', wRem, 'Idle', 8)
     else
-        bar = timerBar('grace', 'Sacred Grace', gRem, 'Cast Banish / Holy / WS', 30)
+        bar = timerBar('grace', 'Sacred Grace', gRem, 'Ready', 30)
     end
     return {
-        pips = pips('Sacred Grace', grace, 3, 'emerald', grace >= 3, right),
+        pips = pips('Grace', grace, 3, 'emerald', grace >= 3, right),
         bar  = bar,
     }
 end
@@ -257,7 +257,7 @@ BESPOKE.necromancer = function(kv)
     elseif mode == 'mage' then
         title, rText = 'MAGE [CASTER]', pact and 'DARK PACT' or 'CASTER'
     else
-        title, rText = 'NO THRALL', 'SUMMON THRALL'
+        title, rText = 'NO THRALL', 'SUMMON'
     end
     return {
         pips = badge(title, rText, role == 'tank' or pact),
@@ -267,7 +267,7 @@ BESPOKE.necromancer = function(kv)
             cur   = hpp,
             max   = 100,
             fmt   = 'pct',
-            idle  = 'Unsummoned',
+            idle  = 'Offline',
             warn  = hpp > 0 and hpp < 25,
         },
     }
@@ -281,14 +281,14 @@ BESPOKE.crimsonduelist = function(kv)
     local fencer    = num(kv, 'fencer') > 0
     local flowRem   = num(kv, 'flow_rem')
     local flecheRem = num(kv, 'fleche_rem')
-    local right     = flowRem > 0 and 'CRIMSON FLOW!' or (fencer and ('HEX -' .. (hexes * 5) .. '% DMG') or 'NEED 1H SWORD')
+    local right     = flowRem > 0 and 'FLOW!' or (fencer and ('HEX -' .. (hexes * 5) .. '%') or '1H SWORD')
     local bar
     if flowRem > 0 then
-        bar = timerBar('flow', 'Crimson Flow (Instant)', flowRem, 'Idle', 6)
+        bar = timerBar('flow', 'Crimson Flow', flowRem, 'Idle', 6)
     elseif flecheRem > 0 then
-        bar = timerBar('fleche', 'Crimson Fleche (+35% Parry)', flecheRem, 'Idle', 6)
+        bar = timerBar('fleche', 'Crimson Fleche', flecheRem, 'Idle', 6)
     else
-        bar = { key = 'skin', label = 'Stoneskin Barrier', cur = num(kv, 'stoneskin'), fmt = 'num', idle = 'No Barrier' }
+        bar = { key = 'skin', label = 'Stoneskin', cur = num(kv, 'stoneskin'), fmt = 'num', idle = 'Idle' }
     end
     return {
         pips = pips('Hexes', hexes, 5, 'crimson', flowRem > 0 or hexes >= 5, right),
@@ -306,11 +306,11 @@ BESPOKE.aegistemplar = function(kv)
     local zRem  = num(kv, 'zeal_rem')
     local bar
     if cRem > 0 then
-        bar = timerBar('consec', 'Aegis Consecration', cRem, 'Idle', 15)
+        bar = timerBar('consec', 'Consecration', cRem, 'Idle', 15)
     elseif rRem > 0 then
-        bar = timerBar('retrib', 'Holy Retribution (-10% DT)', rRem, 'Idle', 8)
+        bar = timerBar('retrib', 'Holy Retribution', rRem, 'Idle', 8)
     else
-        bar = timerBar('zeal', 'Aegis Zeal Window', zRem, 'Block / Flash to build', 30)
+        bar = timerBar('zeal', 'Aegis Zeal', zRem, 'Idle', 30)
     end
     return {
         pips = pips('Zeal', zeal, 5, 'gold', zeal >= 5),
@@ -324,17 +324,17 @@ BESPOKE.templar = function(kv)
     local gRem   = num(kv, 'grace_rem')
     local dRem   = num(kv, 'dseal_rem')
     local shield = num(kv, 'shield') > 0
-    local right  = aRem > 0 and '2x BEACON PULSE' or (shield and 'MAJESTY 100% SIRD' or 'MAJESTY ON')
+    local right  = aRem > 0 and '2x BEACON' or (shield and '100% SIRD' or 'ACTIVE')
     local bar
     if aRem > 0 then
         bar = timerBar('aegis', "Crusader's Aegis", aRem, 'Idle', 15)
     elseif gRem > 0 then
-        bar = timerBar('grace', "Light's Grace HoT", gRem, 'Idle', 10)
+        bar = timerBar('grace', "Light's Grace", gRem, 'Idle', 10)
     else
-        bar = timerBar('dseal', 'Divine Seal', dRem, 'Perpetual Majesty Ready', 60)
+        bar = timerBar('dseal', 'Divine Seal', dRem, 'Ready', 60)
     end
     return {
-        pips = badge('PERPETUAL MAJESTY', right, aRem > 0 or gRem > 0),
+        pips = badge('MAJESTY AURA', right, aRem > 0 or gRem > 0),
         bar  = bar,
     }
 end
@@ -348,18 +348,18 @@ BESPOKE.dreadnought = function(kv)
     local bRem   = num(kv, 'bastion_rem')
     local cRem   = num(kv, 'carapace_rem')
     local spikes = num(kv, 'spikes_hp')
-    local right  = reap > 0 and ('BLOOD REAP ' .. math.ceil(reap) .. 's') or nil
+    local right  = reap > 0 and ('REAP ' .. math.ceil(reap) .. 's') or ('TITHE %d/3'):format(tithe)
     local bar
     if spikes > 0 then
-        bar = { key = 'spikes', label = 'Dread Spikes Shield', cur = spikes, fmt = 'num', idle = 'No Spikes' }
+        bar = { key = 'spikes', label = 'Dread Spikes', cur = spikes, fmt = 'num', idle = 'Idle' }
     elseif bRem > 0 or cRem > 0 then
         bar = timerBar('ward', bRem >= cRem and 'Dread Bastion' or 'Blood Carapace', math.max(bRem, cRem), 'Idle', 15)
     else
-        bar = timerBar('tithe', reap > 0 and ('Blood Reap (' .. math.ceil(reap) .. 's)') or 'Blood Tithe Fade',
-            math.max(reap, num(kv, 'tithe_rem')), 'Cast Absorb / Cleave', 30)
+        bar = timerBar('tithe', reap > 0 and 'Blood Reap' or 'Blood Tithe',
+            math.max(reap, num(kv, 'tithe_rem')), 'Idle', 30)
     end
     return {
-        pips = pips('Blood Tithe', tithe, 3, 'crimson', tithe >= 3 or reap > 0, right),
+        pips = pips('Tithe', tithe, 3, 'crimson', tithe >= 3 or reap > 0, right),
         bar  = bar,
     }
 end
@@ -372,16 +372,16 @@ BESPOKE.alphawarden = function(kv)
     local alive = num(kv, 'pet_alive') > 0
     local hpp   = num(kv, 'pet_hpp')
     local link  = num(kv, 'soullink') > 0 or (alive and hpp >= 15)
-    local right = link and 'SOUL-LINK 50%' or (alive and 'LOW HP (<15%)' or (BST_BEAST_NAMES[idx] or 'BEAST #1'))
+    local right = link and 'LINK 50%' or (alive and 'LOW HP' or (BST_BEAST_NAMES[idx] or 'BEAST #1'))
     return {
-        pips = pips('Guardian', idx, 4, 'azure', link, right),
+        pips = pips('Beast', idx, 4, 'azure', link, right),
         bar  = {
             key   = 'pet_hp',
-            label = BST_BEAST_NAMES[idx] or 'Guardian Beast',
+            label = (BST_BEAST_NAMES[idx] or 'Guardian') .. ' HP',
             cur   = alive and hpp or 0,
             max   = 100,
             fmt   = 'pct',
-            idle  = 'Call Beast Ready',
+            idle  = 'Offline',
             warn  = alive and hpp < 25,
         },
     }
@@ -395,10 +395,10 @@ BESPOKE.adventurer = function(kv)
     local cRem  = num(kv, 'cadence_rem')
     local eRem  = num(kv, 'encore_rem')
     local songs = num(kv, 'songs')
-    local right = ('CADENCE %d/5  SONGS %d'):format(cad, songs)
+    local right = ('%d/5 • %dSNG'):format(cad, songs)
     local bar   = eRem > 0
-        and timerBar('encore', "Troubadour's Encore (+15% Haste)", eRem, 'Idle', 12)
-        or timerBar('cadence', 'Cadence Window', cRem, 'Swing to build Cadence', 20)
+        and timerBar('encore', 'Encore (+15% Haste)', eRem, 'Idle', 12)
+        or timerBar('cadence', 'Cadence', cRem, 'Idle', 20)
     return {
         pips = pips('Cadence', cad, 5, 'crimson', eRem > 0 or cad >= 5, right),
         bar  = bar,
@@ -409,10 +409,10 @@ BESPOKE.musician = function(kv)
     local res   = num(kv, 'resonance')
     local rRem  = num(kv, 'resonance_rem')
     local oRem  = num(kv, 'overdrive_rem')
-    local right = oRem > 0 and 'OVERDRIVE +30%!' or ('RESONANCE %d/3'):format(res)
+    local right = oRem > 0 and 'OVERDRIVE!' or ('RES %d/3'):format(res)
     local bar   = oRem > 0
         and timerBar('overdrive', 'Lyrical Overdrive', oRem, 'Idle', 15)
-        or timerBar('res', 'Resonance (+MAB)', rRem, 'Cast Threnody / Requiem', 30)
+        or timerBar('res', 'Resonance', rRem, 'Idle', 30)
     return {
         pips = pips('Resonance', res, 3, 'violet', oRem > 0 or res >= 3, right),
         bar  = bar,
@@ -425,13 +425,13 @@ BESPOKE.minstrel = function(kv)
     local scherzo = num(kv, 'scherzo') > 0
     local hymns   = (minne and 1 or 0) + (paeon and 1 or 0) + (scherzo and 1 or 0)
     local parts   = {}
-    if minne then parts[#parts + 1] = 'MINNE' end
-    if paeon then parts[#parts + 1] = 'PAEON' end
-    if scherzo then parts[#parts + 1] = 'SCHERZO' end
-    local right = #parts > 0 and table.concat(parts, '+') or 'SING HYMNS'
+    if minne then parts[#parts + 1] = 'MIN' end
+    if paeon then parts[#parts + 1] = 'PAE' end
+    if scherzo then parts[#parts + 1] = 'SCH' end
+    local right = #parts > 0 and table.concat(parts, '+') or 'NO HYMNS'
     return {
         pips = pips('Hymns', hymns, 3, 'azure', scherzo, right),
-        bar  = timerBar('aria', 'Iron Aria Reflect', num(kv, 'iron_aria_rem'), 'Hymn Aura Active', 15),
+        bar  = timerBar('aria', 'Iron Aria', num(kv, 'iron_aria_rem'), 'Ready', 15),
     }
 end
 
@@ -440,10 +440,10 @@ end
 -- =============================================================================
 local HUNTSMAN_PETS = {
     [0] = { 'NO COMPANION', 'CALL BEAST' },
-    [1] = { 'WILD RAAZ', 'TUSKER [TANK]' },
-    [2] = { 'STALKER RAPTOR', 'SAURIAN [PACK]' },
-    [3] = { 'CEHUETZI', 'APEX TUSKER [TANK]' },
-    [4] = { 'GABBRATH', 'APEX SAURIAN [PACK]' },
+    [1] = { 'WILD RAAZ', 'TANK' },
+    [2] = { 'RAPTOR', 'PACK DPS' },
+    [3] = { 'CEHUETZI', 'APEX TANK' },
+    [4] = { 'GABBRATH', 'APEX DPS' },
 }
 
 BESPOKE.huntsman = function(kv)
@@ -454,11 +454,11 @@ BESPOKE.huntsman = function(kv)
         pips = badge(info[1], info[2], pid > 0),
         bar  = {
             key   = 'pet_hp',
-            label = pid > 0 and (info[1] .. ' HP') or 'Pack Companion',
+            label = pid > 0 and (info[1] .. ' HP') or 'Companion',
             cur   = pid > 0 and hpp or 0,
             max   = 100,
             fmt   = 'pct',
-            idle  = 'Unsummoned',
+            idle  = 'Offline',
             warn  = pid > 0 and hpp < 25,
         },
     }
@@ -486,17 +486,17 @@ BESPOKE.imperialarcher = function(kv)
     local oRem   = num(kv, 'oisoya_rem')
     local cRem   = num(kv, 'cosmic_rem')
     local primes = (oRem > 0 and 1 or 0) + (cRem > 0 and 1 or 0)
-    local right  = (oRem > 0 and cRem > 0 and 'BOW + BLADE PRIMED')
-        or (oRem > 0 and 'DRAWN OISOYA (BOW)')
-        or (cRem > 0 and 'COSMIC BRAND (TACHI)')
-        or 'WEAVE TACHI <-> BOW'
+    local right  = (oRem > 0 and cRem > 0 and 'BOW + BLADE')
+        or (oRem > 0 and 'OISOYA (BOW)')
+        or (cRem > 0 and 'BRAND (TACHI)')
+        or 'WEAVE WS'
     local bar
     if oRem >= cRem and oRem > 0 then
-        bar = timerBar('oisoya', 'Drawn Oisoya (Next Bow WS)', oRem, 'Idle', 15)
+        bar = timerBar('oisoya', 'Drawn Oisoya', oRem, 'Idle', 15)
     elseif cRem > 0 then
-        bar = timerBar('cosmic', 'Cosmic Brand (Next Tachi)', cRem, 'Idle', 15)
+        bar = timerBar('cosmic', 'Cosmic Brand', cRem, 'Idle', 15)
     else
-        bar = timerBar('hasso', 'Hasso Skirmish', num(kv, 'hasso_rem'), 'Ready', 300)
+        bar = timerBar('hasso', 'Hasso Stance', num(kv, 'hasso_rem'), 'Ready', 300)
     end
     return {
         pips = pips('Primes', primes, 2, 'violet', primes > 0, right),
@@ -508,12 +508,12 @@ BESPOKE.warlord = function(kv)
     local ashura = num(kv, 'ashura')
     local aRem   = num(kv, 'ashura_rem')
     local nRem   = num(kv, 'noto_rem')
-    local right  = nRem > 0 and ('NOTO IAIDO ' .. math.ceil(nRem) .. 's') or ('ASHURA %d/3'):format(ashura)
+    local right  = nRem > 0 and ('NOTO ' .. math.ceil(nRem) .. 's') or ('ASHURA %d/3'):format(ashura)
     local bar    = nRem > 0
-        and timerBar('noto', 'Noto Sheathe (Iaijutsu Ready)', nRem, 'Idle', 15)
-        or timerBar('ashura', "Ashura's Edge Party Aura", aRem, 'Use Tachi / Onimaru Tithe', 20)
+        and timerBar('noto', 'Noto Sheathe', nRem, 'Idle', 15)
+        or timerBar('ashura', "Ashura's Edge", aRem, 'Idle', 20)
     return {
-        pips = pips("Ashura's Edge", ashura, 3, 'violet', ashura >= 3 or nRem > 0, right),
+        pips = pips('Ashura', ashura, 3, 'violet', ashura >= 3 or nRem > 0, right),
         bar  = bar,
     }
 end
@@ -525,10 +525,10 @@ BESPOKE.kagemusha = function(kv)
     local ash     = num(kv, 'ash')
     local shadows = num(kv, 'shadows')
     local migRem  = num(kv, 'migawari_rem')
-    local right   = ('ASH %d/4  •  SHADOWS %d'):format(ash, shadows)
+    local right   = ('ASH %d/4 • %d SHD'):format(ash, shadows)
     local bar     = migRem > 0
-        and timerBar('migawari', 'Migawari Intercept', migRem, 'Idle', 12)
-        or timerBar('ash', 'Kawarimi Ash Fade', num(kv, 'ash_rem'), 'No Ash Banked', 30)
+        and timerBar('migawari', 'Migawari Ward', migRem, 'Idle', 12)
+        or timerBar('ash', 'Kawarimi Ash', num(kv, 'ash_rem'), '0s', 30)
     return {
         pips = pips('Ash', ash, 4, 'violet', ash >= 3 or migRem > 0, right),
         bar  = bar,
@@ -543,10 +543,10 @@ BESPOKE.wyvernheart = function(kv)
     local rem   = num(kv, 'wyrmscale_rem')
     local sRem  = num(kv, 'sanct_rem')
     local wHpp  = num(kv, 'wyvern_hpp')
-    local right = wHpp > 0 and ('WYVERN ' .. math.floor(wHpp) .. '% HP') or ('WYRMSCALE %d/3'):format(scale)
+    local right = wHpp > 0 and ('WYV ' .. math.floor(wHpp) .. '%') or ('SCALE %d/3'):format(scale)
     local bar   = sRem > 0
-        and timerBar('sanct', 'Dragonscale Sanctuary', sRem, 'Idle', 12)
-        or timerBar('wyrm', 'Wyrmscale Fade', rem, 'Jump / WS / Spirit Link', 30)
+        and timerBar('sanct', 'Dragon Sanctuary', sRem, 'Idle', 12)
+        or timerBar('wyrm', 'Wyrmscale', rem, 'Idle', 30)
     return {
         pips = pips('Wyrmscale', scale, 3, 'emerald', scale >= 3, right),
         bar  = bar,
@@ -561,20 +561,20 @@ BESPOKE.celestial = function(kv)
     local hpp   = num(kv, 'avatar_hpp')
     local cRem  = num(kv, 'conv_rem')
     local aRem  = num(kv, 'astral_rem')
-    local right = cRem > 0 and ('CONVERGENCE ' .. math.ceil(cRem) .. 's')
-        or (aRem > 0 and 'ASTRAL FLOW (5s WARD)' or (alive and 'SANCTUARY 15Y' or 'SUMMON AVATAR'))
+    local right = cRem > 0 and ('CONV ' .. math.ceil(cRem) .. 's')
+        or (aRem > 0 and 'ASTRAL FLOW' or (alive and 'AURA 15Y' or 'SUMMON'))
     local bar = cRem > 0
-        and timerBar('conv', 'Celestial Convergence', cRem, 'Idle', 12)
+        and timerBar('conv', 'Convergence', cRem, 'Idle', 12)
         or {
             key   = 'avatar_hp',
-            label = 'Avatar Conduit HP',
+            label = 'Avatar HP',
             cur   = alive and hpp or 0,
             max   = 100,
             fmt   = 'pct',
-            idle  = 'No Avatar Summoned',
+            idle  = 'Offline',
         }
     return {
-        pips = badge(alive and 'AVATAR SANCTUARY' or 'NO AVATAR', right, alive),
+        pips = badge(alive and 'AVATAR CONDUIT' or 'NO AVATAR', right, alive),
         bar  = bar,
     }
 end
@@ -605,15 +605,15 @@ BESPOKE.flintlock = function(kv)
     local hairRem = num(kv, 'hair_rem')
     local markRem = num(kv, 'mark_rem')
     local primed  = (chRem > 0 and 1 or 0) + (hairRem > 0 and 1 or 0) + (markRem > 0 and 1 or 0)
-    local right   = markRem > 0 and ('POWDER MARK ' .. math.ceil(markRem) .. 's')
-        or (chWsd > 0 and ('DEADEYE +' .. math.floor(chWsd) .. '% WSD') or 'CHAMBER READY')
+    local right   = markRem > 0 and ('MARK ' .. math.ceil(markRem) .. 's')
+        or (chWsd > 0 and ('+' .. math.floor(chWsd) .. '% WSD') or 'READY')
     local bar
     if markRem > 0 then
-        bar = timerBar('mark', 'Target Powder Mark', markRem, 'No Mark', 10)
+        bar = timerBar('mark', 'Powder Mark', markRem, 'No Mark', 10)
     elseif hairRem > 0 then
-        bar = timerBar('hair', 'Hair Trigger (+25% WSD)', hairRem, 'Idle', 10)
+        bar = timerBar('hair', 'Hair Trigger', hairRem, 'Idle', 10)
     else
-        bar = timerBar('chamber', 'Deadeye Chamber', chRem, 'Roll to Chamber', 30)
+        bar = timerBar('chamber', 'Deadeye Chamber', chRem, 'Idle', 30)
     end
     return {
         pips = pips('Primed', primed, 3, 'crimson', markRem > 0 or hairRem > 0, right),
@@ -654,12 +654,12 @@ BESPOKE.vanguard = function(kv)
     local bulRem  = num(kv, 'bulwark_rem')
     local odRem   = num(kv, 'overdrive_rem')
     local right   = bulRem > 0 and ('BULWARK ' .. math.ceil(bulRem) .. 's')
-        or (odRem > 0 and 'OVERDRIVE!' or (alive and 'VALOREDGE TANK' or 'ACTIVATE PUPPET'))
+        or (odRem > 0 and 'OVERDRIVE!' or (alive and 'VALOREDGE' or 'OFFLINE'))
     local bar = bulRem > 0
-        and timerBar('bulwark', 'Clockwork Bulwark (50% Split)', bulRem, 'Idle', 12)
+        and timerBar('bulwark', 'Clockwork Bulwark', bulRem, 'Idle', 12)
         or {
             key   = 'auto_hp',
-            label = 'Valoredge Automaton HP',
+            label = 'Valoredge HP',
             cur   = alive and hpp or 0,
             max   = 100,
             fmt   = 'pct',
@@ -683,13 +683,13 @@ BESPOKE.pugilist = function(kv)
         or (limRem > 0 and ('LIMITER ' .. math.ceil(limRem) .. 's') or head)
     local bar
     if openRem > 0 then
-        bar = timerBar('open', 'Tandem Opening (+25% Auto WS)', openRem, 'Idle', 8)
+        bar = timerBar('open', 'Tandem Opening', openRem, 'Idle', 8)
     elseif limRem > 0 then
-        bar = timerBar('lim', 'Limiter Release (+22% ATK)', limRem, 'Idle', 12)
+        bar = timerBar('lim', 'Limiter Release', limRem, 'Idle', 12)
     else
         bar = {
             key   = 'auto_hp',
-            label = 'Tandem Automaton HP',
+            label = 'Automaton HP',
             cur   = alive and hpp or 0,
             max   = 100,
             fmt   = 'pct',
@@ -708,17 +708,17 @@ BESPOKE.animist = function(kv)
     local hpp    = num(kv, 'pet_hpp')
     local mpp    = num(kv, 'pet_mpp')
     local aegis  = num(kv, 'aegis_rem')
-    local head   = PUP_HEAD_NAMES[math.floor(num(kv, 'head'))] or 'SOULSOOTHER'
-    local right  = alive and ('%s  MP %d%%'):format(head, math.floor(mpp)) or ('SOULSPARK %d/3'):format(spark)
+    local head   = PUP_HEAD_NAMES[math.floor(num(kv, 'head'))] or 'SOULSOOTH'
+    local right  = alive and ('%s %d%%'):format(head, math.floor(mpp)) or ('SPARK %d/3'):format(spark)
     local bar    = aegis > 0
-        and timerBar('aegis', 'Clockwork Aegis (-15% DT)', aegis, 'Idle', 12)
+        and timerBar('aegis', 'Clockwork Aegis', aegis, 'Idle', 12)
         or {
             key   = 'auto_mp',
-            label = alive and ('Automaton HP ' .. math.floor(hpp) .. '%  /  MP') or 'Medical Automaton',
+            label = alive and ('Auto HP ' .. math.floor(hpp) .. '% • MP') or 'Automaton',
             cur   = alive and mpp or num(kv, 'soulspark_rem'),
             max   = alive and 100 or 30,
             fmt   = alive and 'pct' or 'sec',
-            idle  = 'Activate Automaton',
+            idle  = 'Offline',
         }
     return {
         pips = pips('Soulspark', spark, 3, 'emerald', spark >= 3, right),
@@ -733,10 +733,10 @@ BESPOKE.bladewheel = function(kv)
     local stance = num(kv, 'throw_stance') > 0
     local fm     = num(kv, 'fm')
     local amRem  = num(kv, 'am_rem')
-    local right  = stance and 'THROW STANCE: ON' or 'THROW STANCE: AUTO'
+    local right  = stance and 'THROW: ON' or 'THROW: AUTO'
     return {
-        pips = pips('Finishing Moves', fm, 5, 'crimson', stance, right),
-        bar  = timerBar('am', 'Chakram Aftermath', amRem, 'Chakram Ready', 60),
+        pips = pips('FM', fm, 5, 'crimson', stance, right),
+        bar  = timerBar('am', 'Chakram Aftermath', amRem, 'Ready', 60),
     }
 end
 
@@ -746,24 +746,24 @@ BESPOKE.vampire = function(kv)
     local cRem     = num(kv, 'contra_rem')
     local vRem     = num(kv, 'veil_rem')
     local sRem     = num(kv, 'sanguine_rem')
-    local right    = tRem > 0 and 'TRANCE (2x DRAIN)' or (cRem > 0 and 'CONTRADANCE' or ('FM %d/5'):format(fm))
+    local right    = tRem > 0 and 'TRANCE' or (cRem > 0 and 'CONTRA' or ('FM %d/5'):format(fm))
     local bar
     if sRem > 0 then
-        bar = timerBar('sang', 'Sanguine Waltz Regen', sRem, 'Idle', 15)
+        bar = timerBar('sang', 'Sanguine Waltz', sRem, 'Idle', 15)
     elseif vRem > 0 then
-        bar = timerBar('veil', 'Crimson Veil (-15% DT)', vRem, 'Idle', 10)
+        bar = timerBar('veil', 'Crimson Veil', vRem, 'Idle', 10)
     else
-        bar = timerBar('trance', tRem >= cRem and 'Trance' or 'Contradance', math.max(tRem, cRem), 'Crimson Drain Active', 30)
+        bar = timerBar('trance', tRem >= cRem and 'Trance' or 'Contradance', math.max(tRem, cRem), 'Drain Active', 30)
     end
     return {
-        pips = pips('Finishing Moves', fm, 5, 'emerald', tRem > 0 or fm >= 5, right),
+        pips = pips('FM', fm, 5, 'emerald', tRem > 0 or fm >= 5, right),
         bar  = bar,
     }
 end
 
 BESPOKE.miragesentinel = function(kv)
     return {
-        pips = pips('Finishing Moves', num(kv, 'fm'), 5, 'gold'),
+        pips = pips('FM', num(kv, 'fm'), 5, 'gold'),
         bar  = { key = 'aegis', label = 'Aegis Waltz', cur = num(kv, 'aegis_hp'), fmt = 'num', idle = 'No Shield' },
     }
 end
@@ -777,22 +777,22 @@ BESPOKE.medic = function(kv)
     local arts  = math.floor(num(kv, 'arts'))
     local subl  = math.floor(num(kv, 'subl_state'))
     local subMp = math.floor(num(kv, 'subl_mp'))
-    local lText = eos and 'EOS COMPANION' or 'CALL EOS READY'
-    local rText = (arts == 2 and 'ADDENDUM: WHITE') or (arts == 1 and 'LIGHT ARTS') or 'NO ARTS'
+    local lText = eos and 'EOS ACTIVE' or 'CALL EOS'
+    local rText = (arts == 2 and 'ADD: WHITE') or (arts == 1 and 'LIGHT ARTS') or 'NO ARTS'
     if subl == 2 then
-        rText = ('SUBL READY (%d MP)'):format(subMp)
+        rText = ('SUBL %dMP'):format(subMp)
     elseif subl == 1 and subMp > 0 then
-        rText = ('SUBL %d MP'):format(subMp)
+        rText = ('SUBL %d'):format(subMp)
     end
     return {
         pips = badge(lText, rText, eos or arts == 2),
         bar  = {
             key   = 'eos_hp',
-            label = eos and 'Eos Faerie HP' or 'Sublimation Pool',
+            label = eos and 'Eos Faerie HP' or 'Sublimation MP',
             cur   = eos and hpp or subMp,
             max   = eos and 100 or nil,
             fmt   = eos and 'pct' or 'num',
-            idle  = 'Call Eos / Sublimation',
+            idle  = 'Offline',
         },
     }
 end
@@ -802,8 +802,8 @@ BESPOKE.sage = function(kv)
     local hpp   = num(kv, 'titania_hpp')
     local arts  = math.floor(num(kv, 'arts'))
     local ebul  = num(kv, 'ebullience') > 0
-    local lText = tit and 'TITANIA COMPANION' or 'CALL TITANIA READY'
-    local rText = (arts == 2 and 'ADDENDUM: BLACK') or (arts == 1 and 'DARK ARTS') or (ebul and 'EBULLIENCE' or 'NO ARTS')
+    local lText = tit and 'TITANIA ACTIVE' or 'CALL TITANIA'
+    local rText = (arts == 2 and 'ADD: BLACK') or (arts == 1 and 'DARK ARTS') or (ebul and 'EBULLIENCE' or 'NO ARTS')
     return {
         pips = badge(lText, rText, tit or ebul),
         bar  = {
@@ -812,7 +812,7 @@ BESPOKE.sage = function(kv)
             cur   = tit and hpp or 0,
             max   = 100,
             fmt   = 'pct',
-            idle  = 'Call Titania Ready',
+            idle  = 'Offline',
         },
     }
 end
@@ -825,18 +825,18 @@ BESPOKE.verdant = function(kv)
     local hpp   = num(kv, 'luopan_hpp')
     local bRem  = num(kv, 'bolster_rem')
     local cRem  = num(kv, 'canopy_rem')
-    local lText = luo and 'LUOPAN SANCTUARY' or 'NO LUOPAN'
+    local lText = luo and 'LUOPAN ACTIVE' or 'NO LUOPAN'
     local rText = cRem > 0 and ('CANOPY ' .. math.ceil(cRem) .. 's')
-        or (bRem > 0 and 'BOLSTER (2x BLOOM)' or (luo and 'BLOOM 3s PULSE' or 'CAST GEO SPELL'))
+        or (bRem > 0 and 'BOLSTER 2x' or (luo and 'BLOOM 3s' or 'CAST GEO'))
     local bar = cRem > 0
-        and timerBar('canopy', 'Canopy of the Ancients', cRem, 'Idle', 12)
+        and timerBar('canopy', 'Ancient Canopy', cRem, 'Idle', 12)
         or {
             key   = 'luo_hp',
             label = 'Living Luopan HP',
             cur   = luo and hpp or 0,
             max   = 100,
             fmt   = 'pct',
-            idle  = 'Place Luopan',
+            idle  = 'Offline',
         }
     return {
         pips = badge(lText, rText, luo or cRem > 0),
@@ -849,9 +849,9 @@ end
 -- =============================================================================
 local INQ_STANCES = {
     [0] = 'NO STANCE',
-    [1] = 'IRON BATTUTA (PHYS)',
-    [2] = 'RUNIC AEGIS (MAG)',
-    [3] = 'CONVERGENCE (BOTH)',
+    [1] = 'BATTUTA',
+    [2] = 'AEGIS',
+    [3] = 'CONVERGE',
 }
 
 BESPOKE.inquisitor = function(kv)
@@ -864,9 +864,9 @@ BESPOKE.inquisitor = function(kv)
     if cRem > 0 then
         bar = timerBar('conv', 'Runic Convergence', cRem, 'Idle', 10)
     elseif aRem >= bRem and aRem > 0 then
-        bar = timerBar('aegis', 'Runic Aegis (Elem Ward)', aRem, 'Idle', 60)
+        bar = timerBar('aegis', 'Runic Aegis', aRem, 'Idle', 60)
     else
-        bar = timerBar('bat', 'Iron Battuta (Parry Ward)', bRem, 'Choose Ward Stance', 60)
+        bar = timerBar('bat', 'Iron Battuta', bRem, 'Idle', 60)
     end
     return {
         pips = pips('Runes', runes, 3, 'azure', stance == 3 or runes >= 3, INQ_STANCES[stance] or 'NO STANCE'),
@@ -880,12 +880,12 @@ BESPOKE.spellblade = function(kv)
     local eRem  = num(kv, 'edgeflare_rem')
     local oRem  = num(kv, 'overcharge_rem')
     local aRem  = num(kv, 'ascend_rem')
-    local right = ('PREP %d/3  •  RUNES %d'):format(prep, runes)
+    local right = ('PREP %d/3 • %d RUNES'):format(prep, runes)
     local bar
     if oRem > 0 or aRem > 0 then
-        bar = timerBar('oc', aRem > oRem and 'Runic Ascendance' or 'Overcharge Runes (2x)', math.max(oRem, aRem), 'Idle', 12)
+        bar = timerBar('oc', aRem > oRem and 'Ascendance' or 'Overcharge (2x)', math.max(oRem, aRem), 'Idle', 12)
     else
-        bar = timerBar('edge', 'Edgeflare (+25% Rune Edge)', eRem, 'Cast Bolt / Sever / Slash', 12)
+        bar = timerBar('edge', 'Edgeflare (+25%)', eRem, 'Idle', 12)
     end
     return {
         pips = pips('Prep', prep, 3, 'crimson', prep >= 3 or oRem > 0, right),
@@ -900,14 +900,14 @@ BESPOKE.lifebinder = function(kv)
     local vRem  = num(kv, 'valiance_rem')
     local bar
     if sRem > 0 then
-        bar = timerBar('sanct', 'Sanctified Ward (12y)', sRem, 'Idle', 15)
+        bar = timerBar('sanct', 'Sanctified Ward', sRem, 'Idle', 15)
     elseif fRem > 0 then
         bar = timerBar('font', 'Font of Life', fRem, 'Idle', 12)
     else
-        bar = timerBar('val', 'Valiance Ward', vRem, 'Vivacious Pulse Ready', 60)
+        bar = timerBar('val', 'Valiance Ward', vRem, 'Pulse Ready', 60)
     end
     return {
-        pips = pips('Sacred Runes', runes, 3, 'emerald', runes >= 3),
+        pips = pips('Runes', runes, 3, 'emerald', runes >= 3),
         bar  = bar,
     }
 end
