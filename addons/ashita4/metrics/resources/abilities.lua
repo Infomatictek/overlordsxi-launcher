@@ -71,6 +71,8 @@ Res.Abilities.Damaging =
     [981] = {id = 981, old_id = 469, en = "Canopy of Ancients"},
     [982] = {id = 982, old_id = 470, en = "Wyrmblood Pulse"},
     [983] = {id = 983, old_id = 471, en = "Dragonscale Sanctuary"},
+    [984] = {id = 984, old_id = 472, en = "House Advantage"},
+    [985] = {id = 985, old_id = 473, en = "Ace in the Hole"},
 }
 
 -- Based off of job_abilities.lua from Windower.

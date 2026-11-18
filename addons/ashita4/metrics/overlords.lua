@@ -108,6 +108,10 @@ Overlords.CustomAbilities =
     [981] = 'Canopy of Ancients',    -- 469 (GEO Verdant)
     [982] = 'Wyrmblood Pulse',       -- 470 (DRG Wyvernheart)
     [983] = 'Dragonscale Sanctuary', -- 471 (DRG Wyvernheart)
+
+    -- COR Gambler Spec (472-473)
+    [984] = 'House Advantage',       -- 472 (COR Gambler)
+    [985] = 'Ace in the Hole',       -- 473 (COR Gambler)
 }
 
 ------------------------------------------------------------------------------------------------------
