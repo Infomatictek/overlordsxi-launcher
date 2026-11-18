@@ -30,7 +30,7 @@ function Registry:getSoul(key)
     return self.souls[key]
 end
 
-function Registry:normalize(key, state)
+function Registry:normalize(key, state, elapsed)
     local soul = self.souls[key]
     if not soul then return nil end
     local result = {}
@@ -46,6 +46,9 @@ function Registry:normalize(key, state)
                 if value ~= nil then
                     if def.min ~= nil then value = math.max(def.min, value) end
                     if def.max ~= nil then value = math.min(def.max, value) end
+                    if (def.type == 'timer' or def.type == 'cooldown') and elapsed then
+                        value = math.max(0, value - elapsed)
+                    end
                 end
             end
             if value ~= nil then result[#result + 1] = { def = def, value = value } end
