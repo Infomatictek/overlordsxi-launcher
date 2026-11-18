@@ -51,6 +51,9 @@ local fallback_tints = {
     animist         = 0xFF55BB88,
     verdant         = 0xFF44BB55,
     wyvernheart     = 0xFF5566DD,
+    flintlock       = 0xFFD74830,
+    gambler         = 0xFFD9C38C,
+    buccaneer       = 0xFF269BAF,
 }
 
 function UI.new(imgui, state, send, scaling, icon_loader)

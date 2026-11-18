@@ -140,6 +140,7 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
                 case 1: return full ? "Freelancer" : "FRL";
                 case 2: return full ? "Vampire" : "VMP";
                 case 3: return full ? "Bladewheel" : "BLW";
+                case 4: return full ? "Mirage Sentinel" : "MRS";
                 default: return nullptr;
             }
         case 20: // SCH

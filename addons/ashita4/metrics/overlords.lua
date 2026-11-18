@@ -108,6 +108,14 @@ Overlords.CustomAbilities =
     [981] = 'Canopy of Ancients',    -- 469 (GEO Verdant)
     [982] = 'Wyrmblood Pulse',       -- 470 (DRG Wyvernheart)
     [983] = 'Dragonscale Sanctuary', -- 471 (DRG Wyvernheart)
+
+    -- COR Specs (472-477)
+    [984] = 'House Advantage',       -- 472 (COR Gambler)
+    [985] = 'Dead Man\'s Hand',      -- 473 (COR Gambler)
+    [986] = 'Hair Trigger',          -- 474 (COR Flintlock)
+    [987] = 'Broadside Salvo',       -- 475 (COR Flintlock)
+    [988] = 'Grapeshot Broadside',   -- 476 (COR Buccaneer)
+    [989] = 'Iron Hull',             -- 477 (COR Buccaneer)
 }
 
 ------------------------------------------------------------------------------------------------------
