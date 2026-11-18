@@ -130,9 +130,9 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
             }
         case 18: // PUP
             switch (branch) {
-                case 1: return full ? "Marionettist" : "MRN";
-                case 2: return full ? "Pugilist" : "PGL";
-                case 3: return full ? "Animist" : "ANM";
+                case 1: return full ? "Vanguard" : "VNG";
+                case 2: return full ? "Animist" : "ANM";
+                case 3: return full ? "Pugilist" : "PGL";
                 default: return nullptr;
             }
         case 19: // DNC

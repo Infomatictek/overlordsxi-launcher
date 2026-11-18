@@ -43,6 +43,7 @@ local fallback_tints = {
     miragesentinel  = 0xFFE070C0,
     dreadnought     = 0xFFAA2233,
     vanguard        = 0xFFD88838,
+    pugilist        = 0xFF3366DD,
     bishop          = 0xFFF0E6CC,
     templar         = 0xFFD8D088,
     magus           = 0xFFCC9933,

@@ -24,7 +24,7 @@ local catalog = {
     medic = 'SCH · Medic', sage = 'SCH · Sage', archivist = 'SCH · Archivist',
     untamed = 'BST · Untamed', alphawarden = 'BST · Alpha Warden', beastspeaker = 'BST · Beastspeaker',
     primalist = 'SMN · Primalist', celestial = 'SMN · Celestial', herald = 'SMN · Herald',
-    marionettist = 'PUP · Marionettist', pugilist = 'PUP · Pugilist', animist = 'PUP · Animist',
+    vanguard = 'PUP · Vanguard', marionettist = 'PUP · Vanguard', pugilist = 'PUP · Pugilist', animist = 'PUP · Animist',
     spellblade = 'RUN · Spellblade', lifebinder = 'RUN · Lifebinder', inquisitor = 'RUN · Inquisitor',
     diviner = 'GEO · Diviner', verdant = 'GEO · Verdant', terramancer = 'GEO · Terramancer',
 }

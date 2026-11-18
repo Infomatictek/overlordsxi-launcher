@@ -88,8 +88,8 @@ Overlords.CustomAbilities =
     [962] = 'Dread Bastion',         -- 450
 
     -- PUP Vanguard Spec
-    [963] = 'Aegis Protocol',        -- 451
-    [964] = 'Gyro Slam',             -- 452
+    [963] = 'Clockwork Bulwark',     -- 451
+    [964] = 'Hydraulic Slam',        -- 452
 
     -- 8 Healer Specs (456-471)
     [968] = 'Divine Veil',           -- 456 (WHM Bishop)
@@ -116,6 +116,10 @@ Overlords.CustomAbilities =
     [987] = 'Broadside Salvo',       -- 475 (COR Flintlock)
     [988] = 'Grapeshot Broadside',   -- 476 (COR Buccaneer)
     [989] = 'Iron Hull',             -- 477 (COR Buccaneer)
+
+    -- PUP Pugilist Spec (478-479)
+    [990] = 'Tandem Barrage',        -- 478 (PUP Pugilist)
+    [991] = 'Limiter Release',       -- 479 (PUP Pugilist)
 }
 
 ------------------------------------------------------------------------------------------------------
