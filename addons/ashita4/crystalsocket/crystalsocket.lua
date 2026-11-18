@@ -16,7 +16,7 @@ local labels = require('job_labels').new()
 local character_id = 0
 local ui, menu
 local textures, asset_status = {}, {}
-local preload_names = { 'commander', 'berserker', 'gladiator', 'spartan', 'sensei', 'blackbelt', 'chiweaver', 'medic', 'sage', 'ronin', 'imperialarcher', 'warlord', 'bladewheel', 'miragesentinel', 'necromancer', 'inquisitor', 'spellblade', 'lifebinder', 'aegistemplar', 'alphawarden', 'kagemusha', 'azurebastion', 'crimsonduelist', 'vanguard', 'pugilist', 'bishop', 'templar', 'magus', 'vampire', 'celestial', 'animist', 'verdant', 'wyvernheart', 'flintlock', 'gambler', 'buccaneer' }
+local preload_names = { 'commander', 'berserker', 'gladiator', 'spartan', 'sensei', 'blackbelt', 'chiweaver', 'medic', 'sage', 'ronin', 'imperialarcher', 'warlord', 'bladewheel', 'miragesentinel', 'necromancer', 'inquisitor', 'spellblade', 'lifebinder', 'aegistemplar', 'alphawarden', 'kagemusha', 'azurebastion', 'crimsonduelist', 'vanguard', 'pugilist', 'bishop', 'templar', 'magus', 'vampire', 'celestial', 'animist', 'verdant', 'wyvernheart', 'flintlock', 'gambler', 'buccaneer', 'huntsman' }
 local epoch, transitioning = 0, false
 local key_owner = {} -- nil: new press; false: native/chat; true: addon, until physical release.
 local last_mouse
