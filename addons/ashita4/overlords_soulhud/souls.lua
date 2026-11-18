@@ -50,14 +50,6 @@ definitions.miragesentinel = {
     },
 }
 
-definitions.flintlock = {
-    title = 'COR · Flintlock',
-    elements = {
-        element('powder', 'Black Powder', 'stack', 'powder', 3, 'rounds'),
-        element('mark_rem', 'Powder Mark', 'timer', 'mark_rem', nil, 's'),
-    },
-}
-
 definitions.gambler = {
     title = 'COR · Gambler',
     elements = {
