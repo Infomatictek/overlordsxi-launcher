@@ -39,8 +39,9 @@ local function reset()
 end
 
 ashita.events.register('packet_in', 'overlords_soulhud_packet', function(e)
-    local data = e.data_modified or e.data
-    if type(data) ~= 'string' then return end
+    local data, size = e.data_modified or e.data, e.size
+    if type(data) ~= 'string' or type(size) ~= 'number' or size < 1 or size > #data then return end
+    data = data:sub(1, size)
     local marker = data:find('[OXHUD]|', 1, true)
     if not marker then return end
     local payload = data:sub(marker + 8):match('^([^%z\r\n]*)')
@@ -77,7 +78,7 @@ ashita.events.register('command', 'overlords_soulhud_command', function(e)
     elseif action == 'compact' then
         config.compact = not config.compact
     elseif action == 'sync' then
-        AshitaCore:GetChatManager():QueueCommand(1, '/soulhud sync')
+        AshitaCore:GetChatManager():QueueCommand(1, '!soulhud sync')
     elseif action == 'reset' then
         config.x, config.y, config.width, config.opacity =
             defaults.x, defaults.y, defaults.width, defaults.opacity
