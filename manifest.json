@@ -40,6 +40,13 @@
     },
     {
       "category": "dat",
+      "sourcePath": "dat-overlay/ROM/119/57.DAT",
+      "targetPath": "ROM/119/57.DAT",
+      "sha256": "a4eeba8ebfa4b5828cb18e7f50bf58b06cd0ce830e539b6120b21a43a008883d",
+      "size": 3932160
+    },
+    {
+      "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/72.DAT",
       "targetPath": "ROM/181/72.DAT",
       "sha256": "44c9f9a13de8c7e9062aa3310f45e3ec6a010e022f416a6943e0bb265dd0b8ef",

@@ -6,3 +6,5 @@ publish/
 Thumbs.db
 *.log
 *.tmp
+
+tools/backups/
