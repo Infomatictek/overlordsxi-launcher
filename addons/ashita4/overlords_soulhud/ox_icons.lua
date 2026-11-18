@@ -97,6 +97,33 @@ function M.hud(name)
     return loadFile(assetPath('hud_' .. tostring(name)))
 end
 
+-- Arbitrary PNG by absolute path (cached).
+function M.file(path)
+    return loadFile(path)
+end
+
+-- Crystal Job Gauge sprite (assets/ui/<name>.png): sockets, gems, bar frame, buff ring.
+function M.ui(name)
+    return loadFile(string.format('%s/assets/ui/%s.png', addon.path, tostring(name)))
+end
+
+-- Soul Crystal icon: bundled assets/crystals/<soulKey>.png, falling back to the sibling
+-- crystalsocket addon's assets folder. Returns nil when neither exists.
+function M.crystal(soulKey)
+    local key = tostring(soulKey)
+    return loadFile(string.format('%s/assets/crystals/%s.png', addon.path, key))
+        or loadFile(string.format('%s/../crystalsocket/assets/%s.png', addon.path, key))
+end
+
+-- Drop every cached texture so the COM refs are released (call from the addon `unload` event).
+function M.release()
+    fileCache = {}
+    vanilla   = {}
+    keepAlive = {}
+    collectgarbage('collect')
+    collectgarbage('collect')
+end
+
 -- Resolve the best texture for an effect.
 --   catalog : status_catalog.lua table (may be nil)
 --   Returns textureId, entry   (entry is the catalog row for custom effects)

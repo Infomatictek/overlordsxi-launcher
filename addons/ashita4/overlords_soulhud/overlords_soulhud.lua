@@ -9,7 +9,7 @@
 *   /soulhud [toggle|show|hide|auto|compact|expanded|lock|unlock|config|sync|status|reset]
 *   /soulhud scale <0.75-2.0>
 *   /soulhud opacity <0.25-1.0>
-*   /soulhud preview <soul_key>
+*   /soulhud demo <soulKey|cycle|off>
 --]]
 
 addon.name    = 'overlords_soulhud'
@@ -25,7 +25,12 @@ local okImgui, imgui = pcall(require, 'imgui')
 
 local settingsMod = require('soulhud_settings')
 local registry    = require('soulhud_registry')
-local renderer    = require('soulhud_renderer')
+local renderer    = require('soulhud_renderer')   -- config window only
+local gauge       = require('soulhud_gauge')      -- Crystal Job Gauge
+local roster      = require('soulhud_roster')
+local demo        = require('soulhud_demo')
+local okIcons, icons = pcall(require, 'ox_icons')
+if not okIcons then icons = nil end
 local loadSouls   = require('souls.init')
 local okStrip, strip  = pcall(require, 'soulhud_buffstrip')
 if not okStrip then strip = nil end
@@ -59,8 +64,10 @@ local state = {
     lastJobId       = 0,
     activeSoulKey   = '',
     activeUnlocked  = false,
-    previewSoulKey  = nil,
+    kv              = {},
     runtime         = nil,
+    demoRt          = nil,
+    demoRtKey       = nil,
     configOpen      = false,
     resetPosPending = false,
     recastCache     = {},
@@ -157,9 +164,40 @@ local function requestServerSync(_force)
 end
 
 local function applyOxBuffsFromRaw(kvRaw)
-    if strip == nil then return end
+    if strip == nil or demo.active() then return end
     local v = type(kvRaw) == 'string' and kvRaw:match('ox_buffs=([^;]*)') or ''
     strip.parse(v, os.clock())
+end
+
+local function parseKv(kvRaw)
+    local kvMap = {}
+    if type(kvRaw) == 'string' and kvRaw ~= '' then
+        for _, pair in ipairs(splitChar(kvRaw, ';')) do
+            local eq = string.find(pair, '=', 1, true)
+            if eq then
+                kvMap[string.sub(pair, 1, eq - 1)] = string.sub(pair, eq + 1)
+            end
+        end
+    end
+    return kvMap
+end
+
+local function applyHudState(jobId, soulKey, unlocked, kvRaw)
+    state.lastJobId = jobId or 0
+    applyOxBuffsFromRaw(kvRaw)
+    switchActiveSoul(soulKey, unlocked)
+
+    local kvMap = parseKv(kvRaw)
+    state.kv = kvMap
+
+    local def = registry.getSoul(soulKey)
+    if def and state.runtime then
+        registry.applyServerData(def, state.runtime, kvMap, os.clock())
+    end
+
+    state.synced = true
+    state.stale = false
+    state.lastSyncAt = os.clock()
 end
 
 local function decodeBinaryHudPacket(data)
@@ -180,30 +218,7 @@ local function decodeBinaryHudPacket(data)
     end
     local soulKey = keyLen > 0 and string.sub(data, 17, 16 + keyLen) or ''
     local kvRaw   = kvLen > 0 and string.sub(data, 17 + keyLen, 16 + keyLen + kvLen) or ''
-
-    state.lastJobId = jobId or 0
-    applyOxBuffsFromRaw(kvRaw)
-    switchActiveSoul(soulKey, unlockedByte == 1)
-
-    local def = registry.getSoul(soulKey)
-    if def and state.runtime then
-        local kvMap = {}
-        if kvRaw ~= '' then
-            for _, pair in ipairs(splitChar(kvRaw, ';')) do
-                local eq = string.find(pair, '=', 1, true)
-                if eq then
-                    local k = string.sub(pair, 1, eq - 1)
-                    local v = string.sub(pair, eq + 1)
-                    kvMap[k] = v
-                end
-            end
-        end
-        registry.applyServerData(def, state.runtime, kvMap, os.clock())
-    end
-
-    state.synced = true
-    state.stale = false
-    state.lastSyncAt = os.clock()
+    applyHudState(jobId or 0, soulKey, unlockedByte == 1, kvRaw)
     return true
 end
 
@@ -217,35 +232,7 @@ end
 local function applyProtoPayload(payload)
     local parts = splitChar(payload, '|')
     if #parts < 4 then return end
-
-    local jobId = tonumber(parts[1]) or 0
-    local soulKey = parts[2] or ''
-    local unlocked = tonumber(parts[3]) == 1
-    local kvRaw = parts[4] or ''
-
-    state.lastJobId = jobId
-    applyOxBuffsFromRaw(kvRaw)
-    switchActiveSoul(soulKey, unlocked)
-
-    local def = registry.getSoul(soulKey)
-    if def and state.runtime then
-        local kvMap = {}
-        if kvRaw ~= '' then
-            for _, pair in ipairs(splitChar(kvRaw, ';')) do
-                local eq = string.find(pair, '=', 1, true)
-                if eq then
-                    local k = string.sub(pair, 1, eq - 1)
-                    local v = string.sub(pair, eq + 1)
-                    kvMap[k] = v
-                end
-            end
-        end
-        registry.applyServerData(def, state.runtime, kvMap, os.clock())
-    end
-
-    state.synced = true
-    state.stale = false
-    state.lastSyncAt = os.clock()
+    applyHudState(tonumber(parts[1]) or 0, parts[2] or '', tonumber(parts[3]) == 1, parts[4] or '')
 end
 
 local function refreshNativeRecasts(soulDef, rt, now)
@@ -292,6 +279,8 @@ end)
 ashita.events.register('unload', 'ox_soulhud_unload', function()
     settingsMod.save(cfg)
     registry.cleanupState(state.runtime)
+    gauge.reset()
+    if icons and icons.release then pcall(icons.release) end  -- release every cached D3D8 texture
 end)
 
 ashita.events.register('packet_in', 'ox_soulhud_packet_in', function(e)
@@ -398,17 +387,20 @@ ashita.events.register('command', 'ox_soulhud_command', function(e)
         else
             logMessage('Usage: /soulhud opacity <0.25-1.0>')
         end
-    elseif sub == 'preview' then
-        local key = args[3]
-        if key == nil or key == 'off' then
-            state.previewSoulKey = nil
-            logMessage('Preview disabled.')
-        elseif registry.getSoul(key) then
-            state.previewSoulKey = key
-            cfg.mode = 'show'
-            logMessage('Previewing soul: ' .. key)
+    elseif sub == 'demo' or sub == 'preview' then
+        local arg = args[3]
+        if arg == nil then
+            logMessage('Usage: /soulhud demo <soulKey|cycle|off>')
         else
-            logMessage('Unknown soul key: ' .. tostring(key))
+            local ok, msg = demo.set(arg, roster)
+            if ok and string.lower(arg) ~= 'off' and cfg.mode == 'hide' then
+                cfg.mode = 'auto'
+            end
+            if strip and (not ok or string.lower(arg) == 'off') then
+                strip.parse('', os.clock())
+            end
+            gauge.reset()
+            logMessage(msg)
         end
     elseif sub == 'sync' then
         requestServerSync(true)
@@ -424,7 +416,7 @@ ashita.events.register('command', 'ox_soulhud_command', function(e)
             tostring(state.activeUnlocked), tostring(state.synced), tostring(state.stale)
         ))
     else
-        logMessage('Usage: /soulhud [toggle|show|hide|auto|compact|expanded|lock|unlock|config|scale|opacity|preview|sync|status|reset]')
+        logMessage('Usage: /soulhud [toggle|show|hide|auto|compact|expanded|lock|unlock|config|scale|opacity|demo|sync|status|reset]')
     end
 end)
 
@@ -466,33 +458,58 @@ ashita.events.register('d3d_present', 'ox_soulhud_present', function()
         state.stale = true
     end
 
-    local targetKey = state.previewSoulKey or state.activeSoulKey
-    local soulDef = registry.getSoul(targetKey)
+    local demoOn = demo.active()
+    local targetKey = state.activeSoulKey
+    local kv, rt, soulDef, syncAt = state.kv, state.runtime, nil, state.lastSyncAt
 
-    if state.previewSoulKey and (not state.runtime or state.runtime.soulKey ~= state.previewSoulKey) then
-        state.runtime = registry.newRuntimeState(soulDef)
-    end
-
-    if soulDef and state.runtime then
-        registry.tickTimers(soulDef, state.runtime, now)
-        refreshNativeRecasts(soulDef, state.runtime, now)
+    if demoOn then
+        targetKey = demo.tick(now, roster) or targetKey
+        soulDef = registry.getSoul(targetKey)
+        if soulDef and (state.demoRtKey ~= targetKey or not state.demoRt) then
+            state.demoRt = registry.newRuntimeState(soulDef)
+            state.demoRtKey = targetKey
+        end
+        rt = soulDef and state.demoRt or nil
+        kv = demo.kv(targetKey, now)
+        if rt then demo.fillRuntime(soulDef, rt, now) end
+        syncAt = now
+        local seed = demo.buffs(targetKey, now)
+        if seed and strip then strip.parse(seed, now) end
+    else
+        soulDef = registry.getSoul(targetKey)
+        if soulDef and state.runtime then
+            registry.tickTimers(soulDef, state.runtime, now)
+            refreshNativeRecasts(soulDef, state.runtime, now)
+        end
     end
 
     local shouldShow = false
-    if cfg.mode == 'show' then
-        shouldShow = soulDef ~= nil
+    if demoOn then
+        shouldShow = targetKey ~= nil and targetKey ~= ''
+    elseif cfg.mode == 'show' then
+        shouldShow = targetKey ~= ''
     elseif cfg.mode == 'auto' then
-        shouldShow = soulDef ~= nil and state.activeUnlocked
+        shouldShow = targetKey ~= '' and state.activeUnlocked
     end
 
-    if shouldShow and soulDef and state.runtime then
-        renderer.renderHud(imgui, soulDef, state.runtime, state, cfg, settingsMod, hudCallbacks)
+    if shouldShow then
+        gauge.render(imgui, {
+            soulKey   = targetKey,
+            kv        = kv,
+            def       = soulDef,
+            rt        = rt,
+            buffs     = strip and strip.buffs or {},
+            now       = now,
+            syncAt    = syncAt,
+            cfg       = cfg,
+            callbacks = hudCallbacks,
+            resetPos  = state.resetPosPending,
+            onResetPosApplied = function() state.resetPosPending = false end,
+            demo      = demoOn,
+        })
     end
     if state.configOpen then
         renderer.renderConfig(imgui, soulDef, cfg, settingsMod, hudCallbacks)
-    end
-    if strip and cfg.mode ~= 'hide' then
-        strip.render(imgui, soulDef, state.runtime, cfg, now)
     end
     end)
 end)

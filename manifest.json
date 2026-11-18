@@ -1461,6 +1461,272 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/aegistemplar.png",
+      "targetPath": "overlords_soulhud/assets/crystals/aegistemplar.png",
+      "sha256": "cd4b56498075d725f9bc33b00de7293006a41d300007d0e8bd9f48500f84b1a5",
+      "size": 17959
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/alphawarden.png",
+      "targetPath": "overlords_soulhud/assets/crystals/alphawarden.png",
+      "sha256": "51b0e0f653791a17d757f9d1ff76dc8192de5cf760dc44fd33bf50d64484ccb7",
+      "size": 28300
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/animist.png",
+      "targetPath": "overlords_soulhud/assets/crystals/animist.png",
+      "sha256": "42eb28f1274fc2386a41b2e07bbe2fd2b47dcd59fc839e03c4413e98328dfb7d",
+      "size": 21975
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/azurebastion.png",
+      "targetPath": "overlords_soulhud/assets/crystals/azurebastion.png",
+      "sha256": "784844b0456016533851e9d575331cd346431833c89ebd38cd1fa58ad9837563",
+      "size": 22182
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/berserker.png",
+      "targetPath": "overlords_soulhud/assets/crystals/berserker.png",
+      "sha256": "539dce2f8d744d1af9a9ad77dee5589b2bff6fab450f2b3df2fb6bb346dd0f72",
+      "size": 17345
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/bishop.png",
+      "targetPath": "overlords_soulhud/assets/crystals/bishop.png",
+      "sha256": "908dfe156f19c307aa52b9ff997dd42b93a0f03e12553f048ab331fc96884ac7",
+      "size": 19164
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/blackbelt.png",
+      "targetPath": "overlords_soulhud/assets/crystals/blackbelt.png",
+      "sha256": "0aa6550a825a47a6d2367e33f9e0891b3a7878a3e14fc1fa5151f930cef7766a",
+      "size": 23081
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/bladewheel.png",
+      "targetPath": "overlords_soulhud/assets/crystals/bladewheel.png",
+      "sha256": "6bfa0964991fb85fe0996ed7b4386d1524d44d8d45e1875b9129df02c291902f",
+      "size": 23710
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/buccaneer.png",
+      "targetPath": "overlords_soulhud/assets/crystals/buccaneer.png",
+      "sha256": "616a4b34987c43465fdb88baf930de575925b937da9a11a824c9c8c1ecba3ccd",
+      "size": 18185
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/celestial.png",
+      "targetPath": "overlords_soulhud/assets/crystals/celestial.png",
+      "sha256": "f91633ac1501ba3ca099e95450121023865ad237b1dfa2e1190f7afc7fcb9227",
+      "size": 25248
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/chiweaver.png",
+      "targetPath": "overlords_soulhud/assets/crystals/chiweaver.png",
+      "sha256": "29c5b962ea1e7ac3f49901e50560f80169098a25df54cd82238d58ffdb035538",
+      "size": 19669
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/commander.png",
+      "targetPath": "overlords_soulhud/assets/crystals/commander.png",
+      "sha256": "2801ee6923186fb6234813e5b7e2e7ddd707cb114239f9853e8fdc7747a3a091",
+      "size": 17905
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/crimsonduelist.png",
+      "targetPath": "overlords_soulhud/assets/crystals/crimsonduelist.png",
+      "sha256": "eb205d75ed63d9d2398819bb27b22ea8812815755cdb423181a484ec32492871",
+      "size": 14978
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/dreadnought.png",
+      "targetPath": "overlords_soulhud/assets/crystals/dreadnought.png",
+      "sha256": "a1ebbdb2d952052ad5f141b3762fe9788ec850a5614a0b20842ad10fdb3cd492",
+      "size": 19729
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/flintlock.png",
+      "targetPath": "overlords_soulhud/assets/crystals/flintlock.png",
+      "sha256": "3a65c8bb77154869362cca4f5dc7fb45a869e7b1447c20eee9f730ff27ab0c07",
+      "size": 18448
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/gambler.png",
+      "targetPath": "overlords_soulhud/assets/crystals/gambler.png",
+      "sha256": "24e47fc2625d9eee5bfad8dab809eb01549fec1bf8a5036e32c12c4b3d103791",
+      "size": 18116
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/gladiator.png",
+      "targetPath": "overlords_soulhud/assets/crystals/gladiator.png",
+      "sha256": "d34ee2f4693e2da843774fecab95179093eb359b66261af2ac4d48eab1f9afab",
+      "size": 25068
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/huntsman.png",
+      "targetPath": "overlords_soulhud/assets/crystals/huntsman.png",
+      "sha256": "e766e5bd691040a25bd78ba0fae45e4198a2b7cfbfa612de4c22d446bc034bb2",
+      "size": 20769
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/imperialarcher.png",
+      "targetPath": "overlords_soulhud/assets/crystals/imperialarcher.png",
+      "sha256": "f17928441c840fde3508947045ae281c7c39a1fcca95b4279fbcda3599aa826d",
+      "size": 16981
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/inquisitor.png",
+      "targetPath": "overlords_soulhud/assets/crystals/inquisitor.png",
+      "sha256": "f2d18ba9843384e72a8d04d306bda29273cb677924323e2ccc5f7ecb0743c45d",
+      "size": 17256
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/kagemusha.png",
+      "targetPath": "overlords_soulhud/assets/crystals/kagemusha.png",
+      "sha256": "af693165c705ff5d6e7c2179b9b67bb2ff20cb3336480f92530c9519a687b873",
+      "size": 15282
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/lifebinder.png",
+      "targetPath": "overlords_soulhud/assets/crystals/lifebinder.png",
+      "sha256": "4043059d5b50f73d86772d0c2b12937a4e142e2463ff00cfeb77e794888fad93",
+      "size": 18090
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/magus.png",
+      "targetPath": "overlords_soulhud/assets/crystals/magus.png",
+      "sha256": "97628663b781176dbc3694d8b1ac59d807a9797ccf9d2867fea90eb99257dc49",
+      "size": 26087
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/medic.png",
+      "targetPath": "overlords_soulhud/assets/crystals/medic.png",
+      "sha256": "1eaf008e397b3696a28923e9422c962bafc74675dd8698ce2ed97b0d4c623218",
+      "size": 14895
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/miragesentinel.png",
+      "targetPath": "overlords_soulhud/assets/crystals/miragesentinel.png",
+      "sha256": "66d6feb05a81581a0e637d8d96f36b2b3f7b0903164efdfbba208ce74dbde354",
+      "size": 24585
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/necromancer.png",
+      "targetPath": "overlords_soulhud/assets/crystals/necromancer.png",
+      "sha256": "e7322d8792f8938a5ae29df3825e715b379cc31df40d8693b2a6eac62d63d698",
+      "size": 13658
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/pugilist.png",
+      "targetPath": "overlords_soulhud/assets/crystals/pugilist.png",
+      "sha256": "c1d77e45048b9813542b677c0ba9ea4c1ab5a45210dbb1a246daf71dbf31f003",
+      "size": 18433
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/ronin.png",
+      "targetPath": "overlords_soulhud/assets/crystals/ronin.png",
+      "sha256": "5349992fe70637920c277028a81d29a336db19f07036752f4fc10b5454cc2c10",
+      "size": 16737
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/sage.png",
+      "targetPath": "overlords_soulhud/assets/crystals/sage.png",
+      "sha256": "0bfa8460f77ebe8750c2ed177bd36868e8ab4f02d9d4262778ae5bbca66f5f2a",
+      "size": 12521
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/sensei.png",
+      "targetPath": "overlords_soulhud/assets/crystals/sensei.png",
+      "sha256": "a0244acdf6debc5c64ec9b3bb77acab6e94ee33ad7cfaff8e53438d88494c433",
+      "size": 14292
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/spartan.png",
+      "targetPath": "overlords_soulhud/assets/crystals/spartan.png",
+      "sha256": "79f160854cf4fdb8a62d104a5ecff2e110e96a76c93fcd4aa1f6cd33c7908ed3",
+      "size": 19083
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/spellblade.png",
+      "targetPath": "overlords_soulhud/assets/crystals/spellblade.png",
+      "sha256": "049bf08998e9a06a67b116e25b0fd047a00cd2d128df6d97a96100d57963cc13",
+      "size": 20081
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/templar.png",
+      "targetPath": "overlords_soulhud/assets/crystals/templar.png",
+      "sha256": "c66987f764b78cbb6f51c1930c9aba960c21f26d5dff0d7bf50481615ea01abb",
+      "size": 25227
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/vampire.png",
+      "targetPath": "overlords_soulhud/assets/crystals/vampire.png",
+      "sha256": "f05a3bddfb6abdb842382ecc3d1597ff51fe45615e8b2e3c44baa482c4a6f62e",
+      "size": 20458
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/vanguard.png",
+      "targetPath": "overlords_soulhud/assets/crystals/vanguard.png",
+      "sha256": "9b6ddfc1c7f2d1ba88e11394d0551bcb1cc6c642bd5de42244f41df827ea3056",
+      "size": 18314
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/verdant.png",
+      "targetPath": "overlords_soulhud/assets/crystals/verdant.png",
+      "sha256": "1326e69024063a09f9e7fcfdea848bf04591dfc0c21b5e5070437bdfd0768a96",
+      "size": 17417
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/warlord.png",
+      "targetPath": "overlords_soulhud/assets/crystals/warlord.png",
+      "sha256": "a5b21e0b11b130a933d0252afb264bb8bccaff736708ddd2e8a185233f20056a",
+      "size": 15849
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/wyvernheart.png",
+      "targetPath": "overlords_soulhud/assets/crystals/wyvernheart.png",
+      "sha256": "96dacbfadb3ee9f1eb3856b0aaed5c90e1cc7a4d6cdbb9d5c10fb02d0511bdb0",
+      "size": 16531
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/224.png",
       "targetPath": "overlords_soulhud/assets/status_icons/224.png",
       "sha256": "5f2e7266c19f7992e92bb0d5dac9d04ec01c58023027efdac608fdfec28d94d6",
@@ -2224,31 +2490,143 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/bar_frame.png",
+      "targetPath": "overlords_soulhud/assets/ui/bar_frame.png",
+      "sha256": "fdfa1d276745b358aa3fdbfdd042f7e1803c88462e596b743d5054fdcd6c0e66",
+      "size": 2036
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/bar_gloss_overlay.png",
+      "targetPath": "overlords_soulhud/assets/ui/bar_gloss_overlay.png",
+      "sha256": "519e8fe0755512b5cfe06cff7922f00e9cc989a449109e88ebca1126404077f9",
+      "size": 818
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/buff_ring_gold.png",
+      "targetPath": "overlords_soulhud/assets/ui/buff_ring_gold.png",
+      "sha256": "111e687841694354463ca8f1068602a56be5c3d5f32143b5bf3707ca5481b989",
+      "size": 929
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/gem_azure.png",
+      "targetPath": "overlords_soulhud/assets/ui/gem_azure.png",
+      "sha256": "beb3a63918f5b3dcf6d3cb53b6d0a4ca1aa6bdec9a482a01468c64b846dc9ea0",
+      "size": 1631
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/gem_crimson.png",
+      "targetPath": "overlords_soulhud/assets/ui/gem_crimson.png",
+      "sha256": "690eb9672075456e2e62c92d5842ebc62588e94f276fd62d415f6993294e79aa",
+      "size": 1601
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/gem_emerald.png",
+      "targetPath": "overlords_soulhud/assets/ui/gem_emerald.png",
+      "sha256": "8c3bfd9ed1ee1c802c1bf1d55c1442ada79d8dfdf221543ea3608c61c1a05d30",
+      "size": 1600
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/gem_empty.png",
+      "targetPath": "overlords_soulhud/assets/ui/gem_empty.png",
+      "sha256": "a1a0db123ab0bea480be8a314d7b689f2696bf672f2bf059757c9cf6becf9748",
+      "size": 1221
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/gem_gold.png",
+      "targetPath": "overlords_soulhud/assets/ui/gem_gold.png",
+      "sha256": "1e6ec19b7dec7d0ea2141a2f8eba7e568d5b0400a07ce5c7c7c9ff0d5a4d44a2",
+      "size": 1613
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/gem_violet.png",
+      "targetPath": "overlords_soulhud/assets/ui/gem_violet.png",
+      "sha256": "608b0b84a7da4c7a6ef32c50a4849f50c5ef92fe5fd1375753d62c1e3d73f8d0",
+      "size": 1638
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/socket_damage.png",
+      "targetPath": "overlords_soulhud/assets/ui/socket_damage.png",
+      "sha256": "c6cb2bd5251032d926301a40321d6622aa5b1ecfcbfde7c8aa4425dd15d5164d",
+      "size": 9805
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/socket_healer.png",
+      "targetPath": "overlords_soulhud/assets/ui/socket_healer.png",
+      "sha256": "cf118c4d6ce1c3426efbd72983e6314b762451153617f92fd36e88333a8fa0cd",
+      "size": 10244
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/socket_support.png",
+      "targetPath": "overlords_soulhud/assets/ui/socket_support.png",
+      "sha256": "a2dbc500cb7774419889310b4e7bef6f2391c6f7dc816c2315c29012c624d5c3",
+      "size": 10174
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/ui/socket_tank.png",
+      "targetPath": "overlords_soulhud/assets/ui/socket_tank.png",
+      "sha256": "2ee60e744462dc3802384c86048dff0916749eb4de78b751a8fc287f2d980f42",
+      "size": 10084
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/overlords_soulhud.lua",
       "targetPath": "overlords_soulhud/overlords_soulhud.lua",
-      "sha256": "6061ef1f6bfd6eb7ebf9138991a446d72f7de56768cd70528e9d38b9642c987a",
-      "size": 16051
+      "sha256": "125c4841eea16deca534f500f27bf11981b9d8a75adbae8dbe20fa44916dcd9d",
+      "size": 16879
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/ox_icons.lua",
       "targetPath": "overlords_soulhud/ox_icons.lua",
-      "sha256": "5509194e08145639389eb5d402f3a53c0442f3b0dafe6274330c46ce281c53a6",
-      "size": 3831
+      "sha256": "cf0d6e577d696bc8829b0b643e581e309a574c6e99b2b3546af5370ccac19daa",
+      "size": 4766
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/README.md",
       "targetPath": "overlords_soulhud/README.md",
-      "sha256": "a4cfc0387b9ba0c82ad19efcf824a5c3ee80276be2cdf2df5ae17ccc947c52e9",
-      "size": 3441
+      "sha256": "c3e357a4856005fe9535932bd426e078ea7c840aea8654dea861c543ec1e5aa0",
+      "size": 4529
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_buffstrip.lua",
       "targetPath": "overlords_soulhud/soulhud_buffstrip.lua",
-      "sha256": "449b1bfedbebbc18e0eb3d5bfaae344a473d421451958062af10cf9fc00b733c",
-      "size": 7335
+      "sha256": "d6edb7cee209795c1e10ea9fd32c471ad6070066b7a9b2fec875f1b6dfd2058e",
+      "size": 3668
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_demo.lua",
+      "targetPath": "overlords_soulhud/soulhud_demo.lua",
+      "sha256": "c690c3e01ccb997df22e9ec0e58fb8f7ded4d74d91d8f63d7eaa487fc2ceabe2",
+      "size": 5959
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_gauge.lua",
+      "targetPath": "overlords_soulhud/soulhud_gauge.lua",
+      "sha256": "3953ec795dde6438ee4781f16ada2c4ded5e04d6302e296b06eaa98c89e5819a",
+      "size": 21469
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_layout.lua",
+      "targetPath": "overlords_soulhud/soulhud_layout.lua",
+      "sha256": "563f14f68efb1a5d977d2a4181995c8419e79ced03f6e24315921fe462dc2f78",
+      "size": 6919
     },
     {
       "category": "addon",
@@ -2261,15 +2639,22 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_renderer.lua",
       "targetPath": "overlords_soulhud/soulhud_renderer.lua",
-      "sha256": "77cacbe7ed9b6c16cd6a9141de2acbcdcaecbf2810ad54ba685634136cfe7fe5",
-      "size": 13973
+      "sha256": "43ee39a2719c4fbd07988913ad6be72810735e54c7697f9ba32e9da8002e1d28",
+      "size": 2900
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_roster.lua",
+      "targetPath": "overlords_soulhud/soulhud_roster.lua",
+      "sha256": "a001f65d2c0f283d672598862014e057628ea734d5d1a038e5e0accfcf571421",
+      "size": 4490
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_settings.lua",
       "targetPath": "overlords_soulhud/soulhud_settings.lua",
-      "sha256": "16a35905a483d7283c3577b41fa695595c746dbba7cab18d8aa49afb637e49c7",
-      "size": 5570
+      "sha256": "e1d89171f8e87464c3b631fce1a01221b449c40108d5d345e18467bb8f7b7591",
+      "size": 5744
     },
     {
       "category": "addon",

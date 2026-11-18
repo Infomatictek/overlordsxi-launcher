@@ -9,6 +9,7 @@ local defaults = {
     mode           = 'auto',    -- 'auto' | 'show' | 'hide'
     locked         = false,
     hiddenElements = {},        -- [soulKey] = { [resId] = true }
+    showShared     = true,      -- show shared party buffs in the status sub-strip
 }
 
 local function cloneDefaults()
@@ -20,6 +21,7 @@ local function cloneDefaults()
         layout         = defaults.layout,
         mode           = defaults.mode,
         locked         = defaults.locked,
+        showShared     = defaults.showShared,
         hiddenElements = {},
     }
 end
@@ -95,6 +97,7 @@ function M.clampSettings(cfg)
         cfg.mode = defaults.mode
     end
     cfg.locked = cfg.locked == true
+    cfg.showShared = cfg.showShared ~= false
     if type(cfg.hiddenElements) ~= 'table' then
         cfg.hiddenElements = {}
     end
