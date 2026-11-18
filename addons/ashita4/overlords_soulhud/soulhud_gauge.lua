@@ -14,6 +14,8 @@ local okIcons, icons = pcall(require, 'ox_icons')
 if not okIcons then icons = nil end
 local roster    = require('soulhud_roster')
 local layoutMod = require('soulhud_layout')
+local okTips, tips = pcall(require, 'soulhud_tips')
+if not okTips then tips = nil end
 
 local okBit, bit = pcall(require, 'bit')
 
@@ -34,6 +36,15 @@ local STRIP_Y    = 60
 local RING       = 36
 local ICON       = 28
 local RING_PITCH = 38
+-- Status strip rows: ring + countdown text drawn BELOW the ring + small gap. Every row (and the window)
+-- is sized from these numbers, so nothing drawn in the strip can fall outside the ImGui clip rect.
+local TIMER_H    = 11    -- countdown label height under each ring
+local ROW_GAP    = 3
+local ROW_H      = RING + TIMER_H + ROW_GAP
+local MAX_ROWS   = 4     -- wrapped buff rows; further effects are summarised as "+N"
+local BOTTOM_PAD = 6     -- bottom margin (window padding is 0, so it is part of the content size)
+local TIP_WRAP   = 350   -- px, hover tooltip wrap width
+local PILL_H     = 22
 
 -- ---------------------------------------------------------------------------------------------
 -- colour helpers (packed ABGR, as ImGui draw lists expect)
@@ -139,7 +150,19 @@ local function image(dl, tex, x0, y0, x1, y1, tint)
 end
 
 -- Hover tooltip styled with the crystalsocket navy / gold palette.
-local function styledTooltip(imgui, accent, title, lines)
+--   lines: { { text, color }, { head = 'Section', text = '...', color }, { sep = true } }
+--   opts : { weapon = 'Polearm + Buckler', subtitle = 'Tank Soul Crystal' }
+-- Text is wrapped at ~350px and drawn unformatted (a stray % in the copy is safe).
+local function tipText(imgui, str)
+    str = tostring(str or '')
+    if imgui.TextUnformatted then
+        imgui.TextUnformatted(str)
+    else
+        imgui.Text((str:gsub('%%', '%%%%')))
+    end
+end
+
+local function styledTooltip(imgui, accent, title, lines, opts)
     local pushed = 0
     local function pc(idx, v)
         if idx ~= nil then imgui.PushStyleColor(idx, v); pushed = pushed + 1 end
@@ -148,18 +171,54 @@ local function styledTooltip(imgui, accent, title, lines)
     pc(ImGuiCol_Border, vec4(accent, 1.0))
     pc(ImGuiCol_Text, vec4(TEXT, 1.0))
     imgui.BeginTooltip()
+    local wrapped = false
+    if imgui.PushTextWrapPos then wrapped = pcall(imgui.PushTextWrapPos, TIP_WRAP) end
     imgui.TextColored(vec4(accent, 1.0), title)
+    if opts and opts.subtitle then imgui.TextColored(vec4(TEXT_DIM, 1.0), opts.subtitle) end
+    if opts and opts.weapon then
+        imgui.TextColored(vec4({ 232, 200, 110 }, 1.0), 'Weapon: ' .. opts.weapon)
+    end
+    local needSep = (opts and (opts.weapon or opts.subtitle)) and true or false
     for _, ln in ipairs(lines or {}) do
-        if ln.color then
-            imgui.TextColored(vec4(ln.color, 1.0), ln.text)
+        if ln.sep then
+            if imgui.Separator then imgui.Separator() end
+            needSep = false
         else
-            imgui.Text(ln.text)
+            if needSep and imgui.Separator then imgui.Separator() end
+            needSep = false
+            if ln.head then imgui.TextColored(vec4(accent, 1.0), ln.head) end
+            if ln.color then
+                imgui.PushStyleColor(ImGuiCol_Text or 0, vec4(ln.color, 1.0))
+                tipText(imgui, ln.text)
+                imgui.PopStyleColor(1)
+            else
+                tipText(imgui, ln.text)
+            end
         end
     end
+    if wrapped and imgui.PopTextWrapPos then imgui.PopTextWrapPos() end
     imgui.EndTooltip()
     if pushed > 0 then imgui.PopStyleColor(pushed) end
 end
 
+local function measure(imgui, str, fs)
+    fontScale(imgui, fs)
+    local w, h = textSize(imgui, str)
+    fontScale(imgui, 1.0)
+    return w, h
+end
+
+-- Screen size (so the HUD can never sit off-screen). Returns 0, 0 when unavailable.
+local function displaySize(imgui)
+    local ok, w, h = pcall(function()
+        local io = imgui.GetIO()
+        local ds = io and io.DisplaySize
+        if ds == nil then return 0, 0 end
+        return toXY(ds)
+    end)
+    if ok and type(w) == 'number' and type(h) == 'number' then return w, h end
+    return 0, 0
+end
 local function fmtTime(rem)
     rem = math.max(0, math.ceil(rem))
     if rem >= 3600 then return ('%dh'):format(math.floor(rem / 3600)) end
@@ -209,6 +268,14 @@ local function drawOptions(imgui, cfg, callbacks, palette)
             cfg.showShared = not (cfg.showShared ~= false)
             if callbacks.onSave then callbacks.onSave() end
         end
+        if imgui.Selectable('Auto-hide in Menus: ' .. (cfg.autoHideOnMenu ~= false and 'On' or 'Off')) then
+            cfg.autoHideOnMenu = not (cfg.autoHideOnMenu ~= false)
+            if callbacks.onSave then callbacks.onSave() end
+        end
+        if imgui.Selectable('Soul Header Pill: ' .. (cfg.pill ~= false and 'On' or 'Off')) then
+            cfg.pill = not (cfg.pill ~= false)
+            if callbacks.onSave then callbacks.onSave() end
+        end
         if imgui.Selectable('More Settings...') then
             if callbacks.onToggleConfig then callbacks.onToggleConfig() end
         end
@@ -231,7 +298,8 @@ end
 
 -- ---------------------------------------------------------------------------------------------
 -- main entry
---   ctx = { soulKey, kv, def, rt, buffs, now, syncAt, cfg, callbacks, resetPos, demo }
+--   ctx = { soulKey, kv, def, rt, buffs, now, syncAt, cfg, callbacks, resetPos, onResetPosApplied, demo,
+--           level, boost }
 -- ---------------------------------------------------------------------------------------------
 function M.render(imgui, ctx)
     local entry = roster.get(ctx.soulKey)
@@ -246,6 +314,7 @@ function M.render(imgui, ctx)
     anim.lastClock = now
 
     local data = layoutMod.build(entry.key, ctx.kv, ctx.def, ctx.rt, entry.role)
+    local tctx = { kv = ctx.kv or {}, lvl = tonumber(ctx.level) or 0, boost = ctx.boost }
 
     -- status icons to show
     local buffs = {}
@@ -255,28 +324,50 @@ function M.render(imgui, ctx)
         if not expired and not hidden then buffs[#buffs + 1] = b end
     end
 
-    local spineW = BAR_W
-    local totalW = math.max(SPINE_X + spineW, #buffs * RING_PITCH - (RING_PITCH - RING))
-    local totalH = (#buffs > 0) and (STRIP_Y + RING) or MED
+    -- ------------------------------------------------------------------ exact window metrics
+    -- Strip wraps into rows of `perRow` rings (as wide as the gauge spine); each row reserves
+    -- ring + countdown text under the ring + gap. The window is sized from these, never a fixed cap.
+    local perRow = math.max(1, math.floor((SPINE_X + BAR_W + (RING_PITCH - RING)) / RING_PITCH))
+    local hiddenCount = 0
+    if #buffs > perRow * MAX_ROWS then
+        hiddenCount = #buffs - perRow * MAX_ROWS
+        for i = #buffs, perRow * MAX_ROWS + 1, -1 do buffs[i] = nil end
+    end
+    local rows = math.ceil(#buffs / perRow)
+    local cols = math.min(#buffs, perRow)
+
+    local stripW = (cols > 0) and (cols * RING_PITCH - (RING_PITCH - RING)) or 0
+    local totalW = math.max(SPINE_X + BAR_W, stripW)
+    local totalH = (rows > 0) and (STRIP_Y + rows * ROW_H + BOTTOM_PAD) or (MED + BOTTOM_PAD)
     local W, H = totalW * s, totalH * s
+
+    -- ------------------------------------------------------------------ keep the window on-screen
+    local forcePos = ctx.resetPos == true
+    local dw, dh = displaySize(imgui)
+    if dw > 0 and dh > 0 then
+        local nx = math.floor(clamp(cfg.x, 0, math.max(0, dw - W)) + 0.5)
+        local ny = math.floor(clamp(cfg.y, 0, math.max(0, dh - H)) + 0.5)
+        if nx ~= cfg.x or ny ~= cfg.y then
+            cfg.x, cfg.y = nx, ny
+            forcePos = true
+            if ctx.callbacks and ctx.callbacks.onMove then ctx.callbacks.onMove() end
+        end
+    end
 
     local flagList = {
         ImGuiWindowFlags_NoTitleBar or 1, ImGuiWindowFlags_NoScrollbar or 8, ImGuiWindowFlags_NoCollapse or 32,
         ImGuiWindowFlags_NoBackground or 128, ImGuiWindowFlags_AlwaysAutoResize or 64,
         ImGuiWindowFlags_NoSavedSettings or 256, ImGuiWindowFlags_NoFocusOnAppearing or 4096,
-        ImGuiWindowFlags_NoResize or 2, cfg.locked and (ImGuiWindowFlags_NoMove or 4) or 0,
+        ImGuiWindowFlags_NoResize or 2, ImGuiWindowFlags_NoScrollWithMouse or 16,
+        cfg.locked and (ImGuiWindowFlags_NoMove or 4) or 0,
     }
     local flags = 0
     for _, f in ipairs(flagList) do
         flags = (okBit and bit.bor(flags, f)) or (flags + f)
     end
 
-    if ctx.resetPos then
-        imgui.SetNextWindowPos({ cfg.x, cfg.y }, ImGuiCond_Always or 1)
-        if ctx.onResetPosApplied then ctx.onResetPosApplied() end
-    else
-        imgui.SetNextWindowPos({ cfg.x, cfg.y }, ImGuiCond_FirstUseEver or 4)
-    end
+    if ctx.resetPos and ctx.onResetPosApplied then ctx.onResetPosApplied() end
+    imgui.SetNextWindowPos({ cfg.x, cfg.y }, forcePos and (ImGuiCond_Always or 1) or (ImGuiCond_FirstUseEver or 4))
     imgui.PushStyleVar(ImGuiStyleVar_WindowPadding or 1, { 0, 0 })
 
     if imgui.Begin('OverlordsSoulHUD##gauge', nil, flags) then
@@ -288,6 +379,7 @@ function M.render(imgui, ctx)
         end
         wx, wy = math.floor(wx), math.floor(wy)
 
+        -- Exact bounding box of everything drawn below (header, gauges, wrapped strip rows, timers, margin).
         imgui.SetCursorScreenPos({ wx, wy })
         imgui.Dummy({ W, H })
 
@@ -319,14 +411,29 @@ function M.render(imgui, ctx)
         -- 3-letter badge tucked into the bottom rim plate
         text(imgui, dl, mx + ms / 2, my + 45.6 * s, gold, entry.abr, 0.68 * s, 'c', alpha)
 
+        -- Soul identity tooltip (role, signature weapon, how it plays / scales). Used by the medallion,
+        -- the header pill and the name row.
+        local function soulTip(withHint)
+            local info = tips and tips.soul(entry, tctx) or nil
+            local lines = info and info.lines or {}
+            if withHint then
+                lines[#lines + 1] = { sep = true }
+                lines[#lines + 1] = {
+                    text = ctx.demo and 'Demo preview' or (cfg.locked and 'Locked: /soulhud lock to unlock' or 'Click / right-click: quick options'),
+                    color = TEXT_DIM,
+                }
+            end
+            styledTooltip(imgui, pal.gold, entry.name .. '  (' .. entry.abr .. ')', lines, {
+                subtitle = (roster.ROLE_LABEL[entry.role] or 'Soul') .. ' Soul Crystal',
+                weapon = info and info.weapon or nil,
+            })
+        end
+
         imgui.SetCursorScreenPos({ mx, my })
         imgui.Dummy({ ms, ms })
         local medHovered = imgui.IsItemHovered()
         if medHovered then
-            styledTooltip(imgui, pal.gold, entry.name .. '  (' .. entry.abr .. ')', {
-                { text = (roster.ROLE_LABEL[entry.role] or 'Soul') .. ' Soul Crystal', color = pal.body },
-                { text = ctx.demo and 'Demo preview' or (cfg.locked and 'Locked' or 'Click / right-click: quick options') },
-            })
+            soulTip(true)
             local released = false
             pcall(function() released = imgui.IsMouseReleased(0) end)
             local rclick = false
@@ -358,14 +465,35 @@ function M.render(imgui, ctx)
             imgui.SetCursorScreenPos({ sx, rowY })
             imgui.Dummy({ (p.max * PIP_PITCH) * s, PIP * s })
             if imgui.IsItemHovered() then
-                styledTooltip(imgui, pal.gold, p.label, { { text = ('%d / %d'):format(p.cur, p.max) } })
+                local lines = tips and tips.element(entry.key, 'pips', tctx) or nil
+                styledTooltip(imgui, pal.gold, ('%s  %d / %d'):format(p.label, p.cur, p.max),
+                    lines or { { text = ('%d / %d'):format(p.cur, p.max) } })
             end
             local lab = ('%s %d/%d'):format(string.upper(p.label), p.cur, p.max)
             text(imgui, dl, sx + (BAR_W - 6) * s, rowY + 5 * s, p.cur >= p.max and gold or dimCol, lab, 0.78 * s, 'r', alpha)
         else
-            text(imgui, dl, sx + 4 * s, rowY + 3 * s, gold, entry.name, 1.0 * s, 'l', alpha)
-            text(imgui, dl, sx + (BAR_W - 6) * s, rowY + 5 * s, col(pal.body, alpha),
-                string.upper(roster.ROLE_LABEL[entry.role] or ''), 0.78 * s, 'r', alpha)
+            local roleStr = string.upper(roster.ROLE_LABEL[entry.role] or '')
+            local hitW = BAR_W * s
+            local showPill = cfg.pill ~= false and not data.bar and (ctx.demo or tctx.lvl >= 10)
+            if showPill then
+                -- Compact Soul header pill for Souls that have no custom gauge yet.
+                local nameW = measure(imgui, entry.name, 1.0 * s)
+                local roleW = measure(imgui, roleStr, 0.78 * s)
+                local pillW = math.min(BAR_W * s, nameW + roleW + 34 * s)
+                local x0, y0, x1, y1 = sx, rowY, sx + pillW, rowY + PILL_H * s
+                local rad = PILL_H * s / 2
+                dl:AddRectFilled({ x0, y0 }, { x1, y1 }, col(pal.deep, alpha * 0.92), rad)
+                dl:AddRect({ x0, y0 }, { x1, y1 }, col(pal.gold, alpha), rad)
+                text(imgui, dl, x0 + 11 * s, y0 + 3 * s, gold, entry.name, 1.0 * s, 'l', alpha)
+                text(imgui, dl, x1 - 11 * s, y0 + 5 * s, col(pal.body, alpha), roleStr, 0.78 * s, 'r', alpha)
+                hitW = pillW
+            else
+                text(imgui, dl, sx + 4 * s, rowY + 3 * s, gold, entry.name, 1.0 * s, 'l', alpha)
+                text(imgui, dl, sx + (BAR_W - 6) * s, rowY + 5 * s, col(pal.body, alpha), roleStr, 0.78 * s, 'r', alpha)
+            end
+            imgui.SetCursorScreenPos({ sx, rowY })
+            imgui.Dummy({ hitW, PILL_H * s })
+            if imgui.IsItemHovered() then soulTip(false) end
         end
 
         -- =========================================================== Center spine: middle bar
@@ -434,9 +562,10 @@ function M.render(imgui, ctx)
             imgui.SetCursorScreenPos({ bx, by })
             imgui.Dummy({ BAR_W * s, BAR_H * s })
             if imgui.IsItemHovered() then
-                styledTooltip(imgui, b.warn and WARN or pal.gold, b.label, {
-                    { text = barValueText(b, cur, mxv) .. (b.fmt == 'sec' and '' or ('  /  ' .. math.floor(mxv + 0.5))) },
-                })
+                local lines = tips and tips.element(entry.key, 'bar', tctx) or nil
+                styledTooltip(imgui, b.warn and WARN or pal.gold,
+                    ('%s  %s'):format(b.label, barValueText(b, cur, mxv)),
+                    lines or { { text = barValueText(b, cur, mxv) .. (b.fmt == 'sec' and '' or ('  /  ' .. math.floor(mxv + 0.5))) } })
             end
         end
 
@@ -444,8 +573,10 @@ function M.render(imgui, ctx)
         if #buffs > 0 then
             local ringTex = icons and icons.ui('buff_ring_gold') or nil
             for i, b in ipairs(buffs) do
-                local ix = wx + (i - 1) * RING_PITCH * s
-                local iy = wy + STRIP_Y * s
+                local colIdx = (i - 1) % perRow
+                local rowIdx = math.floor((i - 1) / perRow)
+                local ix = wx + colIdx * RING_PITCH * s
+                local iy = wy + (STRIP_Y + rowIdx * ROW_H) * s
                 local entryB = b.entry
                 local isDebuff = entryB and entryB.isDebuff
                 local rem = b.expiresAt and math.max(0, b.expiresAt - now) or nil
@@ -462,27 +593,37 @@ function M.render(imgui, ctx)
                 if badge ~= '' then
                     text(imgui, dl, ix + (RING - 4) * s, iy + 3.5 * s, gold, badge, 0.72 * s, 'r', alpha)
                 end
+                -- countdown sits UNDER the ring, inside this row's reserved TIMER_H band
                 if rem then
-                    text(imgui, dl, ix + RING * s / 2, iy + (RING - 12.5) * s, textCol, fmtTime(rem), 0.7 * s, 'c', alpha)
+                    text(imgui, dl, ix + RING * s / 2, iy + (RING + 0.5) * s, textCol, fmtTime(rem), 0.7 * s, 'c', alpha)
                 end
 
+                -- hit box covers ring + timer band
                 imgui.SetCursorScreenPos({ ix, iy })
-                imgui.Dummy({ RING * s, RING * s })
+                imgui.Dummy({ RING * s, (RING + TIMER_H) * s })
                 if imgui.IsItemHovered() then
-                    local lines = {}
-                    if entryB then
-                        lines[#lines + 1] = { text = entryB.tooltip or '' }
+                    local title, lines
+                    if tips then
+                        title, lines = tips.buff(b, now, fmtTime)
+                    else
+                        title = entryB and entryB.name or ('Effect #' .. tostring(b.iconId))
+                        lines = { { text = entryB and entryB.tooltip or '' } }
+                        if rem then lines[#lines + 1] = { text = 'Remaining: ' .. fmtTime(rem), color = TEXT_DIM } end
                     end
                     if (tonumber(b.power) or 0) > 0 then
                         lines[#lines + 1] = { text = 'Potency: ' .. powerBadge(b.power), color = pal.gold }
                     end
-                    if rem then
-                        lines[#lines + 1] = { text = 'Remaining: ' .. fmtTime(rem), color = TEXT_DIM }
-                    end
-                    styledTooltip(imgui, isDebuff and WARN or pal.gold, entryB and entryB.name or ('Effect #' .. tostring(b.iconId)), lines)
+                    styledTooltip(imgui, isDebuff and WARN or pal.gold, title, lines)
                 end
             end
+            if hiddenCount > 0 then
+                text(imgui, dl, sx + (BAR_W - 6) * s, wy + 51.5 * s, dimCol, ('+%d more'):format(hiddenCount), 0.62 * s, 'r', alpha)
+            end
         end
+
+        -- Trailing marker: guarantees the layout cursor ends at the exact bottom edge (incl. margin).
+        imgui.SetCursorScreenPos({ wx, wy + H - 1 })
+        imgui.Dummy({ W, 1 })
     end
     imgui.End()
     imgui.PopStyleVar(1)

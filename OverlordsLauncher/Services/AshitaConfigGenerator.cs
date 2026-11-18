@@ -232,6 +232,8 @@ public sealed class AshitaConfigGenerator
                     trimmed.Equals("/addon unload overlords_gear", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon load overlords_boost", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload overlords_boost", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load overlords_soulhud", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon unload overlords_soulhud", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.StartsWith("/fps ", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
@@ -299,9 +301,9 @@ public sealed class AshitaConfigGenerator
             EnsureLine(lines, "/addon load overlords_gear", insertAtTop: false);
         }
 
-        if (settings.AutoLoadBoostAddon)
+        if (settings.AutoLoadSoulHudAddon)
         {
-            EnsureLine(lines, "/addon load overlords_boost", insertAtTop: false);
+            EnsureLine(lines, "/addon load overlords_soulhud", insertAtTop: false);
         }
 
         if (settings.FpsCap is 30 or 60 or 0)

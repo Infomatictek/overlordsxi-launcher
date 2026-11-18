@@ -6,6 +6,11 @@
 * native Ashita v4 ability recasts for zero-overhead cooldown/charge tracking.
 *
 * Commands:
+*   /soulhud lock [on|off]        lock / unlock window dragging (hover tooltips stay active)
+*   /soulhud autohide <on|off>    hide while any FFXI menu / map / cutscene is open (default on)
+*   /soulhud pill [on|off]        compact Soul header pill for Souls without a custom gauge
+*   /soulhud menuname             print the native menu currently detected (diagnostics)
+* Also receives the Chi Weaver Boost stream ([OXBST]) formerly handled by the retired overlords_boost addon.
 *   /soulhud [toggle|show|hide|auto|compact|expanded|lock|unlock|config|sync|status|reset]
 *   /soulhud scale <0.75-2.0>
 *   /soulhud opacity <0.25-1.0>
@@ -34,10 +39,13 @@ if not okIcons then icons = nil end
 local loadSouls   = require('souls.init')
 local okStrip, strip  = pcall(require, 'soulhud_buffstrip')
 if not okStrip then strip = nil end
+local okMenu, menu    = pcall(require, 'soulhud_menu')
+if not okMenu then menu = nil end
 
 loadSouls(registry)
 
 local PROTO_TAG = '[OXHUD]|'
+local BOOST_TAG = '[OXBST]|'   -- Chi Weaver Boost stream (ported from the retired overlords_boost addon)
 local cfg = settingsMod.new()
 
 local crystal_status_t = nil
@@ -71,6 +79,10 @@ local state = {
     configOpen      = false,
     resetPosPending = false,
     recastCache     = {},
+    boost           = nil,    -- { active, stacks, max, remSec, at }  from [OXBST]
+    lastBoostReqAt  = -100,
+    boostReqs       = 0,
+    hiddenReason    = nil,
 }
 
 local function logMessage(msg)
@@ -126,6 +138,33 @@ local function isPlayerInGame()
     end)
     if not ok then return false, 0 end
     return inGame == true, jobId or 0
+end
+
+local function getPlayerLevel()
+    local ok, lvl = pcall(function()
+        local player = AshitaCore:GetMemoryManager():GetPlayer()
+        return player and player:GetMainJobLevel() or 0
+    end)
+    return ok and tonumber(lvl) or 0
+end
+
+-- Entity status of the local player (4 == in an NPC event / cutscene).
+local function getPlayerStatus()
+    local ok, st = pcall(function()
+        local mem = AshitaCore:GetMemoryManager()
+        local idx = mem:GetParty():GetMemberTargetIndex(0)
+        if not idx or idx == 0 then return nil end
+        return mem:GetEntity():GetStatus(idx)
+    end)
+    return ok and st or nil
+end
+
+-- Reasons the HUD is suppressed (nil == visible). Demo mode bypasses this.
+local function computeHiddenReason(inGame, now)
+    if not inGame then return 'zoning' end
+    if cfg.autoHideOnMenu == false or menu == nil then return nil end
+    local ok, reason = pcall(menu.hiddenReason, getPlayerStatus(), now)
+    return ok and reason or nil
 end
 
 local function pollCrystalDll()
@@ -235,6 +274,38 @@ local function applyProtoPayload(payload)
     applyHudState(tonumber(parts[1]) or 0, parts[2] or '', tonumber(parts[3]) == 1, parts[4] or '')
 end
 
+local function parseBoostPayload(payload)
+    local parts = splitChar(payload, '|')
+    local maxStacks = math.max(1, math.floor(tonumber(parts[3]) or 100))
+    local stacks = math.max(0, math.min(maxStacks, math.floor(tonumber(parts[2]) or 0)))
+    state.boost = {
+        active = (tonumber(parts[1]) or 0) == 1,
+        stacks = stacks,
+        max    = maxStacks,
+        remSec = math.max(0, math.floor(tonumber(parts[4]) or 0)),
+        at     = os.clock(),
+    }
+end
+
+local function extractBoostPayload(msg)
+    if type(msg) ~= 'string' or msg == '' then return nil end
+    local idx = string.find(msg, BOOST_TAG, 1, true)
+    if not idx then return nil end
+    return (string.sub(msg, idx + #BOOST_TAG):gsub('[%z\r\n]+$', ''))
+end
+
+-- Chi Weaver asks the server for its Boost state once on load/job change (same request overlords_boost made).
+local function requestBoostSync(force)
+    local now = os.clock()
+    if not force and (state.boostReqs >= 3 or (now - state.lastBoostReqAt) < 10.0) then return end
+    state.lastBoostReqAt = now
+    state.boostReqs = state.boostReqs + 1
+    pcall(function()
+        local cm = AshitaCore:GetChatManager()
+        if cm ~= nil then cm:QueueCommand(1, '/say !spec boost') end
+    end)
+end
+
 local function refreshNativeRecasts(soulDef, rt, now)
     if not soulDef or not rt or AshitaCore == nil or not AshitaCore.GetMemoryManager then
         return
@@ -270,6 +341,9 @@ local hudCallbacks = {
 
 ashita.events.register('load', 'ox_soulhud_load', function()
     settingsMod.load(cfg)
+    if menu then pcall(menu.init) end
+    -- overlords_boost was retired into this addon: make sure a stale copy is not still loaded.
+    pcall(function() AshitaCore:GetChatManager():QueueCommand(1, '/addon unload overlords_boost') end)
     local inGame = isPlayerInGame()
     if inGame then
         requestServerSync(true)
@@ -294,6 +368,7 @@ ashita.events.register('packet_in', 'ox_soulhud_packet_in', function(e)
         state.transitioning = false
         state.synced = false
         state.stale = false
+        state.boostReqs = 0
         return
     end
 
@@ -309,23 +384,34 @@ ashita.events.register('packet_in', 'ox_soulhud_packet_in', function(e)
 
     if e.id ~= 0x017 then return end
 
-    local payload = nil
+    local payload, boostPayload = nil, nil
     for _, raw in ipairs({ e.data, e.data_modified }) do
         if type(raw) == 'string' and #raw >= 25 then
             local msg = string.sub(raw, 24):match('^([^%z]*)')
             payload = extractProtoPayload(msg)
             if payload then break end
+            boostPayload = extractBoostPayload(msg)
+            if boostPayload then break end
         end
     end
 
     if payload then
         e.blocked = true
         applyProtoPayload(payload)
+    elseif boostPayload then
+        e.blocked = true
+        parseBoostPayload(boostPayload)
     end
 end)
 
 ashita.events.register('text_in', 'ox_soulhud_text_in', function(e)
     if e == nil then return end
+    local boostPayload = extractBoostPayload(e.message_modified) or extractBoostPayload(e.message)
+    if boostPayload then
+        e.blocked = true
+        parseBoostPayload(boostPayload)
+        return
+    end
     local payload = extractProtoPayload(e.message_modified) or extractProtoPayload(e.message)
     if payload then
         e.blocked = true
@@ -364,9 +450,42 @@ ashita.events.register('command', 'ox_soulhud_command', function(e)
         settingsMod.save(cfg)
         logMessage('Layout: ' .. cfg.layout)
     elseif sub == 'lock' or sub == 'unlock' then
-        cfg.locked = (sub == 'lock')
+        local arg = string.lower(args[3] or '')
+        if sub == 'unlock' or arg == 'off' then
+            cfg.locked = false
+        elseif arg == 'on' then
+            cfg.locked = true
+        else
+            cfg.locked = (sub == 'lock') and not cfg.locked
+        end
         settingsMod.save(cfg)
-        logMessage(cfg.locked and 'HUD locked.' or 'HUD unlocked.')
+        logMessage(cfg.locked and 'HUD locked (dragging disabled, tooltips still work).' or 'HUD unlocked (drag to move).')
+    elseif sub == 'autohide' then
+        local arg = string.lower(args[3] or '')
+        if arg == 'on' or arg == 'off' then
+            cfg.autoHideOnMenu = (arg == 'on')
+            settingsMod.save(cfg)
+        elseif arg ~= '' then
+            logMessage('Usage: /soulhud autohide <on|off>')
+            return
+        end
+        logMessage('Auto-hide in FFXI menus / maps / cutscenes: ' .. (cfg.autoHideOnMenu and 'on' or 'off') .. ' (bypassed by /soulhud demo).')
+    elseif sub == 'pill' then
+        local arg = string.lower(args[3] or '')
+        if arg == 'on' or arg == 'off' then
+            cfg.pill = (arg == 'on')
+        elseif arg == '' then
+            cfg.pill = not cfg.pill
+        else
+            logMessage('Usage: /soulhud pill [on|off]')
+            return
+        end
+        settingsMod.save(cfg)
+        logMessage('Soul header pill: ' .. (cfg.pill and 'on' or 'off'))
+    elseif sub == 'menuname' then
+        local name = menu and menu.currentMenu() or ''
+        logMessage(('Native menu: "%s"  hidden=%s  detector=%s'):format(
+            name, tostring(state.hiddenReason), (menu and menu.available()) and 'ok' or 'unavailable'))
     elseif sub == 'config' then
         state.configOpen = not state.configOpen
     elseif sub == 'scale' then
@@ -411,12 +530,13 @@ ashita.events.register('command', 'ox_soulhud_command', function(e)
         settingsMod.save(cfg)
         logMessage('Settings reset to defaults.')
     elseif sub == 'status' then
-        logMessage(('mode=%s layout=%s soul=%s unlocked=%s synced=%s stale=%s'):format(
+        logMessage(('mode=%s layout=%s soul=%s unlocked=%s synced=%s stale=%s locked=%s autohide=%s pill=%s hidden=%s'):format(
             cfg.mode, cfg.layout, state.activeSoulKey ~= '' and state.activeSoulKey or 'none',
-            tostring(state.activeUnlocked), tostring(state.synced), tostring(state.stale)
+            tostring(state.activeUnlocked), tostring(state.synced), tostring(state.stale),
+            tostring(cfg.locked), tostring(cfg.autoHideOnMenu), tostring(cfg.pill), tostring(state.hiddenReason)
         ))
     else
-        logMessage('Usage: /soulhud [toggle|show|hide|auto|compact|expanded|lock|unlock|config|scale|opacity|demo|sync|status|reset]')
+        logMessage('Usage: /soulhud [toggle|show|hide|auto|compact|expanded|lock|unlock|autohide|pill|menuname|config|scale|opacity|demo|sync|status|reset]')
     end
 end)
 
@@ -492,6 +612,23 @@ ashita.events.register('d3d_present', 'ox_soulhud_present', function()
         shouldShow = targetKey ~= '' and state.activeUnlocked
     end
 
+    -- Auto-hide while any native FFXI menu / map / event-cutscene is up, or while zoning (demo bypasses).
+    state.hiddenReason = (not demoOn) and computeHiddenReason(true, now) or nil
+    if state.hiddenReason then shouldShow = false end
+
+    local boost = nil
+    if targetKey == 'chiweaver' then
+        boost = state.boost
+        if boost == nil or (not demoOn and not state.synced) then requestBoostSync(false) end
+        if boost and not demoOn and kv and kv.chi_stacks == nil and kv.chi == nil then
+            -- 0x1FC not yet carrying Chi: fall back to the Boost stream so the gauge is never empty.
+            local merged = {}
+            for k, v in pairs(kv) do merged[k] = v end
+            merged.chi_stacks = tostring(boost.stacks)
+            kv = merged
+        end
+    end
+
     if shouldShow then
         gauge.render(imgui, {
             soulKey   = targetKey,
@@ -506,6 +643,8 @@ ashita.events.register('d3d_present', 'ox_soulhud_present', function()
             resetPos  = state.resetPosPending,
             onResetPosApplied = function() state.resetPosPending = false end,
             demo      = demoOn,
+            level     = getPlayerLevel(),
+            boost     = boost,
         })
     end
     if state.configOpen then

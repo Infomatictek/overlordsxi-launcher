@@ -545,10 +545,10 @@ public sealed class MainViewModel : INotifyPropertyChanged
         set { if (_settings.AutoLoadGearAddon != value) { _settings.AutoLoadGearAddon = value; OnPropertyChanged(); } }
     }
 
-    public bool AutoLoadBoostAddon
+    public bool AutoLoadSoulHudAddon
     {
-        get => _settings.AutoLoadBoostAddon;
-        set { if (_settings.AutoLoadBoostAddon != value) { _settings.AutoLoadBoostAddon = value; OnPropertyChanged(); } }
+        get => _settings.AutoLoadSoulHudAddon;
+        set { if (_settings.AutoLoadSoulHudAddon != value) { _settings.AutoLoadSoulHudAddon = value; OnPropertyChanged(); } }
     }
 
     public bool AutoCloseOnLaunch

@@ -10,6 +10,8 @@ local defaults = {
     locked         = false,
     hiddenElements = {},        -- [soulKey] = { [resId] = true }
     showShared     = true,      -- show shared party buffs in the status sub-strip
+    autoHideOnMenu = true,      -- hide while any FFXI menu / map / cutscene is open
+    pill           = true,      -- compact Soul header pill for Souls without a custom gauge (Lv10+)
 }
 
 local function cloneDefaults()
@@ -22,6 +24,8 @@ local function cloneDefaults()
         mode           = defaults.mode,
         locked         = defaults.locked,
         showShared     = defaults.showShared,
+        autoHideOnMenu = defaults.autoHideOnMenu,
+        pill           = defaults.pill,
         hiddenElements = {},
     }
 end
@@ -98,6 +102,8 @@ function M.clampSettings(cfg)
     end
     cfg.locked = cfg.locked == true
     cfg.showShared = cfg.showShared ~= false
+    cfg.autoHideOnMenu = cfg.autoHideOnMenu ~= false
+    cfg.pill = cfg.pill ~= false
     if type(cfg.hiddenElements) ~= 'table' then
         cfg.hiddenElements = {}
     end

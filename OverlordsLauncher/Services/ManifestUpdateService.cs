@@ -255,6 +255,31 @@ public sealed class ManifestUpdateService
         return pending;
     }
 
+    // Addons that were folded into another addon (overlords_boost -> overlords_soulhud).
+    private static readonly string[] RetiredAddonFolders = { "overlords_boost" };
+
+    private static void RemoveRetiredAddons(LauncherSettings settings)
+    {
+        foreach (var folder in RetiredAddonFolders)
+        {
+            try
+            {
+                var dir = Path.Combine(settings.AshitaPath, "addons", folder);
+                if (Directory.Exists(dir))
+                {
+                    Directory.Delete(dir, recursive: true);
+                }
+            }
+            catch (IOException)
+            {
+                // In use by a running client; it is removed on the next sync.
+            }
+            catch (UnauthorizedAccessException)
+            {
+            }
+        }
+    }
+
     public async Task<int> SyncOverlordsFilesAsync(
         LauncherManifest manifest,
         LauncherSettings settings,
@@ -263,6 +288,7 @@ public sealed class ManifestUpdateService
         CancellationToken cancellationToken = default)
     {
         Directory.CreateDirectory(settings.AshitaPath);
+        RemoveRetiredAddons(settings);
 
         var pending = GetOutdatedFiles(manifest, settings, forceAll);
         if (pending.Count == 0)
