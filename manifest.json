@@ -133,8 +133,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/buccaneer.png",
       "targetPath": "crystalsocket/assets/buccaneer.png",
-      "sha256": "175a47df55aacfb3712bfe6f4ee7b0f277f9939d650b53ac159ff6c587b3e539",
-      "size": 3546
+      "sha256": "616a4b34987c43465fdb88baf930de575925b937da9a11a824c9c8c1ecba3ccd",
+      "size": 18185
     },
     {
       "category": "addon",
@@ -175,8 +175,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/flintlock.png",
       "targetPath": "crystalsocket/assets/flintlock.png",
-      "sha256": "44aab91c4e617aa721a40795ccb4234fb770a86e6046aac29f0053b60a03f988",
-      "size": 3509
+      "sha256": "3a65c8bb77154869362cca4f5dc7fb45a869e7b1447c20eee9f730ff27ab0c07",
+      "size": 18448
     },
     {
       "category": "addon",
@@ -245,8 +245,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/pugilist.png",
       "targetPath": "crystalsocket/assets/pugilist.png",
-      "sha256": "a16fcea7a083d3a26feba1710450b75e4daf72bd02ffbda26e05016df3d96db8",
-      "size": 2801
+      "sha256": "c1d77e45048b9813542b677c0ba9ea4c1ab5a45210dbb1a246daf71dbf31f003",
+      "size": 18433
     },
     {
       "category": "addon",
@@ -273,8 +273,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/spartan.png",
       "targetPath": "crystalsocket/assets/spartan.png",
-      "sha256": "d3af388807aaf129ef90e0f7399fffab0da06f1817116a7599aa826575c5a3fd",
-      "size": 3628
+      "sha256": "79f160854cf4fdb8a62d104a5ecff2e110e96a76c93fcd4aa1f6cd33c7908ed3",
+      "size": 19083
     },
     {
       "category": "addon",
