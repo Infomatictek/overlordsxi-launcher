@@ -361,6 +361,7 @@ ashita.events.register('load', 'ox_talents_load', function()
         local getLvl = player.GetMainJobLevel or player.GetMainLevel
         state.lastKnownJob = player:GetMainJob()
         state.lastKnownLvl = getLvl and getLvl(player) or 1
+        requestFullSync()
     end
 end)
 
@@ -1456,7 +1457,8 @@ local function drawSidebar()
         end
         imgui.InputText('##ws_search', state.searchBuf, 64)
         local rawQ = (state.searchBuf[1] or ''):gsub('%z.*$', '')
-        if rawQ == '' and not imgui.IsItemActive() then
+        local isActive = imgui.IsItemActive and imgui.IsItemActive() or false
+        if rawQ == '' and not isActive then
             local dl = imgui.GetWindowDrawList()
             local rx, ry = toXY(imgui.GetItemRectMin())
             if dl then
@@ -1672,6 +1674,13 @@ ashita.events.register('d3d_present', 'ox_talents_present', function()
 
     if not state.open[1] then
         return
+    end
+
+    if not state.synced and (now - (state.syncRequestedAt or 0)) >= 4.0 then
+        local player = AshitaCore:GetMemoryManager():GetPlayer()
+        if player ~= nil and player:GetMainJob() > 0 then
+            requestFullSync()
+        end
     end
 
     local pushedCols = pushThemeStyles()

@@ -672,8 +672,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
-      "sha256": "7ed8d9e30d6e34bd867981509a2a3f12bf93762bffe37a688782c36ff66115ca",
-      "size": 64986
+      "sha256": "27c28ac7df8dff0de8f911156b49ffef889c1d1f30a5ef6394a348a321fadcd1",
+      "size": 65329
     }
   ],
   "news": [
