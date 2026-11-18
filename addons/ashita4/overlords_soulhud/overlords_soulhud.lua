@@ -27,6 +27,8 @@ local settingsMod = require('soulhud_settings')
 local registry    = require('soulhud_registry')
 local renderer    = require('soulhud_renderer')
 local loadSouls   = require('souls.init')
+local okStrip, strip  = pcall(require, 'soulhud_buffstrip')
+if not okStrip then strip = nil end
 
 loadSouls(registry)
 
@@ -154,6 +156,12 @@ local function requestServerSync(_force)
     -- Server pushes 0x1FC ("OXHD") binary packets automatically; no chat command needed.
 end
 
+local function applyOxBuffsFromRaw(kvRaw)
+    if strip == nil then return end
+    local v = type(kvRaw) == 'string' and kvRaw:match('ox_buffs=([^;]*)') or ''
+    strip.parse(v, os.clock())
+end
+
 local function decodeBinaryHudPacket(data)
     if type(data) ~= 'string' or #data < 16 then
         return false
@@ -174,6 +182,7 @@ local function decodeBinaryHudPacket(data)
     local kvRaw   = kvLen > 0 and string.sub(data, 17 + keyLen, 16 + keyLen + kvLen) or ''
 
     state.lastJobId = jobId or 0
+    applyOxBuffsFromRaw(kvRaw)
     switchActiveSoul(soulKey, unlockedByte == 1)
 
     local def = registry.getSoul(soulKey)
@@ -215,6 +224,7 @@ local function applyProtoPayload(payload)
     local kvRaw = parts[4] or ''
 
     state.lastJobId = jobId
+    applyOxBuffsFromRaw(kvRaw)
     switchActiveSoul(soulKey, unlocked)
 
     local def = registry.getSoul(soulKey)
@@ -303,6 +313,11 @@ ashita.events.register('packet_in', 'ox_soulhud_packet_in', function(e)
         return
     end
 
+    if e.id == 0x029 then
+        if strip then pcall(strip.notePacket029, e.data) end
+        return
+    end
+
     if e.id ~= 0x017 then return end
 
     local payload = nil
@@ -326,6 +341,14 @@ ashita.events.register('text_in', 'ox_soulhud_text_in', function(e)
     if payload then
         e.blocked = true
         applyProtoPayload(payload)
+        return
+    end
+
+    if strip then
+        local okFix, fixed = pcall(strip.fixChatLine, e.message_modified or e.message)
+        if okFix and fixed then
+            e.message_modified = fixed
+        end
     end
 end)
 
@@ -467,6 +490,9 @@ ashita.events.register('d3d_present', 'ox_soulhud_present', function()
     end
     if state.configOpen then
         renderer.renderConfig(imgui, soulDef, cfg, settingsMod, hudCallbacks)
+    end
+    if strip and cfg.mode ~= 'hide' then
+        strip.render(imgui, soulDef, state.runtime, cfg, now)
     end
     end)
 end)

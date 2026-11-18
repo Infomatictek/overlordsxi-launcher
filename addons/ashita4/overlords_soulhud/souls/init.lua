@@ -4,6 +4,7 @@ local modules = {
     'souls.cor_flintlock',
     'souls.cor_gambler',
     'souls.dnc_mirage_sentinel',
+    'souls.ox_effect_souls',
 }
 
 return function(registry)

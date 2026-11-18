@@ -42,7 +42,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/119/57.DAT",
       "targetPath": "ROM/119/57.DAT",
-      "sha256": "a4eeba8ebfa4b5828cb18e7f50bf58b06cd0ce830e539b6120b21a43a008883d",
+      "sha256": "5c8e4c04123cd53f95da4ef41b8486e30db22068cf20589a192653a65606c466",
       "size": 3932160
     },
     {
@@ -397,6 +397,818 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/antlr4_python3_runtime-4.13.2-py3-none-any.whl",
+      "targetPath": "debuffed/antlr4_python3_runtime-4.13.2-py3-none-any.whl",
+      "sha256": "fe3835eb8d33daece0e799090eda89719dbccee7aa39ef94eed3818cafa5a7e8",
+      "size": 144462
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/224.png",
+      "targetPath": "debuffed/assets/status_icons/224.png",
+      "sha256": "5f2e7266c19f7992e92bb0d5dac9d04ec01c58023027efdac608fdfec28d94d6",
+      "size": 2104
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/225.png",
+      "targetPath": "debuffed/assets/status_icons/225.png",
+      "sha256": "b064c26b59b6c06707ebf11ce5dc67194b3b885ebedd717dd4012f938a9ce920",
+      "size": 2075
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/226.png",
+      "targetPath": "debuffed/assets/status_icons/226.png",
+      "sha256": "3d59fd4cce15fb67fdda0a890603bede66a2e504e883548d173ecf8b1bc89d82",
+      "size": 2049
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/232.png",
+      "targetPath": "debuffed/assets/status_icons/232.png",
+      "sha256": "ea20f60e64c5acc64c5fb3a83d0034fa1bb49a06fc22c4bb5e1e34a9c59f0e52",
+      "size": 2116
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/233.png",
+      "targetPath": "debuffed/assets/status_icons/233.png",
+      "sha256": "46771ac2c3a1d13375df450af9155eeaa2c78c9427c9dd1abfe94527ed9faef9",
+      "size": 2043
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/24.png",
+      "targetPath": "debuffed/assets/status_icons/24.png",
+      "sha256": "7807e8c5620d0af6fad67dea84a4d76b6b28c6b7f0f69440d2a55f5494c6eb3b",
+      "size": 1707
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/244.png",
+      "targetPath": "debuffed/assets/status_icons/244.png",
+      "sha256": "2c9e50abe78fa8dad238a13771d93a7a470d2b7079fbf3ddd55075a2f78714cc",
+      "size": 1896
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/245.png",
+      "targetPath": "debuffed/assets/status_icons/245.png",
+      "sha256": "7703d71412e06d992f91de1454980823c5515ddecb54a46699570757410f5395",
+      "size": 2080
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/246.png",
+      "targetPath": "debuffed/assets/status_icons/246.png",
+      "sha256": "5df7f56b26cc2718a1239d5e0ed3b73342d2ea08e4566420144ff7451ee553c3",
+      "size": 2092
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/247.png",
+      "targetPath": "debuffed/assets/status_icons/247.png",
+      "sha256": "48739b60571001a7b73a8da9578c82e7488f50c8920457376cd1757c42a42c5d",
+      "size": 2094
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/248.png",
+      "targetPath": "debuffed/assets/status_icons/248.png",
+      "sha256": "1c3ee2acade41d84a56111935110370bc718a3606d88380f259086fb23818f8b",
+      "size": 1873
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/25.png",
+      "targetPath": "debuffed/assets/status_icons/25.png",
+      "sha256": "06cf5741b4bd0a5d45e9673f2a935a17656236f6f8fa3983f55a9b178176d3ab",
+      "size": 1977
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/250.png",
+      "targetPath": "debuffed/assets/status_icons/250.png",
+      "sha256": "7fa5d7e59dd967028b2d0d9599f406e68f1e60e8c6db90787fa33190fc7c209e",
+      "size": 2157
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/26.png",
+      "targetPath": "debuffed/assets/status_icons/26.png",
+      "sha256": "9ffdc6018bb0f6e576bce2dd454831d83209890c6c5548396a509136f72cf118",
+      "size": 1894
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/264.png",
+      "targetPath": "debuffed/assets/status_icons/264.png",
+      "sha256": "368d41dbf9b0233fcc587cb22b52c7ad40c3bbfdf757bb64a6c85ea1dea2c6d9",
+      "size": 2223
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/267.png",
+      "targetPath": "debuffed/assets/status_icons/267.png",
+      "sha256": "963a22dabda3e535bec5918fcd5127dcc3b7590e66e92b7f4892b5718639de24",
+      "size": 2109
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/27.png",
+      "targetPath": "debuffed/assets/status_icons/27.png",
+      "sha256": "f7afc1705231a622f00f1f01ed879b5bb3ce683db55232265cb97fa1a2d9e29e",
+      "size": 2036
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/284.png",
+      "targetPath": "debuffed/assets/status_icons/284.png",
+      "sha256": "60b292dc2d11bc61f433099371f832290b9a2d55a69c2f9be523bbe0cfbd71f1",
+      "size": 1893
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/292.png",
+      "targetPath": "debuffed/assets/status_icons/292.png",
+      "sha256": "973e2891a5967917291c52d40dd419a08e21210c02145323e73e3b2c3daf3678",
+      "size": 2350
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/372.png",
+      "targetPath": "debuffed/assets/status_icons/372.png",
+      "sha256": "03f8746a2ac92e8f57ae5ee62a8e541ac5d6dc4b328701712e09bde641b10704",
+      "size": 2284
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/373.png",
+      "targetPath": "debuffed/assets/status_icons/373.png",
+      "sha256": "fa1c25ad52820c579a41832ed9882d982ec41c216120d52e78809be07894671f",
+      "size": 1979
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/374.png",
+      "targetPath": "debuffed/assets/status_icons/374.png",
+      "sha256": "1f3370f6e4a0cc6fdbc468b209a02cc02c1341c1e8eab845963e69e1532352f2",
+      "size": 2227
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/473.png",
+      "targetPath": "debuffed/assets/status_icons/473.png",
+      "sha256": "9c024cf9939bd910dfc5598eab790a93f3983cb9f5bacc168fe672d9e82ce2d0",
+      "size": 2090
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/474.png",
+      "targetPath": "debuffed/assets/status_icons/474.png",
+      "sha256": "1a8496b8c5424d0373726de2c126dd41c0227113ea2c0507efcb8da3872fa090",
+      "size": 1984
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/475.png",
+      "targetPath": "debuffed/assets/status_icons/475.png",
+      "sha256": "b6a86ef1a8fc6fc103089cb22da58f154396a69fb82fa9f45f6f294fc5818e34",
+      "size": 2081
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/476.png",
+      "targetPath": "debuffed/assets/status_icons/476.png",
+      "sha256": "c31cde35ec0f043c136a1f9e75d2d26a9d3a2b21cb2d0fa7f9e0e5a6dbc97388",
+      "size": 2312
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/481.png",
+      "targetPath": "debuffed/assets/status_icons/481.png",
+      "sha256": "7965d1355681aba4e370753e5c81ff7a606f3c708ac0c87427870f952a3991b6",
+      "size": 1686
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/486.png",
+      "targetPath": "debuffed/assets/status_icons/486.png",
+      "sha256": "cd260c4e241c0cf3c9724a419fe292a8b5a73239d6047053105139359b47cdc1",
+      "size": 1864
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/487.png",
+      "targetPath": "debuffed/assets/status_icons/487.png",
+      "sha256": "5519378faa6faa5e2a48f54ffcf504a4ed3eaf6d4bab6b4f5b79f1e65b637f47",
+      "size": 2030
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/488.png",
+      "targetPath": "debuffed/assets/status_icons/488.png",
+      "sha256": "4a164b68060cb8554dd1c6094e2cff58ac7d5139b8c46217cfd0667f26e9724d",
+      "size": 1971
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/489.png",
+      "targetPath": "debuffed/assets/status_icons/489.png",
+      "sha256": "8549cc89d0ab15c5fbf47f9b177269a073f6f0f1548e744274937121ad9fc76c",
+      "size": 2295
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/495.png",
+      "targetPath": "debuffed/assets/status_icons/495.png",
+      "sha256": "ec72472ff7726ef70d808d8d1ec774b7507e299f38088b30c5936ffbdd3ae06b",
+      "size": 1487
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/506.png",
+      "targetPath": "debuffed/assets/status_icons/506.png",
+      "sha256": "00ad0e04e6ab92b5b15b3f339c9a0e34c7ff5c7fca8a1b232f6d253d87c0b41d",
+      "size": 2097
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/509.png",
+      "targetPath": "debuffed/assets/status_icons/509.png",
+      "sha256": "a9d8de4abccc6b9d1e8755018109a9b671e8f0acde4638b9419c8277ddcf5847",
+      "size": 2038
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/510.png",
+      "targetPath": "debuffed/assets/status_icons/510.png",
+      "sha256": "6926994ff138be24637ef2e69d4bbb737cc31af7bf017d3ec59b030f5ac801d6",
+      "size": 2013
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/514.png",
+      "targetPath": "debuffed/assets/status_icons/514.png",
+      "sha256": "5ac85bdc3fcd460bc00e026c1fe8b0a90c82a209c0d48f2c6941b19ed1d4d143",
+      "size": 2276
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/520.png",
+      "targetPath": "debuffed/assets/status_icons/520.png",
+      "sha256": "fd93805aca8bcf2ef487df582f3a1898554c4c59fba9e5edf801f9d7a2ccec39",
+      "size": 2025
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/521.png",
+      "targetPath": "debuffed/assets/status_icons/521.png",
+      "sha256": "e6b42d19e90e27e911b8aaf3f7cccca8cdf08cfa2e3ecdd68f0090990b968300",
+      "size": 2256
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/572.png",
+      "targetPath": "debuffed/assets/status_icons/572.png",
+      "sha256": "654209b6c5c77dfbee2ad1b5d950ef3c6ffb5a32ed7dbd16c38aad4b47ef940a",
+      "size": 2103
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/573.png",
+      "targetPath": "debuffed/assets/status_icons/573.png",
+      "sha256": "c6a60386194fca6f302910822e05eab8fb3b83a46857a48aa7ffd9d847c10ca6",
+      "size": 2064
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/575.png",
+      "targetPath": "debuffed/assets/status_icons/575.png",
+      "sha256": "20435fd9e6b7a00fc40d15ba8f0922b088221e693618f6c06696753bbaa66cb2",
+      "size": 2080
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/576.png",
+      "targetPath": "debuffed/assets/status_icons/576.png",
+      "sha256": "f96c0982bebc7169954abb948b1a7433a3e6e30a7b9b29bbd6fd4ebdae400bf0",
+      "size": 1520
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/578.png",
+      "targetPath": "debuffed/assets/status_icons/578.png",
+      "sha256": "87daf3cad0deb286f5b3d06592aaa5c88a94d8383d5395ff0b9597f403c3a0e1",
+      "size": 2211
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/585.png",
+      "targetPath": "debuffed/assets/status_icons/585.png",
+      "sha256": "0a6d1574b3b2327ac560a17be06bfbc73098d5f0280b53e5fe31133395e063dc",
+      "size": 1642
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/587.png",
+      "targetPath": "debuffed/assets/status_icons/587.png",
+      "sha256": "1b39d1bacd56719025ef95367f059b0fb7096b757c78603583d00af946a0c48c",
+      "size": 2208
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/602.png",
+      "targetPath": "debuffed/assets/status_icons/602.png",
+      "sha256": "37152eaf23490e4a162234cc806141912a3eabd117c3a756d1b256e7aa705501",
+      "size": 2040
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/603.png",
+      "targetPath": "debuffed/assets/status_icons/603.png",
+      "sha256": "5ed3fe6ab0d02cd5c8847fce6911128d15bbae396aa2e128e78637aa29b1039a",
+      "size": 2048
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/605.png",
+      "targetPath": "debuffed/assets/status_icons/605.png",
+      "sha256": "e9a1ef954b1092cf25f9830e03c150ca8f4dead21f586525d2523c4283009c05",
+      "size": 1867
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/606.png",
+      "targetPath": "debuffed/assets/status_icons/606.png",
+      "sha256": "0ef6b22501b7fe9100b50ba185cd48848ff1fb60bae0e1929c02cbc185687b94",
+      "size": 1906
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/607.png",
+      "targetPath": "debuffed/assets/status_icons/607.png",
+      "sha256": "1615cc97896cd4fd9c4fc50adbd184a55b51484297488af71805f11defcfed1b",
+      "size": 1899
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/608.png",
+      "targetPath": "debuffed/assets/status_icons/608.png",
+      "sha256": "bdac3c9a7c56bd1156647279df90b175f0599c45e6d868d0e29be64ca3898cd2",
+      "size": 2191
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/609.png",
+      "targetPath": "debuffed/assets/status_icons/609.png",
+      "sha256": "de31defa74100e7b042c15738802c694cf0f70c87cbe2c97ef574fc76c915b26",
+      "size": 2203
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/610.png",
+      "targetPath": "debuffed/assets/status_icons/610.png",
+      "sha256": "b0f0c5b0ea8094a92b0467a9db7fbe1ce3b8b77af79b1e97df4991d8914febbb",
+      "size": 1958
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/613.png",
+      "targetPath": "debuffed/assets/status_icons/613.png",
+      "sha256": "d0513aeda42b84aeccb34bba08e16bc596a19f10b9e264cd556eb80df095fa60",
+      "size": 2263
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/614.png",
+      "targetPath": "debuffed/assets/status_icons/614.png",
+      "sha256": "2f798a504fd0ce39fe30af6fde97c2041dbc71c99f1496c40ef644966ea03992",
+      "size": 2076
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/616.png",
+      "targetPath": "debuffed/assets/status_icons/616.png",
+      "sha256": "5cc3b06b2b3d56ff10663718633607f34998e5e12c5a8664f2caa94ace6f6136",
+      "size": 2282
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/618.png",
+      "targetPath": "debuffed/assets/status_icons/618.png",
+      "sha256": "02252327e08e1f1c4dc07050e77cbf4b7f974ff345c9fade77053f0098e7f0de",
+      "size": 2305
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/620.png",
+      "targetPath": "debuffed/assets/status_icons/620.png",
+      "sha256": "68a1574de764019e7b509b8afce5983bcc2208dd95235231b027c640428d798f",
+      "size": 2278
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/624.png",
+      "targetPath": "debuffed/assets/status_icons/624.png",
+      "sha256": "00ad0e04e6ab92b5b15b3f339c9a0e34c7ff5c7fca8a1b232f6d253d87c0b41d",
+      "size": 2097
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/626.png",
+      "targetPath": "debuffed/assets/status_icons/626.png",
+      "sha256": "1a095fe79e038b00b8ba97a70ef4a961724902fa0e3c8f8d51947bdfc711045b",
+      "size": 2159
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/627.png",
+      "targetPath": "debuffed/assets/status_icons/627.png",
+      "sha256": "406c4d30f47ba6ee7b4d844cdd183712cf3d5fe2ad4b389e87b1ac90c5cef866",
+      "size": 2233
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/629.png",
+      "targetPath": "debuffed/assets/status_icons/629.png",
+      "sha256": "c3e3dbccb7789e2fa4e013bc6c0c2e567108a0b3dd3d0f7e43a92a32280e064b",
+      "size": 2237
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/630.png",
+      "targetPath": "debuffed/assets/status_icons/630.png",
+      "sha256": "9103f8dc060cb8eb118e82492d7f039462a8ff17a104a54186222e3067bede1b",
+      "size": 2128
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/631.png",
+      "targetPath": "debuffed/assets/status_icons/631.png",
+      "sha256": "61ac7e147029810ffeb200647a1a7906980156a1b32ec7cb3b3ea0b14a9e4d3d",
+      "size": 2072
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/632.png",
+      "targetPath": "debuffed/assets/status_icons/632.png",
+      "sha256": "6372846fa3b244d52e3809f6f5ac8c13d7de818fbbfed10880c2f3e0723130a8",
+      "size": 2303
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/633.png",
+      "targetPath": "debuffed/assets/status_icons/633.png",
+      "sha256": "cb300c28710bff94a42bceffed44844ff917392a06140ec165c27ef15040dd35",
+      "size": 2331
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/634.png",
+      "targetPath": "debuffed/assets/status_icons/634.png",
+      "sha256": "a8bf80b2e6bc82a3603c37ad5a308350cf3fb4fb031699eabae60b6856a451f8",
+      "size": 2103
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/635.png",
+      "targetPath": "debuffed/assets/status_icons/635.png",
+      "sha256": "696278fe9d71d92dafee710142b207f5f12f26c9d26f247108354e43b20fe815",
+      "size": 2167
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/636.png",
+      "targetPath": "debuffed/assets/status_icons/636.png",
+      "sha256": "406c4d30f47ba6ee7b4d844cdd183712cf3d5fe2ad4b389e87b1ac90c5cef866",
+      "size": 2233
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/637.png",
+      "targetPath": "debuffed/assets/status_icons/637.png",
+      "sha256": "2c63de44e5fed9cc730c200b304302b0127b06e3d5238f3995bd454d5330415e",
+      "size": 2274
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/638.png",
+      "targetPath": "debuffed/assets/status_icons/638.png",
+      "sha256": "b0f0c5b0ea8094a92b0467a9db7fbe1ce3b8b77af79b1e97df4991d8914febbb",
+      "size": 1958
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_adventurer.png",
+      "targetPath": "debuffed/assets/status_icons/hud_adventurer.png",
+      "sha256": "2c9e50abe78fa8dad238a13771d93a7a470d2b7079fbf3ddd55075a2f78714cc",
+      "size": 1896
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_aegistemplar.png",
+      "targetPath": "debuffed/assets/status_icons/hud_aegistemplar.png",
+      "sha256": "4a164b68060cb8554dd1c6094e2cff58ac7d5139b8c46217cfd0667f26e9724d",
+      "size": 1971
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_alphawarden.png",
+      "targetPath": "debuffed/assets/status_icons/hud_alphawarden.png",
+      "sha256": "654209b6c5c77dfbee2ad1b5d950ef3c6ffb5a32ed7dbd16c38aad4b47ef940a",
+      "size": 2103
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_azurebastion.png",
+      "targetPath": "debuffed/assets/status_icons/hud_azurebastion.png",
+      "sha256": "de31defa74100e7b042c15738802c694cf0f70c87cbe2c97ef574fc76c915b26",
+      "size": 2203
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_berserker.png",
+      "targetPath": "debuffed/assets/status_icons/hud_berserker.png",
+      "sha256": "5f2e7266c19f7992e92bb0d5dac9d04ec01c58023027efdac608fdfec28d94d6",
+      "size": 2104
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_bloodmaiden.png",
+      "targetPath": "debuffed/assets/status_icons/hud_bloodmaiden.png",
+      "sha256": "61ac7e147029810ffeb200647a1a7906980156a1b32ec7cb3b3ea0b14a9e4d3d",
+      "size": 2072
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_celestial.png",
+      "targetPath": "debuffed/assets/status_icons/hud_celestial.png",
+      "sha256": "6372846fa3b244d52e3809f6f5ac8c13d7de818fbbfed10880c2f3e0723130a8",
+      "size": 2303
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_charge.png",
+      "targetPath": "debuffed/assets/status_icons/hud_charge.png",
+      "sha256": "7c256ea2df9bd71a9f7f41171d2559bf6bb004692672e122283b3f6337ce5d31",
+      "size": 2044
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_chiweaver.png",
+      "targetPath": "debuffed/assets/status_icons/hud_chiweaver.png",
+      "sha256": "406c4d30f47ba6ee7b4d844cdd183712cf3d5fe2ad4b389e87b1ac90c5cef866",
+      "size": 2233
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_clockwork.png",
+      "targetPath": "debuffed/assets/status_icons/hud_clockwork.png",
+      "sha256": "a8bf80b2e6bc82a3603c37ad5a308350cf3fb4fb031699eabae60b6856a451f8",
+      "size": 2103
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_commander.png",
+      "targetPath": "debuffed/assets/status_icons/hud_commander.png",
+      "sha256": "7807e8c5620d0af6fad67dea84a4d76b6b28c6b7f0f69440d2a55f5494c6eb3b",
+      "size": 1707
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_cooldown.png",
+      "targetPath": "debuffed/assets/status_icons/hud_cooldown.png",
+      "sha256": "78c978eab2035206061affa7c90b975f457d626d3f3c5a5538b8b0fdb16d75c1",
+      "size": 2192
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_counter.png",
+      "targetPath": "debuffed/assets/status_icons/hud_counter.png",
+      "sha256": "5ed7134a8cc9fcc92b6e642387ac01facf1720fb3ac11a624358e3f3b5214e4b",
+      "size": 2150
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_crimsonduelist.png",
+      "targetPath": "debuffed/assets/status_icons/hud_crimsonduelist.png",
+      "sha256": "e9a1ef954b1092cf25f9830e03c150ca8f4dead21f586525d2523c4283009c05",
+      "size": 1867
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_dreadnought.png",
+      "targetPath": "debuffed/assets/status_icons/hud_dreadnought.png",
+      "sha256": "1615cc97896cd4fd9c4fc50adbd184a55b51484297488af71805f11defcfed1b",
+      "size": 1899
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_faerie.png",
+      "targetPath": "debuffed/assets/status_icons/hud_faerie.png",
+      "sha256": "46771ac2c3a1d13375df450af9155eeaa2c78c9427c9dd1abfe94527ed9faef9",
+      "size": 2043
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_gambler.png",
+      "targetPath": "debuffed/assets/status_icons/hud_gambler.png",
+      "sha256": "f96c0982bebc7169954abb948b1a7433a3e6e30a7b9b29bbd6fd4ebdae400bf0",
+      "size": 1520
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_gauge.png",
+      "targetPath": "debuffed/assets/status_icons/hud_gauge.png",
+      "sha256": "1f3370f6e4a0cc6fdbc468b209a02cc02c1341c1e8eab845963e69e1532352f2",
+      "size": 2227
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_geomancer.png",
+      "targetPath": "debuffed/assets/status_icons/hud_geomancer.png",
+      "sha256": "696278fe9d71d92dafee710142b207f5f12f26c9d26f247108354e43b20fe815",
+      "size": 2167
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_imperial.png",
+      "targetPath": "debuffed/assets/status_icons/hud_imperial.png",
+      "sha256": "b6a86ef1a8fc6fc103089cb22da58f154396a69fb82fa9f45f6f294fc5818e34",
+      "size": 2081
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_inquisitor.png",
+      "targetPath": "debuffed/assets/status_icons/hud_inquisitor.png",
+      "sha256": "3d59fd4cce15fb67fdda0a890603bede66a2e504e883548d173ecf8b1bc89d82",
+      "size": 2049
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_kagemusha.png",
+      "targetPath": "debuffed/assets/status_icons/hud_kagemusha.png",
+      "sha256": "a9d8de4abccc6b9d1e8755018109a9b671e8f0acde4638b9419c8277ddcf5847",
+      "size": 2038
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_lifebinder.png",
+      "targetPath": "debuffed/assets/status_icons/hud_lifebinder.png",
+      "sha256": "1f3370f6e4a0cc6fdbc468b209a02cc02c1341c1e8eab845963e69e1532352f2",
+      "size": 2227
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_lightbringer.png",
+      "targetPath": "debuffed/assets/status_icons/hud_lightbringer.png",
+      "sha256": "68a1574de764019e7b509b8afce5983bcc2208dd95235231b027c640428d798f",
+      "size": 2278
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_magus.png",
+      "targetPath": "debuffed/assets/status_icons/hud_magus.png",
+      "sha256": "406c4d30f47ba6ee7b4d844cdd183712cf3d5fe2ad4b389e87b1ac90c5cef866",
+      "size": 2233
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_medic.png",
+      "targetPath": "debuffed/assets/status_icons/hud_medic.png",
+      "sha256": "2f798a504fd0ce39fe30af6fde97c2041dbc71c99f1496c40ef644966ea03992",
+      "size": 2076
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_minstrel.png",
+      "targetPath": "debuffed/assets/status_icons/hud_minstrel.png",
+      "sha256": "1c3ee2acade41d84a56111935110370bc718a3606d88380f259086fb23818f8b",
+      "size": 1873
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_musician.png",
+      "targetPath": "debuffed/assets/status_icons/hud_musician.png",
+      "sha256": "5df7f56b26cc2718a1239d5e0ed3b73342d2ea08e4566420144ff7451ee553c3",
+      "size": 2092
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_ronin.png",
+      "targetPath": "debuffed/assets/status_icons/hud_ronin.png",
+      "sha256": "9c024cf9939bd910dfc5598eab790a93f3983cb9f5bacc168fe672d9e82ce2d0",
+      "size": 2090
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_shield.png",
+      "targetPath": "debuffed/assets/status_icons/hud_shield.png",
+      "sha256": "1a8496b8c5424d0373726de2c126dd41c0227113ea2c0507efcb8da3872fa090",
+      "size": 1984
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_spartan.png",
+      "targetPath": "debuffed/assets/status_icons/hud_spartan.png",
+      "sha256": "b064c26b59b6c06707ebf11ce5dc67194b3b885ebedd717dd4012f938a9ce920",
+      "size": 2075
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_spellblade.png",
+      "targetPath": "debuffed/assets/status_icons/hud_spellblade.png",
+      "sha256": "fa1c25ad52820c579a41832ed9882d982ec41c216120d52e78809be07894671f",
+      "size": 1979
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_stack.png",
+      "targetPath": "debuffed/assets/status_icons/hud_stack.png",
+      "sha256": "fb52e084bba14d73c5465f2a50b2ee7ed06a5c447c2be5d33f58d2df56e3df50",
+      "size": 2071
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_status.png",
+      "targetPath": "debuffed/assets/status_icons/hud_status.png",
+      "sha256": "266bcb7c71f2e99590986c9958aa83bd62b608e30593d9f47b0d5ef7439803a9",
+      "size": 2195
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_timer.png",
+      "targetPath": "debuffed/assets/status_icons/hud_timer.png",
+      "sha256": "f6bf970e40046becab5e7cc519bfc762f75760430d105b3029104c03a1bcc07d",
+      "size": 2275
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_toggle.png",
+      "targetPath": "debuffed/assets/status_icons/hud_toggle.png",
+      "sha256": "4a164b68060cb8554dd1c6094e2cff58ac7d5139b8c46217cfd0667f26e9724d",
+      "size": 1971
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_warlord.png",
+      "targetPath": "debuffed/assets/status_icons/hud_warlord.png",
+      "sha256": "cd260c4e241c0cf3c9724a419fe292a8b5a73239d6047053105139359b47cdc1",
+      "size": 1864
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/assets/status_icons/hud_wyvernheart.png",
+      "targetPath": "debuffed/assets/status_icons/hud_wyvernheart.png",
+      "sha256": "368d41dbf9b0233fcc587cb22b52c7ad40c3bbfdf757bb64a6c85ea1dea2c6d9",
+      "size": 2223
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/debuffed.lua",
+      "targetPath": "debuffed/debuffed.lua",
+      "sha256": "e3b6d7e5970f5469a0a31e6ea6859303056bbf91a73a1a87caa06c7bd83912cf",
+      "size": 17279
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/luaparser-4.2.0-py3-none-any.whl",
+      "targetPath": "debuffed/luaparser-4.2.0-py3-none-any.whl",
+      "sha256": "f73b1a66ff51351d28f067348ebbb4533401fc761926654d0448e34531ce3a34",
+      "size": 68950
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/multimethod-2.1-py3-none-any.whl",
+      "targetPath": "debuffed/multimethod-2.1-py3-none-any.whl",
+      "sha256": "54b5256562351762a275dd65571b5d6db750848f1eb6bb21c61cb5ff2748b663",
+      "size": 9529
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/ox_icons.lua",
+      "targetPath": "debuffed/ox_icons.lua",
+      "sha256": "5509194e08145639389eb5d402f3a53c0442f3b0dafe6274330c46ce281c53a6",
+      "size": 3831
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/README.md",
+      "targetPath": "debuffed/README.md",
+      "sha256": "a793da9fc77d63c5a24cbcffed1317b1bbe9bc178c50fa506d2eb5e2516f5636",
+      "size": 784
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/debuffed/status_catalog.lua",
+      "targetPath": "debuffed/status_catalog.lua",
+      "sha256": "f2786c530718cc883d51595de94648d321d975d3635cfafeeb977325a2feb4b4",
+      "size": 13725
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/kazenoeye/mobhud.lua",
       "targetPath": "kazenoeye/mobhud.lua",
       "sha256": "7cb8bd83aa5ad33b241ab74404915a36a286418d64746c006ccdaf822860cb92",
@@ -649,10 +1461,780 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/224.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/224.png",
+      "sha256": "5f2e7266c19f7992e92bb0d5dac9d04ec01c58023027efdac608fdfec28d94d6",
+      "size": 2104
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/225.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/225.png",
+      "sha256": "b064c26b59b6c06707ebf11ce5dc67194b3b885ebedd717dd4012f938a9ce920",
+      "size": 2075
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/226.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/226.png",
+      "sha256": "3d59fd4cce15fb67fdda0a890603bede66a2e504e883548d173ecf8b1bc89d82",
+      "size": 2049
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/232.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/232.png",
+      "sha256": "ea20f60e64c5acc64c5fb3a83d0034fa1bb49a06fc22c4bb5e1e34a9c59f0e52",
+      "size": 2116
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/233.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/233.png",
+      "sha256": "46771ac2c3a1d13375df450af9155eeaa2c78c9427c9dd1abfe94527ed9faef9",
+      "size": 2043
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/24.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/24.png",
+      "sha256": "7807e8c5620d0af6fad67dea84a4d76b6b28c6b7f0f69440d2a55f5494c6eb3b",
+      "size": 1707
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/244.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/244.png",
+      "sha256": "2c9e50abe78fa8dad238a13771d93a7a470d2b7079fbf3ddd55075a2f78714cc",
+      "size": 1896
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/245.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/245.png",
+      "sha256": "7703d71412e06d992f91de1454980823c5515ddecb54a46699570757410f5395",
+      "size": 2080
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/246.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/246.png",
+      "sha256": "5df7f56b26cc2718a1239d5e0ed3b73342d2ea08e4566420144ff7451ee553c3",
+      "size": 2092
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/247.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/247.png",
+      "sha256": "48739b60571001a7b73a8da9578c82e7488f50c8920457376cd1757c42a42c5d",
+      "size": 2094
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/248.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/248.png",
+      "sha256": "1c3ee2acade41d84a56111935110370bc718a3606d88380f259086fb23818f8b",
+      "size": 1873
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/25.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/25.png",
+      "sha256": "06cf5741b4bd0a5d45e9673f2a935a17656236f6f8fa3983f55a9b178176d3ab",
+      "size": 1977
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/250.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/250.png",
+      "sha256": "7fa5d7e59dd967028b2d0d9599f406e68f1e60e8c6db90787fa33190fc7c209e",
+      "size": 2157
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/26.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/26.png",
+      "sha256": "9ffdc6018bb0f6e576bce2dd454831d83209890c6c5548396a509136f72cf118",
+      "size": 1894
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/264.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/264.png",
+      "sha256": "368d41dbf9b0233fcc587cb22b52c7ad40c3bbfdf757bb64a6c85ea1dea2c6d9",
+      "size": 2223
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/267.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/267.png",
+      "sha256": "963a22dabda3e535bec5918fcd5127dcc3b7590e66e92b7f4892b5718639de24",
+      "size": 2109
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/27.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/27.png",
+      "sha256": "f7afc1705231a622f00f1f01ed879b5bb3ce683db55232265cb97fa1a2d9e29e",
+      "size": 2036
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/284.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/284.png",
+      "sha256": "60b292dc2d11bc61f433099371f832290b9a2d55a69c2f9be523bbe0cfbd71f1",
+      "size": 1893
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/292.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/292.png",
+      "sha256": "973e2891a5967917291c52d40dd419a08e21210c02145323e73e3b2c3daf3678",
+      "size": 2350
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/372.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/372.png",
+      "sha256": "03f8746a2ac92e8f57ae5ee62a8e541ac5d6dc4b328701712e09bde641b10704",
+      "size": 2284
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/373.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/373.png",
+      "sha256": "fa1c25ad52820c579a41832ed9882d982ec41c216120d52e78809be07894671f",
+      "size": 1979
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/374.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/374.png",
+      "sha256": "1f3370f6e4a0cc6fdbc468b209a02cc02c1341c1e8eab845963e69e1532352f2",
+      "size": 2227
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/473.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/473.png",
+      "sha256": "9c024cf9939bd910dfc5598eab790a93f3983cb9f5bacc168fe672d9e82ce2d0",
+      "size": 2090
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/474.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/474.png",
+      "sha256": "1a8496b8c5424d0373726de2c126dd41c0227113ea2c0507efcb8da3872fa090",
+      "size": 1984
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/475.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/475.png",
+      "sha256": "b6a86ef1a8fc6fc103089cb22da58f154396a69fb82fa9f45f6f294fc5818e34",
+      "size": 2081
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/476.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/476.png",
+      "sha256": "c31cde35ec0f043c136a1f9e75d2d26a9d3a2b21cb2d0fa7f9e0e5a6dbc97388",
+      "size": 2312
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/481.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/481.png",
+      "sha256": "7965d1355681aba4e370753e5c81ff7a606f3c708ac0c87427870f952a3991b6",
+      "size": 1686
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/486.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/486.png",
+      "sha256": "cd260c4e241c0cf3c9724a419fe292a8b5a73239d6047053105139359b47cdc1",
+      "size": 1864
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/487.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/487.png",
+      "sha256": "5519378faa6faa5e2a48f54ffcf504a4ed3eaf6d4bab6b4f5b79f1e65b637f47",
+      "size": 2030
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/488.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/488.png",
+      "sha256": "4a164b68060cb8554dd1c6094e2cff58ac7d5139b8c46217cfd0667f26e9724d",
+      "size": 1971
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/489.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/489.png",
+      "sha256": "8549cc89d0ab15c5fbf47f9b177269a073f6f0f1548e744274937121ad9fc76c",
+      "size": 2295
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/495.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/495.png",
+      "sha256": "ec72472ff7726ef70d808d8d1ec774b7507e299f38088b30c5936ffbdd3ae06b",
+      "size": 1487
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/506.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/506.png",
+      "sha256": "00ad0e04e6ab92b5b15b3f339c9a0e34c7ff5c7fca8a1b232f6d253d87c0b41d",
+      "size": 2097
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/509.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/509.png",
+      "sha256": "a9d8de4abccc6b9d1e8755018109a9b671e8f0acde4638b9419c8277ddcf5847",
+      "size": 2038
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/510.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/510.png",
+      "sha256": "6926994ff138be24637ef2e69d4bbb737cc31af7bf017d3ec59b030f5ac801d6",
+      "size": 2013
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/514.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/514.png",
+      "sha256": "5ac85bdc3fcd460bc00e026c1fe8b0a90c82a209c0d48f2c6941b19ed1d4d143",
+      "size": 2276
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/520.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/520.png",
+      "sha256": "fd93805aca8bcf2ef487df582f3a1898554c4c59fba9e5edf801f9d7a2ccec39",
+      "size": 2025
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/521.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/521.png",
+      "sha256": "e6b42d19e90e27e911b8aaf3f7cccca8cdf08cfa2e3ecdd68f0090990b968300",
+      "size": 2256
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/572.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/572.png",
+      "sha256": "654209b6c5c77dfbee2ad1b5d950ef3c6ffb5a32ed7dbd16c38aad4b47ef940a",
+      "size": 2103
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/573.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/573.png",
+      "sha256": "c6a60386194fca6f302910822e05eab8fb3b83a46857a48aa7ffd9d847c10ca6",
+      "size": 2064
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/575.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/575.png",
+      "sha256": "20435fd9e6b7a00fc40d15ba8f0922b088221e693618f6c06696753bbaa66cb2",
+      "size": 2080
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/576.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/576.png",
+      "sha256": "f96c0982bebc7169954abb948b1a7433a3e6e30a7b9b29bbd6fd4ebdae400bf0",
+      "size": 1520
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/578.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/578.png",
+      "sha256": "87daf3cad0deb286f5b3d06592aaa5c88a94d8383d5395ff0b9597f403c3a0e1",
+      "size": 2211
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/585.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/585.png",
+      "sha256": "0a6d1574b3b2327ac560a17be06bfbc73098d5f0280b53e5fe31133395e063dc",
+      "size": 1642
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/587.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/587.png",
+      "sha256": "1b39d1bacd56719025ef95367f059b0fb7096b757c78603583d00af946a0c48c",
+      "size": 2208
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/602.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/602.png",
+      "sha256": "37152eaf23490e4a162234cc806141912a3eabd117c3a756d1b256e7aa705501",
+      "size": 2040
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/603.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/603.png",
+      "sha256": "5ed3fe6ab0d02cd5c8847fce6911128d15bbae396aa2e128e78637aa29b1039a",
+      "size": 2048
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/605.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/605.png",
+      "sha256": "e9a1ef954b1092cf25f9830e03c150ca8f4dead21f586525d2523c4283009c05",
+      "size": 1867
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/606.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/606.png",
+      "sha256": "0ef6b22501b7fe9100b50ba185cd48848ff1fb60bae0e1929c02cbc185687b94",
+      "size": 1906
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/607.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/607.png",
+      "sha256": "1615cc97896cd4fd9c4fc50adbd184a55b51484297488af71805f11defcfed1b",
+      "size": 1899
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/608.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/608.png",
+      "sha256": "bdac3c9a7c56bd1156647279df90b175f0599c45e6d868d0e29be64ca3898cd2",
+      "size": 2191
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/609.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/609.png",
+      "sha256": "de31defa74100e7b042c15738802c694cf0f70c87cbe2c97ef574fc76c915b26",
+      "size": 2203
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/610.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/610.png",
+      "sha256": "b0f0c5b0ea8094a92b0467a9db7fbe1ce3b8b77af79b1e97df4991d8914febbb",
+      "size": 1958
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/613.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/613.png",
+      "sha256": "d0513aeda42b84aeccb34bba08e16bc596a19f10b9e264cd556eb80df095fa60",
+      "size": 2263
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/614.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/614.png",
+      "sha256": "2f798a504fd0ce39fe30af6fde97c2041dbc71c99f1496c40ef644966ea03992",
+      "size": 2076
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/616.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/616.png",
+      "sha256": "5cc3b06b2b3d56ff10663718633607f34998e5e12c5a8664f2caa94ace6f6136",
+      "size": 2282
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/618.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/618.png",
+      "sha256": "02252327e08e1f1c4dc07050e77cbf4b7f974ff345c9fade77053f0098e7f0de",
+      "size": 2305
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/620.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/620.png",
+      "sha256": "68a1574de764019e7b509b8afce5983bcc2208dd95235231b027c640428d798f",
+      "size": 2278
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/624.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/624.png",
+      "sha256": "00ad0e04e6ab92b5b15b3f339c9a0e34c7ff5c7fca8a1b232f6d253d87c0b41d",
+      "size": 2097
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/626.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/626.png",
+      "sha256": "1a095fe79e038b00b8ba97a70ef4a961724902fa0e3c8f8d51947bdfc711045b",
+      "size": 2159
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/627.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/627.png",
+      "sha256": "406c4d30f47ba6ee7b4d844cdd183712cf3d5fe2ad4b389e87b1ac90c5cef866",
+      "size": 2233
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/629.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/629.png",
+      "sha256": "c3e3dbccb7789e2fa4e013bc6c0c2e567108a0b3dd3d0f7e43a92a32280e064b",
+      "size": 2237
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/630.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/630.png",
+      "sha256": "9103f8dc060cb8eb118e82492d7f039462a8ff17a104a54186222e3067bede1b",
+      "size": 2128
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/631.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/631.png",
+      "sha256": "61ac7e147029810ffeb200647a1a7906980156a1b32ec7cb3b3ea0b14a9e4d3d",
+      "size": 2072
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/632.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/632.png",
+      "sha256": "6372846fa3b244d52e3809f6f5ac8c13d7de818fbbfed10880c2f3e0723130a8",
+      "size": 2303
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/633.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/633.png",
+      "sha256": "cb300c28710bff94a42bceffed44844ff917392a06140ec165c27ef15040dd35",
+      "size": 2331
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/634.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/634.png",
+      "sha256": "a8bf80b2e6bc82a3603c37ad5a308350cf3fb4fb031699eabae60b6856a451f8",
+      "size": 2103
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/635.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/635.png",
+      "sha256": "696278fe9d71d92dafee710142b207f5f12f26c9d26f247108354e43b20fe815",
+      "size": 2167
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/636.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/636.png",
+      "sha256": "406c4d30f47ba6ee7b4d844cdd183712cf3d5fe2ad4b389e87b1ac90c5cef866",
+      "size": 2233
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/637.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/637.png",
+      "sha256": "2c63de44e5fed9cc730c200b304302b0127b06e3d5238f3995bd454d5330415e",
+      "size": 2274
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/638.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/638.png",
+      "sha256": "b0f0c5b0ea8094a92b0467a9db7fbe1ce3b8b77af79b1e97df4991d8914febbb",
+      "size": 1958
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_adventurer.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_adventurer.png",
+      "sha256": "2c9e50abe78fa8dad238a13771d93a7a470d2b7079fbf3ddd55075a2f78714cc",
+      "size": 1896
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_aegistemplar.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_aegistemplar.png",
+      "sha256": "4a164b68060cb8554dd1c6094e2cff58ac7d5139b8c46217cfd0667f26e9724d",
+      "size": 1971
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_alphawarden.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_alphawarden.png",
+      "sha256": "654209b6c5c77dfbee2ad1b5d950ef3c6ffb5a32ed7dbd16c38aad4b47ef940a",
+      "size": 2103
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_azurebastion.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_azurebastion.png",
+      "sha256": "de31defa74100e7b042c15738802c694cf0f70c87cbe2c97ef574fc76c915b26",
+      "size": 2203
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_berserker.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_berserker.png",
+      "sha256": "5f2e7266c19f7992e92bb0d5dac9d04ec01c58023027efdac608fdfec28d94d6",
+      "size": 2104
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_bloodmaiden.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_bloodmaiden.png",
+      "sha256": "61ac7e147029810ffeb200647a1a7906980156a1b32ec7cb3b3ea0b14a9e4d3d",
+      "size": 2072
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_celestial.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_celestial.png",
+      "sha256": "6372846fa3b244d52e3809f6f5ac8c13d7de818fbbfed10880c2f3e0723130a8",
+      "size": 2303
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_charge.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_charge.png",
+      "sha256": "7c256ea2df9bd71a9f7f41171d2559bf6bb004692672e122283b3f6337ce5d31",
+      "size": 2044
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_chiweaver.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_chiweaver.png",
+      "sha256": "406c4d30f47ba6ee7b4d844cdd183712cf3d5fe2ad4b389e87b1ac90c5cef866",
+      "size": 2233
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_clockwork.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_clockwork.png",
+      "sha256": "a8bf80b2e6bc82a3603c37ad5a308350cf3fb4fb031699eabae60b6856a451f8",
+      "size": 2103
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_commander.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_commander.png",
+      "sha256": "7807e8c5620d0af6fad67dea84a4d76b6b28c6b7f0f69440d2a55f5494c6eb3b",
+      "size": 1707
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_cooldown.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_cooldown.png",
+      "sha256": "78c978eab2035206061affa7c90b975f457d626d3f3c5a5538b8b0fdb16d75c1",
+      "size": 2192
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_counter.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_counter.png",
+      "sha256": "5ed7134a8cc9fcc92b6e642387ac01facf1720fb3ac11a624358e3f3b5214e4b",
+      "size": 2150
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_crimsonduelist.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_crimsonduelist.png",
+      "sha256": "e9a1ef954b1092cf25f9830e03c150ca8f4dead21f586525d2523c4283009c05",
+      "size": 1867
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_dreadnought.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_dreadnought.png",
+      "sha256": "1615cc97896cd4fd9c4fc50adbd184a55b51484297488af71805f11defcfed1b",
+      "size": 1899
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_faerie.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_faerie.png",
+      "sha256": "46771ac2c3a1d13375df450af9155eeaa2c78c9427c9dd1abfe94527ed9faef9",
+      "size": 2043
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_gambler.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_gambler.png",
+      "sha256": "f96c0982bebc7169954abb948b1a7433a3e6e30a7b9b29bbd6fd4ebdae400bf0",
+      "size": 1520
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_gauge.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_gauge.png",
+      "sha256": "1f3370f6e4a0cc6fdbc468b209a02cc02c1341c1e8eab845963e69e1532352f2",
+      "size": 2227
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_geomancer.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_geomancer.png",
+      "sha256": "696278fe9d71d92dafee710142b207f5f12f26c9d26f247108354e43b20fe815",
+      "size": 2167
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_imperial.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_imperial.png",
+      "sha256": "b6a86ef1a8fc6fc103089cb22da58f154396a69fb82fa9f45f6f294fc5818e34",
+      "size": 2081
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_inquisitor.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_inquisitor.png",
+      "sha256": "3d59fd4cce15fb67fdda0a890603bede66a2e504e883548d173ecf8b1bc89d82",
+      "size": 2049
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_kagemusha.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_kagemusha.png",
+      "sha256": "a9d8de4abccc6b9d1e8755018109a9b671e8f0acde4638b9419c8277ddcf5847",
+      "size": 2038
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_lifebinder.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_lifebinder.png",
+      "sha256": "1f3370f6e4a0cc6fdbc468b209a02cc02c1341c1e8eab845963e69e1532352f2",
+      "size": 2227
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_lightbringer.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_lightbringer.png",
+      "sha256": "68a1574de764019e7b509b8afce5983bcc2208dd95235231b027c640428d798f",
+      "size": 2278
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_magus.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_magus.png",
+      "sha256": "406c4d30f47ba6ee7b4d844cdd183712cf3d5fe2ad4b389e87b1ac90c5cef866",
+      "size": 2233
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_medic.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_medic.png",
+      "sha256": "2f798a504fd0ce39fe30af6fde97c2041dbc71c99f1496c40ef644966ea03992",
+      "size": 2076
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_minstrel.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_minstrel.png",
+      "sha256": "1c3ee2acade41d84a56111935110370bc718a3606d88380f259086fb23818f8b",
+      "size": 1873
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_musician.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_musician.png",
+      "sha256": "5df7f56b26cc2718a1239d5e0ed3b73342d2ea08e4566420144ff7451ee553c3",
+      "size": 2092
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_ronin.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_ronin.png",
+      "sha256": "9c024cf9939bd910dfc5598eab790a93f3983cb9f5bacc168fe672d9e82ce2d0",
+      "size": 2090
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_shield.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_shield.png",
+      "sha256": "1a8496b8c5424d0373726de2c126dd41c0227113ea2c0507efcb8da3872fa090",
+      "size": 1984
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_spartan.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_spartan.png",
+      "sha256": "b064c26b59b6c06707ebf11ce5dc67194b3b885ebedd717dd4012f938a9ce920",
+      "size": 2075
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_spellblade.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_spellblade.png",
+      "sha256": "fa1c25ad52820c579a41832ed9882d982ec41c216120d52e78809be07894671f",
+      "size": 1979
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_stack.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_stack.png",
+      "sha256": "fb52e084bba14d73c5465f2a50b2ee7ed06a5c447c2be5d33f58d2df56e3df50",
+      "size": 2071
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_status.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_status.png",
+      "sha256": "266bcb7c71f2e99590986c9958aa83bd62b608e30593d9f47b0d5ef7439803a9",
+      "size": 2195
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_timer.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_timer.png",
+      "sha256": "f6bf970e40046becab5e7cc519bfc762f75760430d105b3029104c03a1bcc07d",
+      "size": 2275
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_toggle.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_toggle.png",
+      "sha256": "4a164b68060cb8554dd1c6094e2cff58ac7d5139b8c46217cfd0667f26e9724d",
+      "size": 1971
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_warlord.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_warlord.png",
+      "sha256": "cd260c4e241c0cf3c9724a419fe292a8b5a73239d6047053105139359b47cdc1",
+      "size": 1864
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/status_icons/hud_wyvernheart.png",
+      "targetPath": "overlords_soulhud/assets/status_icons/hud_wyvernheart.png",
+      "sha256": "368d41dbf9b0233fcc587cb22b52c7ad40c3bbfdf757bb64a6c85ea1dea2c6d9",
+      "size": 2223
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/overlords_soulhud.lua",
       "targetPath": "overlords_soulhud/overlords_soulhud.lua",
-      "sha256": "dbdc56c5b1e015cdbb5b482da54412311612bde99fd48689bd67d7006c116305",
-      "size": 15265
+      "sha256": "6061ef1f6bfd6eb7ebf9138991a446d72f7de56768cd70528e9d38b9642c987a",
+      "size": 16051
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/ox_icons.lua",
+      "targetPath": "overlords_soulhud/ox_icons.lua",
+      "sha256": "5509194e08145639389eb5d402f3a53c0442f3b0dafe6274330c46ce281c53a6",
+      "size": 3831
     },
     {
       "category": "addon",
@@ -660,6 +2242,13 @@
       "targetPath": "overlords_soulhud/README.md",
       "sha256": "a4cfc0387b9ba0c82ad19efcf824a5c3ee80276be2cdf2df5ae17ccc947c52e9",
       "size": 3441
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_buffstrip.lua",
+      "targetPath": "overlords_soulhud/soulhud_buffstrip.lua",
+      "sha256": "449b1bfedbebbc18e0eb3d5bfaae344a473d421451958062af10cf9fc00b733c",
+      "size": 7335
     },
     {
       "category": "addon",
@@ -707,8 +2296,22 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/souls/init.lua",
       "targetPath": "overlords_soulhud/souls/init.lua",
-      "sha256": "895304accf9d5a6128be9b734eb1915fe30a7c22ac07be1a3d9833414cf6549d",
-      "size": 418
+      "sha256": "ff8fd7b50db9fcc859f3aa8311cd8b972e3a146e7a15c51a89fbbf15b989e5db",
+      "size": 447
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/souls/ox_effect_souls.lua",
+      "targetPath": "overlords_soulhud/souls/ox_effect_souls.lua",
+      "sha256": "3c401b11de3303c3c071c4484aa3bc1ed2a7e196c62517d31f28456151bfa38d",
+      "size": 2984
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/status_catalog.lua",
+      "targetPath": "overlords_soulhud/status_catalog.lua",
+      "sha256": "f2786c530718cc883d51595de94648d321d975d3635cfafeeb977325a2feb4b4",
+      "size": 13725
     },
     {
       "category": "addon",
