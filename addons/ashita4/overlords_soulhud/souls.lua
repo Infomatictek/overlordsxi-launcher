@@ -34,6 +34,23 @@ for key, title in pairs(catalog) do
     definitions[key] = { title = title, elements = {} }
 end
 
+
+definitions.chiweaver.elements = {
+    element('chi_stacks', 'Chi Stacks', 'stack', 'chi_stacks'),
+}
+definitions.ronin.elements = {
+    element('stagger_pool', 'Stored Stagger Damage', 'counter', 'stagger_pool', nil, 'damage'),
+    element('stagger_ticks', 'Stagger Ticks Remaining', 'counter', 'stagger_ticks'),
+    element('minds_eye', "Mind's Eye Charges", 'charges', 'minds_eye', 3),
+}
+definitions.kagemusha.elements = {
+    element('ash', 'Kawarimi Ash', 'stack', 'ash', 4),
+    element('ash_rem', 'Ash Duration', 'timer', 'ash_rem', nil, 's'),
+}
+definitions.spellblade.elements = {
+    element('prep_stacks', 'Conduction Preparation', 'stack', 'prep_stacks'),
+}
+
 -- Active DNC custom provider. It is currently an additional registered DNC key,
 -- not one of the three DNC entries in the canonical 66-key JOB_SPECS table.
 definitions.miragesentinel = {
