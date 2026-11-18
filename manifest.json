@@ -609,8 +609,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/overlords_soulhud.lua",
       "targetPath": "overlords_soulhud/overlords_soulhud.lua",
-      "sha256": "4b7bb36f532d806b46e2289090d6b48378468f860d0afdb1068b1a3b0d54d65c",
-      "size": 14066
+      "sha256": "403ddb3464098f827cfb8b2366a058df9d36ea95f34b25b0e69cce1fdd2e2bc7",
+      "size": 14070
     },
     {
       "category": "addon",
@@ -672,8 +672,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
-      "sha256": "1f97c8e52b9470b5be1c2cba1b9309bb42539e0a05019bbf9f192c90293113c0",
-      "size": 45775
+      "sha256": "7ed8d9e30d6e34bd867981509a2a3f12bf93762bffe37a688782c36ff66115ca",
+      "size": 64986
     }
   ],
   "news": [
