@@ -15,8 +15,8 @@ The server must also load `modules/custom/lua/overlords_soul_hud.lua`.
 ## Protocol
 The client reads the server's silent SYSTEM_3 payload:
 `[OXHUD]|<job>|<soul-key>|<unlocked>|key=value;key=value`.
-It does not predict or modify gameplay state. Snapshots expire after 15 seconds.
+It does not predict or modify gameplay state. The client clears cached state on zoning or logout; timers count down locally from the latest server-authoritative snapshot.
 
 ## Extending
-Add a matching provider key in the server module and a definition in `souls.lua`.
+Add a matching provider key in the server module and a definition in `souls.lua`. The framework is reusable across all Soul keys; the initial resource definitions currently cover Flintlock, Gambler, and Mirage Sentinel.
 Supported resource types: stack, gauge, charges, cooldown, timer, toggle, combo, counter, status.
