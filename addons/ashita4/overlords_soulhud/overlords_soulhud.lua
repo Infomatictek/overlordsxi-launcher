@@ -23,9 +23,9 @@ local okChat, chat   = pcall(require, 'chat')
 local okFfi, ffi     = pcall(require, 'ffi')
 local okImgui, imgui = pcall(require, 'imgui')
 
-local settingsMod = require('settings')
-local registry    = require('registry')
-local renderer    = require('renderer')
+local settingsMod = require('soulhud_settings')
+local registry    = require('soulhud_registry')
+local renderer    = require('soulhud_renderer')
 local loadSouls   = require('souls.init')
 
 loadSouls(registry)
@@ -364,8 +364,18 @@ ashita.events.register('command', 'ox_soulhud_command', function(e)
     end
 end)
 
+local loggedErrors = {}
+local function guard(tag, fn)
+    local ok, err = pcall(fn)
+    if not ok and not loggedErrors[tag] then
+        loggedErrors[tag] = true
+        logMessage(('Error in %s: %s'):format(tostring(tag), tostring(err)))
+    end
+end
+
 ashita.events.register('d3d_present', 'ox_soulhud_present', function()
-    if not (okImgui and imgui) then return end
+    guard('d3d_present', function()
+        if not (okImgui and imgui) then return end
 
     local inGame, jobId = isPlayerInGame()
     if not inGame then return end
@@ -417,4 +427,5 @@ ashita.events.register('d3d_present', 'ox_soulhud_present', function()
     if state.configOpen then
         renderer.renderConfig(imgui, soulDef, cfg, settingsMod, hudCallbacks)
     end
+    end)
 end)

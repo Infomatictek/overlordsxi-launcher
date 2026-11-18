@@ -44,6 +44,13 @@ local function applyAlpha(abgr, alphaMul)
     return na * 16777216 + rgb
 end
 
+local function toXY(a, b)
+    if type(a) == 'table' then
+        return a[1] or a.x or 0, a[2] or a.y or 0
+    end
+    return a or 0, b or 0
+end
+
 local function clamp(v, lo, hi)
     if v < lo then return lo end
     if v > hi then return hi end
@@ -125,7 +132,7 @@ local function drawSegmented(dl, x, y, w, h, cur, maxVal, fillCol, trackCol, edg
         local sx = x + (i - 1) * (segW + gap)
         local filled = i <= cur
         dl:AddRectFilled({ sx, y }, { sx + segW, y + h }, filled and fillCol or trackCol, 2)
-        dl:AddRect({ sx, y }, { sx + segW, y + h }, edgeCol, 2, nil, 1)
+        dl:AddRect({ sx, y }, { sx + segW, y + h }, edgeCol, 2)
     end
 end
 
@@ -135,7 +142,7 @@ local function drawBar(dl, x, y, w, h, ratio, fillCol, trackCol, edgeCol)
     if r > 0 then
         dl:AddRectFilled({ x, y }, { x + math.max(2, w * r), y + h }, fillCol, 2)
     end
-    dl:AddRect({ x, y }, { x + w, y + h }, edgeCol, 2, nil, 1)
+    dl:AddRect({ x, y }, { x + w, y + h }, edgeCol, 2)
 end
 
 local function drawRadial(dl, cx, cy, radius, ratio, fillCol, trackCol)
@@ -193,8 +200,8 @@ function M.renderHud(imgui, soulDef, rt, ctx, cfg, settingsMod, callbacks)
     end
     imgui.SetNextWindowSize({ winW, winH }, ImGuiCond_Always or 1)
 
-    if imgui.Begin('OverlordsSoulHUD##main', true, flags) then
-        local wx, wy = imgui.GetWindowPos()
+    if imgui.Begin('OverlordsSoulHUD##main', nil, flags) then
+        local wx, wy = toXY(imgui.GetWindowPos())
         if not cfg.locked and (math.floor(wx + 0.5) ~= cfg.x or math.floor(wy + 0.5) ~= cfg.y) then
             cfg.x = math.floor(wx + 0.5)
             cfg.y = math.floor(wy + 0.5)
@@ -214,7 +221,7 @@ function M.renderHud(imgui, soulDef, rt, ctx, cfg, settingsMod, callbacks)
         -- Outer frame & header
         dl:AddRectFilled({ wx, wy }, { wx + winW, wy + winH }, bgCol, 5)
         dl:AddRectFilled({ wx, wy }, { wx + winW, wy + headerH }, hdrCol, 5)
-        dl:AddRect({ wx, wy }, { wx + winW, wy + winH }, edgeCol, 5, nil, 1)
+        dl:AddRect({ wx, wy }, { wx + winW, wy + winH }, edgeCol, 5)
         dl:AddLine({ wx + 1, wy + headerH }, { wx + winW - 1, wy + headerH }, silverCol, 1)
 
         local title = string.format('%s • %s', soulDef.jobAbr ~= '' and soulDef.jobAbr or 'SOUL', soulDef.name)
