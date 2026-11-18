@@ -249,7 +249,7 @@ ashita.events.register('unload', 'ox_soulhud_unload', function()
 end)
 
 ashita.events.register('packet_in', 'ox_soulhud_packet_in', function(e)
-    if type(e) ~= 'table' then return end
+    if e == nil then return end
 
     if e.id == 0x00B then
         state.transitioning = true
@@ -280,7 +280,7 @@ ashita.events.register('packet_in', 'ox_soulhud_packet_in', function(e)
 end)
 
 ashita.events.register('text_in', 'ox_soulhud_text_in', function(e)
-    if type(e) ~= 'table' then return end
+    if e == nil then return end
     local payload = extractProtoPayload(e.message_modified) or extractProtoPayload(e.message)
     if payload then
         e.blocked = true
@@ -289,7 +289,7 @@ ashita.events.register('text_in', 'ox_soulhud_text_in', function(e)
 end)
 
 ashita.events.register('command', 'ox_soulhud_command', function(e)
-    if type(e) ~= 'table' or type(e.command) ~= 'string' then return end
+    if e == nil or type(e.command) ~= 'string' then return end
     local args = parseCommandArgs(e.command)
     if #args == 0 then return end
 
