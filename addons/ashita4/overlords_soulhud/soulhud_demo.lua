@@ -27,27 +27,373 @@ local function wave(t, speed)
 end
 
 local KV = {
-    spartan        = function(t) return { grit = step(t, 0.7, 6), ward_rem = 18 - (t % 18) } end,
-    miragesentinel = function(t) return { fm = step(t, 0.7, 6), aegis_hp = 900 * wave(t, 0.8) } end,
-    kagemusha      = function(t) return { ash = step(t, 0.7, 5), ash_rem = 30 - (t % 30) } end,
-    animist        = function(t) return { soulspark = step(t, 0.7, 4) } end,
+    -- 1. WAR: commander, berserker, spartan (gladiator)
+    commander      = function(t)
+        return {
+            stance      = 1 + step(t, 0.25, 5),
+            stance_rem  = 180 - ((t * 4) % 180),
+            warcry_rem  = 30 - (t % 30),
+            bulwark_rem = 15 - (t % 15),
+            cadence_rem = 12 - (t % 12),
+            regroup_rem = 0,
+            breach_rem  = (step(t, 0.3, 2) == 0) and (10 - (t % 10)) or 0,
+            orders      = 1 + step(t, 0.6, 4),
+        }
+    end,
+    berserker      = function(t)
+        return {
+            berserk_rem   = 120 - ((t * 3) % 120),
+            aggressor_rem = 90 - ((t * 2) % 90),
+            surge_rem     = (step(t, 0.35, 2) == 0) and (10 - (t % 10)) or 0,
+            bloodrage_rem = 30 - (t % 30),
+            warcry_rem    = 25 - (t % 25),
+            retal_rem     = 60 - (t % 60),
+            fury          = 1 + step(t, 0.6, 4),
+        }
+    end,
+    spartan        = function(t)
+        return {
+            grit     = step(t, 0.7, 6),
+            brace    = step(t, 0.3, 3),
+            ward_rem = 12 - (t % 12),
+        }
+    end,
+
+    -- 2. MNK: sensei, blackbelt, chiweaver
+    sensei         = function(t)
+        return {
+            staff        = 1,
+            counter_rem  = 180 - ((t * 3) % 180),
+            dodge_rem    = 30 - (t % 30),
+            focus_rem    = 30 - ((t * 1.2) % 30),
+            pcounter_rem = (step(t, 0.3, 2) == 0) and (15 - (t % 15)) or 0,
+            inner_rem    = 0,
+            stances      = 1 + step(t, 0.5, 4),
+        }
+    end,
+    blackbelt      = function(t)
+        return {
+            focus_rem    = 30 - (t % 30),
+            footwork_rem = 60 - ((t * 2) % 60),
+            boost_rem    = 15 - (t % 15),
+            dodge_rem    = 25 - (t % 25),
+            hf_rem       = (step(t, 0.25, 2) == 0) and (45 - ((t * 2) % 45)) or 0,
+            stances      = 1 + step(t, 0.6, 4),
+        }
+    end,
+    chiweaver      = function(t)
+        return {
+            chi_stacks  = math.floor((t * 12) % 101),
+            harmony_rem = (step(t, 0.3, 2) == 0) and (15 - (t % 15)) or 0,
+            lotus_rem   = 12 - (t % 12),
+        }
+    end,
+
+    -- 3. WHM: bishop
+    bishop         = function(t)
+        return {
+            grace     = step(t, 0.6, 4),
+            grace_rem = 30 - (t % 30),
+            solace    = 1,
+            veil_rem  = (step(t, 0.3, 2) == 0) and (15 - (t % 15)) or 0,
+            ward_rem  = 8 - (t % 8),
+        }
+    end,
+
+    -- 4. BLM: necromancer
+    necromancer    = function(t)
+        local isTank = (step(t, 0.2, 2) == 0)
+        return {
+            thrall_mode = isTank and 'dullahan' or 'corse',
+            thrall_role = isTank and 'tank' or 'caster',
+            thrall_hpp  = math.floor(35 + 65 * wave(t, 0.7)),
+            dark_pact   = step(t, 0.4, 2),
+        }
+    end,
+
+    -- 5. RDM: crimsonduelist
+    crimsonduelist = function(t)
+        return {
+            hexes      = step(t, 0.7, 6),
+            fencer     = 1,
+            flow_rem   = (step(t, 0.35, 2) == 0) and (6 - (t % 6)) or 0,
+            fleche_rem = 6 - (t % 6),
+            stoneskin  = math.floor(450 * wave(t, 0.8)),
+        }
+    end,
+
+    -- 6. PLD: aegistemplar (defender), templar
+    aegistemplar   = function(t)
+        return {
+            zeal       = step(t, 0.7, 6),
+            zeal_rem   = 30 - (t % 30),
+            consec_rem = (step(t, 0.3, 2) == 0) and (15 - (t % 15)) or 0,
+            retrib_rem = 8 - (t % 8),
+        }
+    end,
+    templar        = function(t)
+        return {
+            majesty   = 1,
+            shield    = 1,
+            aegis_rem = (step(t, 0.3, 2) == 0) and (15 - (t % 15)) or 0,
+            grace_rem = 10 - (t % 10),
+            dseal_rem = 30 - (t % 30),
+        }
+    end,
+
+    -- 7. DRK: dreadnought
+    dreadnought    = function(t)
+        return {
+            tithe        = step(t, 0.6, 4),
+            tithe_rem    = 30 - (t % 30),
+            reap_rem     = 12 - (t % 12),
+            bastion_rem  = (step(t, 0.25, 2) == 0) and (15 - (t % 15)) or 0,
+            carapace_rem = 0,
+            spikes_hp    = 0,
+        }
+    end,
+
+    -- 8. BST: alphawarden
+    alphawarden    = function(t)
+        local hpp = math.floor(25 + 75 * wave(t, 0.65))
+        return {
+            beast_idx = 1 + step(t, 0.2, 4),
+            pet_alive = 1,
+            pet_hpp   = hpp,
+            soullink  = (hpp >= 15) and 1 or 0,
+            bond_rem  = 30 - (t % 30),
+        }
+    end,
+
+    -- 9. BRD: adventurer, musician, minstrel
+    adventurer     = function(t)
+        return {
+            cadence     = step(t, 0.7, 6),
+            cadence_rem = 20 - (t % 20),
+            encore_rem  = (step(t, 0.3, 2) == 0) and (12 - (t % 12)) or 0,
+            songs       = 2 + step(t, 0.4, 3),
+        }
+    end,
+    musician       = function(t)
+        return {
+            resonance     = step(t, 0.6, 4),
+            resonance_rem = 30 - (t % 30),
+            overdrive_rem = (step(t, 0.3, 2) == 0) and (15 - (t % 15)) or 0,
+            songs         = 3 + step(t, 0.3, 2),
+        }
+    end,
+    minstrel       = function(t)
+        return {
+            minne         = 1,
+            paeon         = 1,
+            scherzo       = step(t, 0.35, 2),
+            iron_aria_rem = 15 - (t % 15),
+        }
+    end,
+
+    -- 10. RNG: huntsman
+    huntsman       = function(t)
+        return {
+            pet_id        = 1 + step(t, 0.2, 4),
+            pet_hpp       = math.floor(40 + 60 * wave(t, 0.65)),
+            sharpshot_rem = 30 - (t % 30),
+            barrage_rem   = 15 - (t % 15),
+            unlimited     = 1,
+        }
+    end,
+
+    -- 11. SAM: ronin, imperialarcher, warlord
+    ronin          = function(t)
+        return {
+            stagger_pool  = math.floor(4200 * wave(t, 0.7)),
+            stagger_ticks = 1 + step(t, 1, 6),
+            minds_eye     = step(t, 0.5, 4),
+            seigan        = 1,
+        }
+    end,
+    imperialarcher = function(t)
+        return {
+            oisoya_rem = 15 - (t % 15),
+            cosmic_rem = (step(t, 0.35, 2) == 0) and (15 - ((t * 1.2) % 15)) or 0,
+            hasso_rem  = 180 - ((t * 3) % 180),
+        }
+    end,
+    warlord        = function(t)
+        return {
+            ashura     = step(t, 0.6, 4),
+            ashura_rem = 20 - (t % 20),
+            noto_rem   = (step(t, 0.35, 2) == 0) and (15 - (t % 15)) or 0,
+        }
+    end,
+
+    -- 12. NIN: kagemusha
+    kagemusha      = function(t)
+        return {
+            ash          = step(t, 0.7, 5),
+            ash_rem      = 30 - (t % 30),
+            shadows      = 1 + step(t, 0.6, 5),
+            migawari_rem = (step(t, 0.3, 2) == 0) and (12 - (t % 12)) or 0,
+        }
+    end,
+
+    -- 13. DRG: wyvernheart
+    wyvernheart    = function(t)
+        return {
+            wyrmscale     = step(t, 0.6, 4),
+            wyrmscale_rem = 30 - (t % 30),
+            sanct_rem     = (step(t, 0.3, 2) == 0) and (12 - (t % 12)) or 0,
+            wyvern_hpp    = math.floor(55 + 45 * wave(t, 0.7)),
+        }
+    end,
+
+    -- 14. SMN: celestial
+    celestial      = function(t)
+        return {
+            avatar     = 1,
+            avatar_hpp = math.floor(50 + 50 * wave(t, 0.7)),
+            conv_rem   = (step(t, 0.3, 2) == 0) and (12 - (t % 12)) or 0,
+            astral_rem = 0,
+        }
+    end,
+
+    -- 15. BLU: magus, azurebastion
+    magus          = function(t) return { catalyst = step(t, 0.7, 6), conduit_rem = 20 - (t % 20) } end,
+    azurebastion   = function(t) return { carapace = step(t, 0.7, 6), shell_rem = 15 - (t % 15) } end,
+
+    -- 16. COR: flintlock, gambler, buccaneer
+    flintlock      = function(t)
+        return {
+            chamber_rem = 30 - (t % 30),
+            chamber_wsd = 25,
+            hair_rem    = (step(t, 0.35, 2) == 0) and (10 - (t % 10)) or 0,
+            mark_rem    = 10 - (t % 10),
+        }
+    end,
     gambler        = function(t)
         local c = t % 24
         return {
-            rolls = step(t, 0.5, 4), overdrive = (step(t, 0.25, 2) == 0) and 1 or 0,
-            du_rem = 45 - (t * 3) % 45, roll_tot = 7 + step(t, 0.3, 5),
-            debt_rem = c > 19 and (24 - c) or 0,
+            rolls     = step(t, 0.5, 4),
+            overdrive = (step(t, 0.25, 2) == 0) and 1 or 0,
+            du_rem    = 45 - (t * 3) % 45,
+            roll_tot  = 7 + step(t, 0.3, 5),
+            debt_rem  = c > 19 and (24 - c) or 0,
         }
     end,
-    spellblade     = function(t) return { prep_stacks = step(t, 0.6, 4) } end,
-    chiweaver      = function(t) return { chi_stacks = (t * 12) % 101 } end,
-    ronin          = function(t) return { stagger_pool = 4200 * wave(t, 0.7), stagger_ticks = 1 + step(t, 1, 6), minds_eye = step(t, 0.5, 4) } end,
-    dreadnought    = function(t) return { tithe = step(t, 0.6, 4), reap_rem = 12 - (t % 12) } end,
-    wyvernheart    = function(t) return { wyrmscale = step(t, 0.6, 4), wyrmscale_rem = 30 - (t % 30) } end,
-    buccaneer      = function(t) return { grapeshot = step(t, 0.7, 4), saltspray = 650 * wave(t, 0.9) } end,
-    magus          = function(t) return { catalyst = step(t, 0.7, 6), conduit_rem = 20 - (t % 20) } end,
-    azurebastion   = function(t) return { carapace = step(t, 0.7, 6), shell_rem = 15 - (t % 15) } end,
+    buccaneer      = function(t) return { grapeshot = step(t, 0.7, 4), saltspray = math.floor(650 * wave(t, 0.9)) } end,
+
+    -- 17. PUP: vanguard, pugilist, animist
+    vanguard       = function(t)
+        return {
+            pet_alive     = 1,
+            pet_hpp       = math.floor(45 + 55 * wave(t, 0.7)),
+            maneuvers     = 2 + step(t, 0.4, 2),
+            bulwark_rem   = (step(t, 0.3, 2) == 0) and (12 - (t % 12)) or 0,
+            overdrive_rem = 0,
+        }
+    end,
+    pugilist       = function(t)
+        return {
+            pet_alive   = 1,
+            pet_hpp     = math.floor(55 + 45 * wave(t, 0.75)),
+            maneuvers   = 2 + step(t, 0.5, 2),
+            head        = 2 + step(t, 0.2, 2),
+            opening_rem = (step(t, 0.4, 2) == 0) and (8 - (t % 8)) or 0,
+            limiter_rem = 12 - (t % 12),
+        }
+    end,
+    animist        = function(t)
+        return {
+            soulspark     = step(t, 0.7, 4),
+            soulspark_rem = 30 - (t % 30),
+            pet_alive     = 1,
+            pet_hpp       = math.floor(60 + 40 * wave(t, 0.65)),
+            pet_mpp       = math.floor(35 + 65 * wave(t, 0.55)),
+            head          = 4 + step(t, 0.2, 2),
+            maneuvers     = 3,
+            aegis_rem     = (step(t, 0.3, 2) == 0) and (12 - (t % 12)) or 0,
+        }
+    end,
+
+    -- 18. DNC: bladewheel, vampire, miragesentinel
+    bladewheel     = function(t)
+        return {
+            throw_stance = 1,
+            fm           = step(t, 0.7, 6),
+            am_rem       = 60 - ((t * 2) % 60),
+        }
+    end,
+    vampire        = function(t)
+        return {
+            fm           = step(t, 0.7, 6),
+            trance_rem   = (step(t, 0.25, 2) == 0) and (30 - (t % 30)) or 0,
+            contra_rem   = 15 - (t % 15),
+            veil_rem     = 10 - (t % 10),
+            sanguine_rem = (step(t, 0.35, 2) == 0) and (15 - (t % 15)) or 0,
+        }
+    end,
+    miragesentinel = function(t) return { fm = step(t, 0.7, 6), aegis_hp = math.floor(900 * wave(t, 0.8)) } end,
+
+    -- 19. SCH: medic, sage
+    medic          = function(t)
+        return {
+            eos        = 1,
+            eos_hpp    = math.floor(55 + 45 * wave(t, 0.6)),
+            arts       = 1 + step(t, 0.3, 2),
+            subl_state = 1 + step(t, 0.25, 2),
+            subl_mp    = math.floor(150 + 300 * wave(t, 0.5)),
+        }
+    end,
+    sage           = function(t)
+        return {
+            titania     = 1,
+            titania_hpp = math.floor(50 + 50 * wave(t, 0.7)),
+            arts        = 1 + step(t, 0.3, 2),
+            ebullience  = 1,
+        }
+    end,
+
+    -- 20. GEO: verdant
+    verdant        = function(t)
+        return {
+            luopan      = 1,
+            luopan_hpp  = math.floor(45 + 55 * wave(t, 0.65)),
+            bolster_rem = 30 - (t % 30),
+            canopy_rem  = (step(t, 0.3, 2) == 0) and (12 - (t % 12)) or 0,
+        }
+    end,
+
+    -- 21. RUN: inquisitor, spellblade, lifebinder
+    inquisitor     = function(t)
+        return {
+            runes        = 1 + step(t, 0.6, 3),
+            stance       = 1 + step(t, 0.25, 3),
+            converge_rem = (step(t, 0.3, 2) == 0) and (10 - (t % 10)) or 0,
+            battuta_rem  = 60 - ((t * 2) % 60),
+            aegis_rem    = 45 - ((t * 1.5) % 45),
+        }
+    end,
+    spellblade     = function(t)
+        return {
+            prep_stacks    = step(t, 0.6, 4),
+            runes          = 2 + step(t, 0.4, 2),
+            edgeflare_rem  = 12 - (t % 12),
+            overcharge_rem = (step(t, 0.3, 2) == 0) and (12 - (t % 12)) or 0,
+            ascend_rem     = 0,
+        }
+    end,
+    lifebinder     = function(t)
+        return {
+            runes        = 1 + step(t, 0.6, 3),
+            sanct_rem    = (step(t, 0.3, 2) == 0) and (15 - (t % 15)) or 0,
+            font_rem     = 12 - (t % 12),
+            valiance_rem = 60 - ((t * 2) % 60),
+        }
+    end,
 }
+
+-- Legacy aliases
+KV.defender  = KV.aegistemplar
+KV.gladiator = KV.spartan
 
 function M.active()
     return state.key ~= nil or state.cycle
@@ -94,7 +440,8 @@ function M.kv(key, now)
         for k, v in pairs(fn(now)) do kv[k] = tostring(v) end
         return kv
     end
-    return { demo_pips = tostring(step(now, 0.7, 4)), demo_bar = tostring((now * 0.12) % 1) }
+    -- Unbuilt Souls return empty KV so they display only the Soul Crystal medallion + header pill
+    return {}
 end
 
 -- Synthesizes registry runtime values (stack/gauge/timer) for registered Souls without a bespoke layout.
@@ -124,6 +471,9 @@ end
 function M.buffs(key, now)
     if state.buffsKey == key and (now - state.buffsAt) < 18 then return nil end
     state.buffsKey, state.buffsAt = key, now
+
+    -- Unbuilt Souls have no custom server buff strip in demo mode
+    if not KV[key] then return '' end
 
     local picked, seen = {}, {}
     for _, e in ipairs(catalog.list or {}) do

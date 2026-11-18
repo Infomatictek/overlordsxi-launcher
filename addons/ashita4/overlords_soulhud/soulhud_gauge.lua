@@ -289,6 +289,7 @@ end
 -- ---------------------------------------------------------------------------------------------
 local function barValueText(bar, cur, max)
     if cur <= 0.0001 and bar.idle then return bar.idle end
+    if bar.right and bar.right ~= '' then return bar.right end
     local f = bar.fmt
     if f == 'sec' then return fmtTime(cur) end
     if f == 'frac' then return ('%d/%d'):format(math.floor(cur + 0.5), math.floor(max + 0.5)) end
@@ -452,25 +453,38 @@ function M.render(imgui, ctx)
         if data.pips then
             local p = data.pips
             local pulse = 0.5 + 0.5 * math.sin(now * 6)
-            for i = 1, p.max do
-                local gx = sx + 2 * s + (i - 1) * PIP_PITCH * s
-                local lit = i <= p.cur
-                if lit and p.glow then
-                    dl:AddCircleFilled({ gx + PIP * s / 2, rowY + PIP * s / 2 }, (11 + 3 * pulse) * s,
-                        col(mixRgb(pal.gold, WHITE, 0.2), alpha * (0.18 + 0.22 * pulse)), 20)
+            if p.badge then
+                local x0, y0, x1, y1 = sx, rowY, sx + BAR_W * s, rowY + PILL_H * s
+                local rad = PILL_H * s / 2
+                dl:AddRectFilled({ x0, y0 }, { x1, y1 }, col(pal.deep, alpha * 0.92), rad)
+                dl:AddRect({ x0, y0 }, { x1, y1 }, p.glow and gold or col(pal.body, alpha * 0.85), rad)
+                text(imgui, dl, x0 + 10 * s, y0 + 4 * s, p.glow and gold or textCol, p.label, 0.80 * s, 'l', alpha)
+                if p.right and p.right ~= '' then
+                    text(imgui, dl, x1 - 10 * s, y0 + 5 * s, p.glow and gold or col(pal.body, alpha), p.right, 0.74 * s, 'r', alpha)
                 end
-                image(dl, icons and icons.ui(lit and ('gem_' .. gemKey) or 'gem_empty'),
-                    gx, rowY, gx + PIP * s, rowY + PIP * s, tint)
+            else
+                for i = 1, p.max do
+                    local gx = sx + 2 * s + (i - 1) * PIP_PITCH * s
+                    local lit = i <= p.cur
+                    if lit and p.glow then
+                        dl:AddCircleFilled({ gx + PIP * s / 2, rowY + PIP * s / 2 }, (11 + 3 * pulse) * s,
+                            col(mixRgb(pal.gold, WHITE, 0.2), alpha * (0.18 + 0.22 * pulse)), 20)
+                    end
+                    image(dl, icons and icons.ui(lit and ('gem_' .. gemKey) or 'gem_empty'),
+                        gx, rowY, gx + PIP * s, rowY + PIP * s, tint)
+                end
+                local lab = p.right or ('%s %d/%d'):format(string.upper(p.label), p.cur, p.max)
+                text(imgui, dl, sx + (BAR_W - 6) * s, rowY + 5 * s, (p.glow or p.cur >= p.max) and gold or dimCol, lab, 0.76 * s, 'r', alpha)
             end
             imgui.SetCursorScreenPos({ sx, rowY })
-            imgui.Dummy({ (p.max * PIP_PITCH) * s, PIP * s })
+            imgui.Dummy({ BAR_W * s, PIP * s })
             if imgui.IsItemHovered() then
                 local lines = tips and tips.element(entry.key, 'pips', tctx) or nil
-                styledTooltip(imgui, pal.gold, ('%s  %d / %d'):format(p.label, p.cur, p.max),
-                    lines or { { text = ('%d / %d'):format(p.cur, p.max) } })
+                local headTitle = p.badge and (p.label .. (p.right and ('  •  ' .. p.right) or ''))
+                    or ('%s  %d / %d'):format(p.label, p.cur, p.max)
+                styledTooltip(imgui, pal.gold, headTitle,
+                    lines or { { text = p.right or ('%d / %d'):format(p.cur, p.max) } })
             end
-            local lab = ('%s %d/%d'):format(string.upper(p.label), p.cur, p.max)
-            text(imgui, dl, sx + (BAR_W - 6) * s, rowY + 5 * s, p.cur >= p.max and gold or dimCol, lab, 0.78 * s, 'r', alpha)
         else
             local roleStr = string.upper(roster.ROLE_LABEL[entry.role] or '')
             local hitW = BAR_W * s

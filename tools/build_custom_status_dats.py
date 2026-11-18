@@ -247,6 +247,107 @@ def build_record(entry: dict, img: Image.Image) -> bytes:
     return bytes(rec)
 
 
+D_MSG_HEADER_SIZE = 64
+D_MSG_TOC_SIZE = 8192
+D_MSG_ENTRY_COUNT = 1024
+D_MSG_STR_SUBHDR = b"\x01\x00\x00\x00" + (b"\x00" * 24)
+
+
+def encode_d_msg_str_field(text: str) -> bytes:
+    raw = text.encode("cp932", errors="replace") + b"\x00"
+    pad = (4 - (len(raw) % 4)) % 4
+    return D_MSG_STR_SUBHDR + raw + (b"\x00" * pad)
+
+
+def build_d_msg_status_record(name: str) -> bytes:
+    """Build a 2-field d_msg status-name record (field 0 = singular/hover title, field 1 = log name)."""
+    f0 = encode_d_msg_str_field(name)
+    f1 = encode_d_msg_str_field(name)
+    off0 = 20
+    off1 = off0 + len(f0)
+    hdr = struct.pack("<IIIII", 2, off0, 0, off1, 0)
+    return hdr + f0 + f1
+
+
+def decode_d_msg_status_record(rec: bytes) -> tuple[str, str]:
+    """Decode both string fields from a 2-field d_msg status-name record."""
+    nfields, off0, _t0, off1, _t1 = struct.unpack_from("<IIIII", rec, 0)
+    if nfields < 2:
+        raise ValueError(f"Expected 2 fields in d_msg record, got {nfields}")
+    s0_raw = rec[off0 + 28 : off1].split(b"\x00", 1)[0]
+    s1_raw = rec[off1 + 28 :].split(b"\x00", 1)[0]
+    return s0_raw.decode("cp932", errors="replace"), s1_raw.decode("cp932", errors="replace")
+
+
+def patch_status_names_dat(base_bytes: bytes, effects: list[dict]) -> bytes:
+    """Patch ROM/180/102.DAT (d_msg status-name table) at record[iconId] for every custom effect."""
+    if len(base_bytes) < D_MSG_HEADER_SIZE + D_MSG_TOC_SIZE or base_bytes[:5] != b"d_msg":
+        raise ValueError("Invalid d_msg status-name DAT header")
+
+    hdr = bytearray(base_bytes[:D_MSG_HEADER_SIZE])
+    enc_flag = struct.unpack_from("<H", hdr, 0x0A)[0]
+    toc_size = struct.unpack_from("<I", hdr, 0x1C)[0]
+    entry_count = struct.unpack_from("<I", hdr, 0x28)[0]
+    if toc_size != D_MSG_TOC_SIZE or entry_count != D_MSG_ENTRY_COUNT:
+        raise ValueError(f"Unexpected d_msg TOC geometry: toc_size={toc_size}, entry_count={entry_count}")
+
+    body = bytes((~b & 0xFF) for b in base_bytes[D_MSG_HEADER_SIZE:]) if enc_flag else base_bytes[D_MSG_HEADER_SIZE:]
+    toc = body[:toc_size]
+    data = body[toc_size:]
+
+    records: list[bytes] = []
+    for i in range(entry_count):
+        off, length = struct.unpack_from("<II", toc, i * 8)
+        records.append(data[off : off + length])
+
+    for entry in effects:
+        icon_id = entry["iconId"]
+        name = entry.get("displayName", entry["name"])
+        records[icon_id] = build_d_msg_status_record(name)
+
+    new_toc = bytearray(toc_size)
+    new_data = bytearray()
+    for i, rec in enumerate(records):
+        struct.pack_into("<II", new_toc, i * 8, len(new_data), len(rec))
+        new_data.extend(rec)
+
+    new_body_plain = bytes(new_toc) + bytes(new_data)
+    new_body = bytes((~b & 0xFF) for b in new_body_plain) if enc_flag else new_body_plain
+
+    total_size = D_MSG_HEADER_SIZE + len(new_body)
+    data_size = toc_size + len(new_data)
+    struct.pack_into("<I", hdr, 0x14, total_size)
+    struct.pack_into("<I", hdr, 0x24, data_size)
+    return bytes(hdr) + new_body
+
+
+def verify_status_names_dat(patched_bytes: bytes, effects: list[dict]) -> int:
+    """Round-trip decode all patched custom effect names from ROM/180/102.DAT and assert exact match."""
+    enc_flag = struct.unpack_from("<H", patched_bytes, 0x0A)[0]
+    toc_size = struct.unpack_from("<I", patched_bytes, 0x1C)[0]
+    body = (
+        bytes((~b & 0xFF) for b in patched_bytes[D_MSG_HEADER_SIZE:])
+        if enc_flag
+        else patched_bytes[D_MSG_HEADER_SIZE:]
+    )
+    toc = body[:toc_size]
+    data = body[toc_size:]
+
+    verified = 0
+    for entry in effects:
+        icon_id = entry["iconId"]
+        expected = entry.get("displayName", entry["name"])
+        off, length = struct.unpack_from("<II", toc, icon_id * 8)
+        s0, s1 = decode_d_msg_status_record(data[off : off + length])
+        if s0 != expected or s1 != expected:
+            raise AssertionError(
+                f"Round-trip mismatch in 102.DAT for iconId={icon_id} (effectId={entry['effectId']}): "
+                f"expected={expected!r}, got=({s0!r}, {s1!r})"
+            )
+        verified += 1
+    return verified
+
+
 HUD_ICON_THEMES = {
     # name: (role, border, accent, motif)  -- virtual Soul resource icons (hud_<name>.png)
     "stack":    ("support", "#d97706", "#fde68a", "card_pip"),
@@ -302,10 +403,12 @@ def build_catalog_lua(effects: list[dict]) -> str:
 def main() -> None:
     here = Path(__file__).resolve().parent
     repo = here.parent
-    parser = argparse.ArgumentParser(description="Build OverlordsXI custom status icons, ROM/119/57.DAT patch and addon status catalogs.")
+    parser = argparse.ArgumentParser(description="Build OverlordsXI custom status icons, ROM/119/57.DAT + ROM/180/102.DAT patches and addon status catalogs.")
     parser.add_argument("--manifest", type=Path, default=Path(r"C:\overlordsxi\modules\custom\data\custom_status_manifest.json"))
     parser.add_argument("--base-dat", type=Path, default=Path(r"D:\PlayOnline\SquareEnix\FINAL FANTASY XI\ROM\119\57.DAT"))
     parser.add_argument("--out-dat", type=Path, default=repo / "dat-overlay" / "ROM" / "119" / "57.DAT")
+    parser.add_argument("--base-names-dat", type=Path, default=Path(r"D:\PlayOnline\SquareEnix\FINAL FANTASY XI\ROM\180\102.DAT"))
+    parser.add_argument("--out-names-dat", type=Path, default=repo / "dat-overlay" / "ROM" / "180" / "102.DAT")
     parser.add_argument("--png-dir", type=Path, default=repo / "assets" / "status_icons")
     parser.add_argument("--addons-dir", type=Path, default=repo / "addons" / "ashita4")
     args = parser.parse_args()
@@ -321,6 +424,7 @@ def main() -> None:
     effects = sorted(json.loads(manifest_text)["effects"], key=lambda e: e["effectId"])
 
     args.out_dat.parent.mkdir(parents=True, exist_ok=True)
+    args.out_names_dat.parent.mkdir(parents=True, exist_ok=True)
     args.png_dir.mkdir(parents=True, exist_ok=True)
 
     backup_dir = here / "backups"
@@ -328,6 +432,13 @@ def main() -> None:
     backup_dat = backup_dir / "57.DAT.bak"
     if not backup_dat.exists():
         shutil.copy2(args.out_dat if args.out_dat.exists() else args.base_dat, backup_dat)
+
+    backup_names_dat = backup_dir / "102.DAT.bak"
+    if not backup_names_dat.exists():
+        src_names = args.base_names_dat if args.base_names_dat.exists() else args.out_names_dat
+        if not src_names.exists():
+            raise SystemExit(f"base status-names DAT not found: {args.base_names_dat}")
+        shutil.copy2(src_names, backup_names_dat)
 
     # Always start from the pristine retail DAT so removed/re-assigned slots never leave stale icons behind.
     dat_bytes = bytearray(backup_dat.read_bytes())
@@ -350,6 +461,12 @@ def main() -> None:
         dat_bytes[start : start + RECORD_SIZE] = build_record(entry, img)
 
     args.out_dat.write_bytes(dat_bytes)
+
+    # Patch ROM/180/102.DAT (d_msg English status names) and verify round-trip decoding of all 71 custom names.
+    names_base_bytes = backup_names_dat.read_bytes()
+    patched_names_bytes = patch_status_names_dat(names_base_bytes, effects)
+    args.out_names_dat.write_bytes(patched_names_bytes)
+    verified_count = verify_status_names_dat(args.out_names_dat.read_bytes(), effects)
 
     # Virtual Soul resource icons (hud_*.png): generic resource types + one per soulKey.
     hud_icons: dict[str, Image.Image] = {}
@@ -376,9 +493,10 @@ def main() -> None:
             img.save(icon_dir / f"{name}.png", format="PNG")
 
     print(f"Patched {len(effects)} status icons & tooltips into {args.out_dat}")
+    print(f"Patched & round-trip verified {verified_count} status names into {args.out_names_dat}")
     print(f"Exported {len(effects)} icon PNGs + {len(hud_icons)} hud_*.png to {args.png_dir}")
     print(f"Wrote status_catalog.lua + icon cache for addons: {', '.join(targets)}")
-    print(f"Backup preserved at {backup_dat}")
+    print(f"Backups preserved at {backup_dat} and {backup_names_dat}")
 
 
 if __name__ == "__main__":

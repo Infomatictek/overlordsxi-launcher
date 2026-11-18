@@ -57,7 +57,7 @@ end
 -- Rendering lives in soulhud_gauge.lua (status sub-strip of the Crystal Job Gauge).
 
 -- ---------------------------------------------------------------------------
--- 0x029 chat-log substitution for custom status names (789, 815+)
+-- 0x029 chat-log substitution for custom status names (789, 815+, and iconIds)
 -- ---------------------------------------------------------------------------
 local WEAR = { [64] = true, [204] = true, [206] = true }
 local GAIN = { [75] = false, [230] = true, [237] = true, [266] = true }
@@ -73,7 +73,7 @@ function M.notePacket029(data)
     if type(data) ~= 'string' or #data < 0x1A then return end
     local param = u32(data, 0x0C)
     local message = ((string.byte(data, 0x19) or 0) + (string.byte(data, 0x1A) or 0) * 256) % 32768
-    local entry = catalog.byEffectId[param]
+    local entry = catalog.byEffectId[param] or catalog.byIconId[param]
     if entry == nil then return end
     if WEAR[message] then
         pending = { name = entry.name, kind = 'wear', at = os.clock() }
@@ -88,11 +88,17 @@ function M.fixChatLine(msg)
     if (os.clock() - pending.at) > 1.5 then pending = nil; return nil end
 
     local name = pending.name
-    local out, n
+    local out, n = msg, 0
     if pending.kind == 'wear' then
-        out, n = msg:gsub("'s%s+effect wears off", function() return "'s " .. name .. ' effect wears off' end, 1)
+        out, n = msg:gsub("'s%s+[Ss][Tt]%d+%s+effect wears off", function() return "'s " .. name .. ' effect wears off' end, 1)
+        if n == 0 then
+            out, n = msg:gsub("'s%s+effect wears off", function() return "'s " .. name .. ' effect wears off' end, 1)
+        end
     else
-        out, n = msg:gsub('effect of%s*%.', function() return 'effect of ' .. name .. '.' end, 1)
+        out, n = msg:gsub('effect of%s+[Ss][Tt]%d+%.', function() return 'effect of ' .. name .. '.' end, 1)
+        if n == 0 then
+            out, n = msg:gsub('effect of%s*%.', function() return 'effect of ' .. name .. '.' end, 1)
+        end
     end
     if n > 0 then
         pending = nil

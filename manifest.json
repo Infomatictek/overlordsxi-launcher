@@ -47,6 +47,13 @@
     },
     {
       "category": "dat",
+      "sourcePath": "dat-overlay/ROM/180/102.DAT",
+      "targetPath": "ROM/180/102.DAT",
+      "sha256": "e5bbc9ffb78124525a62f3b9ee41e53deec93f728b883b929fab17218c2506ab",
+      "size": 106660
+    },
+    {
+      "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/72.DAT",
       "targetPath": "ROM/181/72.DAT",
       "sha256": "44c9f9a13de8c7e9062aa3310f45e3ec6a010e022f416a6943e0bb265dd0b8ef",
@@ -7154,29 +7161,29 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_buffstrip.lua",
       "targetPath": "overlords_soulhud/soulhud_buffstrip.lua",
-      "sha256": "d6edb7cee209795c1e10ea9fd32c471ad6070066b7a9b2fec875f1b6dfd2058e",
-      "size": 3668
+      "sha256": "3f3b0d05d0e6b86567f289e9eb64310721fffa65be140d236da45b76b007ae68",
+      "size": 4032
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_demo.lua",
       "targetPath": "overlords_soulhud/soulhud_demo.lua",
-      "sha256": "c690c3e01ccb997df22e9ec0e58fb8f7ded4d74d91d8f63d7eaa487fc2ceabe2",
-      "size": 5959
+      "sha256": "4c672b0ddb54360837dc1ab6a59c0989968cc9355f330204813f7dfcea4eca83",
+      "size": 16757
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_gauge.lua",
       "targetPath": "overlords_soulhud/soulhud_gauge.lua",
-      "sha256": "8f1fc0ff04e1a206f4f1e8b02c51b5e3d028f8b6ea221b12ffcda1d0a6230b5a",
-      "size": 28901
+      "sha256": "b64f21903533d131c6b92f2270365c4f5bc471e747eeb2ae3b4ca836f73a989f",
+      "size": 29868
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_layout.lua",
       "targetPath": "overlords_soulhud/soulhud_layout.lua",
-      "sha256": "563f14f68efb1a5d977d2a4181995c8419e79ced03f6e24315921fe462dc2f78",
-      "size": 6919
+      "sha256": "94033355a2fcdcb7a0506c8067dd91b084e5c889c783bfbac2393008d2ed0ad6",
+      "size": 35607
     },
     {
       "category": "addon",
@@ -7217,8 +7224,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_tips.lua",
       "targetPath": "overlords_soulhud/soulhud_tips.lua",
-      "sha256": "8b528a1433ef8c63ee67b7f6768c6adf23ba2b5e3f304667e9272ac4487fa3d1",
-      "size": 32889
+      "sha256": "9a36697b20d33b591b1ceab5806a154c1db93847042186cd0b39a395175e3879",
+      "size": 103704
     },
     {
       "category": "addon",
