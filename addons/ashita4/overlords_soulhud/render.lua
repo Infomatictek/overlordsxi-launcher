@@ -42,7 +42,11 @@ function Render.draw(title, items, config)
     if imgui.Begin('OverlordsXI Soul HUD', nil, flags) then
         imgui.TextColored({ 0.82, 0.65, 0.32, 1.0 }, title)
         imgui.Separator()
-        for _, item in ipairs(items) do drawElement(item, config.compact) end
+        if #items == 0 then
+            imgui.TextWrapped('No live resource provider is configured for this Soul yet.')
+        else
+            for _, item in ipairs(items) do drawElement(item, config.compact) end
+        end
     end
     imgui.End()
 end
