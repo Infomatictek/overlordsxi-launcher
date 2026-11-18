@@ -150,16 +150,52 @@ local function switchActiveSoul(soulKey, unlocked)
     state.activeUnlocked = unlocked == true
 end
 
-local function requestServerSync(force)
-    local inGame = isPlayerInGame()
-    if not inGame then return end
-    local now = os.clock()
-    if not force and (now - state.lastSyncReqAt) < 3.0 then return end
-    if AshitaCore == nil or not AshitaCore.GetChatManager then return end
-    state.lastSyncReqAt = now
-    pcall(function()
-        AshitaCore:GetChatManager():QueueCommand(1, '/say !soulhud sync')
-    end)
+local function requestServerSync(_force)
+    -- Server pushes 0x1FC ("OXHD") binary packets automatically; no chat command needed.
+end
+
+local function decodeBinaryHudPacket(data)
+    if type(data) ~= 'string' or #data < 16 then
+        return false
+    end
+    if string.sub(data, 5, 8) ~= 'OXHD' then
+        return false
+    end
+    local ver, unlockedByte, jobId, keyLen, kvLo, kvHi = string.byte(data, 9, 14)
+    if ver ~= 1 then
+        return false
+    end
+    local kvLen = (kvLo or 0) + (kvHi or 0) * 256
+    local totalNeeded = 16 + (keyLen or 0) + kvLen
+    if #data < totalNeeded then
+        return false
+    end
+    local soulKey = keyLen > 0 and string.sub(data, 17, 16 + keyLen) or ''
+    local kvRaw   = kvLen > 0 and string.sub(data, 17 + keyLen, 16 + keyLen + kvLen) or ''
+
+    state.lastJobId = jobId or 0
+    switchActiveSoul(soulKey, unlockedByte == 1)
+
+    local def = registry.getSoul(soulKey)
+    if def and state.runtime then
+        local kvMap = {}
+        if kvRaw ~= '' then
+            for _, pair in ipairs(splitChar(kvRaw, ';')) do
+                local eq = string.find(pair, '=', 1, true)
+                if eq then
+                    local k = string.sub(pair, 1, eq - 1)
+                    local v = string.sub(pair, eq + 1)
+                    kvMap[k] = v
+                end
+            end
+        end
+        registry.applyServerData(def, state.runtime, kvMap, os.clock())
+    end
+
+    state.synced = true
+    state.stale = false
+    state.lastSyncAt = os.clock()
+    return true
 end
 
 local function extractProtoPayload(msg)
@@ -259,6 +295,11 @@ ashita.events.register('packet_in', 'ox_soulhud_packet_in', function(e)
         state.transitioning = false
         state.synced = false
         state.stale = false
+        return
+    end
+
+    if e.id == 0x1FC then
+        decodeBinaryHudPacket(e.data)
         return
     end
 
