@@ -158,7 +158,7 @@ local function requestServerSync(force)
     if AshitaCore == nil or not AshitaCore.GetChatManager then return end
     state.lastSyncReqAt = now
     pcall(function()
-        AshitaCore:GetChatManager():QueueCommand(1, '/!soulhud sync')
+        AshitaCore:GetChatManager():QueueCommand(1, '/say !soulhud sync')
     end)
 end
 
