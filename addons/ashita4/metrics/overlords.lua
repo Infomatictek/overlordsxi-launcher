@@ -90,6 +90,24 @@ Overlords.CustomAbilities =
     -- PUP Vanguard Spec
     [963] = 'Aegis Protocol',        -- 451
     [964] = 'Gyro Slam',             -- 452
+
+    -- 8 Healer Specs (456-471)
+    [968] = 'Divine Veil',           -- 456 (WHM Bishop)
+    [969] = 'Sanctuary Pulse',       -- 457 (WHM Bishop)
+    [970] = 'Holy Radiance',         -- 458 (PLD Templar)
+    [971] = 'Crusader\'s Aegis',     -- 459 (PLD Templar)
+    [972] = 'White Wind Surge',      -- 460 (BLU Magus)
+    [973] = 'Osmotic Conduit',       -- 461 (BLU Magus)
+    [974] = 'Sanguine Waltz',        -- 462 (DNC Vampire)
+    [975] = 'Nocturne Feast',        -- 463 (DNC Vampire)
+    [976] = 'Astral Benediction',    -- 464 (SMN Celestial)
+    [977] = 'Celestial Convergence', -- 465 (SMN Celestial)
+    [978] = 'Aether Overhaul',       -- 466 (PUP Animist)
+    [979] = 'Clockwork Aegis',       -- 467 (PUP Animist)
+    [980] = 'Verdant Renewal',       -- 468 (GEO Verdant)
+    [981] = 'Canopy of Ancients',    -- 469 (GEO Verdant)
+    [982] = 'Wyrmblood Pulse',       -- 470 (DRG Wyvernheart)
+    [983] = 'Dragonscale Sanctuary', -- 471 (DRG Wyvernheart)
 }
 
 ------------------------------------------------------------------------------------------------------

@@ -55,6 +55,22 @@ Res.Abilities.Damaging =
     [962] = {id = 962, old_id = 450, en = "Dread Bastion"},
     [963] = {id = 963, old_id = 451, en = "Aegis Protocol"},
     [964] = {id = 964, old_id = 452, en = "Gyro Slam"},
+    [968] = {id = 968, old_id = 456, en = "Divine Veil"},
+    [969] = {id = 969, old_id = 457, en = "Sanctuary Pulse"},
+    [970] = {id = 970, old_id = 458, en = "Holy Radiance"},
+    [971] = {id = 971, old_id = 459, en = "Crusader's Aegis"},
+    [972] = {id = 972, old_id = 460, en = "White Wind Surge"},
+    [973] = {id = 973, old_id = 461, en = "Osmotic Conduit"},
+    [974] = {id = 974, old_id = 462, en = "Sanguine Waltz"},
+    [975] = {id = 975, old_id = 463, en = "Nocturne Feast"},
+    [976] = {id = 976, old_id = 464, en = "Astral Benediction"},
+    [977] = {id = 977, old_id = 465, en = "Celestial Convergence"},
+    [978] = {id = 978, old_id = 466, en = "Aether Overhaul"},
+    [979] = {id = 979, old_id = 467, en = "Clockwork Aegis"},
+    [980] = {id = 980, old_id = 468, en = "Verdant Renewal"},
+    [981] = {id = 981, old_id = 469, en = "Canopy of Ancients"},
+    [982] = {id = 982, old_id = 470, en = "Wyrmblood Pulse"},
+    [983] = {id = 983, old_id = 471, en = "Dragonscale Sanctuary"},
 }
 
 -- Based off of job_abilities.lua from Windower.

@@ -31,6 +31,9 @@ ox_sync.SPECS_BY_JOB = {
         { id = 2, key = 'blackbelt', name = 'Black Belt', role = 'Hand-to-Hand Martial DPS' },
         { id = 3, key = 'chiweaver', name = 'Chi Weaver', role = 'Unarmed Ranged Chi & Pulse Healer' },
     },
+    [3] = { -- WHM
+        { id = 1, key = 'bishop',    name = 'Bishop',     role = 'Healer' },
+    },
     [4] = { -- BLM
         { id = 1, key = 'necromancer', name = 'Necromancer', role = 'Scythe & Undead Summoner' },
     },
@@ -39,6 +42,7 @@ ox_sync.SPECS_BY_JOB = {
     },
     [7] = { -- PLD
         { id = 1, key = 'aegistemplar', name = 'Aegis Templar', role = 'Party-Intercepting Holy Bastion' },
+        { id = 2, key = 'templar',      name = 'Templar',       role = 'Healer' },
     },
     [8] = { -- DRK
         { id = 1, key = 'dreadnought', name = 'Dreadnought', role = 'Blood-Pool & Dread Spikes Tank' },
@@ -54,19 +58,31 @@ ox_sync.SPECS_BY_JOB = {
     [13] = { -- NIN
         { id = 1, key = 'kagemusha',      name = 'Kagemusha',       role = 'Shadow & Ninjutsu Tank' },
     },
+    [14] = { -- DRG
+        { id = 3, key = 'wyvernheart',    name = 'Wyvernheart',     role = 'Healer' },
+    },
+    [15] = { -- SMN
+        { id = 2, key = 'celestial',      name = 'Celestial',       role = 'Healer' },
+    },
     [16] = { -- BLU
         { id = 1, key = 'azurebastion',   name = 'Azure Bastion',   role = 'Monster-Core Assimilator & Dual-Wield Tank' },
+        { id = 2, key = 'magus',          name = 'Magus',           role = 'Healer' },
     },
     [18] = { -- PUP
         { id = 1, key = 'vanguard',       name = 'Vanguard',        role = 'Automaton Proxy-Tank & Tactical Link' },
+        { id = 2, key = 'animist',        name = 'Animist',         role = 'Healer' },
     },
     [19] = { -- DNC
         { id = 1, key = 'bladewheel',     name = 'Bladewheel',      role = 'Ranged Chakram Dancer' },
         { id = 2, key = 'miragesentinel', name = 'Mirage Sentinel', role = 'Fan-Dance Rhythm & Waltz-Shield Tank' },
+        { id = 3, key = 'vampire',        name = 'Vampire',         role = 'Healer' },
     },
     [20] = { -- SCH
         { id = 1, key = 'medic',     name = 'Medic',     role = 'Light Arts & Eos Faerie Healer' },
         { id = 2, key = 'sage',      name = 'Sage',      role = 'Dark Arts & Titania Faerie Nuker' },
+    },
+    [21] = { -- GEO
+        { id = 2, key = 'verdant',   name = 'Verdant',   role = 'Healer' },
     },
     [22] = { -- RUN
         { id = 1, key = 'inquisitor', name = 'Inquisitor', role = 'Parry & Runic Aegis Tank' },

@@ -41,6 +41,14 @@ local fallback_tints = {
     miragesentinel  = 0xFFE070C0,
     dreadnought     = 0xFFAA2233,
     vanguard        = 0xFFD88838,
+    bishop          = 0xFFF0E6CC,
+    templar         = 0xFFD8D088,
+    magus           = 0xFFCC9933,
+    vampire         = 0xFF3333CC,
+    celestial       = 0xFFDD88CC,
+    animist         = 0xFF55BB88,
+    verdant         = 0xFF44BB55,
+    wyvernheart     = 0xFF5566DD,
 }
 
 function UI.new(imgui, state, send, scaling, icon_loader)
