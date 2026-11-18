@@ -35,7 +35,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "c0816e292d2b95411f67cc55efbc01a4f13477c82e1ebebf43d406253eb25dff",
+      "sha256": "46203a2a1f8d1e5033a8feba9199b2cb611b084c487b00ac11481e73d74aa74a",
       "size": 403280
     },
     {
@@ -56,7 +56,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/74.DAT",
       "targetPath": "ROM/181/74.DAT",
-      "sha256": "4e7ca6ee427089ed8d3466b235c6ee6f16dcb68db6b077b30b90a52d71c4acc4",
+      "sha256": "e457acc6d567b7e06400a245ce42f2754e67856eafdb33bafecf27c241d10cfa",
       "size": 1507392
     },
     {
@@ -597,6 +597,69 @@
       "targetPath": "overlords_gear/README.md",
       "sha256": "e597a8bc7de7eb5be0cb8452eadd16da7f9ff1c07472886e223badc0f936e22b",
       "size": 3743
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/overlords_soulhud.lua",
+      "targetPath": "overlords_soulhud/overlords_soulhud.lua",
+      "sha256": "4b7bb36f532d806b46e2289090d6b48378468f860d0afdb1068b1a3b0d54d65c",
+      "size": 14066
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/README.md",
+      "targetPath": "overlords_soulhud/README.md",
+      "sha256": "a4cfc0387b9ba0c82ad19efcf824a5c3ee80276be2cdf2df5ae17ccc947c52e9",
+      "size": 3441
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_registry.lua",
+      "targetPath": "overlords_soulhud/soulhud_registry.lua",
+      "sha256": "605fabb6f8778b05e5621eed1b19ab36cb6d58c91dd03cbdda77be238790d89c",
+      "size": 8944
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_renderer.lua",
+      "targetPath": "overlords_soulhud/soulhud_renderer.lua",
+      "sha256": "77cacbe7ed9b6c16cd6a9141de2acbcdcaecbf2810ad54ba685634136cfe7fe5",
+      "size": 13973
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_settings.lua",
+      "targetPath": "overlords_soulhud/soulhud_settings.lua",
+      "sha256": "16a35905a483d7283c3577b41fa695595c746dbba7cab18d8aa49afb637e49c7",
+      "size": 5570
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/souls/cor_flintlock.lua",
+      "targetPath": "overlords_soulhud/souls/cor_flintlock.lua",
+      "sha256": "1e27dea6ee4dddb2074906cad985360caa9e30c2eb0a9492cb602fabe41428f0",
+      "size": 3157
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/souls/cor_gambler.lua",
+      "targetPath": "overlords_soulhud/souls/cor_gambler.lua",
+      "sha256": "08e24f7c1804eb55032f6a711a7d10e069a3e16578505ba502a3c9f560baf19c",
+      "size": 8501
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/souls/dnc_mirage_sentinel.lua",
+      "targetPath": "overlords_soulhud/souls/dnc_mirage_sentinel.lua",
+      "sha256": "c9392c000a7b7e3d9f3be4af47ecdc380d19bab100af5ab1834d9d6cc634918e",
+      "size": 4712
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/souls/init.lua",
+      "targetPath": "overlords_soulhud/souls/init.lua",
+      "sha256": "895304accf9d5a6128be9b734eb1915fe30a7c22ac07be1a3d9833414cf6549d",
+      "size": 418
     },
     {
       "category": "addon",
