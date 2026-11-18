@@ -14,9 +14,9 @@ The server must also load `modules/custom/lua/overlords_soul_hud.lua` and `modul
 
 ## Coverage
 - All 66 keys in the canonical 22-job Soul catalog are registered client-side, so every catalog Soul can be recognized by the HUD.
-- Live resource providers currently exist for **Gambler** and **Mirage Sentinel** only.
+- Live resource providers currently exist for **Gambler**, **Mirage Sentinel**, **Chi Weaver**, **Ronin**, **Kagemusha**, and **Spellblade**.
 - Other Souls show their correct title and an explicit “No live resource provider…” message instead of fabricated or permanently-zero counters.
-- Flintlock is recognized but has no resource meters until its gameplay implementation exposes authoritative state.
+- The other catalog Souls are recognized but have no resource meters until their gameplay implementations expose authoritative state. No placeholder values are fabricated.
 
 The client framework supports: stack, gauge, charges, cooldown, timer, toggle, combo, counter, and status.
 
