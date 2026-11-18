@@ -16,7 +16,7 @@ local labels = require('job_labels').new()
 local character_id = 0
 local ui, menu
 local textures, asset_status = {}, {}
-local preload_names = { 'commander', 'berserker', 'gladiator', 'sensei', 'blackbelt', 'chiweaver', 'medic', 'sage', 'ronin', 'imperialarcher', 'warlord', 'bladewheel', 'miragesentinel', 'necromancer', 'inquisitor', 'spellblade', 'lifebinder', 'aegistemplar', 'alphawarden', 'kagemusha', 'azurebastion', 'crimsonduelist', 'vanguard', 'bishop', 'templar', 'magus', 'vampire', 'celestial', 'animist', 'verdant', 'wyvernheart' }
+local preload_names = { 'commander', 'berserker', 'gladiator', 'spartan', 'sensei', 'blackbelt', 'chiweaver', 'medic', 'sage', 'ronin', 'imperialarcher', 'warlord', 'bladewheel', 'miragesentinel', 'necromancer', 'inquisitor', 'spellblade', 'lifebinder', 'aegistemplar', 'alphawarden', 'kagemusha', 'azurebastion', 'crimsonduelist', 'vanguard', 'bishop', 'templar', 'magus', 'vampire', 'celestial', 'animist', 'verdant', 'wyvernheart' }
 local epoch, transitioning = 0, false
 local key_owner = {} -- nil: new press; false: native/chat; true: addon, until physical release.
 local last_mouse
@@ -143,6 +143,14 @@ end
 
 ashita.events.register('command', 'crystalsocket_command', function(e)
     local cmd = e.command:lower()
+    if cmd:match('^/equip%s+sub%f[%s%z]') then
+        context()
+        local Buckler = require('buckler')
+        if Buckler.command(cmd, state:snapshot()) then
+            e.blocked = true
+            return
+        end
+    end
     if cmd:match('^/crystalsocket%s+sync%s*$') then
         e.blocked = true
         context()
