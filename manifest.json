@@ -6090,8 +6090,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/peer_souls.lua",
       "targetPath": "overlords_soul_actions/peer_souls.lua",
-      "sha256": "b2494d371e34a033231fac244677e91e1197b80023d806c89560ed7a66d60a67",
-      "size": 4564
+      "sha256": "9c42a2eeb7fb11af69de9dc5fffd4459008599f3db9c7d6d057b18c962abed24",
+      "size": 5247
     },
     {
       "category": "addon",
@@ -6153,8 +6153,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/tests/peer_souls_test.lua",
       "targetPath": "overlords_soul_actions/tests/peer_souls_test.lua",
-      "sha256": "e467fbf851147080ea1ce455204cf7ef608a96505ff1edd1992f99ada35f9890",
-      "size": 6494
+      "sha256": "3ae34fd96a4d8dfc91ff398b7712f46b1effb87740fd2bd6b296251cd5f76641",
+      "size": 7194
     },
     {
       "category": "addon",
