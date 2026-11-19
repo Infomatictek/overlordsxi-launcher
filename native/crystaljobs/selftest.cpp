@@ -22,6 +22,38 @@ static void __fastcall fake_sprite_simple(void* self, void*, int x, int y, uint3
     assert(reinterpret_cast<uintptr_t>(self) == 0x34567890u && x == 142 && y == 69 && (color == 0x80808080u || color == 0x802060a0u) && center == 0 && first == 0);
     ++simple_sprite_calls;
 }
+static uint32_t fake_spell_name_calls, fake_spell_desc_calls, fake_abil_name_calls, fake_abil_desc_calls, fake_icon_calls;
+static uint32_t last_icon_v1, last_icon_v2;
+static const char* __fastcall fake_spell_name_fn(void* self, void*, int id) {
+    assert(reinterpret_cast<uintptr_t>(self) == 0x2468ace0u);
+    ++fake_spell_name_calls;
+    if (id == 338) return "Utsusemi: Ichi";
+    if (id == 339) return "Utsusemi: Ni";
+    return "Vanilla Spell";
+}
+static const char* __fastcall fake_spell_desc_fn(void* self, void*, int id) {
+    assert(reinterpret_cast<uintptr_t>(self) == 0x2468ace0u);
+    ++fake_spell_desc_calls;
+    return id == 338 ? "Vanilla Utsusemi Ichi desc." : "Vanilla Spell desc.";
+}
+static const char* __fastcall fake_abil_name_fn(void* self, void*, int id) {
+    assert(reinterpret_cast<uintptr_t>(self) == 0x2468ace0u);
+    ++fake_abil_name_calls;
+    if (id == 128) return "Blade: Jin";
+    if (id == 600) return "Yonin";
+    return "Vanilla Ability";
+}
+static const char* __fastcall fake_abil_desc_fn(void* self, void*, int id) {
+    assert(reinterpret_cast<uintptr_t>(self) == 0x2468ace0u);
+    ++fake_abil_desc_calls;
+    return id == 128 ? "Vanilla WS desc." : "Vanilla JA desc.";
+}
+static void* __cdecl fake_action_icon_fn(uint32_t v1, uint32_t v2) {
+    ++fake_icon_calls;
+    last_icon_v1 = v1;
+    last_icon_v2 = v2;
+    return reinterpret_cast<void*>(0x13579bdfu);
+}
 static const char* __cdecl fake_lookup(int table, int job) {
     assert(table == 18 || table == 2);
     if (table == 2) {
@@ -115,6 +147,44 @@ static __declspec(naked) bool persona_abi(void*, uint32_t) {
         jne failed
         mov eax, 1
     failed:
+        add esp, 4
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    }
+}
+
+static __declspec(naked) const char* action_str_abi(void*, int32_t) {
+    __asm {
+        push ebp
+        push ebx
+        push esi
+        push edi
+        mov ebx, 11223344h
+        mov esi, 22334455h
+        mov edi, 33445566h
+        mov ebp, 44556677h
+        mov eax, [esp + 24]
+        push 55667788h
+        push eax
+        mov ecx, 2468ace0h
+        call dword ptr [esp + 28]
+        cmp dword ptr [esp], 55667788h
+        jne failed
+        cmp ebx, 11223344h
+        jne failed
+        cmp esi, 22334455h
+        jne failed
+        cmp edi, 33445566h
+        jne failed
+        cmp ebp, 44556677h
+        jne failed
+        jmp done
+    failed:
+        xor eax, eax
+    done:
         add esp, 4
         pop edi
         pop esi
@@ -469,6 +539,118 @@ static void equipment_persona_checks() {
     native_text = &fake_text;
 }
 
+static CrystalJobsActionEntry make_action(uint8_t job, uint8_t branch, uint32_t kind, uint16_t id,
+                                          const char* name, const char* desc,
+                                          uint16_t icon_v1 = 0xFFFFu, uint16_t icon_v2 = 0xFFFFu) {
+    CrystalJobsActionEntry e{};
+    e.size = sizeof(e);
+    e.job = job;
+    e.branch = branch;
+    e.kind = kind;
+    e.action_id = id;
+    e.icon_id = icon_v1;
+    e.icon_id_v2 = icon_v2;
+    if (name) std::strncpy(e.name, name, sizeof(e.name) - 1);
+    if (desc) std::strncpy(e.description, desc, sizeof(e.description) - 1);
+    return e;
+}
+
+static void action_catalog_checks() {
+    original_spell_name = reinterpret_cast<uintptr_t>(&fake_spell_name_fn);
+    original_spell_desc = reinterpret_cast<uintptr_t>(&fake_spell_desc_fn);
+    original_ability_name_row = reinterpret_cast<uintptr_t>(&fake_abil_name_fn);
+    original_ability_name_target = reinterpret_cast<uintptr_t>(&fake_abil_name_fn);
+    original_ability_desc = reinterpret_cast<uintptr_t>(&fake_abil_desc_fn);
+    original_action_icon = &fake_action_icon_fn;
+
+    fake_spell_name_calls = fake_spell_desc_calls = fake_abil_name_calls = fake_abil_desc_calls = fake_icon_calls = 0;
+    uint8_t mock_job = 13;
+    main_job_slot = &mock_job;
+    selftest_alive = true;
+
+    // Atomic replace with multiple Souls mapping the SAME underlying action IDs differently.
+    CrystalJobsActionEntry batch[5] = {
+        make_action(13, 1, CRYSTALJOBS_ACTION_SPELL, 338, "Shadow Squadron: Ichi",
+                    "Summon 2 offensive shadow clones.", 12, 1024),
+        make_action(13, 1, CRYSTALJOBS_ACTION_SPELL, 339, "Shadow Squadron: Ni",
+                    "Summon 3 offensive shadow clones."),
+        make_action(13, 2, CRYSTALJOBS_ACTION_SPELL, 338, "Mirror Decoy: Ichi",
+                    "Kagemusha decoy clone technique."),
+        make_action(13, 1, CRYSTALJOBS_ACTION_WEAPONSKILL, 128, "Shadow Rend",
+                    "Shinobi shadow-infused weapon skill.", 7, 1007),
+        make_action(13, 1, CRYSTALJOBS_ACTION_ABILITY, 600, "Phantom Veil",
+                    "Shinobi stealth stance."),
+    };
+    assert(CrystalJobsReplaceCatalog(batch, 5) == 0);
+
+    // Reject duplicate keys without corrupting existing catalog.
+    CrystalJobsActionEntry dup[2] = { batch[0], batch[0] };
+    assert(CrystalJobsReplaceCatalog(dup, 2) == 1);
+    assert(action_catalog.count() == 5);
+
+    // Active NIN (13) branch 1 (Shinobi) via bridge state.
+    uint8_t ev[8] = {1, 1, 13, 1, 100, 0, 0, 0};
+    state.update(ev, 8, GetTickCount());
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Shadow Squadron: Ichi") == 0);
+    assert(magic_icon_hook(99, 200) == reinterpret_cast<void*>(0x13579bdfu) && last_icon_v1 == 12 && last_icon_v2 == 1024);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_desc_hook), 338), "Summon 2 offensive shadow clones.") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_target_hook), 339), "Shadow Squadron: Ni") == 0);
+
+    // Weapon skill (id < 512) and Job Ability (id >= 512) resolve independently.
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&ability_row_name_hook), 128), "Shadow Rend") == 0);
+    assert(ability_icon_hook(5, 50) == reinterpret_cast<void*>(0x13579bdfu) && last_icon_v1 == 7 && last_icon_v2 == 1007);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&ability_desc_hook), 128), "Shinobi shadow-infused weapon skill.") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&ability_target_hook), 600), "Phantom Veil") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&ability_desc_hook), 600), "Shinobi stealth stance.") == 0);
+    assert(fake_spell_name_calls == 0 && fake_spell_desc_calls == 0 && fake_abil_name_calls == 0 && fake_abil_desc_calls == 0);
+
+    // Switch Soul to Kagemusha (branch 2): same spell ID 338 maps to a different name; 339 falls back to vanilla.
+    ev[3] = 2; state.update(ev, 8, GetTickCount());
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Mirror Decoy: Ichi") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 339), "Utsusemi: Ni") == 0);
+    assert(fake_spell_name_calls == 1);
+
+    // Switch to Nightblade (branch 3, unmapped): falls back to vanilla for 338.
+    ev[3] = 3; state.update(ev, 8, GetTickCount());
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Utsusemi: Ichi") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_desc_hook), 338), "Vanilla Utsusemi Ichi desc.") == 0);
+
+    // Job change mismatch: live job is WAR (1) while state is NIN (13) -> stock fallback!
+    ev[3] = 1; state.update(ev, 8, GetTickCount());
+    mock_job = 1;
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Utsusemi: Ichi") == 0);
+    mock_job = 13;
+
+    // Explicit SetActiveSoul / ClearActiveSoul when bridge state is unknown.
+    ev[1] = 0; ev[3] = 0; state.update(ev, 8, GetTickCount());
+    assert(CrystalJobsSetActiveSoul(13, 1, 0) == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Shadow Squadron: Ichi") == 0);
+    assert(CrystalJobsClearActiveSoul() == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Utsusemi: Ichi") == 0);
+
+    // Verify relocations for all new action signatures (base 0x04860000).
+    const uint32_t delta = static_cast<uint32_t>(0x04860000u - 0x10000000u);
+    for (const auto& sig : signatures) {
+        uint8_t buf[24];
+        std::memcpy(buf, sig.bytes, 24);
+        relocate_signature(sig.rva, buf, delta);
+        if (sig.rva == 0x22E245) assert(u32(buf + 7) == 0x04860000u + 0x5793B0u);
+        if (sig.rva == 0x22DED1) assert(u32(buf + 7) == 0x04860000u + 0x579638u);
+        if (sig.rva == 0x225F5D) {
+            assert(u32(buf + 7) == 0x04860000u + 0x5793B0u);
+            const uint32_t expected21 = 0x04860000u + 0x6682FCu;
+            assert(std::memcmp(buf + 21, &expected21, 3) == 0);
+        }
+        if (sig.rva == 0x225916) assert(u32(buf + 7) == 0x04860000u + 0x579638u);
+        if (sig.rva == 0x22D510) assert(u32(buf + 18) == 0x04860000u + 0x457BD8u);
+        if (sig.rva == 0x225120 || sig.rva == 0x2250A0) assert(u32(buf + 2) == 0x04860000u + 0x457BD8u);
+    }
+
+    assert(CrystalJobsClearCatalog() == 0 && action_catalog.count() == 0);
+    main_job_slot = nullptr;
+    selftest_alive = false;
+}
+
 int main() {
     uint8_t event[8] = {1, 1, 1, 2, 100, 0, 0, 0};
     state.update(event, 8, 0xffffff00);
@@ -547,6 +729,7 @@ int main() {
     transport_checks();
     multi_job_checks();
     equipment_persona_checks();
+    action_catalog_checks();
     enabled.store(false); state = {};
     original_decode = &fake_search_decode;
     make_row(row_b, 200, marker | 3);
@@ -562,6 +745,15 @@ int main() {
     const auto create_plugin = reinterpret_cast<void*(__stdcall*)(const char*)>(GetProcAddress(dll, "expCreatePlugin"));
     const auto destroy_plugin = reinterpret_cast<void(__stdcall*)(void*)>(GetProcAddress(dll, "expDestroyPlugin"));
     assert(initialize != nullptr && shutdown != nullptr && status != nullptr && GetProcAddress(dll, "CrystalJobsSetState") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsReplaceCatalog") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsUpsertAction") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsClearCatalog") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsSetActiveSoul") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsClearActiveSoul") != nullptr);
+    const auto get_action_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsActionStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetActionStatus"));
+    assert(get_action_st != nullptr);
+    CrystalJobsActionStatus act_st{};
+    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 18 && act_st.total_hooks == 0);
     assert(get_iface != nullptr && create_plugin != nullptr && destroy_plugin != nullptr);
     assert(get_iface() == 4.30);
     void* plugin = create_plugin("");

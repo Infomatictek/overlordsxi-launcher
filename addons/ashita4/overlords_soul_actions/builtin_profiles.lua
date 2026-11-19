@@ -1,31 +1,32 @@
--- Built-in client presentation identities for Souls with verified action mappings.
--- Internal action IDs remain vanilla FFXI; names and descriptions describe
--- the current Soul, not the base spell. This does not change gameplay.
+-- Loads default Soul action definitions from editable external data (data/soul_actions.tsv).
+-- No Soul-specific spell or ability names are hardcoded in this module or in native C++.
+local profiles = require('profiles')
 local M = {}
-M.actions = {
-    shinobi = {
-        spell = {
-            [338] = {
-                name = 'Shadow Squadron: Ichi',
-                description = 'Summon 2 offensive shadow clones. They copy your appearance and independently attack your engaged target. Maximum 5 active clones.',
-            },
-            [339] = {
-                name = 'Shadow Squadron: Ni',
-                description = 'Summon 3 offensive shadow clones. They copy your appearance and independently attack your engaged target. Maximum 5 active clones.',
-            },
-        },
-    },
-}
-function M.install(catalog)
-    local count = 0
-    for soul, kinds in pairs(M.actions) do
-        for kind, entries in pairs(kinds) do
-            for id, info in pairs(entries) do
-                assert(catalog.register(soul, kind, id, info))
-                count = count + 1
-            end
+
+local function scriptDir()
+    if type(debug) == 'table' and type(debug.getinfo) == 'function' then
+        local info = debug.getinfo(1, 'S')
+        if info and type(info.source) == 'string' then
+            local src = info.source:gsub('^@', '')
+            local dir = src:match('^(.*)[/\\][^/\\]+$')
+            if dir and dir ~= '' then return dir end
         end
     end
-    return count
+    return '.'
 end
+
+function M.defaultPath(basePath)
+    local root = (type(basePath) == 'string' and basePath ~= '') and basePath or scriptDir()
+    return root:gsub('[/\\]+$', '') .. '/data/soul_actions.tsv'
+end
+
+function M.install(catalog, basePath)
+    local path = M.defaultPath(basePath)
+    local count, why = profiles.load(path, catalog)
+    if not count then
+        return 0, why
+    end
+    return count, nil, path
+end
+
 return M

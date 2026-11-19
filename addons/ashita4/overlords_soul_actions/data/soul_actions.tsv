@@ -1,0 +1,13 @@
+# OverlordsXI External Soul Action Definitions
+# Format (TSV): soul<TAB>kind<TAB>id<TAB>name<TAB>description[<TAB>icon_id<TAB>icon_id_v2]
+#   soul        : canonical lowercase Soul key (e.g. shinobi, kagemusha, astromancer)
+#   kind        : spell | ability | weaponskill
+#   id          : vanilla FFXI resource ID (spell 0..1023, weaponskill 0..511, ability 512..2047)
+#   name        : Soul-specific display name (max 79 chars)
+#   description : Soul-specific help description (max 180 chars)
+#   icon_id     : optional classic icon ID (0..65534, or 65535 to keep vanilla)
+#   icon_id_v2  : optional HD icon ID (0..65534, or 65535 to keep vanilla)
+#
+# Editing this file and running /soulactions reload updates native menus immediately without rebuilding crystaljobs.dll.
+shinobi	spell	338	Shadow Squadron: Ichi	Summon 2 offensive shadow clones. They copy your appearance and independently attack your engaged target. Maximum 5 active clones.
+shinobi	spell	339	Shadow Squadron: Ni	Summon 3 offensive shadow clones. They copy your appearance and independently attack your engaged target. Maximum 5 active clones.

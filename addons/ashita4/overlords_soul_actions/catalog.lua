@@ -10,7 +10,8 @@ function M.register(soul, kind, id, info)
     entries[kind] = entries[kind] or {}
     entries[kind][id] = { name = info.name, description = info.description,
         effectProfile = info.effectProfile, castTime = info.castTime,
-        recastTime = info.recastTime, mpCost = info.mpCost, tpCost = info.tpCost }
+        recastTime = info.recastTime, mpCost = info.mpCost, tpCost = info.tpCost,
+        iconId = info.iconId, iconIdV2 = info.iconIdV2 }
     M.souls[soul] = entries
     return true
 end

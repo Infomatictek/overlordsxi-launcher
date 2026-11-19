@@ -4,6 +4,12 @@ EXPORTS
     CrystalJobsShutdown=_CrystalJobsShutdown@0
     CrystalJobsGetStatus=_CrystalJobsGetStatus@8
     CrystalJobsSetState=_CrystalJobsSetState@8
+    CrystalJobsReplaceCatalog=_CrystalJobsReplaceCatalog@8
+    CrystalJobsUpsertAction=_CrystalJobsUpsertAction@4
+    CrystalJobsClearCatalog=_CrystalJobsClearCatalog@0
+    CrystalJobsSetActiveSoul=_CrystalJobsSetActiveSoul@12
+    CrystalJobsClearActiveSoul=_CrystalJobsClearActiveSoul@0
+    CrystalJobsGetActionStatus=_CrystalJobsGetActionStatus@8
     expCreatePlugin=_expCreatePlugin@4
     expDestroyPlugin=_expDestroyPlugin@4
     expGetInterfaceVersion=_expGetInterfaceVersion@0

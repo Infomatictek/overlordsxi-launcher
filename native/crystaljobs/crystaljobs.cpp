@@ -4,6 +4,7 @@
 #include "crystaljobs.h"
 #include "transport.h"
 #include "labels.h"
+#include "actions.h"
 #include "layout.h"
 #include <atomic>
 #include <cstdio>
@@ -11,24 +12,46 @@
 
 using namespace crystaljobs;
 static SRWLOCK state_lock = SRWLOCK_INIT;
+static SRWLOCK action_lock = SRWLOCK_INIT;
 static State state;
 static Transport transport;
+static ActionCatalog action_catalog;
+struct ActiveSoulOverride {
+    bool active = false;
+    uint8_t job = 0;
+    uint8_t branch = 0;
+    uint32_t character = 0;
+};
+static ActiveSoulOverride soul_override;
 static std::atomic<uint32_t> last_error{};
 static std::atomic<bool> enabled{};
 static std::atomic<uint32_t> decoded_rows{}, short_draws{}, full_lookups{}, item_lookups{};
+static std::atomic<uint32_t> magic_name_hits{}, magic_desc_hits{}, magic_icon_hits{};
+static std::atomic<uint32_t> ability_name_hits{}, ability_desc_hits{}, ability_icon_hits{};
 using Lookup = const char* (__cdecl*)(int, int);
 using Decode = void* (__cdecl*)(const uint8_t*, uint8_t*, int);
 using Encode = int (__cdecl*)(const void*, uint8_t*);
 using NativeText = int (__cdecl*)(int, int, const char*, uint32_t, float, float, int);
 using DrawSprite = int (__fastcall*)(void*, void*, int, int, float, float, uint32_t, int, int, int);
+using ActionIcon = void* (__cdecl*)(uint32_t, uint32_t);
 static Lookup original_lookup;
 static Decode original_decode;
 static Encode original_encode;
 static NativeText native_text;
+static ActionIcon original_action_icon;
 static uintptr_t original_sprite;
 static uintptr_t original_sprite_simple;
+static uintptr_t original_spell_name;
+static uintptr_t original_spell_desc;
+static uintptr_t original_ability_name_row;
+static uintptr_t original_ability_name_target;
+static uintptr_t original_ability_desc;
 static void** pname_sheet_slot;
 static const uint8_t* main_job_slot;
+static thread_local int32_t tls_magic_row_id = -1;
+static thread_local int32_t tls_ability_row_id = -1;
+static thread_local char tls_action_name[80]{};
+static thread_local char tls_action_desc[192]{};
 #ifdef CRYSTALJOBS_SELFTEST
 static bool selftest_alive;
 #endif
@@ -300,6 +323,273 @@ static __declspec(naked) void persona_job_hook() {
     }
 }
 
+static bool active_action_soul(uint8_t& out_job, uint8_t& out_branch, uint32_t* out_source = nullptr) noexcept {
+#ifdef CRYSTALJOBS_SELFTEST
+    if (!selftest_alive) return false;
+#else
+    if (!enabled.load()) return false;
+#endif
+    const uint8_t live_job = (main_job_slot != nullptr) ? *main_job_slot : 0;
+    if (main_job_slot != nullptr && (live_job < 1 || live_job > 22)) return false;
+
+    AcquireSRWLockShared(&state_lock);
+    const bool bridge_ok = state.known && state.from_bridge && state.character != 0
+        && valid_branch(state.job, state.branch)
+        && (live_job == 0 || state.job == live_job)
+#ifndef CRYSTALJOBS_SELFTEST
+        && state.character == transport.character && transport.job == state.job
+#endif
+        ;
+    const uint8_t bridge_job = state.job;
+    const uint8_t bridge_branch = state.branch;
+
+    const bool override_ok = !bridge_ok && soul_override.active
+        && valid_branch(soul_override.job, soul_override.branch)
+        && (live_job == 0 || soul_override.job == live_job)
+        && (transport.character == 0 || soul_override.character == 0 || soul_override.character == transport.character);
+    const uint8_t ov_job = soul_override.job;
+    const uint8_t ov_branch = soul_override.branch;
+    ReleaseSRWLockShared(&state_lock);
+
+    if (bridge_ok) {
+        out_job = bridge_job;
+        out_branch = bridge_branch;
+        if (out_source) *out_source = 1;
+        return true;
+    }
+    if (override_ok) {
+        out_job = ov_job;
+        out_branch = ov_branch;
+        if (out_source) *out_source = 2;
+        return true;
+    }
+    return false;
+}
+
+static const char* resolve_action_string(uint32_t kind, int32_t raw_id, bool want_desc) noexcept {
+    if (raw_id < 0 || raw_id > 0xFFFF) return nullptr;
+    uint8_t job = 0, branch = 0;
+    if (!active_action_soul(job, branch)) return nullptr;
+    const uint16_t action_id = static_cast<uint16_t>(raw_id);
+    if (!valid_action_id(kind, action_id)) return nullptr;
+
+    bool found = false;
+    AcquireSRWLockShared(&action_lock);
+    if (const ActionRecord* rec = action_catalog.find(job, branch, kind, action_id)) {
+        if (want_desc) {
+            if (rec->description[0] != '\0') {
+                std::memcpy(tls_action_desc, rec->description, sizeof(tls_action_desc));
+                tls_action_desc[sizeof(tls_action_desc) - 1] = '\0';
+                found = true;
+            }
+        } else {
+            if (rec->name[0] != '\0') {
+                std::memcpy(tls_action_name, rec->name, sizeof(tls_action_name));
+                tls_action_name[sizeof(tls_action_name) - 1] = '\0';
+                found = true;
+            }
+        }
+    }
+    ReleaseSRWLockShared(&action_lock);
+    if (!found) return nullptr;
+    return want_desc ? tls_action_desc : tls_action_name;
+}
+
+static bool resolve_action_icon(uint32_t kind, uint16_t action_id, uint32_t& icon_v1, uint32_t& icon_v2) noexcept {
+    uint8_t job = 0, branch = 0;
+    if (!active_action_soul(job, branch)) return false;
+    bool overridden = false;
+    AcquireSRWLockShared(&action_lock);
+    if (const ActionRecord* rec = action_catalog.find(job, branch, kind, action_id)) {
+        if (rec->icon_id != 0xFFFFu) { icon_v1 = rec->icon_id; overridden = true; }
+        if (rec->icon_id_v2 != 0xFFFFu) { icon_v2 = rec->icon_id_v2; overridden = true; }
+    }
+    ReleaseSRWLockShared(&action_lock);
+    return overridden;
+}
+
+static uint32_t ability_kind_for_id(int32_t ability_id) noexcept {
+    return (ability_id >= 0 && ability_id < 512) ? CRYSTALJOBS_ACTION_WEAPONSKILL : CRYSTALJOBS_ACTION_ABILITY;
+}
+
+static const char* __stdcall resolve_magic_row_name(int32_t spell_id) noexcept {
+    tls_magic_row_id = spell_id;
+    if (const char* custom = resolve_action_string(CRYSTALJOBS_ACTION_SPELL, spell_id, false)) {
+        ++magic_name_hits;
+        return custom;
+    }
+    return nullptr;
+}
+
+static const char* __stdcall resolve_magic_target_name(int32_t spell_id) noexcept {
+    if (const char* custom = resolve_action_string(CRYSTALJOBS_ACTION_SPELL, spell_id, false)) {
+        ++magic_name_hits;
+        return custom;
+    }
+    return nullptr;
+}
+
+static const char* __stdcall resolve_magic_desc(int32_t spell_id) noexcept {
+    if (const char* custom = resolve_action_string(CRYSTALJOBS_ACTION_SPELL, spell_id, true)) {
+        ++magic_desc_hits;
+        return custom;
+    }
+    return nullptr;
+}
+
+static void* __cdecl magic_icon_hook(uint32_t icon_v1, uint32_t icon_v2) noexcept {
+    const int32_t spell_id = tls_magic_row_id;
+    tls_magic_row_id = -1;
+    if (spell_id >= 0 && spell_id <= 1023) {
+        uint32_t v1 = icon_v1, v2 = icon_v2;
+        if (resolve_action_icon(CRYSTALJOBS_ACTION_SPELL, static_cast<uint16_t>(spell_id), v1, v2)) {
+            ++magic_icon_hits;
+            return original_action_icon(v1, v2);
+        }
+    }
+    return original_action_icon(icon_v1, icon_v2);
+}
+
+static const char* __stdcall resolve_ability_row_name(int32_t ability_id) noexcept {
+    tls_ability_row_id = ability_id;
+    if (const char* custom = resolve_action_string(ability_kind_for_id(ability_id), ability_id, false)) {
+        ++ability_name_hits;
+        return custom;
+    }
+    return nullptr;
+}
+
+static const char* __stdcall resolve_ability_target_name(int32_t ability_id) noexcept {
+    if (const char* custom = resolve_action_string(ability_kind_for_id(ability_id), ability_id, false)) {
+        ++ability_name_hits;
+        return custom;
+    }
+    return nullptr;
+}
+
+static const char* __stdcall resolve_ability_desc(int32_t ability_id) noexcept {
+    if (const char* custom = resolve_action_string(ability_kind_for_id(ability_id), ability_id, true)) {
+        ++ability_desc_hits;
+        return custom;
+    }
+    return nullptr;
+}
+
+static void* __cdecl ability_icon_hook(uint32_t icon_v1, uint32_t icon_v2) noexcept {
+    const int32_t ability_id = tls_ability_row_id;
+    tls_ability_row_id = -1;
+    if (ability_id >= 0 && ability_id <= 2047) {
+        uint32_t v1 = icon_v1, v2 = icon_v2;
+        if (resolve_action_icon(ability_kind_for_id(ability_id), static_cast<uint16_t>(ability_id), v1, v2)) {
+            ++ability_icon_hits;
+            return original_action_icon(v1, v2);
+        }
+    }
+    return original_action_icon(icon_v1, icon_v2);
+}
+
+static __declspec(naked) void magic_row_name_hook() {
+    __asm {
+        pushad
+        mov eax, [esp + 36]
+        push eax
+        call resolve_magic_row_name
+        test eax, eax
+        jz stock
+        mov [esp + 28], eax
+        popad
+        ret 4
+    stock:
+        popad
+        jmp dword ptr [original_spell_name]
+    }
+}
+
+static __declspec(naked) void magic_desc_hook() {
+    __asm {
+        pushad
+        mov eax, [esp + 36]
+        push eax
+        call resolve_magic_desc
+        test eax, eax
+        jz stock
+        mov [esp + 28], eax
+        popad
+        ret 4
+    stock:
+        popad
+        jmp dword ptr [original_spell_desc]
+    }
+}
+
+static __declspec(naked) void magic_target_hook() {
+    __asm {
+        pushad
+        mov eax, [esp + 36]
+        push eax
+        call resolve_magic_target_name
+        test eax, eax
+        jz stock
+        mov [esp + 28], eax
+        popad
+        ret 4
+    stock:
+        popad
+        jmp dword ptr [original_spell_name]
+    }
+}
+
+static __declspec(naked) void ability_row_name_hook() {
+    __asm {
+        pushad
+        mov eax, [esp + 36]
+        push eax
+        call resolve_ability_row_name
+        test eax, eax
+        jz stock
+        mov [esp + 28], eax
+        popad
+        ret 4
+    stock:
+        popad
+        jmp dword ptr [original_ability_name_row]
+    }
+}
+
+static __declspec(naked) void ability_desc_hook() {
+    __asm {
+        pushad
+        mov eax, [esp + 36]
+        push eax
+        call resolve_ability_desc
+        test eax, eax
+        jz stock
+        mov [esp + 28], eax
+        popad
+        ret 4
+    stock:
+        popad
+        jmp dword ptr [original_ability_desc]
+    }
+}
+
+static __declspec(naked) void ability_target_hook() {
+    __asm {
+        pushad
+        mov eax, [esp + 36]
+        push eax
+        call resolve_ability_target_name
+        test eax, eax
+        jz stock
+        mov [esp + 28], eax
+        popad
+        ret 4
+    stock:
+        popad
+        jmp dword ptr [original_ability_name_target]
+    }
+}
+
 static __declspec(naked) void full_job_hook() {
     __asm {
         pushad
@@ -329,6 +619,8 @@ static uint32_t received_packets(uint8_t* packets, uint32_t length, uint32_t now
         bool consume;
         if (enabled.load()) {
             AcquireSRWLockExclusive(&state_lock);
+            const uint16_t pid = u16(packets + at) & 0x1ff;
+            if (pid == 0x00a || pid == 0x00b || pid == 0x061) soul_override = {};
             consume = transport.incoming(packets + at, size, now, state);
             ReleaseSRWLockExclusive(&state_lock);
         } else {
@@ -358,6 +650,7 @@ static int __cdecl map_encode(const uint8_t* packets, uint32_t length, uint8_t* 
     while (at + 4 <= length) {
         const uint32_t size = packet_size(packets + at);
         if (size == 0) break;
+        if ((u16(packets + at) & 0x1ff) == 0x00d) soul_override = {};
         transport.outgoing(packets + at, state);
         at += size;
     }
@@ -440,6 +733,14 @@ static Patch patches[] = {
     {0x1DEEFB, reinterpret_cast<void*>(&full_job_hook)},
     {0xFA795, reinterpret_cast<void*>(&map_decode)},
     {0xDD5F6, reinterpret_cast<void*>(&map_encode)},
+    {0x22E4F5, reinterpret_cast<void*>(&magic_row_name_hook)},
+    {0x22E245, reinterpret_cast<void*>(&magic_desc_hook)},
+    {0x22DED1, reinterpret_cast<void*>(&magic_target_hook)},
+    {0x22E51B, reinterpret_cast<void*>(&magic_icon_hook)},
+    {0x226129, reinterpret_cast<void*>(&ability_row_name_hook)},
+    {0x225F5D, reinterpret_cast<void*>(&ability_desc_hook)},
+    {0x225916, reinterpret_cast<void*>(&ability_target_hook)},
+    {0x22614E, reinterpret_cast<void*>(&ability_icon_hook)},
 };
 
 static bool host_detour(uint8_t* entry, const uint8_t* expected, size_t length, size_t stolen, HMODULE host) noexcept {
@@ -469,6 +770,20 @@ static void relocate_signature(uintptr_t rva, uint8_t (&expected)[24], uint32_t 
     } else if (rva == 0x1DEEFB) {
         const uint32_t relocated = u32(expected + 20) + delta;
         std::memcpy(expected + 20, &relocated, 4);
+    } else if (rva == 0x22E245 || rva == 0x22DED1 || rva == 0x225916) {
+        const uint32_t relocated = u32(expected + 7) + delta;
+        std::memcpy(expected + 7, &relocated, 4);
+    } else if (rva == 0x225F5D) {
+        const uint32_t helpwind = u32(expected + 7) + delta;
+        std::memcpy(expected + 7, &helpwind, 4);
+        const uint32_t abisort = 0x106682FCu + delta;
+        std::memcpy(expected + 21, &abisort, 3);
+    } else if (rva == 0x22D510) {
+        const uint32_t lang_ptr = u32(expected + 18) + delta;
+        std::memcpy(expected + 18, &lang_ptr, 4);
+    } else if (rva == 0x225120 || rva == 0x2250A0) {
+        const uint32_t lang_ptr = u32(expected + 2) + delta;
+        std::memcpy(expected + 2, &lang_ptr, 4);
     }
 }
 
@@ -542,6 +857,7 @@ extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     main_job_slot = nullptr;
     AcquireSRWLockExclusive(&state_lock);
     transport.reset(state);
+    soul_override = {};
     ReleaseSRWLockExclusive(&state_lock);
     uint32_t failure = 0;
     for (size_t index = sizeof(patches) / sizeof(*patches); index-- > 0;) {
@@ -566,8 +882,14 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     original_decode = reinterpret_cast<Decode>(base + 0x106300);
     original_encode = reinterpret_cast<Encode>(base + 0x104330);
     native_text = reinterpret_cast<NativeText>(base + 0x1CAD80);
+    original_action_icon = reinterpret_cast<ActionIcon>(base + 0x222350);
     original_sprite = reinterpret_cast<uintptr_t>(base + 0x121110);
     original_sprite_simple = reinterpret_cast<uintptr_t>(base + 0x120FF0);
+    original_spell_name = reinterpret_cast<uintptr_t>(base + 0x22D510);
+    original_spell_desc = reinterpret_cast<uintptr_t>(base + 0x22D590);
+    original_ability_name_row = reinterpret_cast<uintptr_t>(base + 0x225120);
+    original_ability_name_target = reinterpret_cast<uintptr_t>(base + 0x2250A0);
+    original_ability_desc = reinterpret_cast<uintptr_t>(base + 0x225190);
     pname_sheet_slot = reinterpret_cast<void**>(base + 0x664014);
     main_job_slot = base + 0x4867F0;
     original_map_decode = reinterpret_cast<MapDecode>(base + 0xDD6C0);
@@ -586,6 +908,7 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     }
     AcquireSRWLockExclusive(&state_lock);
     transport.reset(state);
+    soul_override = {};
     ReleaseSRWLockExclusive(&state_lock);
     ever_started = true;
     last_error.store(0);
@@ -631,6 +954,108 @@ extern "C" uint32_t __stdcall CrystalJobsGetStatus(CrystalJobsStatus* output, ui
     return 0;
 }
 static_assert(sizeof(CrystalJobsStatus) == 68);
+static_assert(sizeof(CrystalJobsActionEntry) == 288);
+static_assert(sizeof(CrystalJobsActionStatus) == 64);
+
+static bool patch_installed_at(uintptr_t rva) noexcept {
+    for (const auto& patch : patches) {
+        if (patch.rva == rva) {
+            return patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0;
+        }
+    }
+    return false;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsReplaceCatalog(const CrystalJobsActionEntry* entries, uint32_t count) {
+    AcquireSRWLockExclusive(&action_lock);
+    const bool ok = action_catalog.replace_all(entries, count);
+    ReleaseSRWLockExclusive(&action_lock);
+    return ok ? 0 : 1;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsUpsertAction(const CrystalJobsActionEntry* entry) {
+    if (entry == nullptr) return 1;
+    AcquireSRWLockExclusive(&action_lock);
+    const bool ok = action_catalog.upsert(*entry);
+    ReleaseSRWLockExclusive(&action_lock);
+    return ok ? 0 : 1;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsClearCatalog() {
+    AcquireSRWLockExclusive(&action_lock);
+    action_catalog.clear();
+    ReleaseSRWLockExclusive(&action_lock);
+    return 0;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsSetActiveSoul(uint32_t job, uint32_t branch, uint32_t character_id) {
+    if (job < 1 || job > 22 || !valid_branch(static_cast<uint8_t>(job), static_cast<uint8_t>(branch))) return 1;
+    AcquireSRWLockExclusive(&state_lock);
+    soul_override.active = true;
+    soul_override.job = static_cast<uint8_t>(job);
+    soul_override.branch = static_cast<uint8_t>(branch);
+    soul_override.character = character_id;
+    ReleaseSRWLockExclusive(&state_lock);
+    return 0;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsClearActiveSoul() {
+    AcquireSRWLockExclusive(&state_lock);
+    soul_override = {};
+    ReleaseSRWLockExclusive(&state_lock);
+    return 0;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus* output, uint32_t size) {
+    if (output == nullptr || size < sizeof(*output)) return 1;
+    CrystalJobsActionStatus st{};
+    st.size = sizeof(st);
+    st.version = 1;
+    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches));
+
+    AcquireSRWLockShared(&lifecycle_lock);
+    for (const auto& patch : patches) {
+        if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++st.total_hooks;
+    }
+    if (enabled.load()) {
+        if (patch_installed_at(0x14868F)) st.capabilities |= CRYSTALJOBS_CAP_EQUIPMENT_SOUL_NAME;
+        if (patch_installed_at(0x1CBD4C) && patch_installed_at(0x1CC086) &&
+            patch_installed_at(0x1DEE6D) && patch_installed_at(0x1DEEFB)) {
+            st.capabilities |= CRYSTALJOBS_CAP_SEARCH_SOUL_LABELS;
+        }
+        if (patch_installed_at(0x22E4F5)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_NAMES;
+        if (patch_installed_at(0x22E245)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_DESC;
+        if (patch_installed_at(0x22DED1)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_TARGET_HEADER;
+        if (patch_installed_at(0x22E51B)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_ICONS;
+        if (patch_installed_at(0x226129)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_NAMES;
+        if (patch_installed_at(0x225F5D)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_DESC;
+        if (patch_installed_at(0x225916)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_TARGET_HDR;
+        if (patch_installed_at(0x22614E)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_ICONS;
+    }
+    ReleaseSRWLockShared(&lifecycle_lock);
+
+    AcquireSRWLockShared(&action_lock);
+    st.catalog_count = action_catalog.count();
+    st.catalog_generation = action_catalog.generation();
+    ReleaseSRWLockShared(&action_lock);
+
+    uint8_t active_job = 0, active_branch = 0;
+    uint32_t source = 0;
+    if (active_action_soul(active_job, active_branch, &source)) {
+        st.active_job = active_job;
+        st.active_branch = active_branch;
+        st.active_source = source;
+    }
+
+    st.magic_name_hits = magic_name_hits.load();
+    st.magic_desc_hits = magic_desc_hits.load();
+    st.magic_icon_hits = magic_icon_hits.load();
+    st.ability_name_hits = ability_name_hits.load();
+    st.ability_desc_hits = ability_desc_hits.load();
+    st.ability_icon_hits = ability_icon_hits.load();
+    *output = st;
+    return 0;
+}
 
 // Ashita v4 IPlugin interface (ASHITA_INTERFACE_VERSION = 4.30)
 namespace {

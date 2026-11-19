@@ -65,3 +65,34 @@ Use the identical validated `FFXiMain.dll` binary build from the Equipment hook 
 Implement a scoped read-only selection/identity tracer first and validate it with one Shinobi spell and one Shinobi JA. Do not ship unverified pointer patches, overwrite resource table strings globally, or rename actions in unrelated jobs. Scope custom names to active Soul; preserve native action IDs and stock fallback. Add x86 ABI tests before packaging any new native hook. The existing DLL is currently at 10 hooks; don't change that count without a verified additional patch.
 
 **Status:** Client resource inventory and discovery path implemented in Lua. Native spell/ability menu replacements, cast bar, logs, macros and VFX remain pending binary research and actual tests.
+
+## 2026-11-19: Complete Native Soul Action System (18 Verified Hooks + External Data)
+
+Full binary inspection of unpacked 32-bit `FFXiMain.dll` (`TS=0x6ae818b4`, `SizeOfImage=0xC17000`, base `0x10000000`) established verified call sites and ABIs across the native Magic, Job Ability, and Weapon Skill presentation paths:
+
+### Verified Native Hooks (`crystaljobs.dll` — 18/18 hooks)
+| Hook # | RVA | Callee RVA | ABI | Surface |
+|---:|---|---|---|---|
+| 1–9 | existing | existing | existing | Search protocol/labels, Item job labels, Map codec |
+| 10 | `0x14868F` | `0x120FF0` | `__thiscall`, `ret 20` | Equipment status panel (`menu    persona `) full Soul name |
+| 11 | `0x22E4F5` | `0x22D510` | `__thiscall`, `ret 4` | Magic/Ninjutsu menu row name (`menu    magic   `) |
+| 12 | `0x22E245` | `0x22D590` | `__thiscall`, `ret 4` | Magic/Ninjutsu menu description (`helpwind`) |
+| 13 | `0x22DED1` | `0x22D510` | `__thiscall`, `ret 4` | Magic/Ninjutsu target-select banner title (`0x10579638`) |
+| 14 | `0x22E51B` | `0x222350` | `__cdecl`, `ret` | Magic/Ninjutsu menu row icon (optional remap) |
+| 15 | `0x226129` | `0x225120` | `__thiscall`, `ret 4` | Job Ability & Weapon Skill menu row name (`menu    ability `) |
+| 16 | `0x225F5D` | `0x225190` | `__thiscall`, `ret 4` | Job Ability & Weapon Skill menu description (`helpwind`) |
+| 17 | `0x225916` | `0x2250A0` | `__thiscall`, `ret 4` | Job Ability & Weapon Skill target-select banner title (`0x10579638`) |
+| 18 | `0x22614E` | `0x222350` | `__cdecl`, `ret` | Job Ability & Weapon Skill menu row icon (optional remap) |
+
+Command-execution call sites (`0x22E788` for `/ma` and `0x226546`/`0x226576`/`0x2265A6` for `/ws`/`/pet`/`/ja`) are deliberately **not** hooked so native menu execution always dispatches canonical vanilla action IDs.
+
+### Non-hooked Surfaces & Verified Technical Findings
+- **Casting bar (`menu    casttime`, `0x1012D360`)**: Renders only the progress bar (`0x101CC610`), remaining time (`0x101CA990`), and percentage (`%d%%`); it does not render a spell name.
+- **Native `@` chat/combat-log expander (`0x101BBBA0` -> `0x101BBC3D`/`0x101BBC4C`)**: Receives only a token string with **no actor ID**, so hooking it natively would mislabel other players' actions. Instead, `overlords_soul_actions/combat_log.lua` rewrites only verified local-player lines in-place via Ashita `text_in` (zero duplicates, zero inference of other players' Souls).
+- **Macro & slash-command resolution**: Handled in `overlords_soul_actions/macro_resolver.lua` via Ashita `command` event, translating active Soul names in `/ma`, `/nin`, `/ja`, `/ws` commands/macros to canonical vanilla names while preserving targets.
+- **Native cooldowns/recasts**: Preserved natively because underlying action IDs are never altered.
+- **Per-caster action animations / VFX**: Not hooked natively in this pass. FFXI VFX/animation selection is driven by `0x028` action packets and shared DAT tables; safe per-caster substitution without global DAT mutation or desync across clients requires dedicated two-client packet/effect research and is explicitly reported as unimplemented in the capability matrix.
+
+### External Data Architecture
+- Action definitions live in `addons/ashita4/overlords_soul_actions/data/soul_actions.tsv` (no Soul action names or descriptions are hardcoded in C++ or `builtin_profiles.lua`).
+- `native_actions.lua` pushes the full catalog atomically via `CrystalJobsReplaceCatalog` on load and `/soulactions reload`.
