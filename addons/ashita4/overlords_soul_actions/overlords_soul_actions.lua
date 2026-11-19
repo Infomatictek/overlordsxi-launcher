@@ -14,7 +14,7 @@ local soulBridge = require('soul_bridge')
 local soulPacket = require('soul_packet')
 local state = { soul = nil, visible = false, lastJob = 0, lastCharacter = 0,
     lastPoll = -100, selected = nil, preview = false, source = 'none',
-    packetSoul = nil, packetJob = 0, lastDllStatus = nil }
+    packetSeen = false, packetSoul = nil, packetJob = 0, lastDllStatus = nil }
 local function log(message) print('[Soul Actions] ' .. tostring(message)) end
 local function inGame()
     local ok, job, character = pcall(function()
@@ -31,6 +31,7 @@ local function reset()
     state.selected = nil
     state.preview = false
     state.source = 'none'
+    state.packetSeen = false
     state.packetSoul, state.packetJob = nil, 0
     state.lastDllStatus = nil
     -- Catalog is local data and survives zoning or job changes.
@@ -97,10 +98,11 @@ ashita.events.register('packet_in', 'osa_zone', function(e)
         local job = inGame()
         local payload = soulPacket.decode(e.data, job)
         if payload then
+            state.packetSeen = true
             state.packetSoul, state.packetJob = payload.soul, payload.job
             if not state.preview then
                 state.soul = payload.soul
-                state.source = payload.soul and 'Soul HUD packet' or 'no active Soul'
+                state.source = payload.soul and 'Soul HUD packet' or (payload.retired and 'retired Soul slot' or 'no active Soul')
                 state.selected = nil
             end
         end
@@ -121,17 +123,20 @@ ashita.events.register('d3d_present', 'osa_render', function()
         state.lastPoll = now
         local dllStatus = soulBridge.read()
         state.lastDllStatus = dllStatus
-        local active = soulBridge.resolve(dllStatus, job, character)
-        if active then
-            if state.soul ~= active then state.selected = nil end
-            state.soul = active
-            state.source = 'Crystal Jobs client state'
-        elseif state.packetJob == job and state.packetSoul then
+        if state.packetSeen and state.packetJob == job then
+            if state.soul ~= state.packetSoul then state.selected = nil end
             state.soul = state.packetSoul
-            state.source = 'Soul HUD packet'
+            state.source = state.packetSoul and 'Soul HUD packet' or 'no active Soul'
         else
-            state.soul = nil
-            state.source = dllStatus and 'DLL has no valid active Soul' or 'Crystal Jobs DLL unavailable'
+            local active = soulBridge.resolve(dllStatus, job, character)
+            if active then
+                if state.soul ~= active then state.selected = nil end
+                state.soul = active
+                state.source = 'Crystal Jobs client state'
+            else
+                state.soul = nil
+                state.source = dllStatus and 'DLL has no valid active Soul' or 'Crystal Jobs DLL unavailable'
+            end
         end
     end
     if not state.visible then return end

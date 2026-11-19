@@ -1,37 +1,13 @@
 -- Client-only active Soul bridge via the existing crystaljobs.dll status export.
 -- Does not send packets, alter the server, or inspect arbitrary client memory.
+local identityMap = require('soul_identity_map')
 local M = {}
-local names = {
-    [1]={'commander','berserker','spartan'},
-    [2]={'sensei','chiweaver','blackbelt'},
-    [3]={'bishop','zealot','valkyrie'},
-    [4]={'astromancer','channeler','necromancer'},
-    [5]={'crimsonduelist','royaltactician','scarletweaver'},
-    [6]={'trickster','bandit','phantom'},
-    [7]={'templar','defender','oathbreaker'},
-    [8]={'reaper','dreadnought','scourge'},
-    [9]={'untamed','soulbeast','beastspeaker'},
-    [10]={'adventurer','musician','minstrel'},
-    [11]={'sniper','huntsman','arcanearcher'},
-    [12]={'ronin','imperialarcher','warlord'},
-    [13]={'shinobi','kagemusha','nightblade'},
-    [14]={'lancer','skyborn','wyvernheart'},
-    [15]={'primalist','celestial','herald'},
-    [16]={'warmage','magus','azurebastion'},
-    [17]={'flintlock','gambler','buccaneer'},
-    [18]={'vanguard','pugilist','animist'},
-    [19]={'miragesentinel','vampire','bladewheel'},
-    [20]={'medic','sage','archivist'},
-    [21]={'diviner','verdant','terramancer'},
-    [22]={'spellblade','lifebinder','inquisitor'},
-}
 function M.resolve(status, job, character)
     if type(status) ~= 'table' or type(job) ~= 'number' or type(character) ~= 'number'
         or character <= 0 or job <= 0 or job > 22 then return nil end
     if status.enabled ~= 1 or status.known ~= 1 or status.job ~= job
         or status.character_id ~= character then return nil end
-    local branch = status.branch
-    return names[job] and names[job][branch] or nil
+    return identityMap.resolveBranch(job, status.branch)
 end
 local okFfi, ffi = pcall(require, 'ffi')
 local status_t

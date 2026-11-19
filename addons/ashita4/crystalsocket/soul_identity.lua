@@ -26,7 +26,15 @@ local names = {
     [21]={'diviner','verdant','terramancer'},
     [22]={'spellblade','lifebinder','inquisitor'},
 }
-local aliases = { kurogane = 'shinobi' }
+local aliases = {
+    kurogane = 'shinobi',
+    aegistemplar = 'defender',
+    alphawarden = 'soulbeast',
+    gladiator = 'spartan',
+    marionettist = 'vanguard',
+    caller = 'celestial',
+}
+local retired = { freelancer = true }
 function M.decode(data, job)
     if type(data) ~= 'string' or #data < 16 or #data > 4096 or data:sub(5, 8) ~= 'OXHD' then return nil end
     local version, unlocked, packetJob, keyLength, kvLo, kvHi = data:byte(9, 14)
@@ -35,7 +43,7 @@ function M.decode(data, job)
     if #data < 16 + keyLength + kvLo + kvHi * 256 then return nil end
     if keyLength == 0 then return { job = packetJob, branch = 0, soul = nil } end
     local soul = data:sub(17, 16 + keyLength):lower()
-    if not soul:match('^[%w_%-]+$') then return nil end
+    if not soul:match('^[%w_%-]+$') or retired[soul] then return nil end
     soul = aliases[soul] or soul
     for branch, key in ipairs(names[packetJob] or {}) do
         if key == soul then return { job = packetJob, branch = branch, soul = soul } end
