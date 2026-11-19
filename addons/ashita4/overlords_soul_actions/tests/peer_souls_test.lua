@@ -1,0 +1,32 @@
+package.path = './?.lua;' .. package.path
+local peers = require('peer_souls')
+local function u32(v)
+    return string.char(v%256, math.floor(v/256)%256, math.floor(v/65536)%256, math.floor(v/16777216)%256)
+end
+local function packet(op, name, soul, job, branch, actor, character)
+    return string.rep('\0',4) .. 'OXSI' .. string.char(1,op) .. u32(actor)
+        .. u32(character) .. string.char(job,branch,#name,#soul)
+        .. name .. soul
+end
+local lookup = function(name) if name=='shinobi' then return 13,1 end end
+local cache=peers.new()
+local raw=packet(1,'OtherNinja','shinobi',13,1,54321,12345)
+assert(peers.decode(raw).name=='OtherNinja')
+assert(peers.observe(cache,raw,100,lookup))
+assert(cache.count == 1)
+assert(peers.get(cache,'OtherNinja',101).soul == 'shinobi')
+assert(peers.get(cache,'OtherNinja',221) == nil)
+assert(cache.count == 0)
+assert(peers.observe(cache,raw,250,lookup))
+assert(peers.observe(cache,raw,251,lookup))
+assert(cache.count == 1)
+assert(not peers.observe(cache,packet(1,'OtherNinja','shinobi',13,2,54321,12345),252,lookup))
+assert(cache.count == 0)
+assert(not peers.observe(cache,packet(1,'OtherNinja','shinobi',13,1,54321,12345):gsub('OXSI','OXZZ'),253,lookup))
+assert(peers.observe(cache,raw,260,lookup))
+assert(peers.observe(cache,packet(0,'OtherNinja','',13,0,54321,12345),261,lookup))
+assert(cache.count == 0)
+assert(peers.observe(cache,raw,270,lookup))
+peers.clear(cache)
+assert(cache.count == 0)
+print('Nearby Soul identity envelope and expiry tests passed.')
