@@ -1,43 +1,40 @@
 -- Local-player-only combat log presentation. Never infer other actors' Souls.
 local M = {}
 
+-- Permit only decoration before the actor, never another readable name.
+-- Ashita may prepend extended FFXI color/format tokens containing digits and
+-- punctuation. Matching the entire actor+verb after this boundary ensures
+-- "Other Rin", "OtherRin", and targets mentioning Rin are never relabeled.
 local function formattingPrefix(prefix)
-    -- Strictly permit a short run of FFXI control codes, each optionally
-    -- followed by up to two printable parameter bytes. Never skip ordinary
-    -- readable text such as another player's name or a chat prefix.
-    if #prefix > 32 then return false end
-    local parameterBytes = 0
-    local hasControl = false
-    for i = 1, #prefix do
-        local b = prefix:byte(i)
-        if b < 32 or b == 127 then
-            hasControl = true
-            parameterBytes = 0
-        elseif hasControl and parameterBytes < 2 then
-            parameterBytes = parameterBytes + 1
-        else
-            return false
-        end
+    if #prefix > 64 then return false end
+    if prefix == '' then return true end
+    -- Explicit actor name must be the first readable word. Allow control
+    -- bytes and nonalphabetic formatting parameters, but no letter-bearing
+    -- characters or extra player names.
+    if prefix:find('[%a]') then return false end
+    -- Reject ordinary spaces unless accompanied by an FFXI control marker
+    -- or a timestamp in brackets.
+    if not prefix:find('[%c]') and not prefix:match('^%[%d%d:%d%d:%d%d%]%s*$')
+        and not prefix:match('^%[%d%d:%d%d:%d%d:%d%d%]%s*$') then
+        return false
     end
     return true
 end
 
 local function actorStart(message, player)
-    -- FFXI text may prepend color/control sequences containing *printable*
-    -- parameter bytes. A pure ^[%c]* trim therefore rejects real chat.
-    -- Only accept the exact actor name near the beginning, preceded by at
-    -- most 32 formatting bytes and no readable alphanumeric actor prefix.
-    local from = 1
-    while true do
-        local start = message:find(player, from, true)
-        if not start or start > 33 then return false end
-        local prefix = message:sub(1, start - 1)
-        local nextChar = message:sub(start + #player, start + #player)
-        if formattingPrefix(prefix) and (nextChar == ' ' or nextChar == "'") then
-            return true
+    -- Search for the exact actor token before a known action verb. Other
+    -- names appearing as targets or in chat are never sufficient.
+    for _, verb in ipairs({ ' starts casting ', ' casts ', ' uses ', ' readies ' }) do
+        local marker = player .. verb
+        local from = 1
+        while true do
+            local first = message:find(marker, from, true)
+            if not first then break end
+            if formattingPrefix(message:sub(1, first - 1)) then return true end
+            from = first + #player
         end
-        from = start + #player
     end
+    return false
 end
 
 local function tryReplace(message, vanilla, custom)
