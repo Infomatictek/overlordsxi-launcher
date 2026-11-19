@@ -6055,8 +6055,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/combat_log.lua",
       "targetPath": "overlords_soul_actions/combat_log.lua",
-      "sha256": "b6749c0c3796ce18f2dc59f48109233272d2e6b99f5cecaf77d0250a034257b3",
-      "size": 2370
+      "sha256": "fc219b9e2e591cab5c5778a548fe2f0c77d3355cd61a036e4129b9a21d082e89",
+      "size": 3447
     },
     {
       "category": "addon",
@@ -6083,8 +6083,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/overlords_soul_actions.lua",
       "targetPath": "overlords_soul_actions/overlords_soul_actions.lua",
-      "sha256": "839394ea65d6afc4a7b923055060a2e2846d59db4c59c67feb7c7d1e28569773",
-      "size": 15497
+      "sha256": "9df3c6411ee9e8a0b10c19f78f70e971544f80cfd35b2d5bd0b2c5a523b20983",
+      "size": 16834
     },
     {
       "category": "addon",
@@ -6139,8 +6139,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/tests/macro_and_combat_log_test.lua",
       "targetPath": "overlords_soul_actions/tests/macro_and_combat_log_test.lua",
-      "sha256": "6022b5307db9258fdd711449ce9f7e171afce6deafc92794eb925dcbd3546cd3",
-      "size": 3983
+      "sha256": "2688ab46671e4866ecd35b27330e35d3bbee68b5c96c2030eae029f52df434d3",
+      "size": 5111
     },
     {
       "category": "addon",
