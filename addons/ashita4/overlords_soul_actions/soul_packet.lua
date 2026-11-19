@@ -1,6 +1,12 @@
 -- Client-only reader for the existing OverlordsXI HUD identity packet (0x1FC).
 -- Its soul key is metadata, not authority to cast or grant actions.
 local M = {}
+local legacyKeys = { kurogane = 'shinobi' }
+function M.canonicalKey(key)
+    if type(key) ~= 'string' then return nil end
+    key = key:lower()
+    return legacyKeys[key] or key
+end
 function M.decode(data, currentJob)
     if type(data) ~= 'string' or #data < 16 or #data > 4096
         or data:sub(5, 8) ~= 'OXHD' then return nil end
@@ -14,6 +20,6 @@ function M.decode(data, currentJob)
     local soul = data:sub(17, 16 + keyLength)
     if keyLength == 0 then return {job = job, soul = nil, unlocked = unlocked == 1} end
     if not soul:match('^[%w_%-]+$') then return nil end
-    return {job = job, soul = soul:lower(), unlocked = unlocked == 1}
+    return {job = job, soul = M.canonicalKey(soul), unlocked = unlocked == 1}
 end
 return M
