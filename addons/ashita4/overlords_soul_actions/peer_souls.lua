@@ -49,9 +49,14 @@ end
 function M.clear(cache)
     cache.byName,cache.byActor,cache.count = {},{},0
 end
-function M.observe(cache, data, now, resolvePair)
+function M.observe(cache, data, now, resolvePair, canonicalKey)
     local payload = M.decode(data)
     if not payload or type(now) ~= 'number' or type(resolvePair) ~= 'function' then return false end
+    if payload.op == 1 and type(canonicalKey) == 'function' then
+        local canonical = canonicalKey(payload.soul)
+        if not validSoul(canonical) then return false end
+        payload.soul = canonical
+    end
     -- Reject inconsistent Soul announcements before touching a valid cache.
     if payload.op == 1 then
         local job, branch = resolvePair(payload.soul)
