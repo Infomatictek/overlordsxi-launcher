@@ -102,6 +102,20 @@ assert(combatLog.rewriteLine('Offset starts casting Utsusemi: Ichi on Rin.',
 assert(combatLog.rewriteLine('Rin asks: Offset starts casting Utsusemi: Ichi on Offset.',
     'Offset', catalog, 'shinobi', aliases) == nil)
 
+-- Exact 15-byte prefix captured from Rin's 16:39:04 Ashita text_in event:
+-- 1E 51 5B 31 36 3A 33 39 3A 30 34 5D 1E 01 20
+local actualTimestamp = string.char(0x1E) .. 'Q[16:39:04]'
+    .. string.char(0x1E, 0x01) .. ' '
+assert(#actualTimestamp == 15)
+assert(combatLog.rewriteLine(actualTimestamp .. vanillaCast,
+    'Rin', catalog, 'shinobi', aliases) == actualTimestamp .. expected)
+assert(combatLog.rewriteLine(actualTimestamp .. 'Offset starts casting Utsusemi: Ichi on Rin.',
+    'Rin', catalog, 'shinobi', aliases) == nil)
+assert(combatLog.rewriteLine(actualTimestamp .. 'OtherRin starts casting Utsusemi: Ichi on OtherRin.',
+    'Rin', catalog, 'shinobi', aliases) == nil)
+assert(combatLog.rewriteLine(string.char(0x1E) .. 'Q[16:39:04] Other '
+    .. vanillaCast, 'Rin', catalog, 'shinobi', aliases) == nil)
+
 -- Verify all 66 Souls resolve to distinct valid (job, branch) pairs.
 local seen = {}
 local count = 0
