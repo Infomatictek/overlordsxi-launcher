@@ -27,10 +27,10 @@ cl /nologo /std:c++17 /W4 /WX /EHsc /O2 /MT /LD crystaljobs.cpp /link /DEF:cryst
 if errorlevel 1 exit /b 1
 
 cl /nologo /std:c++17 /W4 /WX /EHsc /O2 /MT selftest.cpp /Fe:selftest.exe
-if errorlevel 1 exit /b 1
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 selftest.exe
-if errorlevel 1 exit /b 1
+if %ERRORLEVEL% neq 0 exit /b %ERRORLEVEL%
 
 if not exist "%CJ_DIR%..\..\plugins\ashita4" mkdir "%CJ_DIR%..\..\plugins\ashita4"
 copy /y "%CJ_DIR%crystaljobs.dll" "%CJ_DIR%..\..\plugins\ashita4\crystaljobs.dll" >nul

@@ -69,9 +69,91 @@ public sealed class ManifestTests
             f.TargetPath == "metrics/windows/!window.lua" &&
             !string.IsNullOrWhiteSpace(f.Sha256));
         Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "overlords_soul_actions/overlords_soul_actions.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "overlords_soul_actions/catalog.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "overlords_soul_actions/presentation.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
+            f.Category == "addon" &&
+            f.TargetPath == "overlords_soul_actions/profiles.lua" &&
+            !string.IsNullOrWhiteSpace(f.Sha256));
+        Assert.Contains(manifest.Files, f =>
             f.Category == "dat" &&
             f.TargetPath == "ROM/118/108.DAT" &&
             !string.IsNullOrWhiteSpace(f.Sha256));
+    }
+
+    [Fact]
+    public void SoulActionsAddon_InstallsUpdatesAndRemainsOptionalInBootScript()
+    {
+        var tempRoot = Path.Combine(Path.GetTempPath(), $"overlords_soul_actions_test_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempRoot);
+
+        try
+        {
+            var settings = new LauncherSettings
+            {
+                AshitaPath = tempRoot
+            };
+            var service = new ManifestUpdateService();
+            var manifest = service.LoadEmbeddedManifest();
+
+            var soulActionFiles = manifest.Files
+                .Where(f => f.Category == "addon" && f.TargetPath.StartsWith("overlords_soul_actions/", StringComparison.Ordinal))
+                .ToList();
+            Assert.Contains(soulActionFiles, f => f.TargetPath == "overlords_soul_actions/overlords_soul_actions.lua");
+            Assert.Contains(soulActionFiles, f => f.TargetPath == "overlords_soul_actions/catalog.lua");
+            Assert.Contains(soulActionFiles, f => f.TargetPath == "overlords_soul_actions/presentation.lua");
+            Assert.Contains(soulActionFiles, f => f.TargetPath == "overlords_soul_actions/profiles.lua");
+
+            var subset = new LauncherManifest { Files = soulActionFiles };
+
+            // Fresh install: all Soul Actions files should be detected as missing/outdated.
+            var missing = service.GetOutdatedFiles(subset, settings);
+            Assert.Equal(soulActionFiles.Count, missing.Count);
+
+            // Verify target routing resolves to <ashita>/addons/overlords_soul_actions/...
+            var repoRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", ".."));
+            foreach (var entry in soulActionFiles)
+            {
+                var dest = ManifestUpdateService.ResolveTargetFilePath(settings, entry);
+                Assert.StartsWith(
+                    Path.Combine(tempRoot, "addons", "overlords_soul_actions") + Path.DirectorySeparatorChar,
+                    dest,
+                    StringComparison.OrdinalIgnoreCase);
+                Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+                File.Copy(Path.Combine(repoRoot, entry.SourcePath.Replace('/', Path.DirectorySeparatorChar)), dest, overwrite: true);
+            }
+
+            // Up-to-date after install.
+            Assert.Empty(service.GetOutdatedFiles(subset, settings));
+
+            // Modifying an installed addon file triggers an update.
+            var mainAddon = Path.Combine(tempRoot, "addons", "overlords_soul_actions", "overlords_soul_actions.lua");
+            File.AppendAllText(mainAddon, "\n-- modified\n");
+            var outdated = service.GetOutdatedFiles(subset, settings);
+            Assert.Single(outdated);
+            Assert.Equal("overlords_soul_actions/overlords_soul_actions.lua", outdated[0].TargetPath);
+
+            // Addon remains optional (not auto-loaded by default in overlordsxi.txt).
+            var generator = new AshitaConfigGenerator();
+            var bootScript = generator.MergeBootScriptContent(null, settings);
+            Assert.DoesNotContain("overlords_soul_actions", bootScript, StringComparison.OrdinalIgnoreCase);
+        }
+        finally
+        {
+            if (Directory.Exists(tempRoot))
+            {
+                Directory.Delete(tempRoot, recursive: true);
+            }
+        }
     }
 
     [Fact]

@@ -259,10 +259,10 @@ static void multi_job_checks() {
     assert(std::strcmp(label_for(17, 1, false), "FLT") == 0 && std::strcmp(label_for(17, 1, true), "Flintlock") == 0);
     assert(std::strcmp(label_for(17, 2, false), "GMB") == 0 && std::strcmp(label_for(17, 2, true), "Gambler") == 0);
     assert(std::strcmp(label_for(17, 3, false), "BUC") == 0 && std::strcmp(label_for(17, 3, true), "Buccaneer") == 0);
-    assert(std::strcmp(label_for(18, 1, false), "MRN") == 0 && std::strcmp(label_for(18, 1, true), "Marionettist") == 0);
+    assert(std::strcmp(label_for(18, 1, false), "VNG") == 0 && std::strcmp(label_for(18, 1, true), "Vanguard") == 0);
     assert(std::strcmp(label_for(18, 2, false), "PGL") == 0 && std::strcmp(label_for(18, 2, true), "Pugilist") == 0);
     assert(std::strcmp(label_for(18, 3, false), "ANM") == 0 && std::strcmp(label_for(18, 3, true), "Animist") == 0);
-    assert(std::strcmp(label_for(19, 1, false), "FRL") == 0 && std::strcmp(label_for(19, 1, true), "Freelancer") == 0);
+    assert(std::strcmp(label_for(19, 1, false), "MRS") == 0 && std::strcmp(label_for(19, 1, true), "Mirage Sentinel") == 0);
     assert(std::strcmp(label_for(19, 2, false), "VMP") == 0 && std::strcmp(label_for(19, 2, true), "Vampire") == 0);
     assert(std::strcmp(label_for(19, 3, false), "BLW") == 0 && std::strcmp(label_for(19, 3, true), "Bladewheel") == 0);
     assert(std::strcmp(label_for(20, 1, false), "MDC") == 0 && std::strcmp(label_for(20, 1, true), "Medic") == 0);
@@ -353,6 +353,12 @@ int main() {
     make_row(row_b, 102, marker | 3); state.decoded(row_b);
     assert(u32(row_a + 20) == 0 && state.row_branch(row_a) == 1 && state.row_branch(row_b) == 3);
     make_row(row_b, 102, 0); state.decoded(row_b);
+    assert(state.row_branch(row_b) == 3 && state.row_branch(row_a) == 1);
+    make_row(row_b, 102, 0, 2); state.decoded(row_b);
+    assert(state.row_branch(row_b) == 0 && state.row_branch(row_a) == 1);
+    make_row(row_b, 102, marker | 3, 1); state.decoded(row_b);
+    assert(state.row_branch(row_b) == 3);
+    make_row(row_b, 102, marker | 0, 1); state.decoded(row_b);
     assert(state.row_branch(row_b) == 0 && state.row_branch(row_a) == 1);
     make_row(row_b, 102, marker | 1, 23); state.decoded(row_b); assert(state.row_branch(row_b) == 0);
     make_row(row_b, 102, marker | 2, 1, 0x4000); state.decoded(row_b); assert(state.row_branch(row_b) == 0);
