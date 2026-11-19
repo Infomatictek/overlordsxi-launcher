@@ -1,6 +1,6 @@
 addon.name = 'crystalsocket'
 addon.author = 'OverlordsXI / Crystal Socket'
-addon.version = '0.3.4'
+addon.version = '0.3.5'
 addon.desc = 'OverlordsXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
 
 require('common')
@@ -21,6 +21,7 @@ local epoch, transitioning = 0, false
 local key_owner = {} -- nil: new press; false: native/chat; true: addon, until physical release.
 local last_mouse
 local was_anchored, last_anchor_refresh = false, 0
+local equipment_probe = { open = false, opens = 0, last = 'not observed' }
 local transport = { queued = 0, outgoing = 0, incoming = 0 }
 local keys = { [1] = 'back', [200] = 'up', [208] = 'down', [203] = 'left', [205] = 'right',
     [28] = 'enter', [156] = 'enter' }
@@ -187,6 +188,7 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
     report(('[crystalsocket] labels dll=%s known=%s branch=%s error=%s'):format(
         tostring(labels.native), tostring(labels.known), tostring(labels.branch), tostring(labels.error)))
     report('[crystalsocket] label_source=' .. tostring(labels.source or 'none'))
+    report(('[crystalsocket] equipment_probe opens=%d open=%s last=%s'):format(equipment_probe.opens, tostring(equipment_probe.open), equipment_probe.last))
     report(('[crystalsocket] hud packets=%d decoded=%d rejected=%d context_job=%s bytes=%s reason=%s hint_job=%s hint_character=%s hint_branch=%s'):format(
         labels.hud_packets, labels.hud_decoded, labels.hud_rejected,
         tostring(labels.last_hud_job), tostring(labels.last_hud_length),
@@ -349,6 +351,26 @@ ashita.events.register('d3d_present', 'crystalsocket_present', function()
     if anchor and not was_anchored and snap.loaded and not snap.pending and (ts - last_anchor_refresh) >= 2 then
         last_anchor_refresh = ts
         state:sync_current(ts, send, false)
+    end
+    -- Read-only observation of the existing native label hooks while Equipment
+    -- is visible. No game memory writes or new native hook offsets.
+    local equip_visible = native ~= nil and native.name == 'menu    equip'
+    if equip_visible and not equipment_probe.open then
+        equipment_probe.open = true
+        equipment_probe.opens = equipment_probe.opens + 1
+        equipment_probe.start = labels:status()
+    elseif not equip_visible and equipment_probe.open then
+        equipment_probe.open = false
+        local before, after = equipment_probe.start, labels:status()
+        if before ~= nil and after ~= nil then
+            equipment_probe.last = ('item=%d full=%d search=%d'):format(
+                after.item_labels - before.item_labels,
+                after.full_labels - before.full_labels,
+                after.search_labels - before.search_labels)
+        else
+            equipment_probe.last = 'native status unavailable'
+        end
+        print('[crystalsocket] Equipment native label hook activity: ' .. equipment_probe.last)
     end
     was_anchored = anchor ~= nil
     if ui then
