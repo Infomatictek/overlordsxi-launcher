@@ -1169,7 +1169,7 @@ local function drawEvolutionCanvas(detail)
     local lineCol = { 0.26, 0.37, 0.52, 0.95 }
     local rowHeight = 156
     local topY = sy + 115
-    local bottomY = topY + 5 * rowHeight + 10
+    local bottomY = topY + 5 * rowHeight + 185
 
     dl:AddRectFilled({sx, sy}, {sx + canvasW, bottomY}, bg, 8)
     dl:AddRect({sx + 1, sy + 1}, {sx + canvasW - 1, bottomY - 1}, lineCol, 8, 0, 1.5)
@@ -1252,6 +1252,37 @@ local function drawEvolutionCanvas(detail)
         drawText(formatReadableDesc(inspected.desc))
     else
         drawTextDisabled('Select a glowing sigil to inspect its technique.')
+    end
+    -- Freely configurable skillchain routing, including OFF on every tier.
+    -- No evolution points are spent on these controls.
+    local scTop = bottomY - 165
+    dl:AddLine({sx + 20, scTop}, {sx + canvasW - 20, scTop}, lineCol, 1.5)
+    imgui.SetCursorScreenPos({sx + 21, scTop + 9})
+    drawTextColored(gold, 'SKILLCHAIN ROUTING')
+    imgui.SetCursorScreenPos({sx + 21, scTop + 32})
+    drawTextDisabled('OFF means this WS will not interrupt a party skillchain.')
+    local scLabels = { 'FIRST', 'SECOND', 'ADVANCED', 'FINAL' }
+    for tier = 1, 4 do
+        local sc = detail.byKey and detail.byKey['evsc_t' .. tier] or nil
+        if sc then
+            local col = (tier - 1) % 2
+            local row = math.floor((tier - 1) / 2)
+            local x = sx + 24 + col * (canvasW / 2)
+            local y = scTop + 65 + row * 41
+            local unlocked = (detail.spent or 0) >= tier and state.jobLevel >= (sc.reqLevel or 1)
+            imgui.SetCursorScreenPos({x, y})
+            drawTextColored(unlocked and aqua or dormant, scLabels[tier])
+            imgui.SetCursorScreenPos({x + 92, y - 3})
+            if imgui.SmallButton('<##evsc_prev_' .. tier) then
+                sendTalentPacket(OP_CYCLE_SC, detail.id, tier, 255)
+            end
+            imgui.SameLine()
+            drawTextColored((sc.scId or 0) == 0 and dormant or gold, sc.scName ~= '' and sc.scName or 'OFF')
+            imgui.SameLine()
+            if imgui.SmallButton('>##evsc_next_' .. tier) then
+                sendTalentPacket(OP_CYCLE_SC, detail.id, tier, 1)
+            end
+        end
     end
     imgui.SetCursorScreenPos({sx + 1, bottomY + 4})
     imgui.Dummy({canvasW, 4})
