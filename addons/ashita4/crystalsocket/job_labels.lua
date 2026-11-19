@@ -11,16 +11,41 @@ local status_type = ffi.typeof([=[struct {
     uint32_t queries_sent, replies_accepted, replies_rejected, last_error;
 }[1]]=])
 
-local function loaded_function(name, signature)
+-- Cache named function-pointer types once. Re-parsing an anonymous FFI
+-- function-pointer signature on every render/sync can exhaust LuaJIT's type
+-- table after prolonged idle time ("table overflow").
+local signature_types = {
+    CrystalJobsGetStatus = ffi.typeof('uint32_t (__stdcall *)(void*, uint32_t)'),
+    CrystalJobsSetState = ffi.typeof('uint32_t (__stdcall *)(const uint8_t*, uint32_t)'),
+    CrystalJobsInitialize = ffi.typeof('uint32_t (__stdcall *)(void)'),
+}
+local exported = {}
+local function loaded_function(name)
     local module = ffi.C.GetModuleHandleA('crystaljobs.dll')
-    if module == nil then return nil end
+    if module == nil then
+        exported = {}
+        return nil, 'crystaljobs.dll is not loaded'
+    end
     local address = ffi.C.GetProcAddress(module, name)
-    if address == nil then return nil, 'DLL export unavailable.' end
-    return ffi.cast(signature, address)
+    if address == nil then
+        exported[name] = nil
+        return nil, 'DLL export unavailable.'
+    end
+    local entry = exported[name]
+    -- A new address means the DLL may have been unloaded/reloaded: recast only
+    -- on change, and never keep an obsolete function pointer.
+    if entry and entry.module == module and entry.address == address then
+        return entry.fn
+    end
+    local sig = signature_types[name]
+    if not sig then return nil, 'Unrecognized DLL export.' end
+    local fn = ffi.cast(sig, address)
+    exported[name] = { module = module, address = address, fn = fn }
+    return fn
 end
 
 local function loaded_export()
-    local set_state, why = loaded_function('CrystalJobsSetState', 'uint32_t (__stdcall *)(const uint8_t*, uint32_t)')
+    local set_state, why = loaded_function('CrystalJobsSetState')
     if not set_state then return nil, why end
     return function(bytes) return set_state(ffi.new('uint8_t[8]', bytes), 8) end
 end
@@ -76,7 +101,7 @@ function Labels:ensure_loaded()
         end
         if module == nil then return false end
 
-        local get_status = loaded_function('CrystalJobsGetStatus', 'uint32_t (__stdcall *)(void*, uint32_t)')
+        local get_status = loaded_function('CrystalJobsGetStatus')
         if get_status then
             local st = ffi.new(status_type)
             if get_status(st, ffi.sizeof(st)) == 0 and st[0].size == 68 and st[0].version == 1 then
@@ -85,7 +110,7 @@ function Labels:ensure_loaded()
                 end
                 if not self.init_attempted and st[0].last_error ~= 1 and st[0].last_error ~= 3 then
                     self.init_attempted = true
-                    local init_fn = loaded_function('CrystalJobsInitialize', 'uint32_t (__stdcall *)(void)')
+                    local init_fn = loaded_function('CrystalJobsInitialize')
                     if init_fn then
                         self.init_rc = tonumber(init_fn())
                         if self.init_rc ~= 0 then
@@ -103,7 +128,7 @@ end
 function Labels:native_decoder_ready()
     local ok, ready = pcall(function()
         self:ensure_loaded()
-        local get_status = loaded_function('CrystalJobsGetStatus', 'uint32_t (__stdcall *)(void*, uint32_t)')
+        local get_status = loaded_function('CrystalJobsGetStatus')
         if not get_status then return false end
         local status = ffi.new(status_type)
         return get_status(status, ffi.sizeof(status)) == 0 and status[0].size == 68
@@ -122,7 +147,7 @@ function Labels:status()
     local ok, info, failure = pcall(function()
         local module = ffi.C.GetModuleHandleA('crystaljobs.dll')
         if module == nil then return nil, 'crystaljobs.dll is not loaded' end
-        local get_status = loaded_function('CrystalJobsGetStatus', 'uint32_t (__stdcall *)(void*, uint32_t)')
+        local get_status = loaded_function('CrystalJobsGetStatus')
         if not get_status then return nil, 'CrystalJobsGetStatus export missing' end
         local st = ffi.new(status_type)
         local rc = get_status(st, ffi.sizeof(st))
