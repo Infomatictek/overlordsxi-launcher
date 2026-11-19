@@ -232,6 +232,8 @@ public sealed class AshitaConfigGenerator
                     trimmed.Equals("/addon unload overlords_gear", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon load overlords_boost", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload overlords_boost", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load overlords_soul_actions", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon unload overlords_soul_actions", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon load overlords_soulhud", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload overlords_soulhud", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.StartsWith("/fps ", StringComparison.OrdinalIgnoreCase))
@@ -305,6 +307,10 @@ public sealed class AshitaConfigGenerator
         {
             EnsureLine(lines, "/addon load overlords_soulhud", insertAtTop: false);
         }
+
+        // Soul Actions is client-only and starts hidden; launch it automatically for everyone.
+        // Normalize existing script entries above to prevent duplicate loads on repeat launches.
+        EnsureLine(lines, "/addon load overlords_soul_actions", insertAtTop: false);
 
         if (settings.FpsCap is 30 or 60 or 0)
         {
