@@ -6062,8 +6062,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/data/soul_actions.tsv",
       "targetPath": "overlords_soul_actions/data/soul_actions.tsv",
-      "sha256": "08bba139a33c773bc822f9a616204b99a767aa6b685ef40f9c83c23e395dd30c",
-      "size": 1126
+      "sha256": "7bad1a161c916200bd8dcf536909c3248f8202827dfd5c5cfcfe92fe8b0d71f1",
+      "size": 1113
     },
     {
       "category": "addon",
