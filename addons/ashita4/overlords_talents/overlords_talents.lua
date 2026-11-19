@@ -1115,7 +1115,7 @@ local EVOLUTION_CAPTIONS =
     'Choose your final, exclusive mastery.',
 }
 
-local function drawEvolutionSigil(dl, cx, cy, radius, ink, variant, active)
+local function drawEvolutionSigil(dl, cx, cy, radius, color, variant, active)
     local shadow = colU32(0.045, 0.055, 0.090, 0.98)
     local inset = colU32(0.11, 0.14, 0.23, 1.0)
     local ink = colU32(color[1], color[2], color[3], color[4])
