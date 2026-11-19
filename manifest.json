@@ -6048,8 +6048,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/overlords_soul_actions.lua",
       "targetPath": "overlords_soul_actions/overlords_soul_actions.lua",
-      "sha256": "d5c2ad16c0e3db11f19784f987a73c9ad3ed887f448c818d391da97b1195131e",
-      "size": 9346
+      "sha256": "2fcfa034e9deb0153e24d71c6ca3383c7dffb77c5ea1482607badd0944364eb8",
+      "size": 9627
     },
     {
       "category": "addon",
@@ -7681,6 +7681,20 @@
       "targetPath": "overlords_soul_actions/tests/resource_audit_test.lua",
       "sha256": "ce83b643b5cad0912445f6a98a9b059ae4fff0d681fbd8d807efcc67f611bac8",
       "size": 1038
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/builtin_profiles.lua",
+      "targetPath": "overlords_soul_actions/builtin_profiles.lua",
+      "sha256": "779608a21ba60677517110564548937e7c5b563b063b520439e5c2307c18a232",
+      "size": 1154
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/tests/builtin_profiles_test.lua",
+      "targetPath": "overlords_soul_actions/tests/builtin_profiles_test.lua",
+      "sha256": "54d81d01aeed3738d35aa1d2e346720862db218ebfc4dfb3a8fedea207ee1872",
+      "size": 784
     }
   ],
   "news": [
