@@ -41,6 +41,14 @@ function Labels.new(resolve, dll_path)
         init_attempted = false,
         init_rc = nil,
         hud_hint = nil,
+        hud_packets = 0,
+        hud_decoded = 0,
+        hud_rejected = 0,
+        last_hud_job = nil,
+        last_hud_length = nil,
+        last_hud_error = nil,
+        send_count = 0,
+        last_send_result = nil,
     }, Labels)
 end
 
@@ -138,9 +146,22 @@ end
 -- A valid, job-matched HUD identity is an alternative client presentation source.
 -- Never use it for gameplay or action permissions.
 function Labels:observe_hud(data, job, character_id)
-    if not integer(job, 1, 22) or not integer(character_id, 1, 4294967295) then return false end
+    self.hud_packets = self.hud_packets + 1
+    self.last_hud_job = job
+    self.last_hud_length = type(data) == 'string' and #data or -1
+    if not integer(job, 1, 22) or not integer(character_id, 1, 4294967295) then
+        self.hud_rejected = self.hud_rejected + 1
+        self.last_hud_error = 'invalid player context'
+        return false
+    end
     local decoded = soulIdentity.decode(data, job)
-    if not decoded then return false end
+    if not decoded then
+        self.hud_rejected = self.hud_rejected + 1
+        self.last_hud_error = 'invalid or mismatched HUD identity'
+        return false
+    end
+    self.hud_decoded = self.hud_decoded + 1
+    self.last_hud_error = nil
     self.hud_hint = { job = job, character_id = character_id, branch = decoded.branch }
     return true
 end
@@ -171,6 +192,8 @@ function Labels:sync(snapshot, character_id, now)
     if self.key == key and self.last_send and now - self.last_send < 1 then return end
     self.key, self.last_send = key, now
     local sent, result = pcall(set_state, bytes)
+    self.send_count = self.send_count + 1
+    self.last_send_result = sent and result or tostring(result)
     self.error = not sent and 'DLL call unavailable.' or result ~= 0 and 'DLL state rejected.' or nil
 end
 
