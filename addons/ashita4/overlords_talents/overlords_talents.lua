@@ -1162,27 +1162,32 @@ local function drawEvolutionCanvas(detail)
     local regionW = select(1, toXY(imgui.GetContentRegionAvail()))
     local canvasW = math.max(610, regionW - 14)
     local centerX = sx + canvasW / 2
-    local colX = { centerX - 164, centerX + 164 }
+    local colX = { centerX - 172, centerX + 172 }
     local gold = { 0.98, 0.79, 0.39, 1.0 }
     local aqua = { 0.38, 0.83, 0.93, 1.0 }
     local dormant = { 0.39, 0.44, 0.53, 1.0 }
     local bg = { 0.06, 0.075, 0.12, 0.96 }
     local lineCol = { 0.26, 0.37, 0.52, 0.95 }
     local ink = function(c) return colU32(c[1], c[2], c[3], c[4]) end
-    local rowHeight = 156
-    local topY = sy + 115
-    local bottomY = topY + 5 * rowHeight + 185
+    local rowHeight = 160
+    local topY = sy + 118
+    local bottomY = topY + 5 * rowHeight + 205
 
     dl:AddRectFilled({sx, sy}, {sx + canvasW, bottomY}, ink(bg), 8)
     dl:AddRect({sx + 1, sy + 1}, {sx + canvasW - 1, bottomY - 1}, ink(lineCol), 8, 0, 1.5)
-    drawTextColored(gold, '    ' .. detail.name .. '  |  WEAPON SKILL EVOLUTION')
-    imgui.SetCursorScreenPos({sx + 17, sy + 32})
+    imgui.SetCursorScreenPos({sx + 17, sy + 10})
+    drawTextColored(gold, detail.name .. '  |  WEAPON SKILL EVOLUTION')
+    imgui.SetCursorScreenPos({sx + canvasW - 104, sy + 10})
+    if imgui.Button('Reset WS##evo_reset_ws', { 88, 24 }) then
+        sendTalentPacket(OP_RESET_WS, detail.id, 0, 0)
+    end
+    imgui.SetCursorScreenPos({sx + 17, sy + 36})
     drawTextColored({0.76, 0.84, 0.94, 1.0},
-        string.format('    %s   •   %d / 5 decisions made', state.specName or 'Soul', math.min(5, detail.spent or 0)))
-    imgui.SetCursorScreenPos({sx + 18, sy + 58})
-    drawTextDisabled('    Left click a sigil to awaken it. Right click to undo. One choice per stage.')
+        string.format('%s   •   %d / 5 decisions made', state.specName or 'Soul', math.min(5, detail.spent or 0)))
+    imgui.SetCursorScreenPos({sx + 17, sy + 60})
+    drawTextDisabled('Left click a sigil to awaken it. Right click to undo. One choice per stage.')
 
-    dl:AddLine({centerX, topY - 20}, {centerX, bottomY - 50}, ink(lineCol), 4)
+    dl:AddLine({centerX, topY - 16}, {centerX, topY + 4 * rowHeight + 28}, ink(lineCol), 4)
     for stage = 1, 5 do
         local y = topY + (stage - 1) * rowHeight
         local chosen = false
@@ -1198,12 +1203,12 @@ local function drawEvolutionCanvas(detail)
         dl:AddCircleFilled({centerX, y + 28}, 18, ink(bg), 24)
         dl:AddCircle({centerX, y + 28}, 16, ink(stageColor), 28, 2.4)
         dl:AddCircleFilled({centerX, y + 28}, chosen and 7 or 4, ink(stageColor), 20)
-        dl:AddLine({centerX - 45, y + 28}, {centerX - 18, y + 28}, ink(stageColor), 2)
-        dl:AddLine({centerX + 18, y + 28}, {centerX + 45, y + 28}, ink(stageColor), 2)
+        dl:AddLine({centerX - 48, y + 28}, {centerX - 18, y + 28}, ink(stageColor), 2)
+        dl:AddLine({centerX + 18, y + 28}, {centerX + 48, y + 28}, ink(stageColor), 2)
 
-        imgui.SetCursorScreenPos({centerX - 71, y - 23})
+        imgui.SetCursorScreenPos({centerX - 71, y - 24})
         drawTextColored(chosen and gold or aqua, string.format('STAGE %d  %s', stage, EVOLUTION_STAGES[stage]))
-        imgui.SetCursorScreenPos({centerX - 162, y + 54})
+        imgui.SetCursorScreenPos({centerX - 135, y + 96})
         drawTextDisabled(EVOLUTION_CAPTIONS[stage])
 
         for ix, node in ipairs(stageNodes) do
@@ -1276,10 +1281,11 @@ local function drawEvolutionCanvas(detail)
             drawTextColored(unlocked and aqua or dormant, scLabels[tier])
             imgui.SetCursorScreenPos({x + 92, y - 3})
             if imgui.SmallButton('<##evsc_prev_' .. tier) then
-                sendTalentPacket(OP_CYCLE_SC, detail.id, tier, 255)
+                sendTalentPacket(OP_CYCLE_SC, detail.id, tier, 2)
             end
             imgui.SameLine()
-            drawTextColored((sc.scId or 0) == 0 and dormant or gold, sc.scName ~= '' and sc.scName or 'OFF')
+            local scLabel = ((sc.scId or 0) == 0) and 'OFF' or (sc.scName ~= '' and sc.scName or 'OFF')
+            drawTextColored((sc.scId or 0) == 0 and dormant or gold, scLabel)
             imgui.SameLine()
             if imgui.SmallButton('>##evsc_next_' .. tier) then
                 sendTalentPacket(OP_CYCLE_SC, detail.id, tier, 1)
