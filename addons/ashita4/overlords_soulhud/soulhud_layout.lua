@@ -440,18 +440,32 @@ end
 -- =============================================================================
 local HUNTSMAN_PETS = {
     [0] = { 'NO COMPANION', 'CALL BEAST' },
-    [1] = { 'WILD RAAZ', 'TANK' },
-    [2] = { 'RAPTOR', 'PACK DPS' },
-    [3] = { 'CEHUETZI', 'APEX TANK' },
-    [4] = { 'GABBRATH', 'APEX DPS' },
+    [1] = { 'WILD RAAZ', 'GUARDIAN' },
+    [2] = { 'RAPTOR', 'PREDATOR' },
+    [3] = { 'CEHUETZI', 'APEX GUARD' },
+    [4] = { 'GABBRATH', 'APEX PRED' },
 }
 
 BESPOKE.huntsman = function(kv)
-    local pid  = math.floor(num(kv, 'pet_id'))
-    local hpp  = num(kv, 'pet_hpp')
-    local info = HUNTSMAN_PETS[pid] or HUNTSMAN_PETS[0]
+    local pid    = math.floor(num(kv, 'pet_id'))
+    local hpp    = num(kv, 'pet_hpp')
+    local info   = HUNTSMAN_PETS[pid] or HUNTSMAN_PETS[0]
+    local guard  = num(kv, 'guard_call')
+    local feint  = num(kv, 'feint_rem')
+    local bg     = num(kv, 'beastguard')
+    local wReady = num(kv, 'whistle_ready')
+    local sub    = info[2]
+    if guard > 0 then
+        sub = string.format('INTERCEPT %ds', math.ceil(guard))
+    elseif feint > 0 then
+        sub = string.format('FEINT %ds', math.ceil(feint))
+    elseif wReady > 0 then
+        sub = 'WHISTLE READY'
+    elseif bg > 0 then
+        sub = 'BEASTGUARD'
+    end
     return {
-        pips = badge(info[1], info[2], pid > 0),
+        pips = badge(info[1], sub, pid > 0 or wReady > 0),
         bar  = {
             key   = 'pet_hp',
             label = pid > 0 and (info[1] .. ' HP') or 'Companion',
