@@ -2,7 +2,7 @@
 -- local combat-log presentation, and optional ImGui inspector for Ashita v4.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.4.3'
+addon.version = '0.4.4'
 addon.desc = 'Soul-specific spell, ability, and weapon skill native presentation.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -15,6 +15,7 @@ local soulBridge = require('soul_bridge')
 local soulPacket = require('soul_packet')
 local resourceAudit = require('resource_audit')
 local nativeActions = require('native_actions')
+local presentationConfig = require('presentation_config')
 local macroResolver = require('macro_resolver')
 local combatLog = require('combat_log')
 local peerSouls = require('peer_souls')
@@ -99,6 +100,16 @@ end
 local function syncNativeCatalog()
     local ok, countOrErr = nativeActions.syncCatalog(catalog)
     state.catalogSynced = ok == true
+    -- Presentation width is a separate optional native capability. Existing
+    -- clients without this export retain the old rendering path unchanged.
+    local rowLimit, why = presentationConfig.load(addon.path)
+    if rowLimit then
+        if not nativeActions.setActionRowLimit(rowLimit) then
+            log('Native menu-row width configuration not available in the loaded DLL.')
+        end
+    elseif why then
+        log('Presentation configuration warning: ' .. tostring(why))
+    end
     return ok, countOrErr
 end
 
