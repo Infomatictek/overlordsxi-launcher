@@ -1115,42 +1115,43 @@ local EVOLUTION_CAPTIONS =
     'Choose your final, exclusive mastery.',
 }
 
-local function drawEvolutionSigil(dl, cx, cy, radius, color, variant, active)
-    local shadow = { 0.045, 0.055, 0.090, 0.98 }
-    local inset = { 0.11, 0.14, 0.23, 1.0 }
+local function drawEvolutionSigil(dl, cx, cy, radius, ink, variant, active)
+    local shadow = colU32(0.045, 0.055, 0.090, 0.98)
+    local inset = colU32(0.11, 0.14, 0.23, 1.0)
+    local ink = colU32(color[1], color[2], color[3], color[4])
     dl:AddCircleFilled({ cx + 1.5, cy + 2.0 }, radius + 5, shadow, 48)
-    dl:AddCircleFilled({ cx, cy }, radius + 3, active and color or inset, 48)
+    dl:AddCircleFilled({ cx, cy }, radius + 3, active and ink or inset, 48)
     dl:AddCircleFilled({ cx, cy }, radius - 1, shadow, 48)
-    dl:AddCircle({ cx, cy }, radius - 5, color, 48, active and 2.7 or 1.4)
-    dl:AddCircle({ cx, cy }, radius - 10, color, 48, 0.8)
+    dl:AddCircle({ cx, cy }, radius - 5, ink, 48, active and 2.7 or 1.4)
+    dl:AddCircle({ cx, cy }, radius - 10, ink, 48, 0.8)
     -- Distinct symbols: sword strike, magic crystal, chained energy, star and crown.
     if variant == 1 then
-        drawDiamond(dl, cx, cy - 4, 7, 15, color, nil, 1)
-        dl:AddLine({cx - 13, cy + 11}, {cx + 13, cy + 11}, color, 3)
-        dl:AddLine({cx, cy + 11}, {cx, cy + 19}, color, 3)
+        drawDiamond(dl, cx, cy - 4, 7, 15, ink, nil, 1)
+        dl:AddLine({cx - 13, cy + 11}, {cx + 13, cy + 11}, ink, 3)
+        dl:AddLine({cx, cy + 11}, {cx, cy + 19}, ink, 3)
     elseif variant == 2 then
-        drawDiamond(dl, cx, cy, 15, 19, nil, color, 2.8)
-        drawDiamond(dl, cx, cy, 7, 10, color, nil, 1)
+        drawDiamond(dl, cx, cy, 15, 19, nil, ink, 2.8)
+        drawDiamond(dl, cx, cy, 7, 10, ink, nil, 1)
     elseif variant == 3 then
-        dl:AddCircle({cx - 8, cy - 1}, 10, color, 32, 3)
-        dl:AddCircle({cx + 8, cy + 1}, 10, color, 32, 3)
-        dl:AddLine({cx - 2, cy - 7}, {cx + 2, cy + 7}, color, 3)
+        dl:AddCircle({cx - 8, cy - 1}, 10, ink, 32, 3)
+        dl:AddCircle({cx + 8, cy + 1}, 10, ink, 32, 3)
+        dl:AddLine({cx - 2, cy - 7}, {cx + 2, cy + 7}, ink, 3)
     elseif variant == 4 then
         for i = 1, 8 do
             local a = i * math.pi / 4
             local x1, y1 = cx + math.cos(a) * 7, cy + math.sin(a) * 7
             local x2, y2 = cx + math.cos(a) * 19, cy + math.sin(a) * 19
-            dl:AddLine({x1, y1}, {x2, y2}, color, 2.5)
+            dl:AddLine({x1, y1}, {x2, y2}, ink, 2.5)
         end
-        dl:AddCircleFilled({cx, cy}, 7, color, 20)
+        dl:AddCircleFilled({cx, cy}, 7, ink, 20)
     else
-        dl:AddLine({cx - 16, cy + 12}, {cx - 20, cy - 10}, color, 3)
-        dl:AddLine({cx - 20, cy - 10}, {cx - 6, cy - 1}, color, 3)
-        dl:AddLine({cx - 6, cy - 1}, {cx, cy - 17}, color, 3)
-        dl:AddLine({cx, cy - 17}, {cx + 7, cy - 1}, color, 3)
-        dl:AddLine({cx + 7, cy - 1}, {cx + 20, cy - 10}, color, 3)
-        dl:AddLine({cx + 20, cy - 10}, {cx + 16, cy + 12}, color, 3)
-        dl:AddLine({cx - 16, cy + 12}, {cx + 16, cy + 12}, color, 3)
+        dl:AddLine({cx - 16, cy + 12}, {cx - 20, cy - 10}, ink, 3)
+        dl:AddLine({cx - 20, cy - 10}, {cx - 6, cy - 1}, ink, 3)
+        dl:AddLine({cx - 6, cy - 1}, {cx, cy - 17}, ink, 3)
+        dl:AddLine({cx, cy - 17}, {cx + 7, cy - 1}, ink, 3)
+        dl:AddLine({cx + 7, cy - 1}, {cx + 20, cy - 10}, ink, 3)
+        dl:AddLine({cx + 20, cy - 10}, {cx + 16, cy + 12}, ink, 3)
+        dl:AddLine({cx - 16, cy + 12}, {cx + 16, cy + 12}, ink, 3)
     end
 end
 
@@ -1167,12 +1168,13 @@ local function drawEvolutionCanvas(detail)
     local dormant = { 0.39, 0.44, 0.53, 1.0 }
     local bg = { 0.06, 0.075, 0.12, 0.96 }
     local lineCol = { 0.26, 0.37, 0.52, 0.95 }
+    local ink = function(c) return colU32(c[1], c[2], c[3], c[4]) end
     local rowHeight = 156
     local topY = sy + 115
     local bottomY = topY + 5 * rowHeight + 185
 
-    dl:AddRectFilled({sx, sy}, {sx + canvasW, bottomY}, bg, 8)
-    dl:AddRect({sx + 1, sy + 1}, {sx + canvasW - 1, bottomY - 1}, lineCol, 8, 0, 1.5)
+    dl:AddRectFilled({sx, sy}, {sx + canvasW, bottomY}, ink(bg), 8)
+    dl:AddRect({sx + 1, sy + 1}, {sx + canvasW - 1, bottomY - 1}, ink(lineCol), 8, 0, 1.5)
     drawTextColored(gold, '    ' .. detail.name .. '  |  WEAPON SKILL EVOLUTION')
     imgui.SetCursorScreenPos({sx + 17, sy + 32})
     drawTextColored({0.76, 0.84, 0.94, 1.0},
@@ -1180,7 +1182,7 @@ local function drawEvolutionCanvas(detail)
     imgui.SetCursorScreenPos({sx + 18, sy + 58})
     drawTextDisabled('    Left click a sigil to awaken it. Right click to undo. One choice per stage.')
 
-    dl:AddLine({centerX, topY - 20}, {centerX, bottomY - 50}, lineCol, 4)
+    dl:AddLine({centerX, topY - 20}, {centerX, bottomY - 50}, ink(lineCol), 4)
     for stage = 1, 5 do
         local y = topY + (stage - 1) * rowHeight
         local chosen = false
@@ -1196,8 +1198,8 @@ local function drawEvolutionCanvas(detail)
         dl:AddCircleFilled({centerX, y + 28}, 18, bg, 24)
         dl:AddCircle({centerX, y + 28}, 16, stageColor, 28, 2.4)
         dl:AddCircleFilled({centerX, y + 28}, chosen and 7 or 4, stageColor, 20)
-        dl:AddLine({centerX - 45, y + 28}, {centerX - 18, y + 28}, stageColor, 2)
-        dl:AddLine({centerX + 18, y + 28}, {centerX + 45, y + 28}, stageColor, 2)
+        dl:AddLine({centerX - 45, y + 28}, {centerX - 18, y + 28}, ink(stageColor), 2)
+        dl:AddLine({centerX + 18, y + 28}, {centerX + 45, y + 28}, ink(stageColor), 2)
 
         imgui.SetCursorScreenPos({centerX - 71, y - 23})
         drawTextColored(chosen and gold or aqua, string.format('STAGE %d  %s', stage, EVOLUTION_STAGES[stage]))
@@ -1256,7 +1258,7 @@ local function drawEvolutionCanvas(detail)
     -- Freely configurable skillchain routing, including OFF on every tier.
     -- No evolution points are spent on these controls.
     local scTop = bottomY - 165
-    dl:AddLine({sx + 20, scTop}, {sx + canvasW - 20, scTop}, lineCol, 1.5)
+    dl:AddLine({sx + 20, scTop}, {sx + canvasW - 20, scTop}, ink(lineCol), 1.5)
     imgui.SetCursorScreenPos({sx + 21, scTop + 9})
     drawTextColored(gold, 'SKILLCHAIN ROUTING')
     imgui.SetCursorScreenPos({sx + 21, scTop + 32})
