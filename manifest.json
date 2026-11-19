@@ -7574,15 +7574,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
-      "sha256": "ed8e782c4b5763439ac5f175b275342042df9a7fd63871164f671839b0e234d1",
-      "size": 76224
+      "sha256": "5ea95a50692fa6659cf985b218f7a3a6fc4bbf43e2a4aa56e644725ad652cf9e",
+      "size": 76454
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/premium_ui.lua",
       "targetPath": "overlords_talents/premium_ui.lua",
-      "sha256": "0905e6889018045a88c206366c24b7e312d176d77fb58c2a954fcbb5113d55fb",
-      "size": 23968
+      "sha256": "3c1e79878781442f0333fbef450d4285d453cf4c50e61643c0af48dc74b0f1d0",
+      "size": 24251
     }
   ],
   "news": [

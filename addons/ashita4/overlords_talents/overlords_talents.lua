@@ -1916,11 +1916,14 @@ ashita.events.register('d3d_present', 'ox_talents_present', function()
     end
 
     local pushedCols = pushThemeStyles()
-    imgui.SetNextWindowSize({ 1360, 940 }, ImGuiCond_FirstUseEver or 4)
+    -- 1360px authored surface plus normal ImGui window padding.
+    imgui.SetNextWindowSize({ 1400, 940 }, ImGuiCond_FirstUseEver or 4)
     if imgui.Begin('OverlordsXI - Weaponskill Talents###OXTalentsWin', state.open) then
         local fontPushed = false
         if state.uiFont ~= nil and imgui.PushFont then
-            fontPushed = pcall(imgui.PushFont, state.uiFont)
+            -- Pass the intended pixel size explicitly; Ashita otherwise inherits
+            -- host UI scaling and can render this font at inconsistent sizes.
+            fontPushed = pcall(imgui.PushFont, state.uiFont, 17)
         end
         local okWin, errWin = xpcall(drawMainContents, debug.traceback)
         if fontPushed and imgui.PopFont then

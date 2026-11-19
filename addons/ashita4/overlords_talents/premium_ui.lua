@@ -456,15 +456,19 @@ end
 function UI.draw(state,action)
     local dl=imgui.GetWindowDrawList()
     local availW=select(1,xy(imgui.GetContentRegionAvail()))
-    -- Respect the actual ImGui content width. Oversizing here caused
-    -- cards, inspector text and artwork to draw outside the window.
-    local width=math.max(940,availW-4)
+    -- The artwork was authored for a 1360px-wide surface. Stretching it to a
+    -- maximized 1080p/1440p window while leaving ImGui fonts at pixel size made
+    -- the text look tiny and incorrectly scaled relative to every panel. Keep
+    -- the authored width and center it when the host window is wider.
+    local designW=1360
+    local width=math.max(940,math.min(designW,availW-4))
     local browserW=math.floor(width*0.215)
     local inspectorW=math.floor(width*0.265)
     local gap=12
     local padX=12
     local centerW=width-browserW-inspectorW-2*gap-2*padX
-    local x,y=xy(imgui.GetCursorScreenPos())
+    local originX,y=xy(imgui.GetCursorScreenPos())
+    local x=originX+math.max(0,math.floor((availW-width)/2))
     local height=884
 
     artPanel(dl,'background_main',x,y,width,height,C.dark,C.edge)
@@ -514,8 +518,8 @@ function UI.draw(state,action)
     end
     if state.renderError then at(x+20,y+818,trunc(state.renderError,140),C.red) end
     -- Register the entire custom-painted surface with ImGui.
-    imgui.SetCursorScreenPos({x+1,y+height+3})
-    imgui.Dummy({math.max(1,width-2),2})
+    imgui.SetCursorScreenPos({originX,y+height+3})
+    imgui.Dummy({math.max(1,availW-2),2})
 end
 
 function UI.unload()
