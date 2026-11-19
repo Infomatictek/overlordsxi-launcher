@@ -280,6 +280,7 @@ function state.StartRebuild(announce)
     end
 
     state.CurrentEquip = bags.GetCurrentEquipment()
+    state.LastBagHash = computeEquippableBagHash()
     state.WearablePieces, state.StoragePieces = bags.Scan(who, true)
     state.WeaponRanks = scorer.RankWeapons(state.WearablePieces, state.StoragePieces, who)
 
@@ -307,7 +308,8 @@ function state.RebuildSingleSet(setName)
             state.WearablePieces,
             state.Who,
             state.UserOverrides[setName],
-            state.Prefs.LockedSlots
+            state.Prefs.LockedSlots,
+            state.CurrentEquip
         )
         state.Sets[setName] = built
     end
@@ -325,7 +327,8 @@ local function stepBuildQueue()
             state.WearablePieces,
             state.Who,
             state.UserOverrides[m.Name],
-            state.Prefs.LockedSlots
+            state.Prefs.LockedSlots,
+            state.CurrentEquip
         )
         q.TempSets[m.Name] = built
         q.TempOrder[#q.TempOrder + 1] = m.Name
