@@ -300,7 +300,8 @@ ashita.events.register('packet_in', 'osa_zone', function(e)
         -- OXSI packets are optional future server identity announcements.
         -- The current self-only OXHD packet remains unchanged.
         if type(e.data) == 'string' and e.data:sub(5,8) == 'OXSI' then
-            peerSouls.observe(peerCache, e.data, os.clock(), nativeActions.soulToPair)
+            peerSouls.observe(peerCache, e.data, os.clock(), nativeActions.soulToPair,
+                soulPacket.canonicalKey)
             return
         end
         local job, character = inGame()
