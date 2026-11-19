@@ -82,7 +82,16 @@ end
 
 local stages={ 'AWAKENING','REFINEMENT','SYNERGY','HYBRIDIZATION','MASTERY' }
 local function evo(detail)
-    return detail and (detail.id==1 or detail.id==47)
+    -- Inspect actual server NODE keys. A new client can connect to a server
+    -- that still supplies the old four-tier Combo/Sanguine trees.
+    if not detail or not detail.nodes then return false end
+    for _,n in ipairs(detail.nodes) do
+        if (detail.id==1 and tostring(n.key):match('^e_co_')) or
+           (detail.id==47 and tostring(n.key):match('^e_sg_')) then
+            return true
+        end
+    end
+    return false
 end
 local function nodeStatus(n,otherChosen)
     if n.rank>0 then return 'CHOSEN',C.gold end
@@ -149,9 +158,12 @@ local function renderNodeCard(dl,x,y,w,h,node,stage,otherChosen,state,action)
     at(x+101,y+13,trunc(node.name,math.max(18,math.floor((w-132)/7))),nameCol)
     local badgeText=isCapstone and (active and 'MASTERED' or status) or status
     at(x+101,y+38,badgeText,tone)
-    local phrase=paragraphs(node.desc,math.max(26,math.floor((w-119)/7)))
-    at(x+101,y+61,trunc(phrase[1] or '',49),descCol)
-    if h>121 then at(x+101,y+79,trunc(phrase[2] or '',49),C.muted) end
+    -- Keep copy INSIDE the artwork's text well. Longer effects belong
+    -- in the inspector, not clipped over neighboring talent cards.
+    local availableChars=math.max(8,math.floor((w-120)/9))
+    local phrase=paragraphs(node.desc,availableChars)
+    at(x+101,y+61,trunc(phrase[1] or '',availableChars),descCol)
+    if h>121 then at(x+101,y+79,trunc(phrase[2] or '',availableChars),C.muted) end
     if h>128 then
         pill(dl,x+w-100,y+h-31,87,active and 'MASTERED' or (avail and 'UNLOCK' or 'INSPECT'),tone)
     end
@@ -208,11 +220,15 @@ local function drawBrowser(state,action,w)
             end
             at(rx+54,ry+7,trunc(ws.name,21),selected and C.gold or C.white)
             local pts=state.spentByWs[ws.id] or 0
-            local isEvoWs=(ws.id==1 or ws.id==47)
+            local isEvoWs=(ws.id==1 or ws.id==47) and state.wsDetail and state.wsDetail.id==ws.id and evo(state.wsDetail)
             local progText=isEvoWs and string.format('EVOLUTION  %d / 5',pts) or string.format('MASTERY  %d PTS',pts)
             at(rx+54,ry+29,progText,pts>0 and C.aqua or C.muted)
             imgui.SetCursorScreenPos({rx,ry+57})
+            -- SetCursorScreenPos alone does not submit an item. The final
+            -- list entry must grow the parent scroll region for Dear ImGui.
+            imgui.Dummy({rw,2})
         end
+        if #rows==0 then imgui.Dummy({w-48,6}) end
     end
     imgui.EndChild()
 end
@@ -273,6 +289,8 @@ local function drawMastery(state,action,w)
                 local bx,by=xy(imgui.GetCursorScreenPos())
                 local rowH=40 + math.ceil(#arr/2)*164
                 if isEvo then rowH=212 end
+                -- The four-tier legacy tree can have multiple card rows.
+                -- Never size the chapter using a guessed evolution schema.
                 if tier>1 then
                     local sx=bx+math.floor((w-16)/2)
                     local spineCol=prevChosen and C.gold or C.edge
@@ -342,7 +360,7 @@ local function drawInspector(state,action,w)
                 end
             end
             eyebrow(dl,x+24,y+270,'COMBAT EFFECT')
-            local lines=paragraphs(n.desc,math.max(25,math.floor((w-52)/7)))
+            local lines=paragraphs(n.desc,math.max(18,math.floor((w-56)/9)))
             for i=1,math.min(#lines,5) do
                 at(x+24,y+304+(i-1)*19,lines[i],C.pale)
             end
@@ -414,9 +432,11 @@ end
 function UI.draw(state,action)
     local dl=imgui.GetWindowDrawList()
     local availW=select(1,xy(imgui.GetContentRegionAvail()))
-    local width=math.max(1120,availW-4)
-    local browserW=248
-    local inspectorW=309
+    -- Respect the actual ImGui content width. Oversizing here caused
+    -- cards, inspector text and artwork to draw outside the window.
+    local width=math.max(940,availW-4)
+    local browserW=math.floor(width*0.215)
+    local inspectorW=math.floor(width*0.265)
     local gap=12
     local padX=12
     local centerW=width-browserW-inspectorW-2*gap-2*padX
@@ -469,8 +489,9 @@ function UI.draw(state,action)
         at(x+20,y+842,trunc(state.statusText,145),C.aqua)
     end
     if state.renderError then at(x+20,y+818,trunc(state.renderError,140),C.red) end
+    -- Register the entire custom-painted surface with ImGui.
     imgui.SetCursorScreenPos({x+1,y+height+3})
-    imgui.Dummy({width,2})
+    imgui.Dummy({math.max(1,width-2),2})
 end
 
 function UI.unload()
