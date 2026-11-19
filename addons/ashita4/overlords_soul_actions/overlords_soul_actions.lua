@@ -45,69 +45,7 @@ ashita.events.register('command', 'osa_command', function(e)
         state.visible = true
         log('Preview mode; Soul identity has NOT been verified by the server.')
     elseif op == 'load' then
-        local path = type(addon.path) == 'string' and
-            (addon.path:gsub('[/\\]+
-        reset()
-        catalog.register('astromancer', 'spell', 1, {
-            name = 'Tsunami', description = 'Demonstration only: a deliberate water incantation.',
-            castTime = 12, mpCost = 100, effectProfile = 'tsunami' })
-        state.soul = 'astromancer'
-        state.visible = true
-        log('Loaded demonstration data only; spell ID and values are not verified.')
-    else
-        log('Commands: /soulactions show|hide|toggle|status|clear|demo|load|inspect <kind> <id>|preview <soul>')
-    end
-end)
-ashita.events.register('load', 'osa_load', function() log('Identity viewer loaded. Use /soulactions demo to inspect a sample.') end)
-ashita.events.register('unload', 'osa_unload', function() reset() end)
-ashita.events.register('packet_in', 'osa_zone', function(e)
-    -- 0x00A zone transition; do not retain stale identities.
-    if e.id == 0x00A then reset() end
-end)
-ashita.events.register('d3d_present', 'osa_render', function()
-    local job = inGame()
-    if job == 0 then
-        if state.lastJob ~= 0 then reset() end
-        state.lastJob = 0
-        return
-    end
-    if state.lastJob ~= 0 and job ~= state.lastJob then reset() end
-    state.lastJob = job
-    if not state.visible then return end
-    local open = { true }
-    if imgui.Begin('OverlordsXI Soul Actions', open) then
-        imgui.Text('Soul: ' .. (state.soul or 'Not synchronized'))
-        imgui.Separator()
-        local soul = catalog.souls[state.soul] or {}
-        local count = 0
-        for _, kind in ipairs({ 'spell', 'ability', 'weaponskill' }) do
-            local entries = soul[kind] or {}
-            local ids = {}
-            for id in pairs(entries) do ids[#ids+1] = id end
-            table.sort(ids)
-            if #ids > 0 then imgui.Text(kind:upper()) end
-            for _, id in ipairs(ids) do
-                local entry = entries[id]
-                count = count + 1
-                if imgui.Selectable(entry.name .. '##' .. kind .. id, state.selected == kind .. ':' .. id) then
-                    state.selected = kind .. ':' .. id
-                end
-                if state.selected == kind .. ':' .. id then
-                    imgui.TextWrapped(entry.description)
-                    if entry.castTime then imgui.Text('Cast: ' .. tostring(entry.castTime) .. 's') end
-                    if entry.recastTime then imgui.Text('Recast: ' .. tostring(entry.recastTime) .. 's') end
-                    if entry.mpCost then imgui.Text('MP: ' .. tostring(entry.mpCost)) end
-                    if entry.tpCost then imgui.Text('TP: ' .. tostring(entry.tpCost)) end
-                end
-            end
-        end
-        if count == 0 then imgui.TextWrapped('No server-verified Soul action definitions loaded.') end
-        imgui.TextDisabled('Viewer only: native menus, logs, cast bars and VFX unchanged.')
-    end
-    imgui.End()
-    if not open[1] then state.visible = false end
-end)
-, '') .. '/actions.tsv') or nil
+        local path = type(addon.path) == 'string' and (addon.path .. '/actions.tsv') or nil
         if not path then log('Addon path unavailable.'); return end
         local count, why = profiles.load(path, catalog)
         if count then
