@@ -22,8 +22,10 @@ end
 -- job, branch, nameLen, soulLen, name, Soul key.
 -- No networking is initiated by this module.
 function M.decode(data)
-    if type(data) ~= 'string' or #data < 24 or #data > 160
-        or data:sub(5,8) ~= 'OXSI' then return nil, 'envelope' end
+    if type(data) ~= 'string' then return nil, 'not_string' end
+    if data:sub(5,8) ~= 'OXSI' then return nil, 'magic_mismatch' end
+    if #data < 24 then return nil, 'envelope_short' end
+    if #data > 160 then return nil, 'envelope_long' end
     local ver,op = data:byte(9,10)
     local actor = u32(data, 11)
     local character = u32(data, 15)
