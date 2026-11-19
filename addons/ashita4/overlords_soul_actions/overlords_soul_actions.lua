@@ -2,12 +2,14 @@
 -- This module intentionally does NOT rewrite native packets or client resources.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.3.0'
+addon.version = '0.3.1'
 addon.desc = 'Soul-specific spell, ability and weapon skill identities.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
 local imgui = require('imgui')
 local catalog = require('catalog')
+local builtinProfiles = require('builtin_profiles')
+builtinProfiles.install(catalog)
 local profiles = require('profiles')
 local presentation = require('presentation')
 local soulBridge = require('soul_bridge')
@@ -48,7 +50,7 @@ ashita.events.register('command', 'osa_command', function(e)
     if op == 'show' then state.visible = true
     elseif op == 'hide' then state.visible = false
     elseif op == 'toggle' then state.visible = not state.visible
-    elseif op == 'clear' then reset(); catalog.clear(); log('Cleared identity data.')
+    elseif op == 'clear' then reset(); catalog.clear(); builtinProfiles.install(catalog); log('Cleared preview and restored built-in Soul identities.')
     elseif op == 'status' then
         local d = state.lastDllStatus
         log('Soul=' .. tostring(state.soul or 'unknown') .. ', source=' .. state.source ..
@@ -61,6 +63,9 @@ ashita.events.register('command', 'osa_command', function(e)
         state.source = 'manual preview'
         state.visible = true
         log('Preview mode; Soul identity has NOT been verified by the server.')
+    elseif op == 'reset' then
+        reset(); catalog.clear(); builtinProfiles.install(catalog)
+        log('Restored built-in Soul action identities.')
     elseif op == 'load' then
         local path = type(addon.path) == 'string' and (addon.path .. '/actions.tsv') or nil
         if not path then log('Addon path unavailable.'); return end
@@ -86,7 +91,7 @@ ashita.events.register('command', 'osa_command', function(e)
         state.visible = true
         log('Loaded demonstration data only; spell ID and values are not verified.')
     else
-        log('Commands: /soulactions show|hide|toggle|status|clear|demo|load|inspect <kind> <id>|preview <soul>')
+        log('Commands: /soulactions show|hide|toggle|status|clear|reset|demo|load|inspect <kind> <id>|preview <soul>')
     end
 end)
 ashita.events.register('load', 'osa_load', function() log('Identity viewer loaded. Use /soulactions demo to inspect a sample.') end)
@@ -181,7 +186,7 @@ ashita.events.register('d3d_present', 'osa_render', function()
                 end
             end
         end
-        if count == 0 then imgui.TextWrapped('No local action profiles loaded for this Soul. Use /soulactions load after adding actions.tsv.') end
+        if count == 0 then imgui.TextWrapped('No custom client action definitions available for this Soul yet.') end
         imgui.TextDisabled('Viewer only: native menus, logs, cast bars and VFX unchanged.')
     end
     imgui.End()
