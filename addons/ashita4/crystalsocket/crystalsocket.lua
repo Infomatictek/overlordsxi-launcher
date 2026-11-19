@@ -1,6 +1,6 @@
 addon.name = 'crystalsocket'
 addon.author = 'OverlordsXI / Crystal Socket'
-addon.version = '0.3.5'
+addon.version = '0.3.6'
 addon.desc = 'OverlordsXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
 
 require('common')
@@ -188,6 +188,9 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
     report(('[crystalsocket] labels dll=%s known=%s branch=%s error=%s'):format(
         tostring(labels.native), tostring(labels.known), tostring(labels.branch), tostring(labels.error)))
     report('[crystalsocket] label_source=' .. tostring(labels.source or 'none'))
+    report(('[crystalsocket] dll_status successes=%s failures=%s last_error=%s'):format(
+        tostring(labels.status_successes), tostring(labels.status_failures),
+        tostring(labels.last_status_error)))
     report(('[crystalsocket] equipment_probe opens=%d open=%s last=%s'):format(equipment_probe.opens, tostring(equipment_probe.open), equipment_probe.last))
     report(('[crystalsocket] hud packets=%d decoded=%d rejected=%d context_job=%s bytes=%s reason=%s hint_job=%s hint_character=%s hint_branch=%s'):format(
         labels.hud_packets, labels.hud_decoded, labels.hud_rejected,
@@ -368,7 +371,7 @@ ashita.events.register('d3d_present', 'crystalsocket_present', function()
                 after.full_labels - before.full_labels,
                 after.search_labels - before.search_labels)
         else
-            equipment_probe.last = 'native status unavailable'
+            equipment_probe.last = 'native status unavailable: ' .. tostring(labels.last_status_error)
         end
         print('[crystalsocket] Equipment native label hook activity: ' .. equipment_probe.last)
     end
