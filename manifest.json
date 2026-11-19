@@ -371,15 +371,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "a6ce2ebb9b623fd75c9abb6993dbb55d55e88244aef32eb9af93a55ede4551e1",
-      "size": 16440
+      "sha256": "8db620fa3e602133a15f9109e525413a355898b526ea4277efff9e5a3a9b2bc1",
+      "size": 17129
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/job_labels.lua",
       "targetPath": "crystalsocket/job_labels.lua",
-      "sha256": "04ab820bccd71d7e0aa8c1c32f4cacec1386bac51be216bf4b1f9d31f650b6c6",
-      "size": 7500
+      "sha256": "bdf0808226c3e74ac2645d94d55f9f9cb1831a4e7284b620112d1a2cc0ac1bae",
+      "size": 8285
     },
     {
       "category": "addon",
