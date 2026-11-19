@@ -2,7 +2,7 @@
 -- local combat-log presentation, and optional ImGui inspector for Ashita v4.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.4.8'
+addon.version = '0.4.9'
 addon.desc = 'Soul-specific spell, ability, and weapon skill native presentation.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -41,6 +41,7 @@ local state = {
     castNameMisses = 0,
     localCastCandidates = 0,
     otherActorCastLines = 0,
+    castPrefixDiagnostics = nil,
     logMissReasons = {},
     peerRewritten = 0,
     peerPacketsSeen = 0,
@@ -103,6 +104,23 @@ local function readVanillaAliases(kind, id)
         end
     end)
     return result
+end
+
+-- Record only formatting bytes preceding an exact local cast phrase. No
+-- chat payload, target, caster name, or personal data is captured.
+local function safePrefixHex(message, player)
+    if type(message) ~= 'string' or type(player) ~= 'string' then return 'unavailable' end
+    local at = message:find(player .. ' starts casting ', 1, true)
+    if not at then return 'marker_not_found' end
+    local count = at - 1
+    if count == 0 then return 'none' end
+    if count > 64 then return 'too_long:' .. tostring(count) end
+    local prefix = message:sub(1, count)
+    local parts = {}
+    for i = 1, #prefix do
+        parts[#parts + 1] = string.format('%02X', prefix:byte(i))
+    end
+    return table.concat(parts, '-') .. ' (' .. tostring(count) .. ' bytes)'
 end
 
 local function syncNativeCatalog()
@@ -214,6 +232,7 @@ ashita.events.register('command', 'osa_command', function(e)
         log('Combat match diagnostics: ' .. (#reasons > 0 and table.concat(reasons, ', ') or 'none'))
         log(('Cast attribution: local_candidates=%d other_or_unrecognized=%d'):format(
             state.localCastCandidates, state.otherActorCastLines))
+        log('Local cast prefix diagnostic: ' .. tostring(state.castPrefixDiagnostics or 'none captured'))
         log(('Nearby Soul identities: %d current, packets=%d accepted=%d, peer messages rewritten=%d'):format(
             peerCache.count, state.peerPacketsSeen, state.peerPacketsAccepted,
             state.peerRewritten))
@@ -326,6 +345,11 @@ ashita.events.register('text_in', 'osa_text_in', function(e)
         -- contains unexpected game text controls.
         local localMarker = state.lastPlayerName .. ' starts casting '
         if current:find(localMarker, 1, true) then
+            if reason == 'actor_mismatch' and not state.castPrefixDiagnostics then
+                state.castPrefixDiagnostics = 'selected=' .. safePrefixHex(current, state.lastPlayerName)
+                    .. ' original=' .. safePrefixHex(e.message, state.lastPlayerName)
+                    .. ' modified=' .. safePrefixHex(e.message_modified, state.lastPlayerName)
+            end
             state.localCastCandidates = state.localCastCandidates + 1
             state.castNameMisses = state.castNameMisses + 1
             local code = reason or 'unknown'
