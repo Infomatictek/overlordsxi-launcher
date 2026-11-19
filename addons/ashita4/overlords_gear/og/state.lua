@@ -241,15 +241,22 @@ local function materializeCustomSet(setName, slotDefs, wearablePieces, who)
             local targetId = type(ov) == 'table' and ov.Id or tonumber(ov)
             local targetName = type(ov) == 'table' and ov.Name or (type(ov) == 'string' and ov or nil)
             for _, p in ipairs(wearablePieces) do
-                if (targetId and p.Id == targetId) or (targetName and string.lower(p.Name) == string.lower(targetName)) then
-                    if bit.band(p.SlotMask or 0, db.SLOT_BY_INDEX[s].mask) ~= 0 then
+                local idMatches = (targetId and p.Id == targetId) or
+                    (not targetId and targetName and string.lower(p.Name) == string.lower(targetName))
+                if idMatches and bit.band(p.SlotMask or 0, db.SLOT_BY_INDEX[s].mask) ~= 0 then
+                    local exact = type(ov) == 'table' and ov.Bag == p.Bag and ov.Index == p.Index
+                    if exact then
                         chosen[s] = p
-                        explain[s] = { Score = 0, Summary = 'Custom Saved Piece', IsOverride = true }
                         break
                     end
+                    -- Fall back to an equivalent copy only if the original bag/index moved.
+                    if not chosen[s] then chosen[s] = p end
                 end
             end
         end
+    end
+    for s, p in pairs(chosen) do
+        explain[s] = { Score = 0, Summary = 'Custom Saved Piece', IsOverride = true }
     end
     return {
         Name     = setName,
@@ -446,7 +453,7 @@ function state.SaveCurrentEquipmentToSet(setName)
     local savedSlots = {}
     for s = 1, 16 do
         if cur[s] then
-            savedSlots[s] = { Id = cur[s].Id, Name = cur[s].Name }
+            savedSlots[s] = { Id = cur[s].Id, Name = cur[s].Name, Bag = cur[s].Bag, Index = cur[s].Index }
         end
     end
 
