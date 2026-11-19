@@ -80,6 +80,8 @@ uint32_t CRYSTALJOBS_CALL CrystalJobsClearCatalog(void);
 uint32_t CRYSTALJOBS_CALL CrystalJobsSetActiveSoul(uint32_t job, uint32_t branch, uint32_t character_id);
 uint32_t CRYSTALJOBS_CALL CrystalJobsClearActiveSoul(void);
 uint32_t CRYSTALJOBS_CALL CrystalJobsGetActionStatus(CrystalJobsActionStatus* status, uint32_t size);
+/* Configurable menu-row glyph budget; 8..48 chars. 0=success, 1=invalid. */
+uint32_t CRYSTALJOBS_CALL CrystalJobsSetActionRowLimit(uint32_t max_chars);
 
 #ifdef __cplusplus
 }
