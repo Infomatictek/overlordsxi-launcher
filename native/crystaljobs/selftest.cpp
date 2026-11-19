@@ -550,8 +550,8 @@ static CrystalJobsActionEntry make_action(uint8_t job, uint8_t branch, uint32_t 
     e.action_id = id;
     e.icon_id = icon_v1;
     e.icon_id_v2 = icon_v2;
-    if (name) std::strncpy(e.name, name, sizeof(e.name) - 1);
-    if (desc) std::strncpy(e.description, desc, sizeof(e.description) - 1);
+    if (name) copy_cstr_bounded(e.name, sizeof(e.name), name, sizeof(e.name));
+    if (desc) copy_cstr_bounded(e.description, sizeof(e.description), desc, sizeof(e.description));
     return e;
 }
 
@@ -604,10 +604,10 @@ static void action_catalog_checks() {
     uint8_t ev[8] = {1, 1, 13, 1, 100, 0, 0, 0};
     state.update(ev, 8, GetTickCount());
     assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Shadow Sq.: Ichi") == 0);
-    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 339), "Shadow Sq.: Ni") == 0);
     assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_target_hook), 338), "Shadow Squadron: Ichi") == 0);
     assert(magic_icon_hook(99, 200) == reinterpret_cast<void*>(0x13579bdfu) && last_icon_v1 == 12 && last_icon_v2 == 1024);
     assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_desc_hook), 338), "Summon 2 offensive shadow clones.") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 339), "Shadow Sq.: Ni") == 0);
     assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_target_hook), 339), "Shadow Squadron: Ni") == 0);
 
     // Weapon skill (id < 512) and Job Ability (id >= 512) resolve independently.
