@@ -2,7 +2,7 @@
 -- This module intentionally does NOT rewrite native packets or client resources.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.1.0'
+addon.version = '0.2.0'
 addon.desc = 'Soul-specific spell, ability and weapon skill identities.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -10,24 +10,28 @@ local imgui = require('imgui')
 local catalog = require('catalog')
 local profiles = require('profiles')
 local presentation = require('presentation')
-local state = { soul = nil, visible = false, transitioning = false, lastJob = 0, selected = nil }
+local soulBridge = require('soul_bridge')
+local state = { soul = nil, visible = false, lastJob = 0, lastCharacter = 0,
+    lastPoll = -100, selected = nil, preview = false, source = 'none' }
 local function log(message) print('[Soul Actions] ' .. tostring(message)) end
 local function inGame()
-    local ok, job = pcall(function()
+    local ok, job, character = pcall(function()
         local m = AshitaCore:GetMemoryManager()
         if not m then return 0 end
         local p, party = m:GetPlayer(), m:GetParty()
-        if not p or not party or not party:GetMemberName(0) or party:GetMemberTargetIndex(0) == 0 then return 0 end
-        return p:GetMainJob() or 0
+        if not p or not party or not party:GetMemberName(0) or party:GetMemberTargetIndex(0) == 0 then return 0, 0 end
+        return p:GetMainJob() or 0, party:GetMemberServerId(0) or 0
     end)
-    return ok and tonumber(job) or 0
+    return ok and tonumber(job) or 0, ok and tonumber(character) or 0
 end
 local function reset()
     state.soul = nil
     state.selected = nil
+    state.preview = false
+    state.source = 'none'
     catalog.clear()
 end
--- Manual local preview is deliberately separate from verified server sync.
+-- Local preview is deliberately separate from client-verified DLL Soul state.
 -- /soulactions preview <key> is for testing only, not proof of active Soul.
 ashita.events.register('command', 'osa_command', function(e)
     local args = {}
@@ -39,9 +43,12 @@ ashita.events.register('command', 'osa_command', function(e)
     elseif op == 'hide' then state.visible = false
     elseif op == 'toggle' then state.visible = not state.visible
     elseif op == 'clear' then reset(); log('Cleared identity data.')
-    elseif op == 'status' then log('Soul=' .. tostring(state.soul or 'unknown') .. ', entries=' .. tostring(catalog.souls[state.soul] and 'loaded' or 'none'))
+    elseif op == 'status' then
+        log('Soul=' .. tostring(state.soul or 'unknown') .. ', source=' .. state.source .. ', entries=' .. tostring(catalog.souls[state.soul] and 'loaded' or 'none'))
     elseif op == 'preview' and args[3] and args[3]:match('^[%w_%-]+$') then
         state.soul = args[3]:lower()
+        state.preview = true
+        state.source = 'manual preview'
         state.visible = true
         log('Preview mode; Soul identity has NOT been verified by the server.')
     elseif op == 'load' then
@@ -63,6 +70,8 @@ ashita.events.register('command', 'osa_command', function(e)
             name = 'Tsunami', description = 'Demonstration only: a deliberate water incantation.',
             castTime = 12, mpCost = 100, effectProfile = 'tsunami' })
         state.soul = 'astromancer'
+        state.preview = true
+        state.source = 'demo'
         state.visible = true
         log('Loaded demonstration data only; spell ID and values are not verified.')
     else
@@ -76,18 +85,28 @@ ashita.events.register('packet_in', 'osa_zone', function(e)
     if e.id == 0x00A then reset() end
 end)
 ashita.events.register('d3d_present', 'osa_render', function()
-    local job = inGame()
-    if job == 0 then
+    local job, character = inGame()
+    if job == 0 or character == 0 then
         if state.lastJob ~= 0 then reset() end
-        state.lastJob = 0
+        state.lastJob, state.lastCharacter = 0, 0
         return
     end
-    if state.lastJob ~= 0 and job ~= state.lastJob then reset() end
-    state.lastJob = job
+    if (state.lastJob ~= 0 and job ~= state.lastJob)
+        or (state.lastCharacter ~= 0 and character ~= state.lastCharacter) then reset() end
+    state.lastJob, state.lastCharacter = job, character
+    local now = os.clock()
+    if not state.preview and now - state.lastPoll >= 1 then
+        state.lastPoll = now
+        local active = soulBridge.resolve(soulBridge.read(), job, character)
+        if state.soul ~= active then state.selected = nil end
+        state.soul = active
+        state.source = active and 'Crystal Jobs client state' or 'not synchronized'
+    end
     if not state.visible then return end
     local open = { true }
     if imgui.Begin('OverlordsXI Soul Actions', open) then
         imgui.Text('Soul: ' .. (state.soul or 'Not synchronized'))
+        imgui.TextDisabled('Identity: ' .. state.source)
         imgui.Separator()
         local soul = catalog.souls[state.soul] or {}
         local count = 0
@@ -112,7 +131,7 @@ ashita.events.register('d3d_present', 'osa_render', function()
                 end
             end
         end
-        if count == 0 then imgui.TextWrapped('No server-verified Soul action definitions loaded.') end
+        if count == 0 then imgui.TextWrapped('No local action profiles loaded for this Soul. Use /soulactions load after adding actions.tsv.') end
         imgui.TextDisabled('Viewer only: native menus, logs, cast bars and VFX unchanged.')
     end
     imgui.End()
