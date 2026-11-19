@@ -12,7 +12,7 @@ local swapper = {}
 
 local internalEquip = {} -- slotIdx -> { Bag = bagId, Index = itemIdx, Id = itemId, Timer = os.clock() }
 local isInjecting1A = false
-local lastPos       = { x = nil, y = nil, z = nil, moving = false, moveUntil = 0 }
+local lastPos       = { x = nil, y = nil, z = nil, moving = false, movingSince = nil, moveUntil = 0 }
 
 swapper.Zone = {
     Holding   = true,
@@ -31,6 +31,7 @@ function swapper.OnZoneIn()
     swapper.Zone.MovedAt   = nil
     swapper.ActiveAction   = nil
     internalEquip          = {}
+    lastPos = { x = nil, y = nil, z = nil, moving = false, movingSince = nil, moveUntil = 0 }
 end
 
 function swapper.OnZoneOut()
@@ -138,7 +139,7 @@ function swapper.EquipSlots(slots, lockedSlots, setName)
         local c = changes[1]
         local pkt = { 0x00, 0x00, 0x00, 0x00, c.Index, c.SlotId, c.Bag, 0x00 }
         pktMgr:AddOutgoingPacket(0x50, pkt)
-        internalEquip[c.SlotIdx] = { Bag = c.Bag, Index = c.Index, Id = c.Id, Timer = now + 0.30 }
+        internalEquip[c.SlotIdx] = { Bag = c.Bag, Index = c.Index, Id = c.Id, Timer = now + 2.00 }
     else
         local pkt = {}
         for i = 1, 72 do pkt[i] = 0x00 end
@@ -148,7 +149,7 @@ function swapper.EquipSlots(slots, lockedSlots, setName)
             pkt[offset]     = c.Index
             pkt[offset + 1] = c.SlotId
             pkt[offset + 2] = c.Bag
-            internalEquip[c.SlotIdx] = { Bag = c.Bag, Index = c.Index, Id = c.Id, Timer = now + 0.30 }
+            internalEquip[c.SlotIdx] = { Bag = c.Bag, Index = c.Index, Id = c.Id, Timer = now + 2.00 }
         end
         pktMgr:AddOutgoingPacket(0x51, pkt)
     end
@@ -480,10 +481,12 @@ local function updatePlayerMovement()
         local dz = z - lastPos.z
         local distSq = dx * dx + dy * dy + dz * dz
         if distSq > 0.04 then
+            if not lastPos.moving then lastPos.movingSince = now end
             lastPos.moving = true
             lastPos.moveUntil = now + 0.65
         elseif now > lastPos.moveUntil then
             lastPos.moving = false
+            lastPos.movingSince = nil
         end
     end
     lastPos.x, lastPos.y, lastPos.z = x, y, z
@@ -587,7 +590,8 @@ function swapper.Tick(state)
     if state.Toggles.Kite and state.Sets.Movement then
         finalSlots = mergeSetSlots(finalSlots, state.Sets.Movement.Slots)
         label = label .. ' + Kite'
-    elseif status == 0 and moving and state.Prefs.AutoMoveGear and state.Sets.Movement then
+    elseif status == 0 and moving and lastPos.movingSince and (now - lastPos.movingSince) >= 1.25
+        and state.Prefs.AutoMoveGear and state.Sets.Movement then
         local userIdleOverrides = state.UserOverrides and state.UserOverrides.Idle
         finalSlots = mergeSetSlots(finalSlots, state.Sets.Movement.Slots, userIdleOverrides)
         label = label .. ' + Move'
