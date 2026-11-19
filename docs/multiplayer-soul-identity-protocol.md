@@ -24,7 +24,7 @@ Purpose: let observers see **the caster's Soul-specific spell, Job Ability, and 
 
 `overlords_soul_actions/peer_souls.lua` is a bounded verified in-memory cache (maximum 128 entries, 120-second expiry). `overlords_soul_actions.lua` listens for OXSI announcements, matches known peers to incoming native combat text, resolves action IDs from `data/soul_actions.tsv`, and changes only the local visual text. It does not send packets or control gameplay. A confirmed cast line belonging to the local character continues to use the local Soul path.
 
-**A server sender is required** to make nearby-player names appear. Until that exists and is compiled/tested on the user's server, only local action names can be expected to change. Multi-client validation must cover two players using the same vanilla action ID with *different* Soul identities, zoning, range entry/exit, Soul swaps, and actor ID reuse.
+**Server sender staged, not deployed:** `Infomatictek/overlordsxi` draft PR #23 (`feat/multiplayer-soul-action-identity`) adds `overlords_soul_action_peers.cpp`, registers it in `modules/init.append.txt`, and adds `hud.buildIdentityData`. It has NOT been compiled, merged into server `main`, or verified with two players. Until that occurs, only local action names can be expected to change. Multi-client validation must cover two players using the same vanilla action ID with *different* Soul identities, zoning, range entry/exit, Soul swaps, and actor ID reuse.
 
 ## Non-goals
 
