@@ -6055,8 +6055,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/combat_log.lua",
       "targetPath": "overlords_soul_actions/combat_log.lua",
-      "sha256": "a9187fcac76b03b939e21ec31ea836d793ca7a7e407aac1be32d6a53552c9813",
-      "size": 9448
+      "sha256": "6340a86dc9123c64bfadc7d9d9490c0406a737c6e363c5527b67a6505cddf5f7",
+      "size": 5169
     },
     {
       "category": "addon",
