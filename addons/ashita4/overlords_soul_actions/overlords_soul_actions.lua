@@ -2,7 +2,7 @@
 -- local combat-log presentation, and optional ImGui inspector for Ashita v4.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.4.2'
+addon.version = '0.4.3'
 addon.desc = 'Soul-specific spell, ability, and weapon skill native presentation.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -17,6 +17,8 @@ local resourceAudit = require('resource_audit')
 local nativeActions = require('native_actions')
 local macroResolver = require('macro_resolver')
 local combatLog = require('combat_log')
+local peerSouls = require('peer_souls')
+local peerCache = peerSouls.new()
 
 local state = {
     soul = nil,
@@ -38,6 +40,7 @@ local state = {
     textRewritten = 0,
     castNameMisses = 0,
     logMissReasons = {},
+    peerRewritten = 0,
 }
 
 local vanillaCache = { spell = {}, ability = {}, weaponskill = {} }
@@ -120,6 +123,7 @@ local function inGame()
 end
 
 local function reset()
+    peerSouls.clear(peerCache)
     state.soul = nil
     state.selected = nil
     state.preview = false
@@ -184,6 +188,8 @@ ashita.events.register('command', 'osa_command', function(e)
         end
         table.sort(reasons)
         log('Combat match diagnostics: ' .. (#reasons > 0 and table.concat(reasons, ', ') or 'none'))
+        log(('Nearby Soul identities: %d verified, peer messages rewritten=%d'):format(
+            peerCache.count, state.peerRewritten))
     elseif op == 'capabilities' then
         local a = nativeActions.readStatus()
         state.lastActionStatus = a
@@ -249,7 +255,27 @@ ashita.events.register('text_in', 'osa_text_in', function(e)
     if rewritten then
         state.textRewritten = state.textRewritten + 1
         e.message_modified = rewritten
-    elseif current:find('starts casting ', 1, true) then
+        return
+    end
+    -- Other players have independent Soul identities. Only server-announced,
+    -- unexpired peers can have action names substituted in chat.
+    -- Never infer a Soul from the shared vanilla spell ID.
+    if current:find('starts casting ', 1, true) or current:find(' uses ', 1, true)
+        or current:find(' casts ', 1, true) or current:find(' readies ', 1, true) then
+        local now = os.clock()
+        for _, peer in pairs(peerCache.byActor) do
+            if peer.name ~= state.lastPlayerName and peerSouls.get(peerCache, peer.name, now) then
+                local replacement = combatLog.rewriteLine(current, peer.name,
+                    catalog, peer.soul, readVanillaAliases)
+                if replacement then
+                    e.message_modified = replacement
+                    state.peerRewritten = state.peerRewritten + 1
+                    return
+                end
+            end
+        end
+    end
+    if current:find('starts casting ', 1, true) then
         -- Aggregates only. No raw messages, player names, or chat payloads logged.
         state.castNameMisses = state.castNameMisses + 1
         local code = reason or 'unknown'
@@ -271,6 +297,12 @@ ashita.events.register('packet_in', 'osa_zone', function(e)
     -- 0x00A / 0x00B zone transitions: never retain stale identities.
     if e.id == 0x00B or e.id == 0x00A then reset(); return end
     if e.id == 0x1FC then
+        -- OXSI packets are optional future server identity announcements.
+        -- The current self-only OXHD packet remains unchanged.
+        if type(e.data) == 'string' and e.data:sub(5,8) == 'OXSI' then
+            peerSouls.observe(peerCache, e.data, os.clock(), nativeActions.soulToPair)
+            return
+        end
         local job, character = inGame()
         local payload = soulPacket.decode(e.data, job)
         if payload then
