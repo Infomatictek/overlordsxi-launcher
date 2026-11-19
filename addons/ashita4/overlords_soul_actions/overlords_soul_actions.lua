@@ -262,7 +262,7 @@ ashita.events.register('text_in', 'osa_text_in', function(e)
     -- Never infer a Soul from the shared vanilla spell ID.
     if current:find('starts casting ', 1, true) or current:find(' uses ', 1, true)
         or current:find(' casts ', 1, true) or current:find(' readies ', 1, true) then
-        local now = os.clock()
+        local now = os.time()
         for _, peer in pairs(peerCache.byActor) do
             if peer.name ~= state.lastPlayerName and peerSouls.get(peerCache, peer.name, now) then
                 local replacement = combatLog.rewriteLine(current, peer.name,
@@ -300,7 +300,7 @@ ashita.events.register('packet_in', 'osa_zone', function(e)
         -- OXSI packets are optional future server identity announcements.
         -- The current self-only OXHD packet remains unchanged.
         if type(e.data) == 'string' and e.data:sub(5,8) == 'OXSI' then
-            peerSouls.observe(peerCache, e.data, os.clock(), nativeActions.soulToPair,
+            peerSouls.observe(peerCache, e.data, os.time(), nativeActions.soulToPair,
                 soulPacket.canonicalKey)
             return
         end
