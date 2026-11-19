@@ -52,6 +52,11 @@ end
 function M.observe(cache, data, now, resolvePair)
     local payload = M.decode(data)
     if not payload or type(now) ~= 'number' or type(resolvePair) ~= 'function' then return false end
+    -- Reject inconsistent Soul announcements before touching a valid cache.
+    if payload.op == 1 then
+        local job, branch = resolvePair(payload.soul)
+        if job ~= payload.job or branch ~= payload.branch then return false end
+    end
     local key = payload.name:lower()
     local previous = cache.byActor[payload.actor]
     if previous then
@@ -60,8 +65,6 @@ function M.observe(cache, data, now, resolvePair)
         cache.count = cache.count - 1
     end
     if payload.op == 0 then return true end
-    local job, branch = resolvePair(payload.soul)
-    if job ~= payload.job or branch ~= payload.branch then return false end
     local other = cache.byName[key]
     if other then
         cache.byActor[other.actor] = nil
