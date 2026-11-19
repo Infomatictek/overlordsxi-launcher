@@ -2,7 +2,7 @@
 -- local combat-log presentation, and optional ImGui inspector for Ashita v4.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.4.7'
+addon.version = '0.4.8'
 addon.desc = 'Soul-specific spell, ability, and weapon skill native presentation.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -39,10 +39,14 @@ local state = {
     textSeen = 0,
     textRewritten = 0,
     castNameMisses = 0,
+    localCastCandidates = 0,
+    otherActorCastLines = 0,
     logMissReasons = {},
     peerRewritten = 0,
     peerPacketsSeen = 0,
     peerPacketsAccepted = 0,
+    peerUpserts = 0,
+    peerRevokes = 0,
     peerRejectReasons = {},
     peerEnvelopeSamples = {},
     -- Fail closed: native menus remain Soul-aware, combat text stays untouched
@@ -208,9 +212,13 @@ ashita.events.register('command', 'osa_command', function(e)
         end
         table.sort(reasons)
         log('Combat match diagnostics: ' .. (#reasons > 0 and table.concat(reasons, ', ') or 'none'))
+        log(('Cast attribution: local_candidates=%d other_or_unrecognized=%d'):format(
+            state.localCastCandidates, state.otherActorCastLines))
         log(('Nearby Soul identities: %d current, packets=%d accepted=%d, peer messages rewritten=%d'):format(
             peerCache.count, state.peerPacketsSeen, state.peerPacketsAccepted,
             state.peerRewritten))
+        log(('OXSI accepted operations: upserts=%d revokes=%d'):format(
+            state.peerUpserts, state.peerRevokes))
         local rejected = {}
         for reason, count in pairs(state.peerRejectReasons) do
             rejected[#rejected + 1] = tostring(reason) .. '=' .. tostring(count)
@@ -312,10 +320,19 @@ ashita.events.register('text_in', 'osa_text_in', function(e)
         end
     end
     if state.soul and current:find('starts casting ', 1, true) then
-        -- Aggregates only. No raw messages, player names, or chat payloads logged.
-        state.castNameMisses = state.castNameMisses + 1
-        local code = reason or 'unknown'
-        state.logMissReasons[code] = (state.logMissReasons[code] or 0) + 1
+        -- An actor mismatch is NORMAL when another player casts. Do not
+        -- report it as a failed local Soul rename.
+        -- This deliberately avoids guessing who cast when the actor prefix
+        -- contains unexpected game text controls.
+        local localMarker = state.lastPlayerName .. ' starts casting '
+        if current:find(localMarker, 1, true) then
+            state.localCastCandidates = state.localCastCandidates + 1
+            state.castNameMisses = state.castNameMisses + 1
+            local code = reason or 'unknown'
+            state.logMissReasons[code] = (state.logMissReasons[code] or 0) + 1
+        else
+            state.otherActorCastLines = state.otherActorCastLines + 1
+        end
     end
 end)
 
@@ -344,6 +361,11 @@ ashita.events.register('packet_in', 'osa_zone', function(e)
                 nativeActions.soulToPair, soulPacket.canonicalKey)
             if ok then
                 state.peerPacketsAccepted = state.peerPacketsAccepted + 1
+                if reason == 'revoked' then
+                    state.peerRevokes = state.peerRevokes + 1
+                elseif reason == 'accepted' then
+                    state.peerUpserts = state.peerUpserts + 1
+                end
             else
                 local category = reason or 'unclassified'
                 state.peerRejectReasons[category] = (state.peerRejectReasons[category] or 0) + 1
