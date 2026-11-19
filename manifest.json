@@ -378,8 +378,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/job_labels.lua",
       "targetPath": "crystalsocket/job_labels.lua",
-      "sha256": "88da1fb97b0e6d3c6aaeb62740343ea1a2fc0416a86480e3488464cbf813d88d",
-      "size": 9280
+      "sha256": "e9d5f691abe11b9824031a97bbad9a70b7ad25f0b638ab0e68b3e45f13e66508",
+      "size": 10124
     },
     {
       "category": "addon",
@@ -6076,8 +6076,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/soul_bridge.lua",
       "targetPath": "overlords_soul_actions/soul_bridge.lua",
-      "sha256": "6cfa32b8a2f3618d9c25bea706a4ecd777803f25d510e12580de94b762341f21",
-      "size": 3018
+      "sha256": "2b2aea1c20a67b033c10794455eae382994884af50763e0d3f30e94e4008398f",
+      "size": 3459
     },
     {
       "category": "addon",
