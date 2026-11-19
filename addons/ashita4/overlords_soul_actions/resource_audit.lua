@@ -24,7 +24,7 @@ local function lang(resource, field)
 end
 function M.start(manager, rootPath)
     if active ~= nil then return nil, 'Resource audit already running.' end
-    if type(manager) ~= 'table' and type(manager) ~= 'userdata' then
+    if type(manager) ~= 'table' and type(manager) ~= 'userdata' and type(manager) ~= 'cdata' then
         -- Ashita resource interfaces may be userdata; reject absent managers.
         return nil, 'Resource manager unavailable.'
     end
