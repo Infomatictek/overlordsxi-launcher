@@ -20,6 +20,7 @@ local signature_types = {
     CrystalJobsInitialize = ffi.typeof('uint32_t (__stdcall *)(void)'),
 }
 local exported = {}
+local state_bytes_type = ffi.typeof('uint8_t[8]')
 local function loaded_function(name)
     local module = ffi.C.GetModuleHandleA('crystaljobs.dll')
     if module == nil then
@@ -47,7 +48,7 @@ end
 local function loaded_export()
     local set_state, why = loaded_function('CrystalJobsSetState')
     if not set_state then return nil, why end
-    return function(bytes) return set_state(ffi.new('uint8_t[8]', bytes), 8) end
+    return function(bytes) return set_state(ffi.new(state_bytes_type, bytes), 8) end
 end
 
 local function integer(value, minimum, maximum)
