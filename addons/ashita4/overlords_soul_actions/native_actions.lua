@@ -89,6 +89,7 @@ if okFfi and ffi then
         CrystalJobsSetActiveSoul   = 'uint32_t (__stdcall *)(uint32_t, uint32_t, uint32_t)',
         CrystalJobsClearActiveSoul = 'uint32_t (__stdcall *)(void)',
         CrystalJobsGetActionStatus = 'uint32_t (__stdcall *)(void*, uint32_t)',
+        CrystalJobsSetActionRowLimit = 'uint32_t (__stdcall *)(uint32_t)',
     }
     for name, sig in pairs(sigs) do
         local okT, tp = pcall(ffi.typeof, sig)
@@ -194,6 +195,15 @@ function M.clearActiveSoul()
     local fn = resolveFn('CrystalJobsClearActiveSoul')
     if not fn then return false end
     local ok, rc = pcall(fn)
+    return ok and tonumber(rc) == 0
+end
+
+function M.setActionRowLimit(limit)
+    local n = tonumber(limit)
+    if not n or n % 1 ~= 0 or n < 8 or n > 48 then return false end
+    local fn = resolveFn('CrystalJobsSetActionRowLimit')
+    if not fn then return false end
+    local ok, rc = pcall(fn, n)
     return ok and tonumber(rc) == 0
 end
 
