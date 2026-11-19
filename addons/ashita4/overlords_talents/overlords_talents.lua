@@ -1195,9 +1195,9 @@ local function drawEvolutionCanvas(detail)
         end
         table.sort(stageNodes, function(a, b) return a.col < b.col end)
         local stageColor = chosen and gold or dormant
-        dl:AddCircleFilled({centerX, y + 28}, 18, bg, 24)
-        dl:AddCircle({centerX, y + 28}, 16, stageColor, 28, 2.4)
-        dl:AddCircleFilled({centerX, y + 28}, chosen and 7 or 4, stageColor, 20)
+        dl:AddCircleFilled({centerX, y + 28}, 18, ink(bg), 24)
+        dl:AddCircle({centerX, y + 28}, 16, ink(stageColor), 28, 2.4)
+        dl:AddCircleFilled({centerX, y + 28}, chosen and 7 or 4, ink(stageColor), 20)
         dl:AddLine({centerX - 45, y + 28}, {centerX - 18, y + 28}, ink(stageColor), 2)
         dl:AddLine({centerX + 18, y + 28}, {centerX + 45, y + 28}, ink(stageColor), 2)
 
@@ -1212,7 +1212,7 @@ local function drawEvolutionCanvas(detail)
             local active = node.rank > 0
             local color = active and gold or (node.canLearn and aqua or dormant)
             if active then
-                dl:AddCircle({x, cy}, 43, {0.93, 0.65, 0.23, 0.55}, 48, 4)
+                dl:AddCircle({x, cy}, 43, colU32(0.93, 0.65, 0.23, 0.55), 48, 4)
             end
             drawEvolutionSigil(dl, x, cy, 34, color, stage, active)
             imgui.SetCursorScreenPos({x - 43, cy - 43})
