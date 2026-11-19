@@ -30,6 +30,18 @@ assert(peers.get(cache, 'OtherNinja', 101).soul == 'shinobi')
 assert(peers.get(cache, 'OtherNinja', 221) == nil)
 assert(cache.count == 0)
 
+-- Rejection diagnostics must distinguish malformed envelopes from valid
+-- packets whose Soul/job/branch pair is inconsistent with the catalog.
+local malformed, malformedReason = peers.decode(raw:sub(1, #raw - 6))
+assert(malformed == nil and malformedReason == 'packet_length')
+local badPair, pairReason = peers.observe(cache,
+    packet(1, 'OtherNinja', 'shinobi', 13, 2, 54322, 54322),
+    102, nativeActions.soulToPair, soulPacket.canonicalKey)
+assert(not badPair and pairReason == 'soul_job_branch_mismatch')
+local badHeader, headerReason = peers.decode(
+    packet(1, 'OtherNinja', 'shinobi', 13, 1, 54322, 54322):gsub('OXSI', 'OXZZ'))
+assert(badHeader == nil and headerReason == 'envelope')
+
 -- Legacy key kurogane normalizes to shinobi over the wire.
 local legacyPkt = packet(1, 'Kage', 'kurogane', 13, 1, 60001, 60001)
 assert(peers.observe(cache, legacyPkt, 250, nativeActions.soulToPair, soulPacket.canonicalKey))
