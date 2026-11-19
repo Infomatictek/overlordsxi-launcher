@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 
-TEXT_LF_SUFFIXES = {".lua", ".md", ".json", ".yml", ".yaml", ".py", ".cs", ".xaml", ".csproj", ".tsv", ".txt", ".csv"}
+TEXT_LF_SUFFIXES = {".lua", ".md", ".json", ".yml", ".yaml", ".py", ".cs", ".xaml", ".csproj", ".tsv", ".txt", ".csv", ".cfg", ".ini", ".conf"}
 
 
 def sha256_file(path: Path) -> tuple[str, int]:
