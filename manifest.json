@@ -371,15 +371,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "b8cebbaa22a42ab535802e53a574b30df0aff7c6a98db3507a8b04cda182ae6f",
-      "size": 18431
+      "sha256": "29b6590ad5358f7e6ac305fb2371a4de37c189e024eda04911c3b81cdcc8fb74",
+      "size": 18682
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/job_labels.lua",
       "targetPath": "crystalsocket/job_labels.lua",
-      "sha256": "85ac6cd9786cd224b10b54ca7a30316ea8679a7c1c54d0b1c4cd99b902ef793f",
-      "size": 8285
+      "sha256": "88da1fb97b0e6d3c6aaeb62740343ea1a2fc0416a86480e3488464cbf813d88d",
+      "size": 9280
     },
     {
       "category": "addon",
@@ -7672,8 +7672,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/resource_audit.lua",
       "targetPath": "overlords_soul_actions/resource_audit.lua",
-      "sha256": "d6bc9240c38baa2d478ff2a819aea65900e5d5789a27635a81b81ad382f16c95",
-      "size": 3407
+      "sha256": "654bcb7e73c96455f00a64929e29663abdb2fab3d39355ca1f063d9f9cbeb4f8",
+      "size": 3546
     },
     {
       "category": "addon",
