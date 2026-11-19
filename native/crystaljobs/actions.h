@@ -114,7 +114,11 @@ inline bool compact_action_row_name(const char* full, char* output,
     }
     if (suffix < length && length - suffix < max_chars / 2) {
         const size_t tail = length - suffix;
-        const size_t prefix_max = max_chars - tail - 1;
+        // Reserve a consistent suffix slot so Ichi/Ni-style variants of
+        // the same action don't appear with wildly different stem lengths.
+        const size_t reserved_suffix = (tail < 6) ? 6 : tail;
+        const size_t prefix_max = max_chars > reserved_suffix + 1
+            ? max_chars - reserved_suffix - 1 : 0;
         if (prefix_max >= 3) {
             size_t end = prefix_max;
             while (end > 0 && (static_cast<unsigned char>(full[end]) & 0xC0u) == 0x80u) --end;
