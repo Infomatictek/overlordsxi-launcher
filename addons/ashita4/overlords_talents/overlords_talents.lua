@@ -120,6 +120,7 @@ local state =
     inspectedNodeKey = nil,
     renderError     = nil,
     renderStyle     = 1,
+    uiFont          = nil,
 }
 
 local RENDER_STYLES =
@@ -357,6 +358,23 @@ end
 -- Ashita Events
 -----------------------------------
 ashita.events.register('load', 'ox_talents_load', function()
+    -- The built-in ProggyClean bitmap font is visibly distorted by some FFXI
+    -- backbuffer / UI-scale combinations. Use a normal TrueType UI font at a
+    -- fixed pixel size so glyphs retain their intended aspect ratio.
+    if imgui.AddFontFromFileTTF then
+        local fontPaths = {
+            'C:\\Windows\\Fonts\\segoeui.ttf',
+            'C:\\Windows\\Fonts\\arial.ttf',
+        }
+        for _, fontPath in ipairs(fontPaths) do
+            local ok, font = pcall(imgui.AddFontFromFileTTF, fontPath, 17)
+            if ok and font ~= nil then
+                state.uiFont = font
+                break
+            end
+        end
+    end
+
     local player = AshitaCore:GetMemoryManager():GetPlayer()
     if player ~= nil and player:GetMainJob() > 0 then
         local getLvl = player.GetMainJobLevel or player.GetMainLevel
@@ -1900,7 +1918,14 @@ ashita.events.register('d3d_present', 'ox_talents_present', function()
     local pushedCols = pushThemeStyles()
     imgui.SetNextWindowSize({ 1360, 940 }, ImGuiCond_FirstUseEver or 4)
     if imgui.Begin('OverlordsXI - Weaponskill Talents###OXTalentsWin', state.open) then
+        local fontPushed = false
+        if state.uiFont ~= nil and imgui.PushFont then
+            fontPushed = pcall(imgui.PushFont, state.uiFont)
+        end
         local okWin, errWin = xpcall(drawMainContents, debug.traceback)
+        if fontPushed and imgui.PopFont then
+            imgui.PopFont()
+        end
         if not okWin then
             state.renderError = tostring(errWin)
             drawTextColored({ 1.0, 0.35, 0.35, 1.0 }, 'UI Error: ' .. state.renderError)

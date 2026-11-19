@@ -81,6 +81,10 @@ local function pill(dl,x,y,w,t,col)
 end
 
 local stages={ 'AWAKENING','REFINEMENT','SYNERGY','HYBRIDIZATION','MASTERY' }
+local function wsUnlocked(state)
+    local d=state and state.wsDetail
+    return d~=nil and state.unlockedByWs and state.unlockedByWs[d.id]==true
+end
 local function evo(detail)
     -- Inspect actual server NODE keys. A new client can connect to a server
     -- that still supplies the old four-tier Combo/Sanguine trees.
@@ -101,6 +105,10 @@ local function nodeStatus(n,otherChosen)
 end
 local function chooseNode(state,action,node,refund)
     state.inspectedNodeKey=node.key
+    if not refund and (node.tier or 1)==1 and not wsUnlocked(state) then
+        state.statusText='Unlocking '..tostring(state.wsDetail.name or 'weaponskill')..'...'
+        state.statusTime=os.clock()
+    end
     action.send(refund and 5 or 4,state.wsDetail.id,node.idx or 0,0)
 end
 local function renderNodeCard(dl,x,y,w,h,node,stage,otherChosen,state,action)
@@ -108,6 +116,7 @@ local function renderNodeCard(dl,x,y,w,h,node,stage,otherChosen,state,action)
     local avail=(not active) and (not otherChosen) and node.canLearn
     local locked=(not active) and (not avail)
     local isCapstone=(evo(state.wsDetail) and stage==5) or ((not evo(state.wsDetail)) and stage==4)
+    local unlocksWs=stage==1 and not wsUnlocked(state)
     local status,tone=nodeStatus(node,otherChosen)
     local over=false
     imgui.SetCursorScreenPos({x,y})
@@ -156,7 +165,8 @@ local function renderNodeCard(dl,x,y,w,h,node,stage,otherChosen,state,action)
     local nameCol=active and C.gold or (locked and C.muted or C.white)
     local descCol=locked and C.muted or C.pale
     at(x+101,y+13,trunc(node.name,math.max(7,math.floor((w-124)/9))),nameCol)
-    local badgeText=isCapstone and (active and 'MASTERED' or status) or status
+    local badgeText=(unlocksWs and avail) and 'UNLOCKS WEAPONSKILL'
+        or (isCapstone and (active and 'MASTERED' or status) or status)
     at(x+101,y+38,badgeText,tone)
     -- Keep copy INSIDE the artwork's text well. Longer effects belong
     -- in the inspector, not clipped over neighboring talent cards.
@@ -165,7 +175,7 @@ local function renderNodeCard(dl,x,y,w,h,node,stage,otherChosen,state,action)
     at(x+101,y+61,trunc(phrase[1] or '',availableChars),descCol)
     if h>121 then at(x+101,y+79,trunc(phrase[2] or '',availableChars),C.muted) end
     if h>128 then
-        pill(dl,x+w-100,y+h-31,87,active and 'MASTERED' or (avail and 'UNLOCK' or 'INSPECT'),tone)
+        pill(dl,x+w-100,y+h-31,87,active and 'MASTERED' or (avail and (unlocksWs and 'UNLOCK WS' or 'UNLOCK') or 'INSPECT'),tone)
     end
 end
 
@@ -220,9 +230,15 @@ local function drawBrowser(state,action,w)
             end
             at(rx+54,ry+7,trunc(ws.name,21),selected and C.gold or C.white)
             local pts=state.spentByWs[ws.id] or 0
+            local unlocked=state.unlockedByWs[ws.id]==true
             local isEvoWs=(ws.id==1 or ws.id==47) and state.wsDetail and state.wsDetail.id==ws.id and evo(state.wsDetail)
-            local progText=isEvoWs and string.format('EVOLUTION  %d / 5',pts) or string.format('MASTERY  %d PTS',pts)
-            at(rx+54,ry+29,progText,pts>0 and C.aqua or C.muted)
+            local progText
+            if not unlocked then
+                progText='LOCKED  /  CHAPTER 1 UNLOCK'
+            else
+                progText=isEvoWs and string.format('UNLOCKED  /  %d OF 5',pts) or string.format('UNLOCKED  /  %d PTS',pts)
+            end
+            at(rx+54,ry+29,progText,unlocked and C.aqua or C.muted)
             imgui.SetCursorScreenPos({rx,ry+57})
             -- SetCursorScreenPos alone does not submit an item. The final
             -- list entry must grow the parent scroll region for Dear ImGui.
@@ -251,7 +267,11 @@ local function drawHero(state,dl,x,y,w)
         at(x+162,y+52,trunc(d.name,34),C.white)
         at(x+162,y+82,trunc(d.skillName,22)..'  /  '..trunc(state.specName,25),C.pale)
         local total=evo(d) and 5 or 56
-        at(x+162,y+110,string.format('%d / %d INVESTED',d.spent or 0,total),C.aqua)
+        if wsUnlocked(state) then
+            at(x+162,y+110,string.format('UNLOCKED   /   %d OF %d INVESTED',d.spent or 0,total),C.aqua)
+        else
+            at(x+162,y+110,'LOCKED   /   CHOOSE A CHAPTER 1 TECHNIQUE',C.red)
+        end
         local barW=math.max(100,w-194)
         rect(dl,x+162,y+137,barW,8,C.black,C.bronze,3)
         local progress=math.max(0,math.min(1,(d.spent or 0)/total))
@@ -300,8 +320,9 @@ local function drawMastery(state,action,w)
                 artPanel(dl,'tier_panel',bx,by,w-16,rowH,C.panel,C.edge)
                 local ornW=math.max(120,w-380)
                 art.draw(dl,'stage_'..tier,bx+math.floor((w-16-ornW)/2),by+6,ornW,28)
-                at(bx+18,by+10,string.format('CHAPTER %02d  /  %s',tier,
-                    isEvo and stages[tier] or ('TIER '..tier)),C.gold)
+                local chapterName=isEvo and stages[tier] or ('TIER '..tier)
+                if tier==1 and not wsUnlocked(state) then chapterName='UNLOCK WEAPONSKILL' end
+                at(bx+18,by+10,string.format('CHAPTER %02d  /  %s',tier,chapterName),C.gold)
                 local chosen=false
                 for _,n in ipairs(arr) do if n.rank>0 then chosen=true end end
                 if isEvo then
@@ -347,7 +368,9 @@ local function drawInspector(state,action,w)
         end
         if n then
             at(x+24,y+58,trunc(n.name,math.max(12,math.floor((w-48)/9))),n.rank>0 and C.gold or C.white)
-            at(x+24,y+86,'STAGE '..(n.tier or 1)..'   /   '..(n.rank>0 and 'LEARNED' or (n.canLearn and 'AVAILABLE' or 'LOCKED')),
+            local firstUnlock=(n.tier or 1)==1 and not wsUnlocked(state)
+            local stateLabel=n.rank>0 and 'LEARNED' or (n.canLearn and (firstUnlock and 'UNLOCKS WEAPONSKILL' or 'AVAILABLE') or 'LOCKED')
+            at(x+24,y+86,'STAGE '..(n.tier or 1)..'   /   '..stateLabel,
                 n.rank>0 and C.gold or (n.canLearn and C.aqua or C.muted))
             artPanel(dl,'detail_art',x+24,y+119,w-48,136,C.black,C.edge)
             local px=x+math.floor(w/2)-57
@@ -396,7 +419,8 @@ local function drawInspector(state,action,w)
                     imgui.PushStyleColor(ImGuiCol_ButtonHovered,{0.52,0.38,0.17,1})
                     pushed=2
                 end
-                if imgui.Button('AWAKEN TECHNIQUE##wm_invest',{w-48,34}) then chooseNode(state,action,n,false) end
+                local investLabel=firstUnlock and ('UNLOCK '..string.upper(trunc(d.name,22))..'##wm_invest') or 'AWAKEN TECHNIQUE##wm_invest'
+                if imgui.Button(investLabel,{w-48,34}) then chooseNode(state,action,n,false) end
                 if pushed>0 then imgui.PopStyleColor(pushed) end
             else
                 rect(dl,x+24,y+476,w-48,34,C.black,C.edge,4)

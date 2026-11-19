@@ -7285,24 +7285,17 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
-      "targetPath": "overlords_talents/overlords_talents.lua",
-      "sha256": "4b47c659e08ab18d29c490b2429deda5ec9b63cf6b686dc425707f81acefbe64",
-      "size": 75301
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/overlords_talents/premium_ui.lua",
-      "targetPath": "overlords_talents/premium_ui.lua",
-      "sha256": "0c7569ba7286f6cfff24ff1e27f0df728b7fc22129004fe713d80cc530ff7533",
-      "size": 22691
-    },
-    {
-      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/art.lua",
       "targetPath": "overlords_talents/art.lua",
       "sha256": "f1d471fd779a3419eef9ea0c185394fd0f1238528354a11075b004441df9af1b",
       "size": 2295
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/ASSET_GUIDE.md",
+      "targetPath": "overlords_talents/ASSET_GUIDE.md",
+      "sha256": "f6f0897572ef512362a84dcd0a889b1fd5737acd1ba28d39ed535ee3f5f0c823",
+      "size": 5473
     },
     {
       "category": "addon",
@@ -7569,6 +7562,27 @@
       "targetPath": "overlords_talents/assets/ws_47.png",
       "sha256": "ab743e57c7a917020c9f2eefbf9f649c5f18f0bd123df0283b1bf5c393790f1e",
       "size": 80345
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/EVOLUTION_TESTING.md",
+      "targetPath": "overlords_talents/EVOLUTION_TESTING.md",
+      "sha256": "711493397e89a8580b9b267cbbd76aaae12b72dbc30c5e9020a877f328e6dbca",
+      "size": 1208
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
+      "targetPath": "overlords_talents/overlords_talents.lua",
+      "sha256": "ed8e782c4b5763439ac5f175b275342042df9a7fd63871164f671839b0e234d1",
+      "size": 76224
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/premium_ui.lua",
+      "targetPath": "overlords_talents/premium_ui.lua",
+      "sha256": "0905e6889018045a88c206366c24b7e312d176d77fb58c2a954fcbb5113d55fb",
+      "size": 23968
     }
   ],
   "news": [
