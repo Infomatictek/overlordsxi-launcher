@@ -1,6 +1,6 @@
 addon.name = 'crystalsocket'
 addon.author = 'OverlordsXI / Crystal Socket'
-addon.version = '0.3.2'
+addon.version = '0.3.3'
 addon.desc = 'OverlordsXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
 
 require('common')
@@ -30,6 +30,7 @@ local function now()
 end
 
 local function reset(reason)
+    labels:clear_hud_hint()
     epoch = epoch + 1
     state:reset(reason, false)
     character_id = 0
@@ -185,6 +186,7 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
     local dll_st = labels:status()
     report(('[crystalsocket] labels dll=%s known=%s branch=%s error=%s'):format(
         tostring(labels.native), tostring(labels.known), tostring(labels.branch), tostring(labels.error)))
+    report('[crystalsocket] label_source=' .. tostring(labels.source or 'none'))
     if dll_st then
         report(('[crystalsocket] native enabled=%d hooks=%d job=%d known=%d branch=%d items=%d search=%d full=%d rows=%d err=%d'):format(
             dll_st.enabled, dll_st.hooks, dll_st.job, dll_st.known, dll_st.branch,
@@ -247,6 +249,15 @@ ashita.events.register('load', 'crystalsocket_load', function()
 end)
 
 ashita.events.register('packet_in', 'crystalsocket_packet_in', function(e)
+    if e.id == 0x1FC then
+        -- Reuse the already-authoritative HUD identity for native labels when the
+        -- Crystal Socket catalog query has not finished; don't alter gameplay.
+        context()
+        if labels:observe_hud(e.data, state.current_job, character_id) then
+            labels:sync(state:snapshot(), character_id, now())
+        end
+        return
+    end
     if e.id == protocol.RESPONSE_ID then
         local packet, boundary_error = event_packet(e)
         local decoded = packet and protocol.decode_packet(packet) or nil
