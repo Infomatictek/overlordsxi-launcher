@@ -376,14 +376,20 @@ function scorer.BuildSet(mode, wearablePieces, who, userOverrides, globalLockedS
                     local targetId = type(ov) == 'table' and ov.Id or tonumber(ov)
                     local targetName = type(ov) == 'table' and ov.Name or (type(ov) == 'string' and ov or nil)
                     for _, p in ipairs(wearablePieces) do
-                        if (targetId and p.Id == targetId) or (targetName and string.lower(p.Name) == string.lower(targetName)) then
-                            if bit.band(p.SlotMask or 0, db.SLOT_BY_INDEX[s].mask) ~= 0 then
+                        local idMatches = (targetId and p.Id == targetId) or
+                            (not targetId and targetName and string.lower(p.Name) == string.lower(targetName))
+                        if idMatches and bit.band(p.SlotMask or 0, db.SLOT_BY_INDEX[s].mask) ~= 0 then
+                            local exact = type(ov) == 'table' and ov.Bag == p.Bag and ov.Index == p.Index
+                            if exact then
                                 chosen[s] = p
                                 locked[s] = true
                                 break
                             end
+                            -- Preserve a fallback copy if the saved item moved.
+                            if not chosen[s] then chosen[s] = p end
                         end
                     end
+                    if chosen[s] then locked[s] = true end
                 end
             end
         end
