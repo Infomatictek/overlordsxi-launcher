@@ -1,6 +1,7 @@
 local Labels = {}
 Labels.__index = Labels
 local ffi = require('ffi')
+local soulIdentity = require('soul_identity')
 pcall(ffi.cdef, 'void* __stdcall GetModuleHandleA(const char* name);')
 pcall(ffi.cdef, 'void* __stdcall LoadLibraryA(const char* path);')
 pcall(ffi.cdef, 'void* __stdcall GetProcAddress(void* module, const char* name);')
@@ -39,6 +40,7 @@ function Labels.new(resolve, dll_path)
         load_failed = false,
         init_attempted = false,
         init_rc = nil,
+        hud_hint = nil,
     }, Labels)
 end
 
@@ -129,12 +131,32 @@ function Labels:status()
     return ok and info or nil
 end
 
+function Labels:clear_hud_hint()
+    self.hud_hint = nil
+end
+
+-- A valid, job-matched HUD identity is an alternative client presentation source.
+-- Never use it for gameplay or action permissions.
+function Labels:observe_hud(data, job, character_id)
+    if not integer(job, 1, 22) or not integer(character_id, 1, 4294967295) then return false end
+    local decoded = soulIdentity.decode(data, job)
+    if not decoded then return false end
+    self.hud_hint = { job = job, character_id = character_id, branch = decoded.branch }
+    return true
+end
+
 function Labels:sync(snapshot, character_id, now)
     self:ensure_loaded()
     local id = snapshot.session_key and integer(character_id, 1, 4294967295) and character_id or 0
     local job = integer(snapshot.current_job, 0, 23) and snapshot.current_job or 0
-    self.known = id ~= 0 and job >= 1 and job <= 23 and snapshot.loaded == true and integer(snapshot.active, 0, 7)
-    self.branch = self.known and snapshot.active or 0
+    if id == 0 then self:clear_hud_hint() end
+    local verified = id ~= 0 and job >= 1 and job <= 23
+        and snapshot.loaded == true and integer(snapshot.active, 0, 7)
+    local fallback = not verified and self.hud_hint
+        and self.hud_hint.job == job and self.hud_hint.character_id == id
+    self.known = verified or fallback or false
+    self.branch = verified and snapshot.active or (fallback and self.hud_hint.branch or 0)
+    self.source = verified and 'crystal catalog' or (fallback and 'Soul HUD packet' or 'none')
     local bytes = { 1, self.known and 1 or 0, job, self.branch,
         id % 256, math.floor(id / 256) % 256, math.floor(id / 65536) % 256, math.floor(id / 16777216) }
     local key = string.char(unpack(bytes))
