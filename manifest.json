@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "serverName": "OverlordsXI",
-  "tagline": "Faerie Companions (Eos & Titania) • Job Specs • 4-Tier Weaponskill Talent Trees",
+  "tagline": "Faerie Companions (Eos & Titania) \u2022 Job Specs \u2022 4-Tier Weaponskill Talent Trees",
   "defaultHost": "127.0.0.1",
   "useHairpin": false,
   "ports": {
@@ -7280,8 +7280,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/premium_ui.lua",
       "targetPath": "overlords_talents/premium_ui.lua",
-      "sha256": "f7b5fa36b290db3a3e6568b0b514523b57e34a78590afb92a466f4c7b64c0d34",
-      "size": 16173
+      "sha256": "8bbab37499bf60ebc97007e114dad9adb3587ed0b2b66ec18d168045fabe39d6",
+      "size": 21365
     },
     {
       "category": "addon",
@@ -7289,6 +7289,272 @@
       "targetPath": "overlords_talents/art.lua",
       "sha256": "f1d471fd779a3419eef9ea0c185394fd0f1238528354a11075b004441df9af1b",
       "size": 2295
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/background_main.png",
+      "targetPath": "overlords_talents/assets/background_main.png",
+      "sha256": "666341701cff0b39f51851209c5b78a96df4173e14be00c34cf9c35fe2e87887",
+      "size": 1654682
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/card_frame.png",
+      "targetPath": "overlords_talents/assets/card_frame.png",
+      "sha256": "9a4b96cb5c16711ed96c14c1b6f4a9354731f359b4962e469a1b58bfa3901861",
+      "size": 161629
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/card_selected.png",
+      "targetPath": "overlords_talents/assets/card_selected.png",
+      "sha256": "674c2492fa4de26e9734bb981b26d762300ab94ff161912e862efb661e03e423",
+      "size": 121489
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/detail_art.png",
+      "targetPath": "overlords_talents/assets/detail_art.png",
+      "sha256": "985bedb5e0adeac409bff6129e72ce0151f3b7fd09622c70e9907f17266c384d",
+      "size": 147553
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/header_ornament.png",
+      "targetPath": "overlords_talents/assets/header_ornament.png",
+      "sha256": "ed1229224a0db61792d7aee796f9b0d966650c61290998fa121dd3cae2139332",
+      "size": 137786
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/hero_1.png",
+      "targetPath": "overlords_talents/assets/hero_1.png",
+      "sha256": "a555184e2c626a63cace36ae206044566286749f17f4753a83418412eba70085",
+      "size": 627415
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/hero_47.png",
+      "targetPath": "overlords_talents/assets/hero_47.png",
+      "sha256": "9a920cbcb57352bc62326e723ce1023f7e66f14666d1c2fd1dbecd2bbe1f374e",
+      "size": 556395
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/hero_frame.png",
+      "targetPath": "overlords_talents/assets/hero_frame.png",
+      "sha256": "b39cd8cb9abb3d43fe07525aa662f0c61ac6abfdf7814cda240d39fc14e82507",
+      "size": 243943
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_break.png",
+      "targetPath": "overlords_talents/assets/node_e_co_break.png",
+      "sha256": "aee119d4bb80c1140d6f84107eb2c1c6cfaf886f90567ff6a4ac396de90fdd6b",
+      "size": 86254
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_edge.png",
+      "targetPath": "overlords_talents/assets/node_e_co_edge.png",
+      "sha256": "6ada8ad7c44325851080a52cb41b4798476e80743b2a3ece59422e7e6c84a8c1",
+      "size": 86728
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_flow.png",
+      "targetPath": "overlords_talents/assets/node_e_co_flow.png",
+      "sha256": "68f276eebdb58af25c5bcdbb379a265da5927c4c7f6d63981bf69fbe1c04c11b",
+      "size": 96372
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_focus.png",
+      "targetPath": "overlords_talents/assets/node_e_co_focus.png",
+      "sha256": "43894a36638b821586cc226aff826215f2aecf891158043681d377080e5c84a7",
+      "size": 92803
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_force.png",
+      "targetPath": "overlords_talents/assets/node_e_co_force.png",
+      "sha256": "c22453ebcd4da1aecd0a9bcb398d27890a689fffd19bd240e8572b54162de42c",
+      "size": 104867
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_hits.png",
+      "targetPath": "overlords_talents/assets/node_e_co_hits.png",
+      "sha256": "0fe36ffcc3e8753f71d6f9e653ad28df7103ee9ba532d7ed7e495c45f14dac53",
+      "size": 102903
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_open.png",
+      "targetPath": "overlords_talents/assets/node_e_co_open.png",
+      "sha256": "4cd81b892e548a3efb5687c7b4bf1dcfef715309b2d7fc8087c6005a4eb84ba6",
+      "size": 103131
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_storm.png",
+      "targetPath": "overlords_talents/assets/node_e_co_storm.png",
+      "sha256": "fadefcf22b1df0726519685ed4eeea8eb8b14a861ffe6dd9a25dfb6ac7e303c8",
+      "size": 121589
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_tempo.png",
+      "targetPath": "overlords_talents/assets/node_e_co_tempo.png",
+      "sha256": "b2fcded33d6fbcf6c7560022f4c814be35f9785edf4833a5766cd75784e59aa1",
+      "size": 97692
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_co_window.png",
+      "targetPath": "overlords_talents/assets/node_e_co_window.png",
+      "sha256": "7f27d144c2abbb2c30464b8e60d51967d55fcc95cc06e54e9686c1357270e131",
+      "size": 105969
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_arcane.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_arcane.png",
+      "sha256": "ea9b333a9917c7385001bdca25acaa9c05a8a202ba934a63e5e310cf27ec8515",
+      "size": 118257
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_blood.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_blood.png",
+      "sha256": "348dea34ac6455091955355aed45d05c97c6fdcc53c0de7e1635cccf0baf6060",
+      "size": 98241
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_control.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_control.png",
+      "sha256": "25b4d2dee5aa5771d0c5bc43d3d40504ec9d81aa41db3ddfd7c318c6bbc68e1a",
+      "size": 104980
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_eclipse.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_eclipse.png",
+      "sha256": "acbb6814d9f13f25d690a02b621235f6070cc802de23bd55645fbba82f927f32",
+      "size": 95165
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_focus.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_focus.png",
+      "sha256": "e924bb8480353b8a16fa18bf370fe23a02a4c349cd1a31a3c297d3b8d1aa9fdf",
+      "size": 109059
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_force.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_force.png",
+      "sha256": "019ea6b803729f6d9f2649a12aa246b2a6aa0dc7426fa9b58e768d570b121025",
+      "size": 92408
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_hunger.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_hunger.png",
+      "sha256": "f77163f2199f1a516c5a8ebc99bf00f911a39544ad86a9b45097ddb102c8f294",
+      "size": 98573
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_mana.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_mana.png",
+      "sha256": "13b12988014f82fcfb3741d17584fc31cbb89df8d4321c338bc8b2a5bf94d9a9",
+      "size": 103068
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_pressure.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_pressure.png",
+      "sha256": "50c0fc2b56b2053232acbda05132a07a90b264f4ef6b8520ea47a32023224969",
+      "size": 93822
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/node_e_sg_surge.png",
+      "targetPath": "overlords_talents/assets/node_e_sg_surge.png",
+      "sha256": "89ef1e91b6735446081e46f4c6ee6e16dc72dc35d6ca12dbd9c286d9f51e7747",
+      "size": 99654
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/panel_browser.png",
+      "targetPath": "overlords_talents/assets/panel_browser.png",
+      "sha256": "65030e169c3bc008b15b1f4018eb21049af395a74283324906b1be2b327bb0bb",
+      "size": 416215
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/panel_inspector.png",
+      "targetPath": "overlords_talents/assets/panel_inspector.png",
+      "sha256": "0c5bae1c8cdcb63df74c2eed615289e7446a0cfe8752e7ceeb2c35550a3ccc58",
+      "size": 472239
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/stage_1.png",
+      "targetPath": "overlords_talents/assets/stage_1.png",
+      "sha256": "64204fd9cb51760d746a4b14cabbfd2d51d7459c0fb8874b2d5fa8921b857c4b",
+      "size": 54157
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/stage_2.png",
+      "targetPath": "overlords_talents/assets/stage_2.png",
+      "sha256": "683eaf5df39c421e44169a0198eb78475949e5cf4b6f4a7768106263f7340b07",
+      "size": 39160
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/stage_3.png",
+      "targetPath": "overlords_talents/assets/stage_3.png",
+      "sha256": "b641d55eb6b97fc761848e6db3f424d70747c9f043b998fb511d22851e5450d1",
+      "size": 89007
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/stage_4.png",
+      "targetPath": "overlords_talents/assets/stage_4.png",
+      "sha256": "eee5d17e57e7613f43ba343ddc424908c74565ab4ddbf09de1c358d7fd1737c0",
+      "size": 40078
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/stage_5.png",
+      "targetPath": "overlords_talents/assets/stage_5.png",
+      "sha256": "29846e4a349c2b34a32043785911af17e5684bf4c19bde4790a5cd6009f77709",
+      "size": 51683
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/tier_panel.png",
+      "targetPath": "overlords_talents/assets/tier_panel.png",
+      "sha256": "6ed4416cd9e0d8aa682f80e706186ecd53a7e368ac3908cf46abce9c203d1c61",
+      "size": 281298
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/ws_1.png",
+      "targetPath": "overlords_talents/assets/ws_1.png",
+      "sha256": "5ae8b09ec9dfb357a4734ded6a75d553bb4503e4cbd363a9e4e04110374b3b3d",
+      "size": 104759
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_talents/assets/ws_47.png",
+      "targetPath": "overlords_talents/assets/ws_47.png",
+      "sha256": "ab743e57c7a917020c9f2eefbf9f649c5f18f0bd123df0283b1bf5c393790f1e",
+      "size": 80345
     }
   ],
   "news": [
