@@ -50,6 +50,27 @@ assert(combatLog.rewriteLine('OtherNinja starts casting Utsusemi: Ichi.', 'Nappy
 assert(combatLog.rewriteLine('NappyTwo starts casting Utsusemi: Ichi.', 'Nappy', catalog, 'shinobi', getVanilla) == nil)
 assert(combatLog.rewriteLine('Nappy starts casting Utsusemi: Ichi.', 'Nappy', catalog, 'kagemusha', getVanilla) == nil)
 
+-- Actual local cast lines include targets, and resource managers can expose
+-- multiple localized names for one underlying spell ID.
+local function aliases(kind, id)
+    if kind == 'spell' and id == 338 then return {'Faux shadow name', 'Utsusemi: Ichi'} end
+    return getVanilla(kind, id)
+end
+local repaired, reason = combatLog.rewriteLine(
+    'Rin starts casting Utsusemi: Ichi on Rin.', 'Rin', catalog, 'shinobi', aliases)
+assert(repaired == 'Rin starts casting Shadow Squadron: Ichi on Rin.')
+assert(reason == 'rewritten')
+assert(combatLog.rewriteLine(
+    'Other starts casting Utsusemi: Ichi on Rin.', 'Rin', catalog, 'shinobi', aliases) == nil)
+local _, mismatch = combatLog.rewriteLine(
+    'Rin starts casting Unknown Spell on Rin.', 'Rin', catalog, 'shinobi', aliases)
+assert(mismatch == 'name_mismatch')
+local _, unknown = combatLog.rewriteLine(
+    'Rin starts casting Utsusemi: Ichi on Rin.', 'Rin', catalog, 'shinobi', function() return nil end)
+assert(unknown == 'vanilla_unavailable')
+assert(combatLog.rewriteLine(
+    'Rin starts casting Utsusemi: IchiX on Rin.', 'Rin', catalog, 'shinobi', aliases) == nil)
+
 -- Verify all 66 Souls resolve to distinct valid (job, branch) pairs.
 local seen = {}
 local count = 0
