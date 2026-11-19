@@ -95,7 +95,7 @@ inline const char* label_for(uint8_t job, uint8_t branch, bool full = false) noe
             }
         case 13: // NIN
             switch (branch) {
-                case 1: return full ? "Kurogane" : "KRG";
+                case 1: return full ? "Shinobi" : "KRG";
                 case 2: return full ? "Kagemusha" : "KGM";
                 case 3: return full ? "Nightblade" : "NGB";
                 default: return nullptr;

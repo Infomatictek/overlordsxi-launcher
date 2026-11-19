@@ -244,7 +244,7 @@ static void multi_job_checks() {
     assert(std::strcmp(label_for(12, 1, false), "RON") == 0 && std::strcmp(label_for(12, 1, true), "Ronin") == 0);
     assert(std::strcmp(label_for(12, 2, false), "IMP") == 0 && std::strcmp(label_for(12, 2, true), "Imperial Archer") == 0);
     assert(std::strcmp(label_for(12, 3, false), "WRL") == 0 && std::strcmp(label_for(12, 3, true), "Warlord") == 0);
-    assert(std::strcmp(label_for(13, 1, false), "KRG") == 0 && std::strcmp(label_for(13, 1, true), "Kurogane") == 0);
+    assert(std::strcmp(label_for(13, 1, false), "KRG") == 0 && std::strcmp(label_for(13, 1, true), "Shinobi") == 0);
     assert(std::strcmp(label_for(13, 2, false), "KGM") == 0 && std::strcmp(label_for(13, 2, true), "Kagemusha") == 0);
     assert(std::strcmp(label_for(13, 3, false), "NGB") == 0 && std::strcmp(label_for(13, 3, true), "Nightblade") == 0);
     assert(std::strcmp(label_for(14, 1, false), "LNC") == 0 && std::strcmp(label_for(14, 1, true), "Lancer") == 0);

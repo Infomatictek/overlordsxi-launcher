@@ -79,6 +79,8 @@ Res.Abilities.Damaging =
     [989] = {id = 989, old_id = 477, en = "Iron Hull"},
     [990] = {id = 990, old_id = 478, en = "Tandem Barrage"},
     [991] = {id = 991, old_id = 479, en = "Limiter Release"},
+    [999] = {id = 999, old_id = 487, en = "Shadow Legion"},
+    [1000] = {id = 1000, old_id = 488, en = "Phantom Assault"},
 }
 
 -- Based off of job_abilities.lua from Windower.

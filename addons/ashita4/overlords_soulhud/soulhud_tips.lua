@@ -115,6 +115,7 @@ local SOULS = {
     verdant        = { w = 'Club / Staff + Luopan', p = 'Nature healer. Your Luopan pulses heals, MP and Barkskin every few seconds, and weaponskills trigger an extra surge.' },
     magus          = { w = 'Dual-wield (Sword / Club)', p = 'Blue-magic healer. Healing spells splash to the party, dual-wield hits build Azure Catalyst, and linked blades siphon HP and MP to allies.' },
     azurebastion   = { w = 'Dual-wield (Sword / Club)', p = 'Monster-forged frontliner. Physical Blue Magic builds Chitin Carapace for mitigation while holding threat and weaving barriers.' },
+    kurogane       = { w = 'Dual Katanas', p = 'Use Utsusemi to summon up to five offensive shadows. Maintain your squad, replace shadows lost to enemy attacks, and command living clones with Shadow Legion and Phantom Assault. More surviving shadows means stronger coordinated offense.' },
     kagemusha      = { w = 'Dual Katanas', p = 'Shadow tank. Broken Utsusemi shadows turn into Kawarimi Ash, which Katana weaponskills spend to restore shadows and HP.' },
     ronin          = { w = 'Great Katana', p = 'Masterless tank. Mind\'s Eye counters incoming swings, and Mushin defers part of each hit into a Stagger pool you purify with Tachi skills.' },
     imperialarcher = { w = 'Bow + Great Katana', p = 'Skirmisher. Shoots from range when out of melee and chains Tachi and Archery weaponskills together.' },
@@ -868,6 +869,50 @@ E.warlord = {
         nxt   = function(c)
             if num(c.kv, 'noto_rem') > 0 then return 'Unleash a Tachi weaponskill now to trigger the Iaijutsu Draw-Slash.' end
             return 'Press Hagakure (20s CD) before your next Tachi, or Onimaru Tithe to surge party TP.'
+        end,
+    },
+}
+
+E.kurogane = {
+    pips = {
+        core  = 'Shinobi — Shadow Commander. Cast Utsusemi: Ichi (2 shadows) or Utsusemi: Ni (3 shadows) while engaged to summon up to 5 independent offensive shadow clones (25-30s lifetime, up to 170 HP at Lv75).',
+        scale = 'Each living shadow independently attacks your engaged target. More surviving shadows means stronger Shadow Legion bursts and higher sustained Phantom Assault output.',
+        live  = function(c)
+            local n   = math.floor(num(c.kv, 'clones'))
+            local eng = math.floor(num(c.kv, 'engaged'))
+            local leg = math.ceil(num(c.kv, 'legion_cd'))
+            local pa  = math.ceil(num(c.kv, 'phantom_cd'))
+            local pr  = math.ceil(num(c.kv, 'phantom_rem'))
+            local legStr = leg <= 0 and 'Shadow Legion READY' or ('Shadow Legion ' .. leg .. 's')
+            local paStr  = pr > 0 and ('Phantom Assault ACTIVE (' .. pr .. 's)')
+                or (pa <= 0 and 'Phantom Assault READY' or ('Phantom Assault ' .. pa .. 's'))
+            return ('%d/5 Shadows (%d engaged) | %s | %s'):format(n, eng, legStr, paStr)
+        end,
+        nxt   = function(c)
+            local n   = math.floor(num(c.kv, 'clones'))
+            local leg = num(c.kv, 'legion_cd')
+            local pa  = num(c.kv, 'phantom_cd')
+            if n == 0 then return 'Engage your target and cast Utsusemi: Ni (3) + Ichi (2) to field 5 shadows.' end
+            if n >= 4 and leg <= 0 then return 'Use Shadow Legion (90s CD) for a coordinated single-target burst!' end
+            if n >= 3 and pa <= 0 then return 'Use Phantom Assault (30s CD) to accelerate living shadows for 8s.' end
+            if n < 5 then return 'Refresh Utsusemi after enemy AoEs to rebuild your 5-shadow squad.' end
+            return 'Maintain 5 shadows and weave Katana weaponskills.'
+        end,
+    },
+    bar = {
+        core  = 'Tracks Phantom Assault (8s duration: -25% native autoattack interval for living clones) when active, or the time until your oldest shadow expires.',
+        scale = 'Phantom Assault affects only shadows alive when pressed and restores normal timing after 8s.',
+        live  = function(c)
+            local pr = num(c.kv, 'phantom_rem')
+            if pr > 0 then return ('Phantom Assault active for %s: living shadows strike 33%% faster!'):format(secs(pr)) end
+            local ex = num(c.kv, 'clone_exp')
+            if ex > 0 then return ('Next shadow expires in %s.'):format(secs(ex)) end
+            return 'No active shadows.'
+        end,
+        nxt   = function(c)
+            if num(c.kv, 'phantom_rem') > 0 then return 'Keep pressing your target while accelerated shadows swing.' end
+            if num(c.kv, 'clone_exp') > 0 and num(c.kv, 'clone_exp') <= 6 then return 'Prepare Utsusemi to replace expiring shadows.' end
+            return 'Summon shadows with Utsusemi: Ichi/Ni while engaged.'
         end,
     },
 }

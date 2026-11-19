@@ -226,7 +226,19 @@ local KV = {
         }
     end,
 
-    -- 12. NIN: kagemusha
+    -- 12. NIN: kurogane (Shinobi), kagemusha
+    kurogane       = function(t)
+        local c = step(t, 0.7, 6)
+        local pRem = (step(t, 0.3, 3) == 0 and c > 0) and (8 - (t % 8)) or 0
+        return {
+            clones      = c,
+            engaged     = c,
+            clone_exp   = c > 0 and (30 - (t % 30)) or 0,
+            legion_cd   = (step(t, 0.2, 2) == 0) and 0 or (90 - (t % 90)),
+            phantom_cd  = pRem > 0 and (30 - (8 - pRem)) or ((step(t, 0.25, 2) == 0) and 0 or (30 - (t % 30))),
+            phantom_rem = pRem,
+        }
+    end,
     kagemusha      = function(t)
         return {
             ash          = step(t, 0.7, 5),

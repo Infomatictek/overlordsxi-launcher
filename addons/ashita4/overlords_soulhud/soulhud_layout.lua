@@ -519,8 +519,30 @@ BESPOKE.warlord = function(kv)
 end
 
 -- =============================================================================
--- 12. NIN: kagemusha
+-- 12. NIN: kurogane (Shinobi), kagemusha
 -- =============================================================================
+BESPOKE.kurogane = function(kv)
+    local clones     = num(kv, 'clones')
+    local engaged    = num(kv, 'engaged')
+    local cloneExp   = num(kv, 'clone_exp')
+    local legionCd   = num(kv, 'legion_cd')
+    local phantomCd  = num(kv, 'phantom_cd')
+    local phantomRem = num(kv, 'phantom_rem')
+    local legTag     = legionCd <= 0 and 'LEG RDY' or ('LEG ' .. math.ceil(legionCd) .. 's')
+    local paTag      = phantomRem > 0 and ('PA ' .. math.ceil(phantomRem) .. 's')
+        or (phantomCd <= 0 and 'PA RDY' or ('PA ' .. math.ceil(phantomCd) .. 's'))
+    local right      = clones > 0
+        and ('ENG %d/%d • %s'):format(math.floor(engaged), math.floor(clones), phantomRem > 0 and paTag or legTag)
+        or (legTag .. ' • ' .. paTag)
+    local bar        = phantomRem > 0
+        and timerBar('phantom', 'Phantom Assault', phantomRem, 'Idle', 8)
+        or timerBar('clone', 'Next Shadow', cloneExp, 'No Shadows', 30)
+    return {
+        pips = pips('Shadows', clones, 5, 'violet', phantomRem > 0 or (clones >= 1 and legionCd <= 0), right),
+        bar  = bar,
+    }
+end
+
 BESPOKE.kagemusha = function(kv)
     local ash     = num(kv, 'ash')
     local shadows = num(kv, 'shadows')

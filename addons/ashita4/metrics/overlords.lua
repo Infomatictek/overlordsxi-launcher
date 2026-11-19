@@ -67,9 +67,11 @@ Overlords.CustomAbilities =
     [953] = 'Soul Bond',             -- 441
     [954] = 'Feral Roar',            -- 442
 
-    -- NIN Kagemusha Spec
+    -- NIN Shinobi & Kagemusha Specs
     [955] = 'Kage Bunshin',          -- 443
     [956] = 'Smoke Lotus',           -- 444
+    [999] = 'Shadow Legion',         -- 487
+    [1000] = 'Phantom Assault',      -- 488
 
     -- BLU Azure Bastion Spec
     [957] = 'Behemoth Roar',         -- 445

@@ -35,7 +35,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "51f0a87749d47efa7403a33027ebe4a769f035b2bfe2c14de8e05c130bcb4911",
+      "sha256": "b991f103a18c13b2439ca6dbff58645696821446e56c4e5e1bcdcdf13d6920e2",
       "size": 403280
     },
     {
@@ -56,7 +56,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/72.DAT",
       "targetPath": "ROM/181/72.DAT",
-      "sha256": "44c9f9a13de8c7e9062aa3310f45e3ec6a010e022f416a6943e0bb265dd0b8ef",
+      "sha256": "27307ee0a07dd3b10a6f6b3b5114713d74cfe91fc583fab80118dacb7437ad97",
       "size": 471104
     },
     {
@@ -70,7 +70,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/181/74.DAT",
       "targetPath": "ROM/181/74.DAT",
-      "sha256": "6e09aee8095aa7acd0f17cfd66f84fe02cac3bfa1d5830649079ae56a5a9c917",
+      "sha256": "1550893868dd8c48d7994822d57b36ea1967d523ef46c4cf58146485a7608ce3",
       "size": 1507392
     },
     {
@@ -84,7 +84,7 @@
       "category": "plugin",
       "sourcePath": "plugins/ashita4/crystaljobs.dll",
       "targetPath": "crystaljobs.dll",
-      "sha256": "da3a07d08d882005517b89a696162c1825efdb3312e1154b978e1658ccf7f809",
+      "sha256": "0dd8daf46d8cf42fde6d3d8f05f8e5c63be6df18d4a0f5b6f871aa394feb9483",
       "size": 101888
     },
     {
@@ -238,8 +238,13 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/kurogane.png",
       "targetPath": "crystalsocket/assets/kurogane.png",
+<<<<<<< HEAD
       "sha256": "e9e4c118e2fce28ff7ff307b8440f27931bd9d1ecb8c9bbdbbde2d6b0e99a475",
       "size": 2737
+=======
+      "sha256": "a8f2e1bf682a74b1772b853055c0cdcd40d1da2b0f6d8b26b4584e7ddf43de0c",
+      "size": 21111
+>>>>>>> 05b92ec (feat(nin): ship Shinobi Soul Crystal icon, Shadow Legion/Phantom Assault DATs, Soul HUD gauge, crystaljobs label, and manifest)
     },
     {
       "category": "addon",
@@ -371,8 +376,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "54e9f72b61e2eb064b03dd49aed856af3692bb209746fa533ec884a28cb34d68",
-      "size": 15938
+      "sha256": "960b14eeef5ec996303dd24cd76759dbff95e9c1b8729968838a9b0edeeddf76",
+      "size": 15950
     },
     {
       "category": "addon",
@@ -406,8 +411,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "3a27d409b7712f3fe7e5cbdc5141e1ed3791ded633552f99530f9fbb42a6cae9",
-      "size": 23999
+      "sha256": "77e764d7f64151af9b4af1939e453949a236e1d62471ec88d734e8d3718a41a6",
+      "size": 24033
     },
     {
       "category": "addon",
@@ -5873,15 +5878,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/metrics/overlords.lua",
       "targetPath": "metrics/overlords.lua",
-      "sha256": "298304ee8f9dd29c61d2b7e252a79401c0da9f07020be9baccea70f1a594f907",
-      "size": 12225
+      "sha256": "bad3599da2a6b57e383c4b375a5028af5c91b884707e27cc9bb11a55e447a361",
+      "size": 12324
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/metrics/resources/abilities.lua",
       "targetPath": "metrics/resources/abilities.lua",
-      "sha256": "619e009951f7f6cb2b40dc9530082971b004f077ac6a5fd03e6eff19d9a352a3",
-      "size": 63156
+      "sha256": "637fc7be403e02327ce6568e911387e48686ec6b39ad5751e36ed97898673d54",
+      "size": 63280
     },
     {
       "category": "addon",
@@ -7182,8 +7187,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_demo.lua",
       "targetPath": "overlords_soulhud/soulhud_demo.lua",
-      "sha256": "4c672b0ddb54360837dc1ab6a59c0989968cc9355f330204813f7dfcea4eca83",
-      "size": 16757
+      "sha256": "3afbf08ce26885d14aa1113c9a0cdf636364afdc2e1cb3065cf985e3b9d57cb0",
+      "size": 17292
     },
     {
       "category": "addon",
@@ -7196,8 +7201,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_layout.lua",
       "targetPath": "overlords_soulhud/soulhud_layout.lua",
-      "sha256": "549aa78e83e4fb4f6774c7ebee7988955f3d8d938df3f50e77c3006213a59de8",
-      "size": 34349
+      "sha256": "a62f4af2b754a7ec01f76a097b0fbb87f350a21be4db2dfce9622e715a433971",
+      "size": 35451
     },
     {
       "category": "addon",
@@ -7238,8 +7243,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soulhud/soulhud_tips.lua",
       "targetPath": "overlords_soulhud/soulhud_tips.lua",
-      "sha256": "9a36697b20d33b591b1ceab5806a154c1db93847042186cd0b39a395175e3879",
-      "size": 103704
+      "sha256": "a2db409474a4372d00e20ca2dc5e05c4423f7bb43a630b4fbe55ee9f02afdb18",
+      "size": 106906
     },
     {
       "category": "addon",
@@ -7574,15 +7579,25 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
+<<<<<<< HEAD
       "sha256": "5ea95a50692fa6659cf985b218f7a3a6fc4bbf43e2a4aa56e644725ad652cf9e",
       "size": 76454
+=======
+      "sha256": "4b47c659e08ab18d29c490b2429deda5ec9b63cf6b686dc425707f81acefbe64",
+      "size": 75301
+>>>>>>> 05b92ec (feat(nin): ship Shinobi Soul Crystal icon, Shadow Legion/Phantom Assault DATs, Soul HUD gauge, crystaljobs label, and manifest)
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/premium_ui.lua",
       "targetPath": "overlords_talents/premium_ui.lua",
+<<<<<<< HEAD
       "sha256": "3c1e79878781442f0333fbef450d4285d453cf4c50e61643c0af48dc74b0f1d0",
       "size": 24251
+=======
+      "sha256": "8bbab37499bf60ebc97007e114dad9adb3587ed0b2b66ec18d168045fabe39d6",
+      "size": 21365
+>>>>>>> 05b92ec (feat(nin): ship Shinobi Soul Crystal icon, Shadow Legion/Phantom Assault DATs, Soul HUD gauge, crystaljobs label, and manifest)
     }
   ],
   "news": [
