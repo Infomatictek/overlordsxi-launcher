@@ -7,6 +7,7 @@
 #include "layout.h"
 #include <atomic>
 #include <cstdio>
+#include <new>
 
 using namespace crystaljobs;
 static SRWLOCK state_lock = SRWLOCK_INIT;
@@ -25,7 +26,9 @@ static Decode original_decode;
 static Encode original_encode;
 static NativeText native_text;
 static uintptr_t original_sprite;
+static uintptr_t original_sprite_simple;
 static void** pname_sheet_slot;
+static const uint8_t* main_job_slot;
 #ifdef CRYSTALJOBS_SELFTEST
 static bool selftest_alive;
 #endif
@@ -97,6 +100,9 @@ static uint8_t branch_for(const uint8_t* row) noexcept {
 
 struct SpriteArgs { int x, y; float scale_x, scale_y; uint32_t color; int center, first, count; };
 static_assert(sizeof(SpriteArgs) == 32);
+
+struct SimpleSpriteArgs { int x, y; uint32_t color; int center, first; };
+static_assert(sizeof(SimpleSpriteArgs) == 20);
 
 struct MenuGlyph { uint8_t u, v, w; };
 // 8x10 job-abbreviation glyphs on 'menu    menu2fon' (256x256 texture in ROM/118/111.DAT).
@@ -237,6 +243,38 @@ static __declspec(naked) void master_sprite_hook() {
     }
 }
 
+static bool __stdcall draw_persona_job(const SimpleSpriteArgs* args) noexcept {
+    if (args == nullptr || main_job_slot == nullptr || native_text == nullptr || !alive()) return false;
+    const uint8_t job = *main_job_slot;
+    if (job < 1 || job > 23) return false;
+    AcquireSRWLockShared(&state_lock);
+    const uint8_t branch = (state.known && state.job == job) ? state.branch : 0;
+    ReleaseSRWLockShared(&state_lock);
+    const char* custom = label_for(job, branch, true);
+    if (custom == nullptr) return false;
+    // Equipment status panel ('menu    persona ') draws "Lv%d" via native_text at scale 1.0f,
+    // then draws the full main-job name sprite at (end_x + 2, win_y + 0x13) with color in args->color.
+    native_text(args->x, args->y, custom, args->color, 1.0f, 1.0f, 0);
+    ++full_lookups;
+    return true;
+}
+
+static __declspec(naked) void persona_job_hook() {
+    __asm {
+        pushad
+        lea eax, [esp + 36]
+        push eax
+        call draw_persona_job
+        test al, al
+        jz stock
+        popad
+        ret 20
+    stock:
+        popad
+        jmp dword ptr [original_sprite_simple]
+    }
+}
+
 static __declspec(naked) void full_job_hook() {
     __asm {
         pushad
@@ -370,6 +408,7 @@ static Patch patches[] = {
     {0xD8CCD, reinterpret_cast<void*>(&encode_request)},
     {0xE2282, reinterpret_cast<void*>(&decode_row)},
     {0x13C302, reinterpret_cast<void*>(&item_label)},
+    {0x14868F, reinterpret_cast<void*>(&persona_job_hook)},
     {0x1CBD4C, reinterpret_cast<void*>(&normal_sprite_hook)},
     {0x1CC086, reinterpret_cast<void*>(&master_sprite_hook)},
     {0x1DEE6D, reinterpret_cast<void*>(&full_job_hook)},
@@ -397,35 +436,75 @@ static void relocate_signature(uintptr_t rva, uint8_t (&expected)[24], uint32_t 
     if (rva == 0x13C302) {
         const uint32_t relocated = u32(expected + 11) + delta;
         std::memcpy(expected + 11, &relocated, 4);
+    } else if (rva == 0x14868F) {
+        const uint32_t sub_job = u32(expected + 6) + delta;
+        const uint32_t sub_lvl = u32(expected + 17) + delta;
+        std::memcpy(expected + 6, &sub_job, 4);
+        std::memcpy(expected + 17, &sub_lvl, 4);
     } else if (rva == 0x1DEEFB) {
         const uint32_t relocated = u32(expected + 20) + delta;
         std::memcpy(expected + 20, &relocated, 4);
     }
 }
 
-static bool supported(uint8_t* base) noexcept {
-    __try {
-        if (base == nullptr || (reinterpret_cast<uintptr_t>(base) & 0xFFFFu) != 0) return false;
-        const auto* dos = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
-        if (dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew < 0 || dos->e_lfanew > 0x1000) return false;
-        const auto* pe = reinterpret_cast<IMAGE_NT_HEADERS32*>(base + dos->e_lfanew);
-        if (pe->Signature != IMAGE_NT_SIGNATURE || pe->FileHeader.Machine != IMAGE_FILE_MACHINE_I386 ||
-            pe->FileHeader.TimeDateStamp != 0x6ae818b4 || pe->OptionalHeader.SizeOfImage != 0xc17000) return false;
-        const uint32_t delta = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(base) - 0x10000000u);
-        for (const auto& signature : signatures) {
-            uint8_t expected[24];
-            std::memcpy(expected, signature.bytes, sizeof(expected));
-            relocate_signature(signature.rva, expected, delta);
-            if ((signature.rva == 0xDD6C0 || signature.rva == 0xDF7C0) && host_detour(base + signature.rva,
-                expected, sizeof(expected), signature.rva == 0xDD6C0 ? 10 : 5, GetModuleHandleW(L"Ashita.dll"))) continue;
-            size_t skip = 0;
-            for (const auto& patch : patches) {
-                if (patch.rva == signature.rva && patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) skip = 5;
-            }
-            if (std::memcmp(base + signature.rva + skip, expected + skip, sizeof(expected) - skip) != 0) return false;
+#ifndef _MSC_VER
+static bool readable_range(const void* ptr, size_t len) noexcept {
+    const auto start = reinterpret_cast<uintptr_t>(ptr);
+    if (start == 0 || len == 0 || start + len < start) return false;
+    uintptr_t cur = start;
+    const uintptr_t end = start + len;
+    while (cur < end) {
+        MEMORY_BASIC_INFORMATION mbi{};
+        if (VirtualQuery(reinterpret_cast<const void*>(cur), &mbi, sizeof(mbi)) != sizeof(mbi) ||
+            mbi.State != MEM_COMMIT || (mbi.Protect & (PAGE_NOACCESS | PAGE_GUARD)) != 0) return false;
+        const uintptr_t region_end = reinterpret_cast<uintptr_t>(mbi.BaseAddress) + mbi.RegionSize;
+        if (region_end <= cur) return false;
+        cur = region_end;
+    }
+    return true;
+}
+#endif
+
+static bool supported_impl(uint8_t* base) noexcept {
+    if (base == nullptr || (reinterpret_cast<uintptr_t>(base) & 0xFFFFu) != 0) return false;
+#ifndef _MSC_VER
+    if (!readable_range(base, sizeof(IMAGE_DOS_HEADER))) return false;
+#endif
+    const auto* dos = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew < 0 || dos->e_lfanew > 0x1000) return false;
+#ifndef _MSC_VER
+    if (!readable_range(base + dos->e_lfanew, sizeof(IMAGE_NT_HEADERS32))) return false;
+#endif
+    const auto* pe = reinterpret_cast<IMAGE_NT_HEADERS32*>(base + dos->e_lfanew);
+    if (pe->Signature != IMAGE_NT_SIGNATURE || pe->FileHeader.Machine != IMAGE_FILE_MACHINE_I386 ||
+        pe->FileHeader.TimeDateStamp != 0x6ae818b4 || pe->OptionalHeader.SizeOfImage != 0xc17000) return false;
+    const uint32_t delta = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(base) - 0x10000000u);
+    for (const auto& signature : signatures) {
+#ifndef _MSC_VER
+        if (!readable_range(base + signature.rva, sizeof(signature.bytes))) return false;
+#endif
+        uint8_t expected[24];
+        std::memcpy(expected, signature.bytes, sizeof(expected));
+        relocate_signature(signature.rva, expected, delta);
+        if ((signature.rva == 0xDD6C0 || signature.rva == 0xDF7C0) && host_detour(base + signature.rva,
+            expected, sizeof(expected), signature.rva == 0xDD6C0 ? 10 : 5, GetModuleHandleW(L"Ashita.dll"))) continue;
+        size_t skip = 0;
+        for (const auto& patch : patches) {
+            if (patch.rva == signature.rva && patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) skip = 5;
         }
-        return true;
+        if (std::memcmp(base + signature.rva + skip, expected + skip, sizeof(expected) - skip) != 0) return false;
+    }
+    return true;
+}
+
+static bool supported(uint8_t* base) noexcept {
+#ifdef _MSC_VER
+    __try {
+        return supported_impl(base);
     } __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+#else
+    return supported_impl(base);
+#endif
 }
 
 static SRWLOCK lifecycle_lock = SRWLOCK_INIT;
@@ -435,6 +514,7 @@ extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     AcquireSRWLockExclusive(&lifecycle_lock);
     enabled.store(false);
     pname_sheet_slot = nullptr;
+    main_job_slot = nullptr;
     AcquireSRWLockExclusive(&state_lock);
     transport.reset(state);
     ReleaseSRWLockExclusive(&state_lock);
@@ -462,7 +542,9 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     original_encode = reinterpret_cast<Encode>(base + 0x104330);
     native_text = reinterpret_cast<NativeText>(base + 0x1CAD80);
     original_sprite = reinterpret_cast<uintptr_t>(base + 0x121110);
+    original_sprite_simple = reinterpret_cast<uintptr_t>(base + 0x120FF0);
     pname_sheet_slot = reinterpret_cast<void**>(base + 0x664014);
+    main_job_slot = base + 0x4867F0;
     original_map_decode = reinterpret_cast<MapDecode>(base + 0xDD6C0);
     original_map_encode = reinterpret_cast<MapEncode>(base + 0xDF7C0);
     HMODULE pinned;
@@ -508,7 +590,7 @@ extern "C" uint32_t __stdcall CrystalJobsGetStatus(CrystalJobsStatus* output, ui
     status.size = sizeof(status); status.version = 1;
     AcquireSRWLockShared(&lifecycle_lock);
     for (const auto& patch : patches) if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++status.hooks;
-    if (enabled.load() && status.hooks != 9) { enabled.store(false); last_error.store(3); }
+    if (enabled.load() && status.hooks != sizeof(patches) / sizeof(*patches)) { enabled.store(false); last_error.store(3); }
     status.enabled = enabled.load();
     ReleaseSRWLockShared(&lifecycle_lock);
     AcquireSRWLockShared(&state_lock);
@@ -560,11 +642,11 @@ struct AshitaPluginBase {
 class CrystalJobsPlugin final : public AshitaPluginBase {
 public:
     CrystalJobsPlugin() = default;
-    virtual ~CrystalJobsPlugin() = default;
+    ~CrystalJobsPlugin() = default;
 
     const char* GetName(void) const override { return "crystaljobs"; }
     const char* GetAuthor(void) const override { return "OverlordsXI"; }
-    const char* GetDescription(void) const override { return "OverlordsXI native soul job labels for Inventory and Search."; }
+    const char* GetDescription(void) const override { return "OverlordsXI native soul job labels for Equipment, Inventory, and Search."; }
     const char* GetLink(void) const override { return "https://github.com/Infomatictek/overlordsxi-launcher"; }
     double GetVersion(void) const override { return 1.00; }
     double GetInterfaceVersion(void) const override { return kAshitaInterfaceVersion; }

@@ -47,3 +47,16 @@ Current `crystaljobs.cpp` has nine signature-gated CALL substitutions: two full-
 Next investigate the **exact client string producer/callee for the Equipment status field** in the supported 32-bit `FFXiMain.dll` (timestamp `0x6ae818b4`, image size `0xC17000`). Cross-reference the displayed job name and job resource table, disassemble its call site, and record the surrounding 24+ bytes and argument ABI before editing. If a CALL substitution is selected, add a verified signature to `layout.h`, an ABI-correct adapter, a fail-closed stock fallback, and an x86 selftest. Never use guessed offsets, broad global table renaming, unverified in-place string mutation, or a permanent opaque overlay. Verify that a Soul switch updates the Equipment text without leaving the menu, and that no-Soul, zone, job-change, and unsupported-executable fall back to stock.
 
 After native source changes: run `native/crystaljobs/build.cmd`, verify exports/bitness/selftest, regenerate `manifest.json` using `scripts/update-launcher-manifest.py`, and run the launcher tests. The current probe is only Lua; it does **not** require a DLL rebuild.
+
+### 2026-11-19: verified Equipment status-panel (`menu    persona `) native hook
+
+Binary inspection of the unpacked 32-bit `FFXiMain.dll` (timestamp `0x6ae818b4`, `SizeOfImage = 0xC17000`, preferred base `0x10000000`) established why the Equipment probe previously saw `item=0 full=0 search=0`:
+
+- Opening Equipment (`menu    equip   ` at `0x10370864`, RVA `0x134664..0x1346B6`) opens `menu    persona ` (`0x10370850`, global ptr `0x1057959C`, vtable `0x10335A70`).
+- `menu    persona ::OnDraw` (RVA `0x1485A0`) formats `"Lv%d"` from the local main level (`base + 0x4867F1`) and draws it via `0x101CAD50` (`native_text` at `base + 0x1CAD80`, `scale_x = 1.0f`, `scale_y = 1.0f`, `center = 0`) at `(win_x + 4, win_y + 0x13)`, returning `end_x` in `EAX`.
+- Rather than calling `lookup(18, job)` (`0x1544C0`), `OnDraw` loads the local main job ID from `base + 0x4867F0`, indexes the full job-name sprite table (`[edx + job*4 + 0x350]`), and invokes `DrawSpriteSimple` (RVA `0x120FF0`, `__thiscall`, 5 stack args = `ret 0x14`) from call site RVA `0x14868F` at `(end_x + 2, win_y + 0x13)` with color `edi` (`0x80808080` normal, `0x802060A0` level-synced).
+- Subjob rendering follows separately at RVA `0x14870A` (`base + 0x4867F2` / `0x4867F3`) and is left untouched.
+
+`crystaljobs.dll` now installs a 10th signature-gated CALL substitution (`persona_job_hook`) at RVA `0x14868F` (with verified 24-byte signatures at `0x14868F` and `0x120FF0`, plus base-relocation handling at `0x14868F + 6` and `+17`):
+- When `alive()` is true and `state.known && state.job == *main_job_slot`, renders `label_for(job, branch, true)` via `native_text(x, y, custom, color, 1.0f, 1.0f, 0)` and increments `full_labels`, preserving level text, level-sync color, subjob, and all other Equipment UI elements.
+- Falls back to stock `DrawSpriteSimple` (`0x120FF0`) whenever no Soul is active, the job mismatches, the session lease expires, or the client build is unsupported.

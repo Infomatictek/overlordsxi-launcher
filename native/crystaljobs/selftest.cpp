@@ -3,15 +3,24 @@
 #include <cassert>
 
 static uint8_t row_a[72]{}, row_b[72]{};
-static uint32_t sprite_calls, text_calls;
+static uint32_t sprite_calls, simple_sprite_calls, text_calls, persona_text_calls, last_persona_color;
 static const char* last_text;
+static const char* last_persona_text;
 static int __cdecl fake_text(int x, int y, const char* text, uint32_t color, float sx, float sy, int center) {
     assert(x == 100 && y == 50 && color == 0x80808080 && sx == 0.75f && sy == 0.75f && center == 0);
     ++text_calls; last_text = text; return x;
 }
+static int __cdecl fake_persona_text(int x, int y, const char* text, uint32_t color, float sx, float sy, int center) {
+    assert(x == 142 && y == 69 && sx == 1.0f && sy == 1.0f && center == 0);
+    ++persona_text_calls; last_persona_text = text; last_persona_color = color; return x;
+}
 static int __fastcall fake_sprite(void*, void*, int x, int y, float sx, float sy, uint32_t color, int center, int first, int count) {
     assert(x == 100 && y == 50 && sx == 1.0f && sy == 1.0f && color == 0x80808080 && center == 0 && first == 0 && count == 0);
     ++sprite_calls; return 1;
+}
+static void __fastcall fake_sprite_simple(void* self, void*, int x, int y, uint32_t color, int center, int first) {
+    assert(reinterpret_cast<uintptr_t>(self) == 0x34567890u && x == 142 && y == 69 && (color == 0x80808080u || color == 0x802060a0u) && center == 0 && first == 0);
+    ++simple_sprite_calls;
 }
 static const char* __cdecl fake_lookup(int table, int job) {
     assert(table == 18 || table == 2);
@@ -62,6 +71,47 @@ static __declspec(naked) bool sprite_abi(void*, const uint8_t*) {
         cmp edi, ebp
         jne failed
         cmp ebp, [esp + 28]
+        jne failed
+        mov eax, 1
+    failed:
+        add esp, 4
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    }
+}
+
+static __declspec(naked) bool persona_abi(void*, uint32_t) {
+    __asm {
+        push ebp
+        push ebx
+        push esi
+        push edi
+        mov ebx, 12345678h
+        mov esi, 23456789h
+        mov edi, 3456789ah
+        mov ebp, 456789abh
+        mov eax, [esp + 24]
+        push 56789abch
+        push 0
+        push 0
+        push eax
+        push 69
+        push 142
+        mov ecx, 34567890h
+        call dword ptr [esp + 44]
+        xor eax, eax
+        cmp dword ptr [esp], 56789abch
+        jne failed
+        cmp ebx, 12345678h
+        jne failed
+        cmp esi, 23456789h
+        jne failed
+        cmp edi, 3456789ah
+        jne failed
+        cmp ebp, 456789abh
         jne failed
         mov eax, 1
     failed:
@@ -341,6 +391,76 @@ static void multi_job_checks() {
     selftest_alive = false;
 }
 
+static void equipment_persona_checks() {
+    original_sprite_simple = reinterpret_cast<uintptr_t>(&fake_sprite_simple);
+    native_text = &fake_persona_text;
+    uint8_t mock_main_job = 13; // NIN
+    main_job_slot = &mock_main_job;
+    selftest_alive = true;
+    simple_sprite_calls = 0;
+    persona_text_calls = 0;
+    last_persona_text = nullptr;
+    last_persona_color = 0;
+
+    // Active NIN (13) Soul branch 1 -> "Shinobi", preserving normal and level-sync colors.
+    const uint32_t before_full = full_lookups.load();
+    uint8_t ev[8] = {1, 1, 13, 1, 100, 0, 0, 0};
+    state.update(ev, 8, GetTickCount());
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 1 && simple_sprite_calls == 0);
+    assert(std::strcmp(last_persona_text, "Shinobi") == 0 && last_persona_color == 0x80808080u);
+    assert(full_lookups.load() == before_full + 1);
+
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x802060a0u));
+    assert(persona_text_calls == 2 && simple_sprite_calls == 0);
+    assert(std::strcmp(last_persona_text, "Shinobi") == 0 && last_persona_color == 0x802060a0u);
+
+    // Live Soul switch without closing the Equipment menu.
+    ev[3] = 2; state.update(ev, 8, GetTickCount());
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 3 && std::strcmp(last_persona_text, "Kagemusha") == 0);
+    ev[3] = 3; state.update(ev, 8, GetTickCount());
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 4 && std::strcmp(last_persona_text, "Nightblade") == 0);
+
+    // Other jobs (e.g., BLM Astromancer, RDM Crimson Duelist).
+    mock_main_job = 4; ev[2] = 4; ev[3] = 1; state.update(ev, 8, GetTickCount());
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 5 && std::strcmp(last_persona_text, "Astromancer") == 0);
+    mock_main_job = 5; ev[2] = 5; ev[3] = 1; state.update(ev, 8, GetTickCount());
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 6 && std::strcmp(last_persona_text, "Crimson Duelist") == 0);
+
+    // Fallback to stock sprite when job mismatches, no Soul is active, or session lease is inactive.
+    mock_main_job = 13; // state.job is still 5
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 6 && simple_sprite_calls == 1);
+
+    ev[2] = 13; ev[3] = 0; state.update(ev, 8, GetTickCount()); // branch 0 = no Soul
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 6 && simple_sprite_calls == 2);
+
+    ev[1] = 0; ev[3] = 1; state.update(ev, 8, GetTickCount()); // unknown
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 6 && simple_sprite_calls == 3);
+
+    ev[1] = 1; ev[3] = 1; state.update(ev, 8, GetTickCount());
+    selftest_alive = false; // expired lease / zoning / disabled
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 6 && simple_sprite_calls == 4);
+
+    // Verify 0x14868F signature relocation for relocated FFXiMain.dll (e.g. 0x04860000).
+    uint8_t persona_sig[24];
+    std::memcpy(persona_sig, signatures[16].bytes, 24);
+    assert(signatures[16].rva == 0x14868F);
+    relocate_signature(0x14868F, persona_sig, static_cast<uint32_t>(0x04860000u - 0x10000000u));
+    assert(u32(persona_sig + 6) == 0x04860000u + 0x4867F2u);
+    assert(u32(persona_sig + 17) == 0x04860000u + 0x4867F3u);
+
+    main_job_slot = nullptr;
+    native_text = &fake_text;
+}
+
 int main() {
     uint8_t event[8] = {1, 1, 1, 2, 100, 0, 0, 0};
     state.update(event, 8, 0xffffff00);
@@ -418,6 +538,7 @@ int main() {
     assert(u32(reloc_sig + 11) == 0x04860000u + 0x370DF8u);
     transport_checks();
     multi_job_checks();
+    equipment_persona_checks();
     enabled.store(false); state = {};
     original_decode = &fake_search_decode;
     make_row(row_b, 200, marker | 3);

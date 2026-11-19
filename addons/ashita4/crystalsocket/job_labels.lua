@@ -77,7 +77,7 @@ function Labels:ensure_loaded()
         if get_status then
             local st = ffi.new(status_type)
             if get_status(st, ffi.sizeof(st)) == 0 and st[0].size == 68 and st[0].version == 1 then
-                if st[0].enabled == 1 and st[0].hooks == 9 then
+                if st[0].enabled == 1 and st[0].hooks >= 9 then
                     return true
                 end
                 if not self.init_attempted and st[0].last_error ~= 1 and st[0].last_error ~= 3 then
@@ -104,7 +104,7 @@ function Labels:native_decoder_ready()
         if not get_status then return false end
         local status = ffi.new(status_type)
         return get_status(status, ffi.sizeof(status)) == 0 and status[0].size == 68
-            and status[0].version == 1 and status[0].enabled == 1 and status[0].hooks == 9
+            and status[0].version == 1 and status[0].enabled == 1 and status[0].hooks >= 9
     end)
     return ok and ready
 end
