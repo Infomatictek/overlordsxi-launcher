@@ -378,8 +378,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/job_labels.lua",
       "targetPath": "crystalsocket/job_labels.lua",
-      "sha256": "e9d5f691abe11b9824031a97bbad9a70b7ad25f0b638ab0e68b3e45f13e66508",
-      "size": 10124
+      "sha256": "0e04e2970f693a947317b37f28140bc616269caa2ca4c022c143e7658468aff0",
+      "size": 10178
     },
     {
       "category": "addon",
