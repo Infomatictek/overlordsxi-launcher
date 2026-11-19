@@ -236,6 +236,13 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/assets/kurogane.png",
+      "targetPath": "crystalsocket/assets/kurogane.png",
+      "sha256": "e9e4c118e2fce28ff7ff307b8440f27931bd9d1ecb8c9bbdbbde2d6b0e99a475",
+      "size": 2737
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/lifebinder.png",
       "targetPath": "crystalsocket/assets/lifebinder.png",
       "sha256": "4043059d5b50f73d86772d0c2b12937a4e142e2463ff00cfeb77e794888fad93",
@@ -6162,6 +6169,13 @@
       "targetPath": "overlords_soulhud/assets/crystals/kagemusha.png",
       "sha256": "af693165c705ff5d6e7c2179b9b67bb2ff20cb3336480f92530c9519a687b873",
       "size": 15282
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soulhud/assets/crystals/kurogane.png",
+      "targetPath": "overlords_soulhud/assets/crystals/kurogane.png",
+      "sha256": "e9e4c118e2fce28ff7ff307b8440f27931bd9d1ecb8c9bbdbbde2d6b0e99a475",
+      "size": 2737
     },
     {
       "category": "addon",
