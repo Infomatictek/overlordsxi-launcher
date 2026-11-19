@@ -6034,8 +6034,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/overlords_soul_actions.lua",
       "targetPath": "overlords_soul_actions/overlords_soul_actions.lua",
-      "sha256": "af59db634f22441108cd7aca29d307b1b4d31d2b7a787dddac79ab94482c062a",
-      "size": 8405
+      "sha256": "e7f0c1c14c90540f9e5a655c82829924bdce918f889b957a44cf73d5bd5cd281",
+      "size": 8422
     },
     {
       "category": "addon",
@@ -7644,8 +7644,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/soul_packet.lua",
       "targetPath": "overlords_soul_actions/soul_packet.lua",
-      "size": 1045,
-      "sha256": "42c541e022f4f597abbdac15a34621e0785a0186d5e9e95e1ab04e685c0cb008"
+      "size": 1235,
+      "sha256": "b904654897491d16041f5a103f92874368918880419d3d2b137b9ddf1d2d6a47"
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/tests/soul_packet_test.lua",
+      "targetPath": "overlords_soul_actions/tests/soul_packet_test.lua",
+      "sha256": "a2025888b559b433b1e7ae074efd13514b5c3ef90e35e54ce5bcd2da256cffce",
+      "size": 549
     }
   ],
   "news": [
