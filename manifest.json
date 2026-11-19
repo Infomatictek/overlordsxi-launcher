@@ -6055,8 +6055,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/combat_log.lua",
       "targetPath": "overlords_soul_actions/combat_log.lua",
-      "sha256": "fc219b9e2e591cab5c5778a548fe2f0c77d3355cd61a036e4129b9a21d082e89",
-      "size": 3447
+      "sha256": "76bb99955d1fd80b014297e58b0a5bc08d6fb8befbef9555ea87bbf865522de6",
+      "size": 4520
     },
     {
       "category": "addon",
@@ -6083,8 +6083,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/overlords_soul_actions.lua",
       "targetPath": "overlords_soul_actions/overlords_soul_actions.lua",
-      "sha256": "9df3c6411ee9e8a0b10c19f78f70e971544f80cfd35b2d5bd0b2c5a523b20983",
-      "size": 16834
+      "sha256": "7253e2126db13a99fc01c649051679f8d24e781be858a43ba25d6458cf2b2819",
+      "size": 18420
     },
     {
       "category": "addon",
@@ -6139,8 +6139,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/tests/macro_and_combat_log_test.lua",
       "targetPath": "overlords_soul_actions/tests/macro_and_combat_log_test.lua",
-      "sha256": "2688ab46671e4866ecd35b27330e35d3bbee68b5c96c2030eae029f52df434d3",
-      "size": 5111
+      "sha256": "882cb50c5fda5fb6ce23acfd247a3e508ef3da3d2e1bcc3913d74cc082035b7c",
+      "size": 5831
     },
     {
       "category": "addon",
@@ -7730,6 +7730,20 @@
       "targetPath": "overlords_talents/premium_ui.lua",
       "sha256": "3c1e79878781442f0333fbef450d4285d453cf4c50e61643c0af48dc74b0f1d0",
       "size": 24251
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/peer_souls.lua",
+      "targetPath": "overlords_soul_actions/peer_souls.lua",
+      "sha256": "97e12d5d5fbd565fbaaa45cc0c54d59504700be108a86efa3d6acd4dd5d3f593",
+      "size": 3984
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/tests/peer_souls_test.lua",
+      "targetPath": "overlords_soul_actions/tests/peer_souls_test.lua",
+      "sha256": "88ea24d51116471503fc637e5b82a771ff2672108b92fcac30981ffa925cb9a8",
+      "size": 1503
     }
   ],
   "news": [
