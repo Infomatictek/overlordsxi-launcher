@@ -37,3 +37,31 @@
 6. Integrate client-only catalog distribution in the launcher manifest after tests and checksum generation.
 
 **Status:** This document is an investigation plan, not a claim that native replacement has been achieved.
+
+## 2026-11-19: Shinobi native action inventory gate
+
+Live client validation has confirmed the native Equipment job name is shown as `Lv25 Shinobi`. The native Equipment hook is real, but it does **not** establish that spell/ability menus use the same renderer or call site.
+
+Ashita v4's resource API exposes `GetSpellById` and `GetAbilityById`, including English names and descriptions, mana cost, spell cast time, recast and other metadata; see its official SDK. Soul Actions v0.3.0 therefore offers a **read-only inventory export** in the existing panel, with no new overlay and no shell commands:
+
+1. Open the Soul Actions panel.
+2. Click **Export native spell and ability IDs**.
+3. Wait for the single completion chat message. The bounded job processes 20 IDs per rendered frame.
+4. The client writes `addons/overlords_soul_actions/native-actions-audit.tsv`, listing client resource IDs and vanilla display strings. This is local diagnostic data, not a deployed Soul whitelist, gameplay authority, or proof of native menu interception.
+
+The export contains all available spell IDs in 0..1023 and abilities in 0..2047. It deliberately does **not** guess which entries Shinobi is allowed to cast. Actual allowed action names, JA IDs and level progression require checking the current gameplay definitions, independently of the client's resources, before writing the client profile. No custom labels are automatically invented.
+
+### Required native FFXI binary study
+
+Use the identical validated `FFXiMain.dll` binary build from the Equipment hook (timestamp `0x6ae818b4`, `SizeOfImage=0xC17000`). Find the actual **Magic** and **Abilities** menu state/list rendering sites (both list row labels and description panel) and record:
+
+- Menu identifier, object/vtable, rendering function and relevant RVA
+- How each visible row resolves a spell/ability ID, name, icon, availability and description
+- Whether the resource strings are copied into mutable buffers, or rendered directly
+- The exact function prototype and x86 stack/register ABI and a 24-byte code signature
+- How target selection, macro command resolution and recast UI obtain the action ID
+- Whether the same resource ID can be shown differently for two distinct active Souls without global DAT renaming
+
+Implement a scoped read-only selection/identity tracer first and validate it with one Shinobi spell and one Shinobi JA. Do not ship unverified pointer patches, overwrite resource table strings globally, or rename actions in unrelated jobs. Scope custom names to active Soul; preserve native action IDs and stock fallback. Add x86 ABI tests before packaging any new native hook. The existing DLL is currently at 10 hooks; don't change that count without a verified additional patch.
+
+**Status:** Client resource inventory and discovery path implemented in Lua. Native spell/ability menu replacements, cast bar, logs, macros and VFX remain pending binary research and actual tests.
