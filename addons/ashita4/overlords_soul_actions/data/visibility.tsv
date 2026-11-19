@@ -1,0 +1,10 @@
+# OverlordsXI Soul Action Visibility Policy (client display only)
+# soul<TAB>kind<TAB>id<TAB>min_effective_level<TAB>rule
+# kind: spell | ability | weaponskill
+# rule: unlock (hidden below level); hidden (always hidden for this Soul)
+# All unspecified actions are UNMANAGED until server-authoritative eligibility
+# is inventoried. This prevents blindly hiding vanilla or subjob actions.
+# These initial levels are based on the user's tested behavior, not an audited
+# server eligibility export; verify against authoritative server rules.
+shinobi	spell	338	10	unlock
+shinobi	spell	339	37	unlock
