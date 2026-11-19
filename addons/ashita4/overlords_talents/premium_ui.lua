@@ -158,6 +158,7 @@ local function drawBrowser(state,action,w)
     imgui.SetCursorScreenPos({x+10,y+153})
     if imgui.BeginChild('##wm_browser_list',{w-20,625},ImGuiChildFlags_None or 0) then
         local rows=action.filtered()
+        dl=imgui.GetWindowDrawList()
         for _,ws in ipairs(rows) do
             local rx,ry=xy(imgui.GetCursorScreenPos())
             local rw=w-35
@@ -177,7 +178,7 @@ local function drawBrowser(state,action,w)
             end
             at(rx+54,ry+7,trunc(ws.name,23),selected and C.gold or C.white)
             local pts=state.spentByWs[ws.id] or 0
-            at(rx+54,ry+29,(ws.skillName or 'Weapon')..'  /  '..pts..' invested',C.muted)
+            at(rx+54,ry+29,'TALENT POINTS  /  '..pts,C.muted)
             imgui.SetCursorScreenPos({rx,ry+57})
         end
     end
@@ -213,6 +214,7 @@ local function drawMastery(state,action,w)
     drawHero(state,dl,x,y,w)
     imgui.SetCursorScreenPos({x,y+179})
     if imgui.BeginChild('##wm_mastery_scroll',{w,592},ImGuiChildFlags_None or 0) then
+        dl=imgui.GetWindowDrawList()
         if not d then
             txt('YOUR WEAPON, YOUR TECHNIQUE',C.gold)
             txt('Select a weapon skill to inspect its mastery tree.',C.pale)
@@ -338,7 +340,7 @@ function UI.draw(state,action)
     at(x+27,y+42,'WEAPON MASTERY',C.white)
     at(x+330,y+29,state.jobKey..'   /   '..trunc(state.specName,25)..'   /   Lv.'..state.jobLevel,C.pale)
     at(x+725,y+29,string.format('%d AVAILABLE   /   %d SPENT',state.avail or 0,state.spent or 0),C.aqua)
-    imgui.SetCursorScreenPos({x+width-176,y+17})
+    imgui.SetCursorScreenPos({x+width-184,y+17})
     if imgui.Button('SYNC##wm_sync',{74,30}) then action.sync() end
     imgui.SameLine()
     if not state.confirmResetAll then
