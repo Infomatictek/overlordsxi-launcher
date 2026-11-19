@@ -71,6 +71,18 @@ assert(unknown == 'vanilla_unavailable')
 assert(combatLog.rewriteLine(
     'Rin starts casting Utsusemi: IchiX on Rin.', 'Rin', catalog, 'shinobi', aliases) == nil)
 
+-- Live FFXI text can begin with color markers with printable parameters.
+local colorPrefix = string.char(0x1F, 0x30)
+local localCast = colorPrefix .. 'Rin starts casting Utsusemi: Ichi on Rin.'
+assert(combatLog.rewriteLine(localCast, 'Rin', catalog, 'shinobi', aliases)
+    == colorPrefix .. 'Rin starts casting Shadow Squadron: Ichi on Rin.')
+assert(combatLog.rewriteLine('Other Rin starts casting Utsusemi: Ichi.',
+    'Rin', catalog, 'shinobi', aliases) == nil)
+assert(combatLog.rewriteLine('NinRin starts casting Utsusemi: Ichi.',
+    'Rin', catalog, 'shinobi', aliases) == nil)
+assert(combatLog.rewriteLine(colorPrefix .. 'OtherRin starts casting Utsusemi: Ichi.',
+    'Rin', catalog, 'shinobi', aliases) == nil)
+
 -- Verify all 66 Souls resolve to distinct valid (job, branch) pairs.
 local seen = {}
 local count = 0
