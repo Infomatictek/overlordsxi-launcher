@@ -5985,22 +5985,22 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/scorer.lua",
       "targetPath": "overlords_gear/og/scorer.lua",
-      "sha256": "7bc094aadec6419a785280e8ad9c9863a967949f94ad583e7510cd78f8454d81",
-      "size": 25854
+      "sha256": "6cae62f795f0c15f8040757b6ad89ba0e407e99d745299a88421b026bb54b6a5",
+      "size": 26706
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/state.lua",
       "targetPath": "overlords_gear/og/state.lua",
-      "sha256": "c3da222f8d2047a1e95885b519e5ab1a014de0b87155eead41b7efec35d4fb71",
-      "size": 22994
+      "sha256": "546498b1ebc3fadd4a73037cb7d021864767dbf0cfb227d001c947a6d90f8b5a",
+      "size": 23516
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_gear/og/swapper.lua",
       "targetPath": "overlords_gear/og/swapper.lua",
-      "sha256": "91068eac15a8d8eba6b6b72c34ae01cf00159d5ba4479b2e054c2f331fe4219a",
-      "size": 22901
+      "sha256": "764162dca429a7d76a88f39766b969760208339b17204fe6783578d2ff1f9c7f",
+      "size": 23193
     },
     {
       "category": "addon",
