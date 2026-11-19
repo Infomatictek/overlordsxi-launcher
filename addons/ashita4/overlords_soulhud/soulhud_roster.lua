@@ -24,7 +24,7 @@ local list = {
     { 'minstrel', 'Minstrel', 'MIN', 'tank' }, { 'sniper', 'Sniper', 'SNP', 'damage' },
     { 'huntsman', 'Huntsman', 'HNT', 'tank' }, { 'arcanearcher', 'Arcane Archer', 'ACA', 'support' },
     { 'ronin', 'Ronin', 'RON', 'tank' }, { 'imperialarcher', 'Imperial Archer', 'IMP', 'support' },
-    { 'warlord', 'Warlord', 'WRL', 'support' }, { 'kurogane', 'Kurogane', 'KRG', 'damage' },
+    { 'warlord', 'Warlord', 'WRL', 'support' }, { 'kurogane', 'Shinobi', 'KRG', 'damage' },
     { 'kagemusha', 'Kagemusha', 'KGM', 'tank' }, { 'nightblade', 'Nightblade', 'NGB', 'support' },
     { 'lancer', 'Lancer', 'LNC', 'damage' }, { 'skyborn', 'Skyborn', 'SKY', 'tank' },
     { 'wyvernheart', 'Wyvernheart', 'WYV', 'healer' }, { 'warmage', 'Warmage', 'WMG', 'damage' },
