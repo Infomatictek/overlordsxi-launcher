@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Regenerates the file hashes and sizes in manifest.json."""
+"""Regenerates the file hashes and sizes in manifest.json (or verifies in --check mode)."""
 
 from __future__ import annotations
 
+import argparse
 import hashlib
+import importlib.util
 import json
+import sys
 from pathlib import Path
 
 
@@ -19,10 +22,42 @@ def sha256_file(path: Path) -> tuple[str, int]:
     return hashlib.sha256(raw).hexdigest(), len(raw)
 
 
-def main() -> None:
+def _run_read_only_check(repo_root: Path) -> int:
+    verifier_path = Path(__file__).resolve().parent / "verify-launcher-manifest.py"
+    spec = importlib.util.spec_from_file_location("verify_launcher_manifest", str(verifier_path))
+    if not spec or not spec.loader:
+        print(f"Could not load verifier: {verifier_path}", file=sys.stderr)
+        return 2
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return int(mod.main([str(repo_root)]))
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Run read-only manifest verification without modifying manifest.json or client files.",
+    )
+    args = parser.parse_args(argv)
+
     repo_root = Path(__file__).resolve().parent.parent
+    if args.check:
+        return _run_read_only_check(repo_root)
+
     manifest_path = repo_root / "manifest.json"
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    raw_text = manifest_path.read_text(encoding="utf-8")
+    for lineno, line in enumerate(raw_text.splitlines(), start=1):
+        if line.startswith(("<<<<<<<", "=======", ">>>>>>>")):
+            print(
+                f"ERROR: Unresolved merge-conflict marker in {manifest_path} at line {lineno}. "
+                "Resolve conflicts before regenerating manifest.json.",
+                file=sys.stderr,
+            )
+            return 1
+
+    manifest = json.loads(raw_text)
 
     entries: list[dict[str, object]] = []
 
@@ -87,7 +122,8 @@ def main() -> None:
     with manifest_path.open("w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(manifest, indent=2) + "\n")
     print(f"Updated {manifest_path} with {len(entries)} file entries.")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
