@@ -35,6 +35,7 @@ function M.resolve(status, job, character)
 end
 local okFfi, ffi = pcall(require, 'ffi')
 local status_t
+local get_status_type, cached_module, cached_address, cached_function
 if okFfi and ffi then
     pcall(ffi.cdef, 'void* __stdcall GetModuleHandleA(const char*);')
     pcall(ffi.cdef, 'void* __stdcall GetProcAddress(void*, const char*);')
@@ -44,15 +45,21 @@ if okFfi and ffi then
         uint32_t queries_sent, replies_accepted, replies_rejected, last_error;
     }[1]]=])
     if ok then status_t = tp end
+    local okFn, fnType = pcall(ffi.typeof, 'uint32_t (__stdcall *)(void*, uint32_t)')
+    if okFn then get_status_type = fnType end
 end
 function M.read()
-    if not (ffi and status_t) then return nil end
+    if not (ffi and status_t and get_status_type) then return nil end
     local ok, status = pcall(function()
         local handle = ffi.C.GetModuleHandleA('crystaljobs.dll')
-        if handle == nil then return nil end
+        if handle == nil then cached_module, cached_address, cached_function = nil, nil, nil; return nil end
         local addr = ffi.C.GetProcAddress(handle, 'CrystalJobsGetStatus')
         if addr == nil then return nil end
-        local fn = ffi.cast('uint32_t (__stdcall *)(void*, uint32_t)', addr)
+        if cached_module ~= handle or cached_address ~= addr then
+            cached_module, cached_address = handle, addr
+            cached_function = ffi.cast(get_status_type, addr)
+        end
+        local fn = cached_function
         local buf = ffi.new(status_t)
         if fn(buf, ffi.sizeof(buf)) ~= 0 or buf[0].size ~= 68 or buf[0].version ~= 1 then return nil end
         return {enabled=tonumber(buf[0].enabled),known=tonumber(buf[0].known),
