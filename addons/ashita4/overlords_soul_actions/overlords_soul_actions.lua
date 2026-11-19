@@ -55,7 +55,7 @@ ashita.events.register('command', 'osa_command', function(e)
             ', job=' .. tostring(d.job) .. ', branch=' .. tostring(d.branch) ..
             ', character=' .. tostring(d.character_id)) or 'unavailable'))
     elseif op == 'preview' and args[3] and args[3]:match('^[%w_%-]+$') then
-        state.soul = args[3]:lower()
+        state.soul = soulPacket.canonicalKey(args[3])
         state.preview = true
         state.source = 'manual preview'
         state.visible = true
