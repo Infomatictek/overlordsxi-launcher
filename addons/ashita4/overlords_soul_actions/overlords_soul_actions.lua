@@ -2,7 +2,7 @@
 -- This module intentionally does NOT rewrite native packets or client resources.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.2.0'
+addon.version = '0.3.0'
 addon.desc = 'Soul-specific spell, ability and weapon skill identities.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -12,6 +12,7 @@ local profiles = require('profiles')
 local presentation = require('presentation')
 local soulBridge = require('soul_bridge')
 local soulPacket = require('soul_packet')
+local resourceAudit = require('resource_audit')
 local state = { soul = nil, visible = false, lastJob = 0, lastCharacter = 0,
     lastPoll = -100, selected = nil, preview = false, source = 'none',
     packetSoul = nil, packetJob = 0, lastDllStatus = nil }
@@ -89,7 +90,7 @@ ashita.events.register('command', 'osa_command', function(e)
     end
 end)
 ashita.events.register('load', 'osa_load', function() log('Identity viewer loaded. Use /soulactions demo to inspect a sample.') end)
-ashita.events.register('unload', 'osa_unload', function() reset() end)
+ashita.events.register('unload', 'osa_unload', function() resourceAudit.cancel(); reset() end)
 ashita.events.register('packet_in', 'osa_zone', function(e)
     -- 0x00A zone transition; do not retain stale identities.
     if e.id == 0x00B or e.id == 0x00A then reset(); return end
@@ -134,11 +135,28 @@ ashita.events.register('d3d_present', 'osa_render', function()
             state.source = dllStatus and 'DLL has no valid active Soul' or 'Crystal Jobs DLL unavailable'
         end
     end
+    if resourceAudit.running() then
+        local progress = resourceAudit.step(20)
+        if progress and progress.complete then
+            log(('Client resource inventory complete: %d records. File: %s'):format(
+                progress.count, progress.path))
+        end
+    end
     if not state.visible then return end
     local open = { true }
     if imgui.Begin('OverlordsXI Soul Actions', open) then
         imgui.Text('Soul: ' .. (state.soul or 'Not synchronized'))
         imgui.TextDisabled('Identity: ' .. state.source)
+        if resourceAudit.running() then
+            imgui.TextDisabled('Exporting native action resources in small batches...')
+        elseif imgui.Button('Export native spell and ability IDs') then
+            local ok, manager = pcall(function()
+                return AshitaCore:GetResourceManager()
+            end)
+            local started, why = resourceAudit.start(ok and manager or nil, addon.path)
+            if started then log('Started read-only native resource export.')
+            else log('Could not start export: ' .. tostring(why)) end
+        end
         imgui.Separator()
         local soul = catalog.souls[state.soul] or {}
         local count = 0
