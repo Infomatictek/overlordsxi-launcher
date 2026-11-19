@@ -2,12 +2,21 @@
 local M = {}
 
 local function actorStart(message, player)
-    -- Leading FFXI chat color/control markers may precede the actor name.
-    local prefix = message:match('^[%c]*') or ''
-    local start = #prefix + 1
-    if message:sub(start, start + #player - 1) ~= player then return false end
-    local nextChar = message:sub(start + #player, start + #player)
-    return nextChar == ' ' or nextChar == "'"
+    -- FFXI text may prepend color/control sequences containing *printable*
+    -- parameter bytes. A pure ^[%c]* trim therefore rejects real chat.
+    -- Only accept the exact actor name near the beginning, preceded by at
+    -- most 32 formatting bytes and no readable alphanumeric actor prefix.
+    local from = 1
+    while true do
+        local start = message:find(player, from, true)
+        if not start or start > 33 then return false end
+        local prefix = message:sub(1, start - 1)
+        local nextChar = message:sub(start + #player, start + #player)
+        if not prefix:find('[%w]') and (nextChar == ' ' or nextChar == "'") then
+            return true
+        end
+        from = start + #player
+    end
 end
 
 local function tryReplace(message, vanilla, custom)
