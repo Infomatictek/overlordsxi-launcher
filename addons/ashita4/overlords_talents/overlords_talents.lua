@@ -12,12 +12,13 @@
 
 addon.name    = 'overlords_talents'
 addon.author  = 'OverlordsXI'
-addon.version = '1.0.0'
+addon.version = '2.0.0'
 addon.desc    = 'Per-weaponskill talent tree UI for OverlordsXI.'
 
 require('common')
 local bit   = require('bit')
 local imgui = require('imgui')
+local premiumUI = require('premium_ui')
 
 local PROTO_TAG         = '[OXTAL]|'
 local PACKET_C2S_ID     = 0x11F
@@ -1722,6 +1723,17 @@ local function drawSidebar()
 end
 
 local function drawMainContents()
+    return premiumUI.draw(state, {
+        send = sendTalentPacket,
+        requestWS = requestWS,
+        sync = requestFullSync,
+        filtered = getFilteredCatalog,
+        skills = SKILL_LIST,
+    })
+end
+
+-- Retained legacy implementation for rollback/reference; not used by v2.
+local function drawLegacyContents()
     local pal = getPalette()
 
     -- Top Header Bar
@@ -1886,7 +1898,7 @@ ashita.events.register('d3d_present', 'ox_talents_present', function()
     end
 
     local pushedCols = pushThemeStyles()
-    imgui.SetNextWindowSize({ 1160, 680 }, ImGuiCond_FirstUseEver or 4)
+    imgui.SetNextWindowSize({ 1360, 940 }, ImGuiCond_FirstUseEver or 4)
     if imgui.Begin('OverlordsXI - Weaponskill Talents###OXTalentsWin', state.open) then
         local okWin, errWin = xpcall(drawMainContents, debug.traceback)
         if not okWin then
@@ -1898,4 +1910,8 @@ ashita.events.register('d3d_present', 'ox_talents_present', function()
     if pushedCols > 0 then
         imgui.PopStyleColor(pushedCols)
     end
+end)
+
+ashita.events.register('unload', 'ox_talents_premium_unload', function()
+    premiumUI.unload()
 end)
