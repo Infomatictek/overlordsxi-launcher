@@ -40,7 +40,11 @@ local badPair, pairReason = peers.observe(cache,
 assert(not badPair and pairReason == 'soul_job_branch_mismatch')
 local badHeader, headerReason = peers.decode(
     packet(1, 'OtherNinja', 'shinobi', 13, 1, 54322, 54322):gsub('OXSI', 'OXZZ'))
-assert(badHeader == nil and headerReason == 'envelope')
+assert(badHeader == nil and headerReason == 'magic_mismatch')
+local shortPacket, shortReason = peers.decode('----OXSI')
+assert(shortPacket == nil and shortReason == 'envelope_short')
+local longPacket, longReason = peers.decode(raw .. string.rep('\\0', 200))
+assert(longPacket == nil and longReason == 'envelope_long')
 
 -- Legacy key kurogane normalizes to shinobi over the wire.
 local legacyPkt = packet(1, 'Kage', 'kurogane', 13, 1, 60001, 60001)
