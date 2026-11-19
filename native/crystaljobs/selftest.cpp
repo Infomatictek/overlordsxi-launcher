@@ -415,39 +415,47 @@ static void equipment_persona_checks() {
     assert(persona_text_calls == 2 && simple_sprite_calls == 0);
     assert(std::strcmp(last_persona_text, "Shinobi") == 0 && last_persona_color == 0x802060a0u);
 
+    // Long idle: the short search/session heartbeat lease has expired, but the
+    // local persona must keep its last confirmed Soul until explicit revocation.
+    state.updated = GetTickCount() - lease_ms - 60000u;
+    assert(!state.alive(GetTickCount(), 100, 13));
+    assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
+    assert(persona_text_calls == 3 && simple_sprite_calls == 0);
+    assert(std::strcmp(last_persona_text, "Shinobi") == 0);
+
     // Live Soul switch without closing the Equipment menu.
     ev[3] = 2; state.update(ev, 8, GetTickCount());
     assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
-    assert(persona_text_calls == 3 && std::strcmp(last_persona_text, "Kagemusha") == 0);
+    assert(persona_text_calls == 4 && std::strcmp(last_persona_text, "Kagemusha") == 0);
     ev[3] = 3; state.update(ev, 8, GetTickCount());
     assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
-    assert(persona_text_calls == 4 && std::strcmp(last_persona_text, "Nightblade") == 0);
+    assert(persona_text_calls == 5 && std::strcmp(last_persona_text, "Nightblade") == 0);
 
     // Other jobs (e.g., BLM Astromancer, RDM Crimson Duelist).
     mock_main_job = 4; ev[2] = 4; ev[3] = 1; state.update(ev, 8, GetTickCount());
     assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
-    assert(persona_text_calls == 5 && std::strcmp(last_persona_text, "Astromancer") == 0);
+    assert(persona_text_calls == 6 && std::strcmp(last_persona_text, "Astromancer") == 0);
     mock_main_job = 5; ev[2] = 5; ev[3] = 1; state.update(ev, 8, GetTickCount());
     assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
-    assert(persona_text_calls == 6 && std::strcmp(last_persona_text, "Crimson Duelist") == 0);
+    assert(persona_text_calls == 7 && std::strcmp(last_persona_text, "Crimson Duelist") == 0);
 
-    // Fallback to stock sprite when job mismatches, no Soul is active, or session lease is inactive.
+    // Fallback to stock sprite on job mismatch, no Soul, explicit revoke, or disabled session.
     mock_main_job = 13; // state.job is still 5
     assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
-    assert(persona_text_calls == 6 && simple_sprite_calls == 1);
+    assert(persona_text_calls == 7 && simple_sprite_calls == 1);
 
     ev[2] = 13; ev[3] = 0; state.update(ev, 8, GetTickCount()); // branch 0 = no Soul
     assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
-    assert(persona_text_calls == 6 && simple_sprite_calls == 2);
+    assert(persona_text_calls == 7 && simple_sprite_calls == 2);
 
     ev[1] = 0; ev[3] = 1; state.update(ev, 8, GetTickCount()); // unknown
     assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
-    assert(persona_text_calls == 6 && simple_sprite_calls == 3);
+    assert(persona_text_calls == 7 && simple_sprite_calls == 3);
 
     ev[1] = 1; ev[3] = 1; state.update(ev, 8, GetTickCount());
-    selftest_alive = false; // expired lease / zoning / disabled
+    selftest_alive = false; // explicitly disabled / zoning
     assert(persona_abi(reinterpret_cast<void*>(&persona_job_hook), 0x80808080u));
-    assert(persona_text_calls == 6 && simple_sprite_calls == 4);
+    assert(persona_text_calls == 7 && simple_sprite_calls == 4);
 
     // Verify 0x14868F signature relocation for relocated FFXiMain.dll (e.g. 0x04860000).
     uint8_t persona_sig[24];
