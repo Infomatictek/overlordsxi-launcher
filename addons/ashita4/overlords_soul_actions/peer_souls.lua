@@ -31,7 +31,10 @@ function M.decode(data)
     if ver ~= 1 or (op ~= 0 and op ~= 1) or not actor or actor == 0
         or not character or character == 0 or not job or job < 1 or job > 22
         or not branch or branch > 3 or not nlen or nlen > 24
-        or not slen or slen > 64 or #data ~= 22+nlen+slen then return nil end
+        or not slen or slen > 64 or #data < 22+nlen+slen
+        or #data > 25+nlen+slen then return nil end
+    local padding = data:sub(23+nlen+slen)
+    if padding ~= '' and padding:find('[^%z]') then return nil end
     local name = data:sub(23,22+nlen)
     local soul = data:sub(23+nlen,22+nlen+slen)
     if not validName(name) then return nil end
