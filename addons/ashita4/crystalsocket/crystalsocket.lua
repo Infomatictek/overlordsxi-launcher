@@ -1,6 +1,6 @@
 addon.name = 'crystalsocket'
 addon.author = 'OverlordsXI / Crystal Socket'
-addon.version = '0.3.3'
+addon.version = '0.3.4'
 addon.desc = 'OverlordsXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
 
 require('common')
@@ -187,6 +187,14 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
     report(('[crystalsocket] labels dll=%s known=%s branch=%s error=%s'):format(
         tostring(labels.native), tostring(labels.known), tostring(labels.branch), tostring(labels.error)))
     report('[crystalsocket] label_source=' .. tostring(labels.source or 'none'))
+    report(('[crystalsocket] hud packets=%d decoded=%d rejected=%d context_job=%s bytes=%s reason=%s hint_job=%s hint_character=%s hint_branch=%s'):format(
+        labels.hud_packets, labels.hud_decoded, labels.hud_rejected,
+        tostring(labels.last_hud_job), tostring(labels.last_hud_length),
+        tostring(labels.last_hud_error), tostring(labels.hud_hint and labels.hud_hint.job),
+        tostring(labels.hud_hint and labels.hud_hint.character_id),
+        tostring(labels.hud_hint and labels.hud_hint.branch)))
+    report(('[crystalsocket] native_sync sends=%d result=%s source=%s'):format(
+        labels.send_count, tostring(labels.last_send_result), tostring(labels.source)))
     if dll_st then
         report(('[crystalsocket] native enabled=%d hooks=%d job=%d known=%d branch=%d items=%d search=%d full=%d rows=%d err=%d'):format(
             dll_st.enabled, dll_st.hooks, dll_st.job, dll_st.known, dll_st.branch,
