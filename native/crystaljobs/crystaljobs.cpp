@@ -52,6 +52,8 @@ static thread_local int32_t tls_magic_row_id = -1;
 static thread_local int32_t tls_ability_row_id = -1;
 static thread_local char tls_action_name[80]{};
 static thread_local char tls_action_desc[192]{};
+static thread_local char tls_action_row[80]{};
+static std::atomic<uint32_t> action_row_max_chars{16};
 #ifdef CRYSTALJOBS_SELFTEST
 static bool selftest_alive;
 #endif
@@ -415,8 +417,11 @@ static uint32_t ability_kind_for_id(int32_t ability_id) noexcept {
 static const char* __stdcall resolve_magic_row_name(int32_t spell_id) noexcept {
     tls_magic_row_id = spell_id;
     if (const char* custom = resolve_action_string(CRYSTALJOBS_ACTION_SPELL, spell_id, false)) {
+        // Compact ONLY the stock list row. Target banners retain full names.
+        const auto limit = action_row_max_chars.load(std::memory_order_relaxed);
+        if (!compact_action_row_name(custom, tls_action_row, sizeof(tls_action_row), limit)) return nullptr;
         ++magic_name_hits;
-        return custom;
+        return tls_action_row;
     }
     return nullptr;
 }
@@ -453,8 +458,10 @@ static void* __cdecl magic_icon_hook(uint32_t icon_v1, uint32_t icon_v2) noexcep
 static const char* __stdcall resolve_ability_row_name(int32_t ability_id) noexcept {
     tls_ability_row_id = ability_id;
     if (const char* custom = resolve_action_string(ability_kind_for_id(ability_id), ability_id, false)) {
+        const auto limit = action_row_max_chars.load(std::memory_order_relaxed);
+        if (!compact_action_row_name(custom, tls_action_row, sizeof(tls_action_row), limit)) return nullptr;
         ++ability_name_hits;
-        return custom;
+        return tls_action_row;
     }
     return nullptr;
 }
@@ -1003,6 +1010,12 @@ extern "C" uint32_t __stdcall CrystalJobsClearActiveSoul() {
     AcquireSRWLockExclusive(&state_lock);
     soul_override = {};
     ReleaseSRWLockExclusive(&state_lock);
+    return 0;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsSetActionRowLimit(uint32_t max_chars) {
+    if (max_chars < 8 || max_chars > 48) return 1;
+    action_row_max_chars.store(max_chars, std::memory_order_relaxed);
     return 0;
 }
 

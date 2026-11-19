@@ -91,6 +91,56 @@ inline bool validate_and_convert(const CrystalJobsActionEntry& in, ActionRecord&
     return has_name || has_desc || has_icon;
 }
 
+// Compact names only for narrow, stock FFXI Magic/JA/WS list rows.
+// Full catalog strings, descriptions, target-selection banners, and gameplay
+// dispatch are untouched. The width is set by the addon, not by Soul names.
+// The native list font uses a legacy single-byte encoding; do not split a
+// possible UTF-8 multibyte sequence at the cut.
+inline bool compact_action_row_name(const char* full, char* output,
+                                    size_t capacity, size_t max_chars) noexcept {
+    if (!full || !output || capacity < 2 || max_chars < 8 || max_chars >= capacity) return false;
+    size_t length = 0;
+    while (length < capacity && full[length] != '\0') ++length;
+    if (length >= capacity) return false;
+    if (length <= max_chars) {
+        std::memcpy(output, full, length + 1);
+        return true;
+    }
+    // Preserve the meaningful action tier suffix (e.g. ": Ichi" / ": Ni")
+    // and abbreviate its prefix with a period. This needs no per-Soul rules.
+    size_t suffix = length;
+    for (size_t i = 0; i + 1 < length; ++i) {
+        if (full[i] == ':' && full[i + 1] == ' ') suffix = i;
+    }
+    if (suffix < length && length - suffix < max_chars / 2) {
+        const size_t tail = length - suffix;
+        // Reserve a consistent suffix slot so Ichi/Ni-style variants of
+        // the same action don't appear with wildly different stem lengths.
+        const size_t reserved_suffix = (tail < 6) ? 6 : tail;
+        const size_t prefix_max = max_chars > reserved_suffix + 1
+            ? max_chars - reserved_suffix - 1 : 0;
+        if (prefix_max >= 3) {
+            size_t end = prefix_max;
+            while (end > 0 && (static_cast<unsigned char>(full[end]) & 0xC0u) == 0x80u) --end;
+            if (end >= 3) {
+                while (end && full[end - 1] == ' ') --end;
+                std::memcpy(output, full, end);
+                output[end] = '.';
+                std::memcpy(output + end + 1, full + suffix, tail);
+                output[end + 1 + tail] = '\0';
+                return true;
+            }
+        }
+    }
+    // Generic no-suffix fallback. Mark abbreviated rows visibly.
+    size_t end = max_chars - 3;
+    while (end > 0 && (static_cast<unsigned char>(full[end]) & 0xC0u) == 0x80u) --end;
+    if (end == 0) return false;
+    std::memcpy(output, full, end);
+    std::memcpy(output + end, "...", 4);
+    return true;
+}
+
 class ActionCatalog {
 public:
     static constexpr uint32_t kMaxEntries = 4096;

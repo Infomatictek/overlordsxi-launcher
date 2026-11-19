@@ -550,8 +550,8 @@ static CrystalJobsActionEntry make_action(uint8_t job, uint8_t branch, uint32_t 
     e.action_id = id;
     e.icon_id = icon_v1;
     e.icon_id_v2 = icon_v2;
-    if (name) std::strncpy(e.name, name, sizeof(e.name) - 1);
-    if (desc) std::strncpy(e.description, desc, sizeof(e.description) - 1);
+    if (name) copy_cstr_bounded(e.name, sizeof(e.name), name, sizeof(e.name));
+    if (desc) copy_cstr_bounded(e.description, sizeof(e.description), desc, sizeof(e.description));
     return e;
 }
 
@@ -588,12 +588,26 @@ static void action_catalog_checks() {
     assert(CrystalJobsReplaceCatalog(dup, 2) == 1);
     assert(action_catalog.count() == 5);
 
+    // Row width is adjustable without recompilation; invalid values fail safely.
+    assert(CrystalJobsSetActionRowLimit(7) == 1);
+    assert(CrystalJobsSetActionRowLimit(49) == 1);
+    assert(CrystalJobsSetActionRowLimit(16) == 0);
+    char compact[80]{};
+    assert(compact_action_row_name("Utsusemi: Ichi", compact, sizeof(compact), 16));
+    assert(std::strcmp(compact, "Utsusemi: Ichi") == 0);
+    assert(compact_action_row_name("Shadow Squadron: Ichi", compact, sizeof(compact), 16));
+    assert(std::strcmp(compact, "Shadow Sq.: Ichi") == 0);
+    assert(compact_action_row_name("Extraordinarily Long Action Name", compact, sizeof(compact), 16));
+    assert(std::strcmp(compact, "Extraordinari...") == 0);
+
     // Active NIN (13) branch 1 (Shinobi) via bridge state.
     uint8_t ev[8] = {1, 1, 13, 1, 100, 0, 0, 0};
     state.update(ev, 8, GetTickCount());
-    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Shadow Squadron: Ichi") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Shadow Sq.: Ichi") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_target_hook), 338), "Shadow Squadron: Ichi") == 0);
     assert(magic_icon_hook(99, 200) == reinterpret_cast<void*>(0x13579bdfu) && last_icon_v1 == 12 && last_icon_v2 == 1024);
     assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_desc_hook), 338), "Summon 2 offensive shadow clones.") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 339), "Shadow Sq.: Ni") == 0);
     assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_target_hook), 339), "Shadow Squadron: Ni") == 0);
 
     // Weapon skill (id < 512) and Job Ability (id >= 512) resolve independently.
@@ -606,7 +620,7 @@ static void action_catalog_checks() {
 
     // Switch Soul to Kagemusha (branch 2): same spell ID 338 maps to a different name; 339 falls back to vanilla.
     ev[3] = 2; state.update(ev, 8, GetTickCount());
-    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Mirror Decoy: Ichi") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Mirror De.: Ichi") == 0);
     assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 339), "Utsusemi: Ni") == 0);
     assert(fake_spell_name_calls == 1);
 
@@ -624,9 +638,17 @@ static void action_catalog_checks() {
     // Explicit SetActiveSoul / ClearActiveSoul when bridge state is unknown.
     ev[1] = 0; ev[3] = 0; state.update(ev, 8, GetTickCount());
     assert(CrystalJobsSetActiveSoul(13, 1, 0) == 0);
-    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Shadow Squadron: Ichi") == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Shadow Sq.: Ichi") == 0);
     assert(CrystalJobsClearActiveSoul() == 0);
     assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Utsusemi: Ichi") == 0);
+
+    // Full target labels always remain unshortened, even with narrower row budget.
+    assert(CrystalJobsSetActionRowLimit(12) == 0);
+    assert(CrystalJobsSetActiveSoul(13, 1, 0) == 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_row_name_hook), 338), "Shadow: Ichi") != 0);
+    assert(std::strcmp(action_str_abi(reinterpret_cast<void*>(&magic_target_hook), 338), "Shadow Squadron: Ichi") == 0);
+    assert(CrystalJobsSetActionRowLimit(16) == 0);
+    assert(CrystalJobsClearActiveSoul() == 0);
 
     // Verify relocations for all new action signatures (base 0x04860000).
     const uint32_t delta = static_cast<uint32_t>(0x04860000u - 0x10000000u);
@@ -747,6 +769,7 @@ int main() {
     assert(initialize != nullptr && shutdown != nullptr && status != nullptr && GetProcAddress(dll, "CrystalJobsSetState") != nullptr);
     assert(GetProcAddress(dll, "CrystalJobsReplaceCatalog") != nullptr);
     assert(GetProcAddress(dll, "CrystalJobsUpsertAction") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsSetActionRowLimit") != nullptr);
     assert(GetProcAddress(dll, "CrystalJobsClearCatalog") != nullptr);
     assert(GetProcAddress(dll, "CrystalJobsSetActiveSoul") != nullptr);
     assert(GetProcAddress(dll, "CrystalJobsClearActiveSoul") != nullptr);
