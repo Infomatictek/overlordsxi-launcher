@@ -1246,11 +1246,11 @@ local function drawEvolutionCanvas(detail)
         end
     end
 
-    imgui.SetCursorScreenPos({sx + 20, bottomY - 46})
+    imgui.SetCursorScreenPos({sx + 20, bottomY - 211})
     local inspected = detail.byKey and detail.byKey[state.inspectedNodeKey] or nil
     if inspected then
         drawTextColored(gold, 'INSPECTED: ' .. inspected.name)
-        imgui.SetCursorScreenPos({sx + 20, bottomY - 25})
+        imgui.SetCursorScreenPos({sx + 20, bottomY - 190})
         drawText(formatReadableDesc(inspected.desc))
     else
         drawTextDisabled('Select a glowing sigil to inspect its technique.')
