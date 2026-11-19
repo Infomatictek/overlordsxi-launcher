@@ -19,7 +19,7 @@ For a 16-character row budget:
 | Full name | Compact native list label | Target-select and combat-log name |
 | --- | --- | --- |
 | Shadow Squadron: Ichi | Shadow Sq.: Ichi | Shadow Squadron: Ichi |
-| Shadow Squadron: Ni | Shadow Squ.: Ni | Shadow Squadron: Ni |
+| Shadow Squadron: Ni | Shadow Sq.: Ni | Shadow Squadron: Ni |
 | Utsusemi: Ichi (unmapped) | Utsusemi: Ichi | Utsusemi: Ichi |
 
 The first screenshot showed an overflow to the right of the classic menu; 16 is an **unverified starting estimate**, not a measured pixel width. Different fonts, languages, or UI scaling may require adjustment. Native display-width measurement or scissor clipping would be necessary for a guaranteed pixel-perfect solution; do not claim that a character limit guarantees no clipping for all glyphs.
