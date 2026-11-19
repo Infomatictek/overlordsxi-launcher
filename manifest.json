@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "serverName": "OverlordsXI",
-  "tagline": "Faerie Companions (Eos & Titania) \u2022 Job Specs \u2022 4-Tier Weaponskill Talent Trees",
+  "tagline": "Faerie Companions (Eos & Titania) • Job Specs • 4-Tier Weaponskill Talent Trees",
   "defaultHost": "127.0.0.1",
   "useHairpin": false,
   "ports": {
@@ -6083,8 +6083,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/overlords_soul_actions.lua",
       "targetPath": "overlords_soul_actions/overlords_soul_actions.lua",
-      "sha256": "80caaa172015f5dc00f057cbdcb2e12b3581746b206b5416a7a71d568b428425",
-      "size": 18830
+      "sha256": "51e18c52afc6ffda96f1cabc7717d8739eecffebda757550803b68c72cae44c4",
+      "size": 19768
     },
     {
       "category": "addon",
