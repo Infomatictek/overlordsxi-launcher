@@ -16,7 +16,9 @@ end
 local function lang(resource, field)
     local tableValue = value(resource, field)
     if tableValue == nil then return '' end
-    for _, index in ipairs({2, 0, 1}) do
+    -- Ashita Lua resource names use 1-based arrays: English is generally [3],
+    -- default [1]; use Japanese [2] only as a last resort.
+    for _, index in ipairs({3, 1, 2}) do
         local ok, result = pcall(function() return tableValue[index] end)
         if ok and type(result) == 'string' and result ~= '' then return clean(result) end
     end
