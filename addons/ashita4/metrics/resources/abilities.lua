@@ -79,8 +79,17 @@ Res.Abilities.Damaging =
     [989] = {id = 989, old_id = 477, en = "Iron Hull"},
     [990] = {id = 990, old_id = 478, en = "Tandem Barrage"},
     [991] = {id = 991, old_id = 479, en = "Limiter Release"},
+    [992] = {id = 992, old_id = 480, en = "Call Wild Raaz"},
+    [993] = {id = 993, old_id = 481, en = "Call Stalker Raptor"},
+    [994] = {id = 994, old_id = 482, en = "Rimetusk Gore"},
+    [995] = {id = 995, old_id = 483, en = "Saurian Rend"},
+    [996] = {id = 996, old_id = 484, en = "Primeval Takedown"},
+    [997] = {id = 997, old_id = 485, en = "Call Cehuetzi"},
+    [998] = {id = 998, old_id = 486, en = "Call Gabbrath"},
     [999] = {id = 999, old_id = 487, en = "Shadow Legion"},
     [1000] = {id = 1000, old_id = 488, en = "Phantom Assault"},
+    [1001] = {id = 1001, old_id = 489, en = "Predator's Feint"},
+    [1002] = {id = 1002, old_id = 490, en = "Guardian's Call"},
 }
 
 -- Based off of job_abilities.lua from Windower.
