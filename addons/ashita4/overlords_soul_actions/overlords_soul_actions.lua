@@ -2,7 +2,7 @@
 -- local combat-log presentation, and optional ImGui inspector for Ashita v4.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.4.1'
+addon.version = '0.4.2'
 addon.desc = 'Soul-specific spell, ability, and weapon skill native presentation.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -37,6 +37,7 @@ local state = {
     textSeen = 0,
     textRewritten = 0,
     castNameMisses = 0,
+    logMissReasons = {},
 }
 
 local vanillaCache = { spell = {}, ability = {}, weaponskill = {} }
@@ -62,6 +63,32 @@ local function readVanillaName(kind, id)
     local resolved = (ok and type(name) == 'string' and name ~= '') and name or false
     if bucket then bucket[id] = resolved end
     return resolved or nil
+end
+
+-- Collect every resource-provided spelling for local log matching. Unlike macro
+-- dispatch, combat lines may use a different language/name index.
+local function readVanillaAliases(kind, id)
+    local primary = readVanillaName(kind, id)
+    local result, seen = {}, {}
+    local function append(value)
+        if type(value) == 'string' and value ~= '' and not seen[value] then
+            seen[value] = true
+            result[#result + 1] = value
+        end
+    end
+    append(primary)
+    pcall(function()
+        local rm = AshitaCore:GetResourceManager()
+        local rec = rm and ((kind == 'spell') and rm:GetSpellById(id) or rm:GetAbilityById(id))
+        if not rec then return end
+        for _, key in ipairs({ 'Name', 'NameReal' }) do
+            local names = rec[key]
+            if names then
+                for index = 0, 4 do append(names[index]) end
+            end
+        end
+    end)
+    return result
 end
 
 local function syncNativeCatalog()
@@ -151,6 +178,12 @@ ashita.events.register('command', 'osa_command', function(e)
         log(('Combat log: seen=%d rewritten=%d cast_lines_unmodified=%d soul=%s player=%s'):format(
             state.textSeen, state.textRewritten, state.castNameMisses,
             tostring(state.soul), tostring(state.lastPlayerName)))
+        local reasons = {}
+        for reason, count in pairs(state.logMissReasons) do
+            reasons[#reasons + 1] = tostring(reason) .. '=' .. tostring(count)
+        end
+        table.sort(reasons)
+        log('Combat match diagnostics: ' .. (#reasons > 0 and table.concat(reasons, ', ') or 'none'))
     elseif op == 'capabilities' then
         local a = nativeActions.readStatus()
         state.lastActionStatus = a
@@ -211,15 +244,16 @@ ashita.events.register('text_in', 'osa_text_in', function(e)
         and e.message_modified or e.message
     if type(current) ~= 'string' or current == '' then return end
     state.textSeen = state.textSeen + 1
-    local rewritten = combatLog.rewriteLine(current,
-        state.lastPlayerName, catalog, state.soul, readVanillaName)
+    local rewritten, reason = combatLog.rewriteLine(current,
+        state.lastPlayerName, catalog, state.soul, readVanillaAliases)
     if rewritten then
         state.textRewritten = state.textRewritten + 1
         e.message_modified = rewritten
     elseif current:find('starts casting ', 1, true) then
-        -- Diagnostic aggregate only; includes other actors and unmapped spells.
-        -- Never rewrite an unverified actor's messages.
+        -- Aggregates only. No raw messages, player names, or chat payloads logged.
         state.castNameMisses = state.castNameMisses + 1
+        local code = reason or 'unknown'
+        state.logMissReasons[code] = (state.logMissReasons[code] or 0) + 1
     end
 end)
 
