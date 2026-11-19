@@ -1099,6 +1099,164 @@ local function drawRankIndicator(dl, styleId, pal, x, y, w, rank, maxRank, accen
     end
 end
 
+-- Evolution view: a five-stage illustrated constellation instead of rank boxes.
+-- All iconography is drawn with ImDrawList primitives, so it needs no extra
+-- texture loader or third-party asset and runs in the existing Ashita v4 UI.
+local EVOLUTION_STAGES =
+{
+    'AWAKENING', 'REFINEMENT', 'SYNERGY', 'HYBRID', 'ASCENDANCY',
+}
+local EVOLUTION_CAPTIONS =
+{
+    'Choose the purpose of this weaponskill.',
+    'Strengthen the technique you chose.',
+    'Shape the way it works with your spec.',
+    'Adapt its mechanics to your playstyle.',
+    'Choose your final, exclusive mastery.',
+}
+
+local function drawEvolutionSigil(dl, cx, cy, radius, color, variant, active)
+    local shadow = { 0.045, 0.055, 0.090, 0.98 }
+    local inset = { 0.11, 0.14, 0.23, 1.0 }
+    dl:AddCircleFilled({ cx + 1.5, cy + 2.0 }, radius + 5, shadow, 48)
+    dl:AddCircleFilled({ cx, cy }, radius + 3, active and color or inset, 48)
+    dl:AddCircleFilled({ cx, cy }, radius - 1, shadow, 48)
+    dl:AddCircle({ cx, cy }, radius - 5, color, 48, active and 2.7 or 1.4)
+    dl:AddCircle({ cx, cy }, radius - 10, color, 48, 0.8)
+    -- Distinct symbols: sword strike, magic crystal, chained energy, star and crown.
+    if variant == 1 then
+        drawDiamond(dl, cx, cy - 4, 7, 15, color, nil, 1)
+        dl:AddLine({cx - 13, cy + 11}, {cx + 13, cy + 11}, color, 3)
+        dl:AddLine({cx, cy + 11}, {cx, cy + 19}, color, 3)
+    elseif variant == 2 then
+        drawDiamond(dl, cx, cy, 15, 19, nil, color, 2.8)
+        drawDiamond(dl, cx, cy, 7, 10, color, nil, 1)
+    elseif variant == 3 then
+        dl:AddCircle({cx - 8, cy - 1}, 10, color, 32, 3)
+        dl:AddCircle({cx + 8, cy + 1}, 10, color, 32, 3)
+        dl:AddLine({cx - 2, cy - 7}, {cx + 2, cy + 7}, color, 3)
+    elseif variant == 4 then
+        for i = 1, 8 do
+            local a = i * math.pi / 4
+            local x1, y1 = cx + math.cos(a) * 7, cy + math.sin(a) * 7
+            local x2, y2 = cx + math.cos(a) * 19, cy + math.sin(a) * 19
+            dl:AddLine({x1, y1}, {x2, y2}, color, 2.5)
+        end
+        dl:AddCircleFilled({cx, cy}, 7, color, 20)
+    else
+        dl:AddLine({cx - 16, cy + 12}, {cx - 20, cy - 10}, color, 3)
+        dl:AddLine({cx - 20, cy - 10}, {cx - 6, cy - 1}, color, 3)
+        dl:AddLine({cx - 6, cy - 1}, {cx, cy - 17}, color, 3)
+        dl:AddLine({cx, cy - 17}, {cx + 7, cy - 1}, color, 3)
+        dl:AddLine({cx + 7, cy - 1}, {cx + 20, cy - 10}, color, 3)
+        dl:AddLine({cx + 20, cy - 10}, {cx + 16, cy + 12}, color, 3)
+        dl:AddLine({cx - 16, cy + 12}, {cx + 16, cy + 12}, color, 3)
+    end
+end
+
+local function drawEvolutionCanvas(detail)
+    local pal = getPalette()
+    local dl = imgui.GetWindowDrawList()
+    local sx, sy = toXY(imgui.GetCursorScreenPos())
+    local regionW = select(1, toXY(imgui.GetContentRegionAvail()))
+    local canvasW = math.max(610, regionW - 14)
+    local centerX = sx + canvasW / 2
+    local colX = { centerX - 164, centerX + 164 }
+    local gold = { 0.98, 0.79, 0.39, 1.0 }
+    local aqua = { 0.38, 0.83, 0.93, 1.0 }
+    local dormant = { 0.39, 0.44, 0.53, 1.0 }
+    local bg = { 0.06, 0.075, 0.12, 0.96 }
+    local lineCol = { 0.26, 0.37, 0.52, 0.95 }
+    local rowHeight = 156
+    local topY = sy + 115
+    local bottomY = topY + 5 * rowHeight + 10
+
+    dl:AddRectFilled({sx, sy}, {sx + canvasW, bottomY}, bg, 8)
+    dl:AddRect({sx + 1, sy + 1}, {sx + canvasW - 1, bottomY - 1}, lineCol, 8, 0, 1.5)
+    drawTextColored(gold, '    ' .. detail.name .. '  |  WEAPON SKILL EVOLUTION')
+    imgui.SetCursorScreenPos({sx + 17, sy + 32})
+    drawTextColored({0.76, 0.84, 0.94, 1.0},
+        string.format('    %s   •   %d / 5 decisions made', state.specName or 'Soul', math.min(5, detail.spent or 0)))
+    imgui.SetCursorScreenPos({sx + 18, sy + 58})
+    drawTextDisabled('    Left click a sigil to awaken it. Right click to undo. One choice per stage.')
+
+    dl:AddLine({centerX, topY - 20}, {centerX, bottomY - 50}, lineCol, 4)
+    for stage = 1, 5 do
+        local y = topY + (stage - 1) * rowHeight
+        local chosen = false
+        local stageNodes = {}
+        for _, node in ipairs(detail.nodes or {}) do
+            if node.tier == stage and (node.scTier or 0) == 0 then
+                table.insert(stageNodes, node)
+                if node.rank > 0 then chosen = true end
+            end
+        end
+        table.sort(stageNodes, function(a, b) return a.col < b.col end)
+        local stageColor = chosen and gold or dormant
+        dl:AddCircleFilled({centerX, y + 28}, 18, bg, 24)
+        dl:AddCircle({centerX, y + 28}, 16, stageColor, 28, 2.4)
+        dl:AddCircleFilled({centerX, y + 28}, chosen and 7 or 4, stageColor, 20)
+        dl:AddLine({centerX - 45, y + 28}, {centerX - 18, y + 28}, stageColor, 2)
+        dl:AddLine({centerX + 18, y + 28}, {centerX + 45, y + 28}, stageColor, 2)
+
+        imgui.SetCursorScreenPos({centerX - 71, y - 23})
+        drawTextColored(chosen and gold or aqua, string.format('STAGE %d  %s', stage, EVOLUTION_STAGES[stage]))
+        imgui.SetCursorScreenPos({centerX - 162, y + 54})
+        drawTextDisabled(EVOLUTION_CAPTIONS[stage])
+
+        for ix, node in ipairs(stageNodes) do
+            local x = colX[ix] or colX[2]
+            local cy = y + 19
+            local active = node.rank > 0
+            local color = active and gold or (node.canLearn and aqua or dormant)
+            if active then
+                dl:AddCircle({x, cy}, 43, {0.93, 0.65, 0.23, 0.55}, 48, 4)
+            end
+            drawEvolutionSigil(dl, x, cy, 34, color, stage, active)
+            imgui.SetCursorScreenPos({x - 43, cy - 43})
+            imgui.InvisibleButton('##evolution_' .. node.key, {86, 86})
+            local hovered = imgui.IsItemHovered()
+            if imgui.IsItemClicked(0) then
+                state.inspectedNodeKey = node.key
+                if not active then
+                    sendTalentPacket(OP_INVEST, detail.id, node.idx or 1, 0)
+                end
+            elseif imgui.IsItemClicked(1) then
+                state.inspectedNodeKey = node.key
+                if active then
+                    sendTalentPacket(OP_REFUND, detail.id, node.idx or 1, 0)
+                end
+            end
+            if hovered then
+                state.inspectedNodeKey = node.key
+                drawNodeTooltip(node, detail, active, false, color)
+            end
+            local short = (#node.name > 23) and (node.name:sub(1, 21) .. '..') or node.name
+            imgui.SetCursorScreenPos({x - 83, cy + 45})
+            drawTextColored(color, short)
+            if active then
+                imgui.SetCursorScreenPos({x - 36, cy + 62})
+                drawTextColored(gold, 'AWAKENED')
+            elseif node.canLearn then
+                imgui.SetCursorScreenPos({x - 26, cy + 62})
+                drawTextColored(aqua, 'READY')
+            end
+        end
+    end
+
+    imgui.SetCursorScreenPos({sx + 20, bottomY - 46})
+    local inspected = detail.byKey and detail.byKey[state.inspectedNodeKey] or nil
+    if inspected then
+        drawTextColored(gold, 'INSPECTED: ' .. inspected.name)
+        imgui.SetCursorScreenPos({sx + 20, bottomY - 25})
+        drawText(formatReadableDesc(inspected.desc))
+    else
+        drawTextDisabled('Select a glowing sigil to inspect its technique.')
+    end
+    imgui.SetCursorScreenPos({sx + 1, bottomY + 4})
+    imgui.Dummy({canvasW, 4})
+end
+
 local function drawTreeCanvas()
     local pal = getPalette()
     local styleId = pal.id
@@ -1115,6 +1273,11 @@ local function drawTreeCanvas()
                 requestFullSync()
             end
         end
+        return
+    end
+
+    if detail.id == 1 or detail.id == 47 then
+        drawEvolutionCanvas(detail)
         return
     end
 
