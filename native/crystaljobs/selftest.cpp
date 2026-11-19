@@ -598,7 +598,7 @@ static void action_catalog_checks() {
     assert(compact_action_row_name("Shadow Squadron: Ichi", compact, sizeof(compact), 16));
     assert(std::strcmp(compact, "Shadow Sq.: Ichi") == 0);
     assert(compact_action_row_name("Extraordinarily Long Action Name", compact, sizeof(compact), 16));
-    assert(std::strcmp(compact, "Extraordinar...") == 0);
+    assert(std::strcmp(compact, "Extraordinari...") == 0);
 
     // Active NIN (13) branch 1 (Shinobi) via bridge state.
     uint8_t ev[8] = {1, 1, 13, 1, 100, 0, 0, 0};
