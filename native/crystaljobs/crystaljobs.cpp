@@ -243,13 +243,38 @@ static __declspec(naked) void master_sprite_hook() {
     }
 }
 
+// The Equipment persona is a *local* identity label, not a search-row cache.
+// Do not require the 2.5s network/animation lease here: a throttled or inactive
+// Ashita rendering loop can stop heartbeats while the game is idle.
+// Explicit CrystalJobsSetState revocation, job changes and shutdown still clear it.
+// Remote/search hooks keep the strict short lease.
+static bool local_persona_branch(uint8_t job, uint8_t& branch) noexcept {
+#ifdef CRYSTALJOBS_SELFTEST
+    if (!selftest_alive) return false;
+#else
+    if (!enabled.load()) return false;
+#endif
+    AcquireSRWLockShared(&state_lock);
+    const bool valid = state.known && state.from_bridge
+        && state.character != 0 && state.job == job
+#ifdef CRYSTALJOBS_SELFTEST
+        ;
+#else
+        && state.character == transport.character && transport.job == job;
+#endif
+    const uint8_t candidate = valid ? state.branch : 0;
+    ReleaseSRWLockShared(&state_lock);
+    if (!valid_branch(job, candidate)) return false;
+    branch = candidate;
+    return true;
+}
+
 static bool __stdcall draw_persona_job(const SimpleSpriteArgs* args) noexcept {
-    if (args == nullptr || main_job_slot == nullptr || native_text == nullptr || !alive()) return false;
+    if (args == nullptr || main_job_slot == nullptr || native_text == nullptr) return false;
     const uint8_t job = *main_job_slot;
     if (job < 1 || job > 23) return false;
-    AcquireSRWLockShared(&state_lock);
-    const uint8_t branch = (state.known && state.job == job) ? state.branch : 0;
-    ReleaseSRWLockShared(&state_lock);
+    uint8_t branch = 0;
+    if (!local_persona_branch(job, branch)) return false;
     const char* custom = label_for(job, branch, true);
     if (custom == nullptr) return false;
     // Equipment status panel ('menu    persona ') draws "Lv%d" via native_text at scale 1.0f,
