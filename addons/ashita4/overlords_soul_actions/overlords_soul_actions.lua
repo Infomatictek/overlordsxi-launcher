@@ -41,6 +41,8 @@ local state = {
     castNameMisses = 0,
     logMissReasons = {},
     peerRewritten = 0,
+    peerPacketsSeen = 0,
+    peerPacketsAccepted = 0,
 }
 
 local vanillaCache = { spell = {}, ability = {}, weaponskill = {} }
@@ -188,8 +190,9 @@ ashita.events.register('command', 'osa_command', function(e)
         end
         table.sort(reasons)
         log('Combat match diagnostics: ' .. (#reasons > 0 and table.concat(reasons, ', ') or 'none'))
-        log(('Nearby Soul identities: %d verified, peer messages rewritten=%d'):format(
-            peerCache.count, state.peerRewritten))
+        log(('Nearby Soul identities: %d current, packets=%d accepted=%d, peer messages rewritten=%d'):format(
+            peerCache.count, state.peerPacketsSeen, state.peerPacketsAccepted,
+            state.peerRewritten))
     elseif op == 'capabilities' then
         local a = nativeActions.readStatus()
         state.lastActionStatus = a
@@ -300,8 +303,11 @@ ashita.events.register('packet_in', 'osa_zone', function(e)
         -- OXSI packets are optional future server identity announcements.
         -- The current self-only OXHD packet remains unchanged.
         if type(e.data) == 'string' and e.data:sub(5,8) == 'OXSI' then
-            peerSouls.observe(peerCache, e.data, os.time(), nativeActions.soulToPair,
-                soulPacket.canonicalKey)
+            state.peerPacketsSeen = state.peerPacketsSeen + 1
+            if peerSouls.observe(peerCache, e.data, os.time(), nativeActions.soulToPair,
+                soulPacket.canonicalKey) then
+                state.peerPacketsAccepted = state.peerPacketsAccepted + 1
+            end
             return
         end
         local job, character = inGame()
