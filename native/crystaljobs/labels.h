@@ -226,8 +226,19 @@ struct State {
         const uint8_t row_job = record[32];
         const bool visible = (u32(record) & 0x140) == 0x140 && (u32(record + 48) & 0x4000) == 0;
         const uint8_t value = (ours && visible && valid_branch(row_job, branch_value)) ? branch_value : 0;
+        // A row without our extension must not erase a previously decoded Soul
+        // for the same character during a multi-packet search refresh.
+        // A different job invalidates the old mapping instead of leaking it.
         for (auto& row : rows) {
-            if (row.character == id && id != 0) { row.job = row_job; row.branch = value; return; }
+            if (row.character == id && id != 0) {
+                if (row.job != row_job) {
+                    row.job = row_job;
+                    row.branch = value;
+                } else if (ours) {
+                    row.branch = value;
+                }
+                return;
+            }
         }
         if (id != 0 && value != 0) rows[next_row++ % 512] = {id, row_job, value};
     }
