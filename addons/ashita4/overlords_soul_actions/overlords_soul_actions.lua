@@ -2,7 +2,7 @@
 -- local combat-log presentation, and optional ImGui inspector for Ashita v4.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.4.6'
+addon.version = '0.4.7'
 addon.desc = 'Soul-specific spell, ability, and weapon skill native presentation.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -44,6 +44,7 @@ local state = {
     peerPacketsSeen = 0,
     peerPacketsAccepted = 0,
     peerRejectReasons = {},
+    peerEnvelopeSamples = {},
     -- Fail closed: native menus remain Soul-aware, combat text stays untouched
     -- until the two-player actor attribution regression is validated.
     chatNamesEnabled = false,
@@ -216,6 +217,12 @@ ashita.events.register('command', 'osa_command', function(e)
         end
         table.sort(rejected)
         log('OXSI rejection reasons: ' .. (#rejected > 0 and table.concat(rejected, ', ') or 'none'))
+        local samples = {}
+        for length, count in pairs(state.peerEnvelopeSamples) do
+            samples[#samples + 1] = tostring(length) .. 'B=' .. tostring(count)
+        end
+        table.sort(samples)
+        log('OXSI received buffer sizes: ' .. (#samples > 0 and table.concat(samples, ', ') or 'none'))
     elseif op == 'capabilities' then
         local a = nativeActions.readStatus()
         state.lastActionStatus = a
@@ -330,6 +337,9 @@ ashita.events.register('packet_in', 'osa_zone', function(e)
         -- The current self-only OXHD packet remains unchanged.
         if type(e.data) == 'string' and e.data:sub(5,8) == 'OXSI' then
             state.peerPacketsSeen = state.peerPacketsSeen + 1
+            -- Only aggregate buffer lengths; no character, chat, or Soul data.
+            local length = #e.data
+            state.peerEnvelopeSamples[length] = (state.peerEnvelopeSamples[length] or 0) + 1
             local ok, reason = peerSouls.observe(peerCache, e.data, os.time(),
                 nativeActions.soulToPair, soulPacket.canonicalKey)
             if ok then
