@@ -49,6 +49,9 @@ function Labels.new(resolve, dll_path)
         last_hud_error = nil,
         send_count = 0,
         last_send_result = nil,
+        last_status_error = nil,
+        status_failures = 0,
+        status_successes = 0,
     }, Labels)
 end
 
@@ -110,13 +113,23 @@ function Labels:native_decoder_ready()
 end
 
 function Labels:status()
-    local ok, info = pcall(function()
-        self:ensure_loaded()
+    local loadOk, loadResult = pcall(self.ensure_loaded, self)
+    if not loadOk then
+        self.last_status_error = 'load exception: ' .. tostring(loadResult)
+        self.status_failures = self.status_failures + 1
+        return nil
+    end
+    local ok, info, failure = pcall(function()
+        local module = ffi.C.GetModuleHandleA('crystaljobs.dll')
+        if module == nil then return nil, 'crystaljobs.dll is not loaded' end
         local get_status = loaded_function('CrystalJobsGetStatus', 'uint32_t (__stdcall *)(void*, uint32_t)')
-        if not get_status then return nil end
+        if not get_status then return nil, 'CrystalJobsGetStatus export missing' end
         local st = ffi.new(status_type)
-        if get_status(st, ffi.sizeof(st)) ~= 0 or st[0].size ~= 68 or st[0].version ~= 1 then
-            return nil
+        local rc = get_status(st, ffi.sizeof(st))
+        if rc ~= 0 then return nil, 'CrystalJobsGetStatus returned ' .. tostring(rc) end
+        if st[0].size ~= 68 or st[0].version ~= 1 then
+            return nil, ('DLL ABI mismatch: size=%d version=%d'):format(
+                tonumber(st[0].size), tonumber(st[0].version))
         end
         return {
             enabled = tonumber(st[0].enabled),
@@ -136,7 +149,14 @@ function Labels:status()
             last_error = tonumber(st[0].last_error),
         }
     end)
-    return ok and info or nil
+    if not ok or not info then
+        self.last_status_error = ok and failure or ('DLL status exception: ' .. tostring(info))
+        self.status_failures = self.status_failures + 1
+        return nil
+    end
+    self.last_status_error = nil
+    self.status_successes = self.status_successes + 1
+    return info
 end
 
 function Labels:clear_hud_hint()
