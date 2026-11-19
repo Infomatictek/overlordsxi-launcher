@@ -155,7 +155,7 @@ local function renderNodeCard(dl,x,y,w,h,node,stage,otherChosen,state,action)
     end
     local nameCol=active and C.gold or (locked and C.muted or C.white)
     local descCol=locked and C.muted or C.pale
-    at(x+101,y+13,trunc(node.name,math.max(18,math.floor((w-132)/7))),nameCol)
+    at(x+101,y+13,trunc(node.name,math.max(7,math.floor((w-124)/9))),nameCol)
     local badgeText=isCapstone and (active and 'MASTERED' or status) or status
     at(x+101,y+38,badgeText,tone)
     -- Keep copy INSIDE the artwork's text well. Longer effects belong
@@ -346,7 +346,7 @@ local function drawInspector(state,action,w)
             end
         end
         if n then
-            at(x+24,y+58,trunc(n.name,30),n.rank>0 and C.gold or C.white)
+            at(x+24,y+58,trunc(n.name,math.max(12,math.floor((w-48)/9))),n.rank>0 and C.gold or C.white)
             at(x+24,y+86,'STAGE '..(n.tier or 1)..'   /   '..(n.rank>0 and 'LEARNED' or (n.canLearn and 'AVAILABLE' or 'LOCKED')),
                 n.rank>0 and C.gold or (n.canLearn and C.aqua or C.muted))
             artPanel(dl,'detail_art',x+24,y+119,w-48,136,C.black,C.edge)
