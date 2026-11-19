@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "serverName": "OverlordsXI",
-  "tagline": "Faerie Companions (Eos & Titania) • Job Specs • 4-Tier Weaponskill Talent Trees",
+  "tagline": "Faerie Companions (Eos & Titania) \u2022 Job Specs \u2022 4-Tier Weaponskill Talent Trees",
   "defaultHost": "127.0.0.1",
   "useHairpin": false,
   "ports": {
@@ -6055,15 +6055,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/combat_log.lua",
       "targetPath": "overlords_soul_actions/combat_log.lua",
-      "sha256": "76bb99955d1fd80b014297e58b0a5bc08d6fb8befbef9555ea87bbf865522de6",
-      "size": 4520
+      "sha256": "7820cb679d1d781f82b25261e3df903161d49098b43cc69771e50779abf9ecfb",
+      "size": 4672
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/data/soul_actions.tsv",
       "targetPath": "overlords_soul_actions/data/soul_actions.tsv",
-      "sha256": "7bad1a161c916200bd8dcf536909c3248f8202827dfd5c5cfcfe92fe8b0d71f1",
-      "size": 1113
+      "sha256": "08bba139a33c773bc822f9a616204b99a767aa6b685ef40f9c83c23e395dd30c",
+      "size": 1126
     },
     {
       "category": "addon",
@@ -6083,8 +6083,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/overlords_soul_actions.lua",
       "targetPath": "overlords_soul_actions/overlords_soul_actions.lua",
-      "sha256": "795cec466a0b3820c077aa8e546201414f12500240adc2d013cd451a738af8a2",
-      "size": 18717
+      "sha256": "80caaa172015f5dc00f057cbdcb2e12b3581746b206b5416a7a71d568b428425",
+      "size": 18830
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/peer_souls.lua",
+      "targetPath": "overlords_soul_actions/peer_souls.lua",
+      "sha256": "97e12d5d5fbd565fbaaa45cc0c54d59504700be108a86efa3d6acd4dd5d3f593",
+      "size": 3984
     },
     {
       "category": "addon",
@@ -6141,6 +6148,13 @@
       "targetPath": "overlords_soul_actions/tests/macro_and_combat_log_test.lua",
       "sha256": "882cb50c5fda5fb6ce23acfd247a3e508ef3da3d2e1bcc3913d74cc082035b7c",
       "size": 5831
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/tests/peer_souls_test.lua",
+      "targetPath": "overlords_soul_actions/tests/peer_souls_test.lua",
+      "sha256": "9c6f09619b97b0f76cc68fee4b994d4ba5f53685950ff2a4097cefe0ad06a0ce",
+      "size": 5533
     },
     {
       "category": "addon",
@@ -7730,20 +7744,6 @@
       "targetPath": "overlords_talents/premium_ui.lua",
       "sha256": "3c1e79878781442f0333fbef450d4285d453cf4c50e61643c0af48dc74b0f1d0",
       "size": 24251
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/overlords_soul_actions/peer_souls.lua",
-      "targetPath": "overlords_soul_actions/peer_souls.lua",
-      "sha256": "97e12d5d5fbd565fbaaa45cc0c54d59504700be108a86efa3d6acd4dd5d3f593",
-      "size": 3984
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/overlords_soul_actions/tests/peer_souls_test.lua",
-      "targetPath": "overlords_soul_actions/tests/peer_souls_test.lua",
-      "sha256": "88ea24d51116471503fc637e5b82a771ff2672108b92fcac30981ffa925cb9a8",
-      "size": 1503
     }
   ],
   "news": [

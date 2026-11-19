@@ -244,21 +244,24 @@ ashita.events.register('command', 'osa_command', function(e)
     end
 end)
 
--- Local-player-only in-place combat-log action-name presentation (zero duplicate lines).
+-- Local-player and verified-peer in-place combat-log action-name presentation (zero duplicate lines).
 ashita.events.register('text_in', 'osa_text_in', function(e)
-    if e.blocked or state.preview or not state.soul or not state.lastPlayerName then return end
+    if e.blocked or state.preview or not state.lastPlayerName then return end
     -- In Ashita an empty message_modified is truthy in Lua. Prefer its content
     -- only when populated, otherwise inspect the original message.
     local current = type(e.message_modified) == 'string' and e.message_modified ~= ''
         and e.message_modified or e.message
     if type(current) ~= 'string' or current == '' then return end
     state.textSeen = state.textSeen + 1
-    local rewritten, reason = combatLog.rewriteLine(current,
-        state.lastPlayerName, catalog, state.soul, readVanillaAliases)
-    if rewritten then
-        state.textRewritten = state.textRewritten + 1
-        e.message_modified = rewritten
-        return
+    local rewritten, reason = nil, 'soul_unknown'
+    if state.soul then
+        rewritten, reason = combatLog.rewriteLine(current,
+            state.lastPlayerName, catalog, state.soul, readVanillaAliases)
+        if rewritten then
+            state.textRewritten = state.textRewritten + 1
+            e.message_modified = rewritten
+            return
+        end
     end
     -- Other players have independent Soul identities. Only server-announced,
     -- unexpired peers can have action names substituted in chat.
@@ -278,7 +281,7 @@ ashita.events.register('text_in', 'osa_text_in', function(e)
             end
         end
     end
-    if current:find('starts casting ', 1, true) then
+    if state.soul and current:find('starts casting ', 1, true) then
         -- Aggregates only. No raw messages, player names, or chat payloads logged.
         state.castNameMisses = state.castNameMisses + 1
         local code = reason or 'unknown'

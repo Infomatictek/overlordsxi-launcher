@@ -50,8 +50,10 @@ local function tryReplace(message, vanilla, custom)
         if not first then return nil end
         local before = first > 1 and message:sub(first - 1, first - 1) or ''
         local after = message:sub(last + 1, last + 1)
-        if (before == ' ' or before == "'" or before == '"')
-            and (after == '' or after == ' ' or after == '.' or after == '!' or after == "'" or after == '"') then
+        local beforeCtrl = before ~= '' and before:byte(1) < 32
+        local afterCtrl = after ~= '' and after:byte(1) < 32
+        if (before == ' ' or before == "'" or before == '"' or beforeCtrl)
+            and (after == '' or after == ' ' or after == '.' or after == '!' or after == "'" or after == '"' or afterCtrl) then
             return message:sub(1, first - 1) .. custom .. message:sub(last + 1)
         end
         offset = last + 1
