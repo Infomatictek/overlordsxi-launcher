@@ -2,7 +2,7 @@
 -- local combat-log presentation, and optional ImGui inspector for Ashita v4.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.4.3'
+addon.version = '0.4.5'
 addon.desc = 'Soul-specific spell, ability, and weapon skill native presentation.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -43,6 +43,9 @@ local state = {
     peerRewritten = 0,
     peerPacketsSeen = 0,
     peerPacketsAccepted = 0,
+    -- Fail closed: native menus remain Soul-aware, combat text stays untouched
+    -- until the two-player actor attribution regression is validated.
+    chatNamesEnabled = false,
 }
 
 local vanillaCache = { spell = {}, ability = {}, weaponskill = {} }
@@ -180,7 +183,20 @@ ashita.events.register('command', 'osa_command', function(e)
             ', NativeActions=' .. (a and ('hooks=' .. tostring(a.total_hooks) .. '/' .. tostring(a.expected_hooks) ..
             ', catalog=' .. tostring(a.catalog_count) .. ', gen=' .. tostring(a.catalog_generation) ..
             ', caps=0x' .. string.format('%x', a.capabilities)) or 'unavailable'))
+    elseif op == 'chatnames' then
+        local choice = (args[3] or 'status'):lower()
+        if choice == 'on' then
+            state.chatNamesEnabled = true
+            log('Experimental combat-log Soul name substitution ENABLED for this session.')
+        elseif choice == 'off' then
+            state.chatNamesEnabled = false
+            log('Combat-log Soul name substitution DISABLED; stock messages preserved.')
+        else
+            log('Combat-log Soul name substitution: ' .. (state.chatNamesEnabled and 'ON' or 'OFF'))
+            log('Usage: /soulactions chatnames on|off|status')
+        end
     elseif op == 'logstatus' then
+        log('Combat-log substitution=' .. (state.chatNamesEnabled and 'ON' or 'OFF (safe default)'))
         log(('Combat log: seen=%d rewritten=%d cast_lines_unmodified=%d soul=%s player=%s'):format(
             state.textSeen, state.textRewritten, state.castNameMisses,
             tostring(state.soul), tostring(state.lastPlayerName)))
@@ -240,13 +256,13 @@ ashita.events.register('command', 'osa_command', function(e)
         state.visible = true
         log('Loaded demonstration data only; spell ID and values are not verified.')
     else
-        log('Commands: /soulactions show|hide|toggle|status|logstatus|capabilities|reload|clear|reset|load|inspect <kind> <id>|preview <soul>')
+        log('Commands: /soulactions show|hide|toggle|status|logstatus|chatnames on|off|capabilities|reload|clear|reset|load|inspect <kind> <id>|preview <soul>')
     end
 end)
 
 -- Local-player and verified-peer in-place combat-log action-name presentation (zero duplicate lines).
 ashita.events.register('text_in', 'osa_text_in', function(e)
-    if e.blocked or state.preview or not state.lastPlayerName then return end
+    if not state.chatNamesEnabled or e.blocked or state.preview or not state.lastPlayerName then return end
     -- In Ashita an empty message_modified is truthy in Lua. Prefer its content
     -- only when populated, otherwise inspect the original message.
     local current = type(e.message_modified) == 'string' and e.message_modified ~= ''
