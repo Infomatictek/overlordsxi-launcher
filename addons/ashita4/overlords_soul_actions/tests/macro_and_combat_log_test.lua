@@ -83,6 +83,25 @@ assert(combatLog.rewriteLine('NinRin starts casting Utsusemi: Ichi.',
 assert(combatLog.rewriteLine(colorPrefix .. 'OtherRin starts casting Utsusemi: Ichi.',
     'Rin', catalog, 'shinobi', aliases) == nil)
 
+-- Real client messages can carry longer digit/punctuation color parameters
+-- and optional timestamps ahead of the caster. They must not be mistaken
+-- for another player's name.
+local extended = string.char(0x1F) .. '30:20' .. string.char(0x1E, 0x02)
+local expected = 'Rin starts casting Shadow Squadron: Ichi on Rin.'
+local vanillaCast = 'Rin starts casting Utsusemi: Ichi on Rin.'
+assert(combatLog.rewriteLine(extended .. vanillaCast, 'Rin', catalog, 'shinobi', aliases)
+    == extended .. expected)
+assert(combatLog.rewriteLine('[16:32:04] ' .. vanillaCast,
+    'Rin', catalog, 'shinobi', aliases) == '[16:32:04] ' .. expected)
+assert(combatLog.rewriteLine(extended .. 'Other Rin starts casting Utsusemi: Ichi on Other Rin.',
+    'Rin', catalog, 'shinobi', aliases) == nil)
+assert(combatLog.rewriteLine(extended .. 'OtherRin starts casting Utsusemi: Ichi on OtherRin.',
+    'Rin', catalog, 'shinobi', aliases) == nil)
+assert(combatLog.rewriteLine('Offset starts casting Utsusemi: Ichi on Rin.',
+    'Rin', catalog, 'shinobi', aliases) == nil)
+assert(combatLog.rewriteLine('Rin asks: Offset starts casting Utsusemi: Ichi on Offset.',
+    'Offset', catalog, 'shinobi', aliases) == nil)
+
 -- Verify all 66 Souls resolve to distinct valid (job, branch) pairs.
 local seen = {}
 local count = 0
