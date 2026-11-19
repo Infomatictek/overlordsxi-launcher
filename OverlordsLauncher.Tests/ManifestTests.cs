@@ -91,7 +91,7 @@ public sealed class ManifestTests
     }
 
     [Fact]
-    public void SoulActionsAddon_InstallsUpdatesAndRemainsOptionalInBootScript()
+    public void SoulActionsAddon_InstallsUpdatesAndAutoLoadsInBootScript()
     {
         var tempRoot = Path.Combine(Path.GetTempPath(), $"overlords_soul_actions_test_{Guid.NewGuid():N}");
         Directory.CreateDirectory(tempRoot);
@@ -142,10 +142,16 @@ public sealed class ManifestTests
             Assert.Single(outdated);
             Assert.Equal("overlords_soul_actions/overlords_soul_actions.lua", outdated[0].TargetPath);
 
-            // Addon remains optional (not auto-loaded by default in overlordsxi.txt).
+            // Addon is auto-loaded at startup in overlordsxi.txt without duplicating on re-merge.
             var generator = new AshitaConfigGenerator();
             var bootScript = generator.MergeBootScriptContent(null, settings);
-            Assert.DoesNotContain("overlords_soul_actions", bootScript, StringComparison.OrdinalIgnoreCase);
+            Assert.Contains("/addon load overlords_soul_actions", bootScript, StringComparison.OrdinalIgnoreCase);
+
+            var remerged = generator.MergeBootScriptContent(bootScript, settings);
+            var loadLines = remerged
+                .Split(new[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries)
+                .Count(line => line.Trim().Equals("/addon load overlords_soul_actions", StringComparison.OrdinalIgnoreCase));
+            Assert.Equal(1, loadLines);
         }
         finally
         {
