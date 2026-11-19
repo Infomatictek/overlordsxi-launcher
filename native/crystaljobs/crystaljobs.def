@@ -10,6 +10,7 @@ EXPORTS
     CrystalJobsSetActiveSoul=_CrystalJobsSetActiveSoul@12
     CrystalJobsClearActiveSoul=_CrystalJobsClearActiveSoul@0
     CrystalJobsGetActionStatus=_CrystalJobsGetActionStatus@8
+    CrystalJobsSetActionRowLimit=_CrystalJobsSetActionRowLimit@4
     expCreatePlugin=_expCreatePlugin@4
     expDestroyPlugin=_expDestroyPlugin@4
     expGetInterfaceVersion=_expGetInterfaceVersion@0
