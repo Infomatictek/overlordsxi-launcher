@@ -45,7 +45,7 @@ local shortPacket, shortReason = peers.decode('----OXSI')
 assert(shortPacket == nil and shortReason == 'envelope_short')
 -- Ashita may provide the whole fixed 512-byte incoming buffer.
 -- Only the header-declared payload may be interpreted as a Soul identity.
-local padded512 = raw .. string.rep('\\0', 512 - #raw)
+local padded512 = raw .. string.rep(string.char(0), 512 - #raw)
 local parsed512, reason512 = peers.decode(padded512)
 assert(parsed512 and parsed512.name == 'OtherNinja' and reason512 == nil)
 local accepted512, acceptedReason = peers.observe(cache, padded512, 101,
@@ -54,7 +54,7 @@ assert(accepted512 and acceptedReason == 'accepted')
 local corruptedTail = padded512:sub(1, 511) .. string.char(1)
 local rejectedTail, tailReason = peers.decode(corruptedTail)
 assert(rejectedTail == nil and tailReason == 'host_buffer_nonzero')
-local longPacket, longReason = peers.decode(raw .. string.rep('\\0', 513 - #raw))
+local longPacket, longReason = peers.decode(raw .. string.rep(string.char(0), 513 - #raw))
 assert(longPacket == nil and longReason == 'envelope_long')
 
 -- Legacy key kurogane normalizes to shinobi over the wire.
