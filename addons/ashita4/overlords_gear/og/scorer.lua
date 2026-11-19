@@ -329,10 +329,11 @@ local function canPlaceInSlot(candidate, slotIdx, chosen, lockedSlots)
 end
 
 -- Build a complete set for `mode` from `wearablePieces`, honoring `userOverrides` and `globalLockedSlots`
-function scorer.BuildSet(mode, wearablePieces, who, userOverrides, globalLockedSlots)
+function scorer.BuildSet(mode, wearablePieces, who, userOverrides, globalLockedSlots, currentEquip)
     local c = scorer.CompileMode(mode)
     userOverrides = userOverrides or {}
     globalLockedSlots = globalLockedSlots or {}
+    currentEquip = currentEquip or {}
 
     local pieceVecs = {}
     local pieceTies = {}
@@ -349,6 +350,12 @@ function scorer.BuildSet(mode, wearablePieces, who, userOverrides, globalLockedS
         for s = 5, 16 do
             if bit.band(p.SlotMask or 0, db.SLOT_BY_INDEX[s].mask) ~= 0 then
                 table.insert(bySlot[s], p)
+                -- Keep an already-worn piece when the alternative offers only a
+                -- negligible scoring difference. Real stat upgrades still win.
+                local worn = currentEquip[s]
+                if worn and worn.Bag == p.Bag and worn.Index == p.Index and worn.Id == p.Id then
+                    pieceTies[p.UniqueKey] = tie + 0.10
+                end
             end
         end
     end
