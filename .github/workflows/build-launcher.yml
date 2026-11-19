@@ -25,12 +25,12 @@ jobs:
       should_build: ${{ steps.changes.outputs.should_build }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.11"
 
@@ -85,15 +85,15 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup .NET 8
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: "8.0.x"
 
       - name: Cache NuGet packages
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.nuget/packages
           key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
@@ -139,7 +139,7 @@ jobs:
           if (-not (Test-Path "OverlordsLauncher-win-x64.zip")) { throw "Missing OverlordsLauncher-win-x64.zip" }
 
       - name: Upload launcher build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: OverlordsLauncher-win-x64
           retention-days: 14
@@ -155,7 +155,7 @@ jobs:
       contents: write
     steps:
       - name: Download launcher build artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: OverlordsLauncher-win-x64
           path: release-assets
