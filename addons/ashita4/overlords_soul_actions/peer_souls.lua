@@ -25,7 +25,10 @@ function M.decode(data)
     if type(data) ~= 'string' then return nil, 'not_string' end
     if data:sub(5,8) ~= 'OXSI' then return nil, 'magic_mismatch' end
     if #data < 24 then return nil, 'envelope_short' end
-    if #data > 160 then return nil, 'envelope_long' end
+    -- Ashita may expose a fixed 512-byte receive buffer. Never trust the
+    -- buffer length as the wire length; derive a bounded payload from the
+    -- validated name/key fields below and verify the unused tail is zero.
+    if #data > 512 then return nil, 'envelope_long' end
     local ver,op = data:byte(9,10)
     local actor = u32(data, 11)
     local character = u32(data, 15)
@@ -39,11 +42,19 @@ function M.decode(data)
         return nil, 'header_fields'
     end
     local payloadSize = 22 + nlen + slen
-    if #data < payloadSize or #data > payloadSize + 3 then
-        return nil, 'packet_length'
+    local alignedSize = math.floor((payloadSize + 3) / 4) * 4
+    if #data < alignedSize then return nil, 'packet_length' end
+    -- Limit verification to the header-declared, four-byte-aligned packet.
+    -- For a larger host buffer, accept ONLY zero-filled remainder; a
+    -- nonzero tail could be another packet or stale data, so fail closed.
+    local padding = data:sub(payloadSize + 1, alignedSize)
+    if padding:find('[^%z]') then return nil, 'nonzero_padding' end
+    if #data > alignedSize then
+        if #data ~= 512 then return nil, 'host_buffer_length' end
+        if data:sub(alignedSize + 1):find('[^%z]') then
+            return nil, 'host_buffer_nonzero'
+        end
     end
-    local padding = data:sub(payloadSize + 1)
-    if padding ~= '' and padding:find('[^%z]') then return nil, 'nonzero_padding' end
     local name = data:sub(23,22+nlen)
     local soul = data:sub(23+nlen,22+nlen+slen)
     if not validName(name) then return nil, 'actor_name' end
