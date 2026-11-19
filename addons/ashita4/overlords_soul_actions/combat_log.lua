@@ -1,6 +1,27 @@
 -- Local-player-only combat log presentation. Never infer other actors' Souls.
 local M = {}
 
+local function formattingPrefix(prefix)
+    -- Strictly permit a short run of FFXI control codes, each optionally
+    -- followed by up to two printable parameter bytes. Never skip ordinary
+    -- readable text such as another player's name or a chat prefix.
+    if #prefix > 32 then return false end
+    local parameterBytes = 0
+    local hasControl = false
+    for i = 1, #prefix do
+        local b = prefix:byte(i)
+        if b < 32 or b == 127 then
+            hasControl = true
+            parameterBytes = 0
+        elseif hasControl and parameterBytes < 2 then
+            parameterBytes = parameterBytes + 1
+        else
+            return false
+        end
+    end
+    return true
+end
+
 local function actorStart(message, player)
     -- FFXI text may prepend color/control sequences containing *printable*
     -- parameter bytes. A pure ^[%c]* trim therefore rejects real chat.
@@ -12,7 +33,7 @@ local function actorStart(message, player)
         if not start or start > 33 then return false end
         local prefix = message:sub(1, start - 1)
         local nextChar = message:sub(start + #player, start + #player)
-        if not prefix:find('[%w]') and (nextChar == ' ' or nextChar == "'") then
+        if formattingPrefix(prefix) and (nextChar == ' ' or nextChar == "'") then
             return true
         end
         from = start + #player
