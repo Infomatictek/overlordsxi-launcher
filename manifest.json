@@ -238,13 +238,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/assets/kurogane.png",
       "targetPath": "crystalsocket/assets/kurogane.png",
-<<<<<<< HEAD
       "sha256": "e9e4c118e2fce28ff7ff307b8440f27931bd9d1ecb8c9bbdbbde2d6b0e99a475",
       "size": 2737
-=======
-      "sha256": "a8f2e1bf682a74b1772b853055c0cdcd40d1da2b0f6d8b26b4584e7ddf43de0c",
-      "size": 21111
->>>>>>> 05b92ec (feat(nin): ship Shinobi Soul Crystal icon, Shadow Legion/Phantom Assault DATs, Soul HUD gauge, crystaljobs label, and manifest)
     },
     {
       "category": "addon",
@@ -7579,25 +7574,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/overlords_talents.lua",
       "targetPath": "overlords_talents/overlords_talents.lua",
-<<<<<<< HEAD
       "sha256": "5ea95a50692fa6659cf985b218f7a3a6fc4bbf43e2a4aa56e644725ad652cf9e",
       "size": 76454
-=======
-      "sha256": "4b47c659e08ab18d29c490b2429deda5ec9b63cf6b686dc425707f81acefbe64",
-      "size": 75301
->>>>>>> 05b92ec (feat(nin): ship Shinobi Soul Crystal icon, Shadow Legion/Phantom Assault DATs, Soul HUD gauge, crystaljobs label, and manifest)
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_talents/premium_ui.lua",
       "targetPath": "overlords_talents/premium_ui.lua",
-<<<<<<< HEAD
       "sha256": "3c1e79878781442f0333fbef450d4285d453cf4c50e61643c0af48dc74b0f1d0",
       "size": 24251
-=======
-      "sha256": "8bbab37499bf60ebc97007e114dad9adb3587ed0b2b66ec18d168045fabe39d6",
-      "size": 21365
->>>>>>> 05b92ec (feat(nin): ship Shinobi Soul Crystal icon, Shadow Legion/Phantom Assault DATs, Soul HUD gauge, crystaljobs label, and manifest)
     }
   ],
   "news": [
