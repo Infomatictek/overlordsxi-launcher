@@ -1,7 +1,14 @@
 -- Client-only reader for the existing OverlordsXI HUD identity packet (0x1FC).
 -- Its soul key is metadata, not authority to cast or grant actions.
 local M = {}
-local legacyKeys = { kurogane = 'shinobi' }
+local legacyKeys = {
+    kurogane = 'shinobi',
+    alphawarden = 'soulbeast',
+    gladiator = 'spartan',
+    aegistemplar = 'defender',
+    marionettist = 'vanguard',
+    caller = 'celestial',
+}
 function M.canonicalKey(key)
     if type(key) ~= 'string' then return nil end
     key = key:lower()

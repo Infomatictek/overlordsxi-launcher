@@ -52,7 +52,10 @@ local function tryReplace(message, vanilla, custom)
         if not first then return nil end
         local before = first > 1 and message:sub(first - 1, first - 1) or ''
         local after = message:sub(last + 1, last + 1)
-        local beforeCtrl = before ~= '' and before:byte(1) < 32
+        local beforeCtrl = (before ~= '' and before:byte(1) < 32)
+            or (first >= 3 and (message:byte(first - 2) == 0x1E
+                or message:byte(first - 2) == 0x1F
+                or message:byte(first - 2) == 0x7F))
         local afterCtrl = after ~= '' and after:byte(1) < 32
         if (before == ' ' or before == "'" or before == '"' or beforeCtrl)
             and (after == '' or after == ' ' or after == '.' or after == '!' or after == "'" or after == '"' or afterCtrl) then

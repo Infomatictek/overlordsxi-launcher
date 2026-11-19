@@ -51,6 +51,8 @@ assert(parsed512 and parsed512.name == 'OtherNinja' and reason512 == nil)
 local accepted512, acceptedReason = peers.observe(cache, padded512, 101,
     nativeActions.soulToPair, soulPacket.canonicalKey)
 assert(accepted512 and acceptedReason == 'accepted')
+assert(peers.get(cache, 'OtherNinja', 222) == nil)
+assert(cache.count == 0)
 local corruptedTail = padded512:sub(1, 511) .. string.char(1)
 local rejectedTail, tailReason = peers.decode(corruptedTail)
 assert(rejectedTail == nil and tailReason == 'host_buffer_nonzero')
