@@ -148,7 +148,7 @@ ashita.events.register('command', 'osa_command', function(e)
             ', catalog=' .. tostring(a.catalog_count) .. ', gen=' .. tostring(a.catalog_generation) ..
             ', caps=0x' .. string.format('%x', a.capabilities)) or 'unavailable'))
     elseif op == 'logstatus' then
-        log(('Combat log: seen=%d rewritten=%d candidate_misses=%d soul=%s player=%s'):format(
+        log(('Combat log: seen=%d rewritten=%d cast_lines_unmodified=%d soul=%s player=%s'):format(
             state.textSeen, state.textRewritten, state.castNameMisses,
             tostring(state.soul), tostring(state.lastPlayerName)))
     elseif op == 'capabilities' then
@@ -216,8 +216,9 @@ ashita.events.register('text_in', 'osa_text_in', function(e)
     if rewritten then
         state.textRewritten = state.textRewritten + 1
         e.message_modified = rewritten
-    elseif current:find('Utsusemi', 1, true) then
-        -- Diagnostics only; do not rewrite unverified actor messages.
+    elseif current:find('starts casting ', 1, true) then
+        -- Diagnostic aggregate only; includes other actors and unmapped spells.
+        -- Never rewrite an unverified actor's messages.
         state.castNameMisses = state.castNameMisses + 1
     end
 end)
