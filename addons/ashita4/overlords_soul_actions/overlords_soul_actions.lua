@@ -11,8 +11,10 @@ local catalog = require('catalog')
 local profiles = require('profiles')
 local presentation = require('presentation')
 local soulBridge = require('soul_bridge')
+local soulPacket = require('soul_packet')
 local state = { soul = nil, visible = false, lastJob = 0, lastCharacter = 0,
-    lastPoll = -100, selected = nil, preview = false, source = 'none' }
+    lastPoll = -100, selected = nil, preview = false, source = 'none',
+    packetSoul = nil, packetJob = 0, lastDllStatus = nil }
 local function log(message) print('[Soul Actions] ' .. tostring(message)) end
 local function inGame()
     local ok, job, character = pcall(function()
@@ -29,7 +31,10 @@ local function reset()
     state.selected = nil
     state.preview = false
     state.source = 'none'
-    catalog.clear()
+    state.packetSoul, state.packetJob = nil, 0
+    state.lastDllStatus = nil
+    -- Catalog is local data and survives zoning or job changes.
+    -- /soulactions clear explicitly unloads it.
 end
 -- Local preview is deliberately separate from client-verified DLL Soul state.
 -- /soulactions preview <key> is for testing only, not proof of active Soul.
@@ -42,9 +47,13 @@ ashita.events.register('command', 'osa_command', function(e)
     if op == 'show' then state.visible = true
     elseif op == 'hide' then state.visible = false
     elseif op == 'toggle' then state.visible = not state.visible
-    elseif op == 'clear' then reset(); log('Cleared identity data.')
+    elseif op == 'clear' then reset(); catalog.clear(); log('Cleared identity data.')
     elseif op == 'status' then
-        log('Soul=' .. tostring(state.soul or 'unknown') .. ', source=' .. state.source .. ', entries=' .. tostring(catalog.souls[state.soul] and 'loaded' or 'none'))
+        local d = state.lastDllStatus
+        log('Soul=' .. tostring(state.soul or 'unknown') .. ', source=' .. state.source ..
+            ', DLL=' .. (d and ('enabled=' .. tostring(d.enabled) .. ', known=' .. tostring(d.known) ..
+            ', job=' .. tostring(d.job) .. ', branch=' .. tostring(d.branch) ..
+            ', character=' .. tostring(d.character_id)) or 'unavailable'))
     elseif op == 'preview' and args[3] and args[3]:match('^[%w_%-]+$') then
         state.soul = args[3]:lower()
         state.preview = true
@@ -66,6 +75,7 @@ ashita.events.register('command', 'osa_command', function(e)
         else log('No client identity for the current preview Soul and action.') end
     elseif op == 'demo' then
         reset()
+        catalog.clear()
         catalog.register('astromancer', 'spell', 1, {
             name = 'Tsunami', description = 'Demonstration only: a deliberate water incantation.',
             castTime = 12, mpCost = 100, effectProfile = 'tsunami' })
@@ -75,14 +85,26 @@ ashita.events.register('command', 'osa_command', function(e)
         state.visible = true
         log('Loaded demonstration data only; spell ID and values are not verified.')
     else
-        log('Commands: /soulactions show|hide|toggle|status|clear|demo|preview <soul>')
+        log('Commands: /soulactions show|hide|toggle|status|clear|demo|load|inspect <kind> <id>|preview <soul>')
     end
 end)
 ashita.events.register('load', 'osa_load', function() log('Identity viewer loaded. Use /soulactions demo to inspect a sample.') end)
 ashita.events.register('unload', 'osa_unload', function() reset() end)
 ashita.events.register('packet_in', 'osa_zone', function(e)
     -- 0x00A zone transition; do not retain stale identities.
-    if e.id == 0x00A then reset() end
+    if e.id == 0x00B or e.id == 0x00A then reset(); return end
+    if e.id == 0x1FC then
+        local job = inGame()
+        local payload = soulPacket.decode(e.data, job)
+        if payload then
+            state.packetSoul, state.packetJob = payload.soul, payload.job
+            if not state.preview then
+                state.soul = payload.soul
+                state.source = payload.soul and 'Soul HUD packet' or 'no active Soul'
+                state.selected = nil
+            end
+        end
+    end
 end)
 ashita.events.register('d3d_present', 'osa_render', function()
     local job, character = inGame()
@@ -97,10 +119,20 @@ ashita.events.register('d3d_present', 'osa_render', function()
     local now = os.clock()
     if not state.preview and now - state.lastPoll >= 1 then
         state.lastPoll = now
-        local active = soulBridge.resolve(soulBridge.read(), job, character)
-        if state.soul ~= active then state.selected = nil end
-        state.soul = active
-        state.source = active and 'Crystal Jobs client state' or 'not synchronized'
+        local dllStatus = soulBridge.read()
+        state.lastDllStatus = dllStatus
+        local active = soulBridge.resolve(dllStatus, job, character)
+        if active then
+            if state.soul ~= active then state.selected = nil end
+            state.soul = active
+            state.source = 'Crystal Jobs client state'
+        elseif state.packetJob == job and state.packetSoul then
+            state.soul = state.packetSoul
+            state.source = 'Soul HUD packet'
+        else
+            state.soul = nil
+            state.source = dllStatus and 'DLL has no valid active Soul' or 'Crystal Jobs DLL unavailable'
+        end
     end
     if not state.visible then return end
     local open = { true }
