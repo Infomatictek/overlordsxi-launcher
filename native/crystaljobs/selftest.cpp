@@ -54,6 +54,17 @@ static void* __cdecl fake_action_icon_fn(uint32_t v1, uint32_t v2) {
     last_icon_v2 = v2;
     return reinterpret_cast<void*>(0x13579bdfu);
 }
+static uint32_t fake_can_show_calls, fake_set_list_count_calls;
+static int32_t last_set_list_count, last_set_list_flags;
+static uint8_t __cdecl fake_can_show_spell_fn(const uint8_t* spell_res) {
+    ++fake_can_show_calls;
+    return (spell_res != nullptr && u16(spell_res) != 999u) ? 1 : 0;
+}
+static void __fastcall fake_set_list_count_fn(void*, void*, int32_t count, int32_t flags) {
+    ++fake_set_list_count_calls;
+    last_set_list_count = count;
+    last_set_list_flags = flags;
+}
 static const char* __cdecl fake_lookup(int table, int job) {
     assert(table == 18 || table == 2);
     if (table == 2) {
@@ -186,6 +197,46 @@ static __declspec(naked) const char* action_str_abi(void*, int32_t) {
         xor eax, eax
     done:
         add esp, 4
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    }
+}
+
+// Mirrors 0x102254d0's exact stack frame: saved_sel sits at [esp + 0x1c] after SetListCount's ret 8.
+static __declspec(naked) int32_t ability_filter_abi(void* menu_obj, int32_t count, int32_t saved_sel) {
+    __asm {
+        push ebp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x24
+        mov ecx, [esp + 0x38]       ; menu_obj
+        mov eax, [esp + 0x3c]       ; count
+        mov edx, [esp + 0x40]       ; saved_sel
+        mov [esp + 0x1c], edx
+        mov ebx, 11223344h
+        mov esi, 22334455h
+        mov edi, 33445566h
+        mov ebp, 44556677h
+        push 0
+        push eax
+        call ability_list_filter_hook
+        mov eax, [esp + 0x1c]       ; return updated saved_sel
+        cmp ebx, 11223344h
+        jne bad
+        cmp esi, 22334455h
+        jne bad
+        cmp edi, 33445566h
+        jne bad
+        cmp ebp, 44556677h
+        je ok
+    bad:
+        mov eax, -999
+    ok:
+        add esp, 0x24
         pop edi
         pop esi
         pop ebx
@@ -673,6 +724,142 @@ static void action_catalog_checks() {
     selftest_alive = false;
 }
 
+static CrystalJobsVisibilityEntry make_vis(uint8_t job, uint8_t branch, uint32_t kind, uint16_t id,
+                                           uint8_t min_lvl, uint8_t rule) {
+    CrystalJobsVisibilityEntry e{};
+    e.size = sizeof(e);
+    e.job = job;
+    e.branch = branch;
+    e.kind = kind;
+    e.action_id = id;
+    e.min_effective_level = min_lvl;
+    e.rule = rule;
+    return e;
+}
+
+static void visibility_checks() {
+    original_can_show_spell = &fake_can_show_spell_fn;
+    original_set_list_count = reinterpret_cast<uintptr_t>(&fake_set_list_count_fn);
+    fake_can_show_calls = 0;
+    fake_set_list_count_calls = 0;
+
+    uint8_t mock_job = 13;
+    uint8_t mock_lvl = 25;
+    main_job_slot = &mock_job;
+    main_lvl_slot = &mock_lvl;
+    selftest_alive = true;
+
+    CrystalJobsVisibilityEntry rules[5] = {
+        make_vis(13, 1, CRYSTALJOBS_ACTION_SPELL, 338, 10, CRYSTALJOBS_VIS_RULE_UNLOCK),
+        make_vis(13, 1, CRYSTALJOBS_ACTION_SPELL, 339, 37, CRYSTALJOBS_VIS_RULE_UNLOCK),
+        make_vis(13, 2, CRYSTALJOBS_ACTION_SPELL, 339, 1,  CRYSTALJOBS_VIS_RULE_HIDDEN),
+        make_vis(13, 1, CRYSTALJOBS_ACTION_WEAPONSKILL, 128, 37, CRYSTALJOBS_VIS_RULE_UNLOCK),
+        make_vis(13, 1, CRYSTALJOBS_ACTION_ABILITY, 600, 1, CRYSTALJOBS_VIS_RULE_HIDDEN),
+    };
+    assert(CrystalJobsReplaceVisibility(rules, 5) == 0);
+    // Reject duplicates without corrupting active policy.
+    CrystalJobsVisibilityEntry dup[2] = { rules[0], rules[0] };
+    assert(CrystalJobsReplaceVisibility(dup, 2) == 1);
+    assert(visibility_catalog.count() == 5);
+
+    uint8_t spell338[4]{}, spell339[4]{}, spell340[4]{};
+    const uint16_t id338 = 338, id339 = 339, id340 = 340;
+    std::memcpy(spell338, &id338, 2);
+    std::memcpy(spell339, &id339, 2);
+    std::memcpy(spell340, &id340, 2);
+
+    // Shinobi (NIN 13 / branch 1): Lv 10..36 -> Ichi (338) visible, Ni (339) hidden.
+    uint8_t ev[8] = {1, 1, 13, 1, 100, 0, 0, 0};
+    state.update(ev, 8, GetTickCount());
+    mock_lvl = 10;
+    assert(magic_list_filter_hook(spell338) == 1);
+    assert(magic_list_filter_hook(spell339) == 0);
+    mock_lvl = 36;
+    assert(magic_list_filter_hook(spell338) == 1);
+    assert(magic_list_filter_hook(spell339) == 0);
+    // Unmanaged spell 340 always falls through to vanilla check.
+    assert(magic_list_filter_hook(spell340) == 1 && fake_can_show_calls == 1);
+
+    // Lv 37 -> Both Ichi and Ni visible.
+    mock_lvl = 37;
+    assert(magic_list_filter_hook(spell338) == 1);
+    assert(magic_list_filter_hook(spell339) == 1);
+
+    // Level synced down to 36 -> Ni hidden again.
+    mock_lvl = 36;
+    assert(magic_list_filter_hook(spell339) == 0);
+
+    // Switch Soul to Kagemusha (branch 2): 339 explicitly hidden even at Lv 75; 338 unmanaged -> vanilla.
+    mock_lvl = 75;
+    ev[3] = 2; state.update(ev, 8, GetTickCount());
+    assert(magic_list_filter_hook(spell339) == 0);
+    assert(magic_list_filter_hook(spell338) == 1 && fake_can_show_calls == 2);
+
+    // Switch Soul to Nightblade (branch 3): unmanaged -> vanilla.
+    ev[3] = 3; state.update(ev, 8, GetTickCount());
+    assert(magic_list_filter_hook(spell339) == 1 && fake_can_show_calls == 3);
+
+    // Ability & Weapon Skill list compaction + selection remapping ABI test.
+    ev[3] = 1; state.update(ev, 8, GetTickCount());
+    mock_lvl = 25; // WS 128 locked (<37), JA 600 hidden; WS 129 & JA 601 unmanaged -> kept.
+    uint8_t fake_list_obj[0x1780]{};
+    const int32_t raw_total = 4;
+    std::memcpy(fake_list_obj + 0x1760, &raw_total, 4);
+    const uint16_t raw_ids[4] = {128, 129, 600, 601};
+    std::memcpy(fake_list_obj + 0x160, raw_ids, sizeof(raw_ids));
+    uint8_t* list_ptr = fake_list_obj;
+    ability_list_slot = &list_ptr;
+
+    uint32_t rows[16]{};
+    // Initial rows: [0]=raw 0 (WS 128, hide), [1]=raw 1 (WS 129, keep), [2]=raw 2 (JA 600, hide), [3]=raw 3 (JA 601, keep)
+    rows[0] = 0; rows[1] = 0xAA;
+    rows[2] = 1; rows[3] = 0xBB;
+    rows[4] = 2; rows[5] = 0xCC;
+    rows[6] = 3; rows[7] = 0xDD;
+    uint8_t fake_menu[0x60]{};
+    uint32_t* rows_ptr = rows;
+    const int32_t cap = 8;
+    std::memcpy(fake_menu + 0x20, &rows_ptr, sizeof(rows_ptr));
+    std::memcpy(fake_menu + 0x44, &cap, sizeof(cap));
+
+    // Selecting row 3 (JA 601) must compact to index 1 with count=2 and zero blank rows.
+    const int32_t remapped_sel = ability_filter_abi(fake_menu, 4, 3);
+    assert(remapped_sel == 1);
+    assert(fake_set_list_count_calls == 1 && last_set_list_count == 2 && last_set_list_flags == 0);
+    assert(rows[0] == 1 && rows[1] == 0xBB && rows[2] == 3 && rows[3] == 0xDD);
+
+    // Selecting a hidden row (row 0 = WS 128) must reset selection to -1.
+    rows[0] = 0; rows[2] = 1; rows[4] = 2; rows[6] = 3;
+    const int32_t hidden_sel = ability_filter_abi(fake_menu, 4, 0);
+    assert(hidden_sel == -1 && last_set_list_count == 2);
+
+    // Level 37 unlocks WS 128 -> count=3 (128, 129, 601), only JA 600 hidden.
+    mock_lvl = 37;
+    rows[0] = 0; rows[2] = 1; rows[4] = 2; rows[6] = 3;
+    assert(ability_filter_abi(fake_menu, 4, 3) == 2 && last_set_list_count == 3);
+    assert(rows[0] == 0 && rows[2] == 1 && rows[4] == 3);
+
+    // Zero-row list stays zero cleanly.
+    assert(ability_filter_abi(fake_menu, 0, -1) == -1 && last_set_list_count == 0);
+
+    // Verify 0x22CDE0 signature relocation.
+    const uint32_t delta = static_cast<uint32_t>(0x04860000u - 0x10000000u);
+    for (const auto& sig : signatures) {
+        if (sig.rva == 0x22CDE0) {
+            uint8_t buf[24];
+            std::memcpy(buf, sig.bytes, 24);
+            relocate_signature(sig.rva, buf, delta);
+            assert(u32(buf + 1) == 0x04860000u + 0x4867F0u);
+        }
+    }
+
+    assert(CrystalJobsClearVisibility() == 0 && visibility_catalog.count() == 0);
+    ability_list_slot = nullptr;
+    main_lvl_slot = nullptr;
+    main_job_slot = nullptr;
+    selftest_alive = false;
+}
+
 int main() {
     uint8_t event[8] = {1, 1, 1, 2, 100, 0, 0, 0};
     state.update(event, 8, 0xffffff00);
@@ -752,6 +939,7 @@ int main() {
     multi_job_checks();
     equipment_persona_checks();
     action_catalog_checks();
+    visibility_checks();
     enabled.store(false); state = {};
     original_decode = &fake_search_decode;
     make_row(row_b, 200, marker | 3);
@@ -773,10 +961,16 @@ int main() {
     assert(GetProcAddress(dll, "CrystalJobsClearCatalog") != nullptr);
     assert(GetProcAddress(dll, "CrystalJobsSetActiveSoul") != nullptr);
     assert(GetProcAddress(dll, "CrystalJobsClearActiveSoul") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsReplaceVisibility") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsClearVisibility") != nullptr);
+    const auto get_vis_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsVisibilityStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetVisibilityStatus"));
+    assert(get_vis_st != nullptr);
+    CrystalJobsVisibilityStatus vis_st{};
+    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 20 && vis_st.total_hooks == 0);
     const auto get_action_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsActionStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetActionStatus"));
     assert(get_action_st != nullptr);
     CrystalJobsActionStatus act_st{};
-    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 18 && act_st.total_hooks == 0);
+    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 20 && act_st.total_hooks == 0);
     assert(get_iface != nullptr && create_plugin != nullptr && destroy_plugin != nullptr);
     assert(get_iface() == 4.30);
     void* plugin = create_plugin("");

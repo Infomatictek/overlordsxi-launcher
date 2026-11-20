@@ -84,8 +84,8 @@
       "category": "plugin",
       "sourcePath": "plugins/ashita4/crystaljobs.dll",
       "targetPath": "crystaljobs.dll",
-      "sha256": "4b892ed8749212313023a06bbdf93eb232ba300bf3d79a6d0d35387c0f097445",
-      "size": 116224
+      "sha256": "e25e625d9a078cdfc6e2570d9e7388ae306e140fd83426d80d4cd2259a69e101",
+      "size": 593408
     },
     {
       "category": "addon",
@@ -6074,6 +6074,13 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/data/visibility.tsv",
+      "targetPath": "overlords_soul_actions/data/visibility.tsv",
+      "sha256": "73c37c32fbec545ca71992f0d8acc2bd9c4da89a26887af665952d053fd6d723",
+      "size": 594
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/macro_resolver.lua",
       "targetPath": "overlords_soul_actions/macro_resolver.lua",
       "sha256": "82ec940c453ec3d925e2e7b0547b548d4330a597a84abacdb471afa711b7037c",
@@ -6083,15 +6090,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/native_actions.lua",
       "targetPath": "overlords_soul_actions/native_actions.lua",
-      "sha256": "b1fc9dc86db211d0a6fbd84fcd0a2e689520c89c71de1ca3462d510a2b9da723",
-      "size": 9447
+      "sha256": "ac55e1018a0a14f6fdb3d9ca50032bd9d1f364be63cbb09aea324c89796d6a6e",
+      "size": 14011
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/overlords_soul_actions.lua",
       "targetPath": "overlords_soul_actions/overlords_soul_actions.lua",
-      "sha256": "8fb1b4d508eb199c9a30eb7c58c62deec9ac476023ff2830a3dd91afe596fc65",
-      "size": 23799
+      "sha256": "65cdb597be4c9ba2cbb07b3f3a172a4a9dd1c953ae21c5fc3d80d819a4d72a06",
+      "size": 25059
     },
     {
       "category": "addon",
@@ -6204,6 +6211,20 @@
       "targetPath": "overlords_soul_actions/tests/soul_packet_test.lua",
       "sha256": "a2025888b559b433b1e7ae074efd13514b5c3ef90e35e54ce5bcd2da256cffce",
       "size": 549
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/tests/visibility_test.lua",
+      "targetPath": "overlords_soul_actions/tests/visibility_test.lua",
+      "sha256": "122b8e3184052f20b9c401aae22d053e9bb2cfa706cf6373978d5fe7543b576b",
+      "size": 1458
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/overlords_soul_actions/visibility.lua",
+      "targetPath": "overlords_soul_actions/visibility.lua",
+      "sha256": "78289970fa9a8f49caadf42c668222bc14e17fbbe65cab58075955588ae7783f",
+      "size": 2840
     },
     {
       "category": "addon",
