@@ -1155,6 +1155,19 @@ BESPOKE.herald = function(kv)
     }
 end
 
+BESPOKE.terramancer = function(kv)
+    local fuse, cooldown = num(kv, 'fuse'), num(kv, 'cooldown')
+    local inside = num(kv, 'inside') == 1
+    if fuse > 0 then
+        local kind, quarry = str(kv, 'kind'), str(kv, 'quarry')
+        return {
+            pips = badge(kind, quarry ~= '' and quarry or 'CLAIM LOST', inside),
+            bar = timerBar('fault_fuse', inside and 'Quarry Inside' or 'Quarry Outside', fuse, 'Erupted', kind == 'Deep Fault' and 4 or 2),
+        }
+    end
+    return { bar = timerBar('fault_cd', 'Fault Recast', cooldown, 'Ready', 8) }
+end
+
 BESPOKE.archivist = function(kv)
     local entries = num(kv, 'entries')
     local slots = math.max(1, num(kv, 'slots'))

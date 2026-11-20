@@ -161,3 +161,7 @@ herald	spell	300	Invite Leviathan	Invite Leviathan for its elemental Accord. Cos
 herald	spell	301	Invite Garuda	Invite Garuda for its elemental Accord. Costs 5 MP. 5s recast.
 herald	spell	302	Invite Shiva	Invite Shiva for its elemental Accord. Costs 5 MP. 5s recast.
 herald	spell	303	Invite Ramuh	Invite Ramuh for its elemental Accord. Costs 5 MP. 5s recast.
+terramancer	ability	857	Cancel Fault	Collapse your pending fault without a refund. 10s recast.
+terramancer	spell	159	Stone Chip	Strike one enemy with earth magic and establish your claim. Costs 3 MP. 4s recast.
+terramancer	spell	160	Shallow Fault	Mark your claimed enemy’s position for a two-second delayed eruption. Costs 7% max MP. Shared 8s recast.
+terramancer	spell	161	Deep Fault	Mark your claimed enemy’s position for a stronger four-second delayed eruption. Costs 12% max MP. Shared 8s recast.
