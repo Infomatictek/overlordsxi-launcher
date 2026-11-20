@@ -115,3 +115,10 @@ untamed	ability	597	Call Packmate	Summon a hare companion without spending a jug
 untamed	ability	763	Pack Commands	Open your companion’s technique list.
 untamed	ability	899	Rally Packmate	Summon a replacement hare companion on a separate cooldown. 1200s recast.
 untamed	ability	1184	Raking Kick	Your beast strikes your shared enemy. A landed hit returns TP to you when the link is ready. Costs one charge.
+beastspeaker	ability	565	Read Quarry	Identify the enemy family and its weakest physical damage type within 15 yalms. 10s recast.
+beastspeaker	ability	566	Expose Quarry	Order your tracker to expose the chosen weakness on its next landed melee hit within six seconds. 25s recast.
+beastspeaker	ability	581	Track Quarry	Send your tracker after the selected enemy. 5s recast.
+beastspeaker	ability	582	Recall Tracker	Call your tracker back to your side. 5s recast.
+beastspeaker	ability	583	Release Tracker	Dismiss your active tracker. 5s recast.
+beastspeaker	ability	585	Choose Weakness	Cycle the recorded weakness through blunt, slashing, and piercing for your next exposure. 1s recast.
+beastspeaker	ability	597	Call Tracker	Summon your mandragora tracker without spending a jug. 300s recast.

@@ -1112,6 +1112,23 @@ BESPOKE.untamed = function(kv)
     }
 end
 
+BESPOKE.beastspeaker = function(kv)
+    local family, weakness = str(kv, 'family'), str(kv, 'weakness')
+    local pending, exposed = num(kv, 'pending'), num(kv, 'exposed')
+    local label = weakness ~= '' and weakness or 'READ QUARRY'
+    local detail = family
+    if num(kv, 'pet') == 0 then detail = 'CALL TRACKER' end
+    local bar
+    if exposed > 0 then
+        bar = timerBar('exposure', ('Exposure +%d%%'):format(num(kv, 'bonus')), exposed, 'Expired', 10)
+    elseif pending > 0 then
+        bar = timerBar('tracker', 'Waiting for Tracker', pending, 'Expired', 6)
+    elseif str(kv, 'learned') ~= '' then
+        label, detail = label .. ' · ' .. family, str(kv, 'learned')
+    end
+    return { pips = badge(label, detail, exposed > 0), bar = bar }
+end
+
 BESPOKE.archivist = function(kv)
     local entries = num(kv, 'entries')
     local slots = math.max(1, num(kv, 'slots'))
