@@ -8,4 +8,7 @@
 *.md text eol=lf
 *.lua text eol=lf
 *.py text eol=lf
+*.cfg text eol=lf
+*.tsv text eol=lf
+*.txt text eol=lf
 *.DAT binary
