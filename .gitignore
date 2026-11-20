@@ -8,3 +8,6 @@ Thumbs.db
 *.tmp
 
 tools/backups/
+
+__pycache__/
+*.pyc
