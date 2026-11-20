@@ -50,7 +50,7 @@ jobs:
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
     steps:
-      - name: Dispatch update-wiki.yml in Infomatictek/overlordsxi
+      - name: Dispatch update-wiki.yml in Infomatictek/soulspirexi
         env:
           WIKI_DISPATCH_TOKEN: ${{ secrets.WIKI_DISPATCH_TOKEN }}
           LAUNCHER_SHA: ${{ github.sha }}
@@ -58,7 +58,7 @@ jobs:
         run: |
           set -euo pipefail
           if [ -z "${WIKI_DISPATCH_TOKEN:-}" ]; then
-            echo "::warning::Secret WIKI_DISPATCH_TOKEN is not configured in Infomatictek/overlordsxi-launcher. Add a fine-grained PAT scoped only to Infomatictek/overlordsxi with 'Actions: Read and write' permission to enable automatic cross-repo wiki rebuilds."
+            echo "::warning::Secret WIKI_DISPATCH_TOKEN is not configured in Infomatictek/soulspirexi-launcher. Add a fine-grained PAT scoped only to Infomatictek/soulspirexi with 'Actions: Read and write' permission to enable automatic cross-repo wiki rebuilds."
             exit 0
           fi
 
@@ -67,11 +67,11 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${WIKI_DISPATCH_TOKEN}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
-            "https://api.github.com/repos/Infomatictek/overlordsxi/actions/workflows/update-wiki.yml/dispatches" \
+            "https://api.github.com/repos/Infomatictek/soulspirexi/actions/workflows/update-wiki.yml/dispatches" \
             -d "{\"ref\":\"main\",\"inputs\":{\"launcher_ref\":\"${LAUNCHER_SHA}\"}}")"
 
           if [ "$http_code" != "204" ]; then
             echo "::error::Failed to dispatch wiki rebuild (HTTP ${http_code}): $(cat /tmp/dispatch_resp.txt)"
             exit 1
           fi
-          echo "Successfully dispatched Infomatictek/overlordsxi update-wiki.yml for launcher commit ${LAUNCHER_SHA}."
+          echo "Successfully dispatched Infomatictek/soulspirexi update-wiki.yml for launcher commit ${LAUNCHER_SHA}."
