@@ -102,3 +102,7 @@ warmage	spell	626	Ember Charge	Hurl a concentrated fire charge at one enemy. Cos
 warmage	spell	554	Guillotine Shears	Shear one enemy with a heavy slashing finisher. Costs 32 MP. 20s recast.
 warmage	spell	591	Furnace Breath	Focus fire on one enemy within ten yalms. Costs 36 MP. 20s recast.
 warmage	spell	644	Storm Gaze	Strike one enemy with lightning. Costs 30 MP. 18s recast.
+archivist	ability	726	Record	Watch one enemy for 12 seconds and record its next completed hostile spell or technique. 6s recast.
+archivist	ability	745	Index Pages	Cycle between your live records to select a different countermeasure. 1s recast.
+archivist	spell	99	File Countermeasure	Give one party member a page against your selected recorded action. One exact matching action deals less damage. 15s recast.
+archivist	spell	159	Margin Note	Strike one enemy with earth magic between observations. Costs 4 MP. 6s recast.

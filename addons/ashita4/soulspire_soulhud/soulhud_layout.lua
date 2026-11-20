@@ -1093,6 +1093,27 @@ BESPOKE.medic = function(kv)
     }
 end
 
+BESPOKE.archivist = function(kv)
+    local entries = num(kv, 'entries')
+    local slots = math.max(1, num(kv, 'slots'))
+    local recording = num(kv, 'recording')
+    local page = num(kv, 'page_rem')
+    local cooldown = num(kv, 'file_cd')
+    local recordCd = num(kv, 'record_cd')
+    local name = kv.record and kv.record ~= '' and kv.record or nil
+    local bar = timerBar('record', 'Record', recordCd, 'Ready', 6)
+    if recording > 0 then
+        bar = timerBar('watch', 'Watching Enemy', recording, 'Expired', 12)
+    elseif page > 0 then
+        bar = timerBar('page', 'Countermeasure', page, 'Spent', 25)
+    elseif cooldown > 0 then
+        bar = timerBar('file', 'File Countermeasure', cooldown, 'Ready', 15)
+    elseif name then
+        bar = timerBar('entry', 'Selected Record', num(kv, 'record_rem'), 'Expired', 60)
+    end
+    return { pips = pips('Records', entries, slots, 'azure', page > 0, name or 'NO RECORD'), bar = bar }
+end
+
 BESPOKE.sage = function(kv)
     local tit   = num(kv, 'titania') > 0
     local hpp   = num(kv, 'titania_hpp')
