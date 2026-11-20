@@ -6,7 +6,7 @@ local combatLog = require('combat_log')
 local nativeActions = require('native_actions')
 
 catalog.clear()
-assert(builtins.install(catalog) == 2)
+assert(builtins.install(catalog) == 10)
 assert(catalog.register('shinobi', 'weaponskill', 128, {
     name = 'Shadow Rend',
     description = 'Shinobi shadow-infused weapon skill.',
@@ -17,7 +17,16 @@ assert(catalog.register('shinobi', 'ability', 600, {
 }))
 
 local vanilla = {
-    spell = { [338] = 'Utsusemi: Ichi', [339] = 'Utsusemi: Ni' },
+    spell = {
+        [320] = 'Katon: Ichi',
+        [323] = 'Hyoton: Ichi',
+        [326] = 'Huton: Ichi',
+        [329] = 'Doton: Ichi',
+        [332] = 'Raiton: Ichi',
+        [335] = 'Suiton: Ichi',
+        [338] = 'Utsusemi: Ichi',
+        [339] = 'Utsusemi: Ni',
+    },
     weaponskill = { [128] = 'Blade: Jin' },
     ability = { [600] = 'Yonin' },
 }
@@ -30,6 +39,12 @@ assert(macroResolver.translate('/ma "Shadow Squadron: Ichi" <me>', catalog, 'shi
     == '/ma "Utsusemi: Ichi" <me>')
 assert(macroResolver.translate('/nin "shadow squadron: ni" <me>', catalog, 'shinobi', getVanilla)
     == '/nin "Utsusemi: Ni" <me>')
+assert(macroResolver.translate('/ma "False Assault" <t>', catalog, 'shinobi', getVanilla)
+    == '/ma "Katon: Ichi" <t>')
+assert(macroResolver.translate('/ma "Crosscut" <t>', catalog, 'shinobi', getVanilla)
+    == '/ma "Huton: Ichi" <t>')
+assert(macroResolver.translate('/ma "Final Mirage" <t>', catalog, 'shinobi', getVanilla)
+    == '/ma "Suiton: Ichi" <t>')
 assert(macroResolver.translate('/ws "Shadow Rend" <t>', catalog, 'shinobi', getVanilla)
     == '/ws "Blade: Jin" <t>')
 assert(macroResolver.translate('/ja "Phantom Veil" <me>', catalog, 'shinobi', getVanilla)

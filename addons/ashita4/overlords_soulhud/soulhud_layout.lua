@@ -523,22 +523,51 @@ end
 -- =============================================================================
 BESPOKE.kurogane = function(kv)
     local clones     = num(kv, 'clones')
-    local engaged    = num(kv, 'engaged')
     local cloneExp   = num(kv, 'clone_exp')
+    local phase      = math.floor(num(kv, 'phase'))
+    local phaseRem   = num(kv, 'phase_rem')
+    local feintHits  = math.floor(num(kv, 'feint_hits'))
+    local openRem    = num(kv, 'opening_rem')
+    local lastCmd    = type(kv.last_cmd) == 'string' and kv.last_cmd or ''
     local legionCd   = num(kv, 'legion_cd')
-    local phantomCd  = num(kv, 'phantom_cd')
     local phantomRem = num(kv, 'phantom_rem')
-    local legTag     = legionCd <= 0 and 'LEG RDY' or ('LEG ' .. math.ceil(legionCd) .. 's')
-    local paTag      = phantomRem > 0 and ('PA ' .. math.ceil(phantomRem) .. 's')
-        or (phantomCd <= 0 and 'PA RDY' or ('PA ' .. math.ceil(phantomCd) .. 's'))
-    local right      = clones > 0
-        and ('ENG %d/%d • %s'):format(math.floor(engaged), math.floor(clones), phantomRem > 0 and paTag or legTag)
-        or (legTag .. ' • ' .. paTag)
-    local bar        = phantomRem > 0
-        and timerBar('phantom', 'Phantom Assault', phantomRem, 'Idle', 8)
-        or timerBar('clone', 'Next Shadow', cloneExp, 'No Shadows', 30)
+
+    local openTag = openRem > 0 and ' • OPEN' or ''
+    local diffTag = (lastCmd ~= '' and (phase == 2 or phase == 3)) and (' (!' .. lastCmd .. ')') or ''
+
+    local right
+    if clones <= 0 then
+        right = 'SUMMON SQUAD'
+    elseif phase == 3 then
+        right = 'CASCADE RDY' .. diffTag .. openTag
+    elseif phase == 2 then
+        right = 'SWITCH RDY' .. diffTag .. openTag
+    elseif phase == 1 then
+        right = 'FEINT RDY' .. openTag
+    elseif openRem > 0 then
+        right = ('BUILD %d/2 • OPEN %ds'):format(feintHits, math.ceil(openRem))
+    elseif phantomRem > 0 then
+        right = ('BUILD %d/2 • PA %ds'):format(feintHits, math.ceil(phantomRem))
+    else
+        right = ('BUILD %d/2'):format(feintHits)
+    end
+
+    local bar
+    if phase == 3 and phaseRem > 0 then
+        bar = timerBar('cascade', 'Cascade Ready', phaseRem, 'Building', 20)
+    elseif phase == 2 and phaseRem > 0 then
+        bar = timerBar('switch', 'Switch Ready', phaseRem, 'Building', 20)
+    elseif phase == 1 and phaseRem > 0 then
+        bar = timerBar('feint', 'Feint Ready', phaseRem, 'Building', 20)
+    elseif phantomRem > 0 then
+        bar = timerBar('phantom', 'Phantom Assault', phantomRem, 'Idle', 8)
+    else
+        bar = timerBar('clone', 'Next Shadow', cloneExp, 'No Shadows', 30)
+    end
+
+    local glow = (phase >= 1 and clones > 0) or phantomRem > 0 or (clones >= 1 and legionCd <= 0)
     return {
-        pips = pips('Shadows', clones, 5, 'violet', phantomRem > 0 or (clones >= 1 and legionCd <= 0), right),
+        pips = pips('Shadows', clones, 5, 'violet', glow, right),
         bar  = bar,
     }
 end

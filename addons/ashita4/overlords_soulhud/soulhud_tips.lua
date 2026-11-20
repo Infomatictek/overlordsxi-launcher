@@ -115,7 +115,7 @@ local SOULS = {
     verdant        = { w = 'Club / Staff + Luopan', p = 'Nature healer. Your Luopan pulses heals, MP and Barkskin every few seconds, and weaponskills trigger an extra surge.' },
     magus          = { w = 'Dual-wield (Sword / Club)', p = 'Blue-magic healer. Healing spells splash to the party, dual-wield hits build Azure Catalyst, and linked blades siphon HP and MP to allies.' },
     azurebastion   = { w = 'Dual-wield (Sword / Club)', p = 'Monster-forged frontliner. Physical Blue Magic builds Chitin Carapace for mitigation while holding threat and weaving barriers.' },
-    kurogane       = { w = 'Dual Katanas', p = 'Use Utsusemi to summon up to five offensive shadows. Maintain your squad, replace shadows lost to enemy attacks, and command living clones with Shadow Legion and Phantom Assault. More surviving shadows means stronger coordinated offense.' },
+    kurogane       = { w = 'Dual Katanas', p = 'Shadow-clone commander. Summon up to 5 offensive shadows with Shadow Squadron: Ichi/Ni, let 2 distinct clones land hits to build Feint, then sequence varied squad commands through Feint -> Switch -> Cascade for coordinated physical bursts.' },
     kagemusha      = { w = 'Dual Katanas', p = 'Shadow tank. Broken Utsusemi shadows turn into Kawarimi Ash, which Katana weaponskills spend to restore shadows and HP.' },
     ronin          = { w = 'Great Katana', p = 'Masterless tank. Mind\'s Eye counters incoming swings, and Mushin defers part of each hit into a Stagger pool you purify with Tachi skills.' },
     imperialarcher = { w = 'Bow + Great Katana', p = 'Skirmisher. Shoots from range when out of melee and chains Tachi and Archery weaponskills together.' },
@@ -875,44 +875,62 @@ E.warlord = {
 
 E.kurogane = {
     pips = {
-        core  = 'Shinobi — Shadow Commander. Cast Utsusemi: Ichi (2 shadows) or Utsusemi: Ni (3 shadows) while engaged to summon up to 5 independent offensive shadow clones (25-30s lifetime, up to 170 HP at Lv75).',
-        scale = 'Each living shadow independently attacks your engaged target. More surviving shadows means stronger Shadow Legion bursts and higher sustained Phantom Assault output.',
+        core  = 'Shinobi — Shadow Commander. Cast Shadow Squadron: Ichi (Lv10, 2 clones) or Ni (Lv37, 3 clones) while engaged to field up to 5 offensive shadows (25-30s lifetime, up to 170 HP at Lv75).',
+        scale = '2 distinct living clones landing real hits within 6s build Feint Ready (20s). Sequence different squad commands (False Assault, Mirror Step, Crosscut, Shadow Pin, Thunder Relay, Final Mirage, Shadow Legion, Phantom Assault) through Feint -> Switch -> Cascade.',
         live  = function(c)
             local n   = math.floor(num(c.kv, 'clones'))
             local eng = math.floor(num(c.kv, 'engaged'))
-            local leg = math.ceil(num(c.kv, 'legion_cd'))
-            local pa  = math.ceil(num(c.kv, 'phantom_cd'))
-            local pr  = math.ceil(num(c.kv, 'phantom_rem'))
-            local legStr = leg <= 0 and 'Shadow Legion READY' or ('Shadow Legion ' .. leg .. 's')
-            local paStr  = pr > 0 and ('Phantom Assault ACTIVE (' .. pr .. 's)')
-                or (pa <= 0 and 'Phantom Assault READY' or ('Phantom Assault ' .. pa .. 's'))
-            return ('%d/5 Shadows (%d engaged) | %s | %s'):format(n, eng, legStr, paStr)
+            local ph  = math.floor(num(c.kv, 'phase'))
+            local pr  = math.ceil(num(c.kv, 'phase_rem'))
+            local fh  = math.floor(num(c.kv, 'feint_hits'))
+            local op  = math.ceil(num(c.kv, 'opening_rem'))
+            local lc  = type(c.kv.last_cmd) == 'string' and c.kv.last_cmd or ''
+            local phaseNames = { [0] = 'Building (' .. fh .. '/2 hits)', [1] = 'Feint Ready (' .. pr .. 's)', [2] = 'Switch Ready (' .. pr .. 's)', [3] = 'Cascade Ready (' .. pr .. 's)' }
+            local phStr = phaseNames[ph] or 'Building'
+            if lc ~= '' and ph >= 2 then phStr = phStr .. ' [avoid repeating ' .. lc .. ']' end
+            if op > 0 then phStr = phStr .. ' | Opening ' .. op .. 's' end
+            return ('%d/5 Shadows (%d engaged) | Phase: %s'):format(n, eng, phStr)
         end,
         nxt   = function(c)
-            local n   = math.floor(num(c.kv, 'clones'))
-            local leg = num(c.kv, 'legion_cd')
-            local pa  = num(c.kv, 'phantom_cd')
-            if n == 0 then return 'Engage your target and cast Utsusemi: Ni (3) + Ichi (2) to field 5 shadows.' end
-            if n >= 4 and leg <= 0 then return 'Use Shadow Legion (90s CD) for a coordinated single-target burst!' end
-            if n >= 3 and pa <= 0 then return 'Use Phantom Assault (30s CD) to accelerate living shadows for 8s.' end
-            if n < 5 then return 'Refresh Utsusemi after enemy AoEs to rebuild your 5-shadow squad.' end
-            return 'Maintain 5 shadows and weave Katana weaponskills.'
+            local n  = math.floor(num(c.kv, 'clones'))
+            local ph = math.floor(num(c.kv, 'phase'))
+            local lc = type(c.kv.last_cmd) == 'string' and c.kv.last_cmd or ''
+            if n == 0 then return 'Engage your target and cast Shadow Squadron: Ichi (or Ni at Lv37) to summon clones.' end
+            if ph == 3 then
+                return lc ~= '' and ('Cascade Ready! Use any squad command other than %s (or Final Mirage at Lv70) to unleash Cascade!'):format(lc)
+                    or 'Cascade Ready! Execute a qualifying squad command for a coordinated Cascade strike!'
+            end
+            if ph == 2 then
+                return lc ~= '' and ('Switch Ready! Use a different squad command than %s to advance to Cascade Ready.'):format(lc)
+                    or 'Switch Ready! Use a different squad command to advance to Cascade Ready.'
+            end
+            if ph == 1 then return 'Feint Ready! Cast False Assault, Mirror Step, Crosscut, or another squad command to advance to Switch.' end
+            if n < 2 then return 'Summon at least 2 clones so two distinct shadows can land hits within 6s to build Feint.' end
+            return 'Let 2 distinct living clones land hits within 6s to build Feint Ready.'
         end,
     },
     bar = {
-        core  = 'Tracks Phantom Assault (8s duration: -25% native autoattack interval for living clones) when active, or the time until your oldest shadow expires.',
-        scale = 'Phantom Assault affects only shadows alive when pressed and restores normal timing after 8s.',
+        core  = 'Displays time remaining on your active tactical phase (Feint / Switch / Cascade, 20s window), or Phantom Assault (8s) / oldest shadow expiry when building.',
+        scale = 'Shadow Pin (Lv30) extends active phase time by +4s (cap 20s). Phase resets on target change, disengage, death, zoning, Soul change, or loss of all clones.',
         live  = function(c)
-            local pr = num(c.kv, 'phantom_rem')
-            if pr > 0 then return ('Phantom Assault active for %s: living shadows strike 33%% faster!'):format(secs(pr)) end
+            local ph = math.floor(num(c.kv, 'phase'))
+            local pr = num(c.kv, 'phase_rem')
+            if ph == 3 and pr > 0 then return ('Cascade Ready for %s: next different command triggers Cascade strike!'):format(secs(pr)) end
+            if ph == 2 and pr > 0 then return ('Switch Ready for %s: use a different command to unlock Cascade.'):format(secs(pr)) end
+            if ph == 1 and pr > 0 then return ('Feint Ready for %s: use any squad command to advance to Switch.'):format(secs(pr)) end
+            local pa = num(c.kv, 'phantom_rem')
+            if pa > 0 then return ('Phantom Assault active for %s: living shadows strike 33%% faster.'):format(secs(pa)) end
             local ex = num(c.kv, 'clone_exp')
-            if ex > 0 then return ('Next shadow expires in %s.'):format(secs(ex)) end
+            if ex > 0 then return ('Building Feint (%d/2 hits). Next shadow expires in %s.'):format(math.floor(num(c.kv, 'feint_hits')), secs(ex)) end
             return 'No active shadows.'
         end,
         nxt   = function(c)
-            if num(c.kv, 'phantom_rem') > 0 then return 'Keep pressing your target while accelerated shadows swing.' end
-            if num(c.kv, 'clone_exp') > 0 and num(c.kv, 'clone_exp') <= 6 then return 'Prepare Utsusemi to replace expiring shadows.' end
-            return 'Summon shadows with Utsusemi: Ichi/Ni while engaged.'
+            local ph = math.floor(num(c.kv, 'phase'))
+            if ph == 3 then return 'Trigger Cascade before the phase timer expires!' end
+            if ph == 2 then return 'Use a different squad command before Switch expires.' end
+            if ph == 1 then return 'Use False Assault to set Opening or Crosscut/Mirror Step to advance to Switch.' end
+            if num(c.kv, 'clone_exp') > 0 and num(c.kv, 'clone_exp') <= 6 then return 'Refresh Shadow Squadron to keep clone uptime steady.' end
+            return 'Summon shadows with Shadow Squadron: Ichi/Ni while engaged.'
         end,
     },
 }
