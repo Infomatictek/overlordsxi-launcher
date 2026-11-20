@@ -27,6 +27,7 @@ local state = {
     BuiltAt        = nil,
     LastBagHash    = 0,
     LastBagCheck   = 0,
+    LastConflictCheck = 0,
     LastSwapTick   = 0,
     ConflictAddon  = nil,
 
@@ -401,7 +402,8 @@ function state.Tick()
     local now = os.clock()
 
     -- Check for conflicting addons periodically
-    if (now - state.LastBagCheck) > 2.5 then
+    if (now - state.LastConflictCheck) >= 2.5 then
+        state.LastConflictCheck = now
         local conflict = checkConflictingAddons()
         if conflict ~= state.ConflictAddon then
             state.ConflictAddon = conflict
@@ -417,8 +419,10 @@ function state.Tick()
         return
     end
 
-    -- Check if player job/level/spec or bag hash changed every 1.2s
-    if (now - state.LastBagCheck) >= 1.2 then
+    -- Full inventory hash visits every equippable bag slot; keep it off the hot path.
+    -- Soul, job and level updates are also event-triggered where supported.
+    -- Poll only as a fallback, no more than once every 5 seconds.
+    if (now - state.LastBagCheck) >= 5.0 then
         state.LastBagCheck = now
         local who = state.ReadPlayerIdentity()
         if who then
