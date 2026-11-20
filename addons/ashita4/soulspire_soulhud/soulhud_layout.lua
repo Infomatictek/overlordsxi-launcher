@@ -346,6 +346,19 @@ BESPOKE.scarletweaver = function(kv)
     }
 end
 
+BESPOKE.bandit = function(kv)
+    local gap = num(kv, 'gap_rem')
+    local cooldown = num(kv, 'exploit_cd')
+    local exposed = gap > 0 or num(kv, 'exposed') > 0
+    return {
+        pips = pips('Opportunism', exposed and 1 or 0, 1, 'gold', exposed and cooldown == 0,
+            gap > 0 and 'PERSONAL GAP' or (exposed and 'DEFENSE DOWN' or 'NO OPENING')),
+        bar = cooldown > 0 and timerBar('exploit', 'Opportunism', cooldown, 'Ready', 12)
+            or (gap > 0 and timerBar('gap', 'Personal Gap', gap, 'Idle', 15)
+                or timerBar('gap_cd', 'Find the Gap', num(kv, 'gap_cd'), 'Ready', 24)),
+    }
+end
+
 BESPOKE.royaltactician = function(kv)
     local pending = num(kv, 'pending')
     local duration = num(kv, 'pending_rem')
