@@ -333,6 +333,19 @@ end
 -- =============================================================================
 -- 5. RDM: crimsonduelist
 -- =============================================================================
+BESPOKE.scarletweaver = function(kv)
+    local form = num(kv, 'form')
+    local recovery = num(kv, 'recovery_rem')
+    local recast = num(kv, 'switch_cd')
+    local aspect = form == 1 and 'YIN · SPELLS' or 'YANG · SWORD'
+    return {
+        pips = pips('Aspect', form > 0 and 1 or 0, 1, form == 1 and 'azure' or 'crimson',
+            recovery == 0, string.format('%s +%d%%', aspect, num(kv,'bonus'))),
+        bar = recovery > 0 and timerBar('recover', 'Aspect Recovery', recovery, 'Idle', 2)
+            or timerBar('switch', 'Aspect Change', recast, 'Ready', 12),
+    }
+end
+
 BESPOKE.crimsonduelist = function(kv)
     local hexes     = num(kv, 'hexes')
     local fencer    = num(kv, 'fencer') > 0
