@@ -1274,8 +1274,8 @@ public:
     ~CrystalJobsPlugin() = default;
 
     const char* GetName(void) const override { return "crystaljobs"; }
-    const char* GetAuthor(void) const override { return "OverlordsXI"; }
-    const char* GetDescription(void) const override { return "OverlordsXI native soul job labels for Equipment, Inventory, and Search."; }
+    const char* GetAuthor(void) const override { return "SoulspireXI"; }
+    const char* GetDescription(void) const override { return "SoulspireXI native soul job labels for Equipment, Inventory, and Search."; }
     const char* GetLink(void) const override { return "https://github.com/Infomatictek/overlordsxi-launcher"; }
     double GetVersion(void) const override { return 1.00; }
     double GetInterfaceVersion(void) const override { return kAshitaInterfaceVersion; }

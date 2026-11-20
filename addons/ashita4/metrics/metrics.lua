@@ -72,7 +72,7 @@ require('modules.hub.!hub')
 require('modules.debug.!debug')
 require('commands')
 require('horizon')
-require('overlords')
+require('soulspire')
 require('initialization')
 
 ------------------------------------------------------------------------------------------------------

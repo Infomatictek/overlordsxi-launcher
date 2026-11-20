@@ -6,7 +6,7 @@ The 18 existing verified hooks keep their call sites and dispatch unchanged. Thi
 
 ## Editable layout setting
 
-File: `addons/ashita4/overlords_soul_actions/data/presentation.cfg`
+File: `addons/ashita4/soulspire_soul_actions/data/presentation.cfg`
 
 ```ini
 action_row_max_chars=16

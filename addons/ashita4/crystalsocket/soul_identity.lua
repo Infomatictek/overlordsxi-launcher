@@ -1,4 +1,4 @@
--- Soul identity decoder for existing OverlordsXI 0x1FC HUD packets.
+-- Soul identity decoder for existing SoulspireXI 0x1FC HUD packets.
 -- Used only as a client-side visual label fallback when crystal catalog sync is absent.
 -- Keep the job/branch map aligned with native/crystaljobs/labels.h.
 local M = {}

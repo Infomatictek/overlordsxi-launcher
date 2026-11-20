@@ -621,7 +621,7 @@ Res.Buffs.List =
     [630] = {id=630,en="taint",ja="劇毒",enl="tainted",jal="劇毒"},
     [631] = {id=631,en="haunt",ja="祟り",enl="haunted",jal="祟り"},
     [632] = {id=632,en="Black Sanctus",ja="ブラックサンクトゥス",enl="Black Sanctus",jal="ブラックサンクトゥス"},
-    -- OverlordsXI Custom Buffs
+    -- SoulspireXI Custom Buffs
     [789] = {id=789,en="Eos Regen",enl="Eos Regen"},
     [814] = {id=814,en="Eos Refresh",enl="Eos Refresh"},
     [815] = {id=815,en="Commander Breach",enl="Commander Breach"},

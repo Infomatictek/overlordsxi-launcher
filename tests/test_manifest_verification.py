@@ -1,4 +1,4 @@
-"""Unit tests for read-only OverlordsXI launcher manifest verification."""
+"""Unit tests for read-only SoulspireXI launcher manifest verification."""
 from __future__ import annotations
 
 import hashlib
@@ -28,12 +28,12 @@ verifier = _load_verifier()
 def _make_valid_repo(tmp: Path) -> tuple[Path, dict]:
     addon_file = tmp / "addons" / "ashita4" / "demo" / "demo.lua"
     addon_file.parent.mkdir(parents=True, exist_ok=True)
-    content = b"print('overlordsxi')\n"
+    content = b"print('soulspirexi')\n"
     addon_file.write_bytes(content)
 
     manifest = {
         "schemaVersion": 1,
-        "serverName": "OverlordsXI",
+        "serverName": "SoulspireXI",
         "defaultHost": "127.0.0.1",
         "useHairpin": False,
         "ports": {"lobby": 54231, "auth": 54001, "search": 54002},
@@ -131,7 +131,7 @@ class ManifestVerificationTests(unittest.TestCase):
             tmp = Path(td)
             _make_valid_repo(tmp)
             addon_file = tmp / "addons" / "ashita4" / "demo" / "demo.lua"
-            crlf_bytes = b"print('overlordsxi')\r\n"
+            crlf_bytes = b"print('soulspirexi')\r\n"
             addon_file.write_bytes(crlf_bytes)
 
             errors = verifier.verify_manifest(tmp)

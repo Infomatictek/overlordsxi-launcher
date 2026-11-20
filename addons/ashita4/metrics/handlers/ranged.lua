@@ -190,7 +190,7 @@ H.Ranged.AdditionalEffect = function(audits, actionData)
             H.Offense.CatalogNoDamageHit(audits, DB.Trackable.RANGED_ENDEBUFF, buff.en)
         end
 
-    -- Additional damage from bloody bolts (exclude OverlordsXI Drain Daze heals).
+    -- Additional damage from bloody bolts (exclude SoulspireXI Drain Daze heals).
     elseif messageId == Ashita.Message.ENDRAIN and (not Overlords or Overlords.IsBloodyBoltEndrain(audits)) then
         additionalDamage = param
         H.Offense.GrandTotals(audits, param)                        -- Bloody Bolt is net additional damage.
