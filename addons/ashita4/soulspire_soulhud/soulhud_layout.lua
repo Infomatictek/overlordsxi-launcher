@@ -488,6 +488,23 @@ BESPOKE.reaper = function(kv)
     return { pips = pips('Enemy Rounds', recovery > 0 and 6 or rounds, 6, 'crimson', recovery > 0 and cooldown == 0, label), bar = bar }
 end
 
+BESPOKE.scourge = function(kv)
+    local names = { 'Withering', 'Ash', 'Famine' }
+    local curse = num(kv, 'curse_rem')
+    local ward = num(kv, 'ward_rem')
+    local cooldown = num(kv, 'curse_cd')
+    local rite = num(kv, 'rite_cd')
+    local bar = timerBar('curse', 'Curse Recast', cooldown, 'Ready', 12)
+    if ward > 0 then
+        bar = timerBar('ward', (names[num(kv, 'ward_kind')] or 'Immunity') .. ' Ward', ward, 'Spent', 8)
+    elseif curse > 0 then
+        bar = timerBar('curse', names[num(kv, 'curse_kind')] or 'Curse', curse, 'Expired', 24)
+    end
+    local label = (cooldown > 0 and ('CURSE %ds'):format(math.ceil(cooldown)) or 'CURSE READY')
+        .. (rite > 0 and ('  RITE %ds'):format(math.ceil(rite)) or '  RITE READY')
+    return { pips = pips('Curse', curse > 0 and 1 or 0, 1, 'crimson', ward > 0, label), bar = bar }
+end
+
 BESPOKE.dreadnought = function(kv)
     local tithe  = num(kv, 'tithe')
     local reap   = num(kv, 'reap_rem')

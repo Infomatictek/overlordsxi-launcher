@@ -73,3 +73,7 @@ shinobi	ability	999	Shadow Legion	Every living shadow launches one staggered sin
 shinobi	ability	1000	Phantom Assault	Reduces living shadows' native autoattack interval by 25% for 8s while preserving staggered attack timing. Integrates with tactical phases. 30s recast.
 reaper	ability	589	Finality	Strike with your Scythe. Land during enemy recovery for greater damage, with a finishing bonus from Lv.50. 16s recast.
 reaper	spell	245	Grave Toll	Strike one enemy with darkness from range. Enemy recovery increases the damage. Costs 12 MP. 12s recast.
+scourge	spell	266	Withering	Curse one enemy to dampen its physical TP moves for 24 seconds. Shares a 12s recast with other curses.
+scourge	spell	230	Ash	Curse one enemy to dampen its damaging spells for 24 seconds. Shares a 12s recast with other curses.
+scourge	spell	271	Famine	Curse one enemy to reduce its own combat healing for 24 seconds. Shares a 12s recast with other curses.
+scourge	ability	562	Rite of Malice	Recover MP while your current enemy bears one of your curses or immunity wards. 24s recast.
