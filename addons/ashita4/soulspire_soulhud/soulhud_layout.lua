@@ -1168,6 +1168,22 @@ BESPOKE.terramancer = function(kv)
     return { bar = timerBar('fault_cd', 'Fault Recast', cooldown, 'Ready', 8) }
 end
 
+BESPOKE.diviner = function(kv)
+    local duration = num(kv, 'duration')
+    if duration == 0 then return { pips = badge('NO MERIDIAN', 'LAY MERIDIAN', false) } end
+    local length = num(kv, 'length') / 10
+    local live = num(kv, 'live') == 1
+    local label
+    if live then label = ('%d Covered · +%d ACC/MACC'):format(num(kv, 'count'), num(kv, 'bonus'))
+    elseif num(kv, 'floor') == 0 then label = 'Return to Anchor Floor'
+    elseif length < 3 then label = 'Move Away from Anchor'
+    else label = 'Move Closer to Anchor' end
+    return {
+        pips = badge(label, ('%.1fy'):format(length), live),
+        bar = timerBar('meridian_duration', 'Meridian', duration, 'Expired', num(kv, 'max_duration')),
+    }
+end
+
 BESPOKE.archivist = function(kv)
     local entries = num(kv, 'entries')
     local slots = math.max(1, num(kv, 'slots'))

@@ -165,3 +165,7 @@ terramancer	ability	857	Cancel Fault	Collapse your pending fault without a refun
 terramancer	spell	159	Stone Chip	Strike one enemy with earth magic and establish your claim. Costs 3 MP. 4s recast.
 terramancer	spell	160	Shallow Fault	Mark your claimed enemy’s position for a two-second delayed eruption. Costs 7% max MP. Shared 8s recast.
 terramancer	spell	161	Deep Fault	Mark your claimed enemy’s position for a stronger four-second delayed eruption. Costs 12% max MP. Shared 8s recast.
+diviner	ability	857	Recall Meridian	Remove your corridor and end its bonuses immediately.
+diviner	ability	859	Meridian Shift	Move the anchor to your current position and keep the original expiry. 20s recast.
+diviner	spell	159	Ley Spark	Strike one enemy with earth magic. Costs 4 MP. 5s recast.
+diviner	spell	783	Lay Meridian	Anchor a point beneath you. Move 3–15 yalms away to form an accuracy corridor for your party. Costs 0 MP. 18s recast.
