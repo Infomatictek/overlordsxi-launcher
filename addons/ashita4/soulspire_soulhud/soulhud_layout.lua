@@ -346,6 +346,18 @@ BESPOKE.scarletweaver = function(kv)
     }
 end
 
+BESPOKE.phantom = function(kv)
+    local guard = num(kv, 'guard_rem')
+    local dare = num(kv, 'dare_cd')
+    local activeWeapon = num(kv, 'weapon') > 0
+    return {
+        pips = pips('Evasion Threat', activeWeapon and num(kv, 'evade_cd') == 0 and 1 or 0, 1, 'azure', guard > 0,
+            activeWeapon and (guard > 0 and 'GUARD READY' or nil) or 'EQUIP DAGGER OR KATANA'),
+        bar = guard > 0 and timerBar('guard', 'Dare Guard', guard, 'Idle', 6)
+            or timerBar('dare', "Phantom's Dare", dare, 'Ready', 18),
+    }
+end
+
 BESPOKE.trickster = function(kv)
     local suppression = num(kv, 'suppress_cd')
     local blamed = num(kv, 'blame_ready') > 0
