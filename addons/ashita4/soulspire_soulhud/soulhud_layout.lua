@@ -609,6 +609,18 @@ local HUNTSMAN_PETS = {
     [4] = { 'GABBRATH', 'APEX DPS' },
 }
 
+BESPOKE.sniper = function(kv)
+    local aim = num(kv, 'aim_rem')
+    local cooldown = num(kv, 'shot_cd')
+    local deep = num(kv, 'deep') > 0
+    local bar = aim > 0 and timerBar('aim', 'Sightline Aim', aim, 'Fire', deep and 4 or 3)
+        or timerBar('shot', 'Sightline Shot', cooldown, 'Ready', 12)
+    return {
+        pips = pips('Sightline', cooldown == 0 and 1 or 0, 1, 'azure', aim > 0, deep and 'DEEP SIGHT' or 'STEADY SIGHT'),
+        bar = bar,
+    }
+end
+
 BESPOKE.huntsman = function(kv)
     local pid  = math.floor(num(kv, 'pet_id'))
     local hpp  = num(kv, 'pet_hpp')
