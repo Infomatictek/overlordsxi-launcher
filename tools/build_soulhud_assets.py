@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-OverlordsXI Soul HUD art builder (Crystal Job Gauge).
+SoulspireXI Soul HUD art builder (Crystal Job Gauge).
 
 Generates 4x-supersampled, Lanczos-downsampled RGBA PNG sprites in the same facet-cut /
 beveled-metal style as crystalsocket/assets/*.png and build_custom_status_dats.py into
-addons/ashita4/overlords_soulhud/assets/ui/, then syncs the shared crystal icons and custom
+addons/ashita4/soulspire_soulhud/assets/ui/, then syncs the shared crystal icons and custom
 status icons into the addon's assets/ folder.
 
 Sprites:
@@ -32,7 +32,7 @@ from PIL import Image, ImageChops, ImageDraw, ImageFilter
 S = 4  # supersample factor
 
 REPO = Path(__file__).resolve().parent.parent
-ADDON = REPO / "addons" / "ashita4" / "overlords_soulhud"
+ADDON = REPO / "addons" / "ashita4" / "soulspire_soulhud"
 UI_OUT = ADDON / "assets" / "ui"
 
 RGB = tuple[int, int, int]

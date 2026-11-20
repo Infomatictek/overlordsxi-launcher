@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only verification of OverlordsXI launcher manifest.json and client files.
+"""Read-only verification of SoulspireXI launcher manifest.json and client files.
 
 Never rewrites manifest.json or client files on disk.
 Exits 0 when valid, non-zero with actionable diagnostics on any corruption or mismatch.

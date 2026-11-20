@@ -378,7 +378,7 @@ static void transport_checks() {
 }
 
 static void multi_job_checks() {
-    // Check all 22 OverlordsXI jobs (66 soul specs).
+    // Check all 22 SoulspireXI jobs (66 soul specs).
     assert(std::strcmp(label_for(1, 1, false), "CDR") == 0 && std::strcmp(label_for(1, 1, true), "Commander") == 0);
     assert(std::strcmp(label_for(1, 2, false), "BRZ") == 0 && std::strcmp(label_for(1, 2, true), "Berserker") == 0);
     assert(std::strcmp(label_for(1, 3, false), "SPT") == 0 && std::strcmp(label_for(1, 3, true), "Spartan") == 0);
@@ -981,5 +981,5 @@ int main() {
     assert(initialize() == 1 && status(&snapshot, sizeof(snapshot)) == 0 && snapshot.hooks == 0 && snapshot.last_error == 1);
     assert(shutdown() == 0);
     FreeLibrary(dll);
-    std::puts("PASS: all 7 OverlordsXI soul jobs (WAR/MNK/BLM/SAM/DNC/SCH/RUN), mixed rows/privacy/revoke/lease, x86 adapter ABI, patch restore/conflict, native codec preservation/correlation/bounds, timeout/nonce exhaustion, late-reply sink.");
+    std::puts("PASS: all 7 SoulspireXI soul jobs (WAR/MNK/BLM/SAM/DNC/SCH/RUN), mixed rows/privacy/revoke/lease, x86 adapter ABI, patch restore/conflict, native codec preservation/correlation/bounds, timeout/nonce exhaustion, late-reply sink.");
 }

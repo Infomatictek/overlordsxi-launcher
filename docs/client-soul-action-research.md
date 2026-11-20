@@ -5,7 +5,7 @@
 ## Verified from this repository
 - `crystalsocket/job_labels.lua` uses FFI exports from `crystaljobs.dll` to modify native job labels, so a native extension path already exists.
 - `native/crystaljobs/labels.h` maps job/branch to Soul labels.
-- `overlords_soul_actions` is currently an ImGui identity viewer, not a native menu replacement.
+- `soulspire_soul_actions` is currently an ImGui identity viewer, not a native menu replacement.
 - `presentation.lua` can resolve the same numeric action ID differently for different Souls without mutating global resources.
 
 ## Client surface matrix
@@ -47,7 +47,7 @@ Ashita v4's resource API exposes `GetSpellById` and `GetAbilityById`, including 
 1. Open the Soul Actions panel.
 2. Click **Export native spell and ability IDs**.
 3. Wait for the single completion chat message. The bounded job processes 20 IDs per rendered frame.
-4. The client writes `addons/overlords_soul_actions/native-actions-audit.tsv`, listing client resource IDs and vanilla display strings. This is local diagnostic data, not a deployed Soul whitelist, gameplay authority, or proof of native menu interception.
+4. The client writes `addons/soulspire_soul_actions/native-actions-audit.tsv`, listing client resource IDs and vanilla display strings. This is local diagnostic data, not a deployed Soul whitelist, gameplay authority, or proof of native menu interception.
 
 The export contains all available spell IDs in 0..1023 and abilities in 0..2047. It deliberately does **not** guess which entries Shinobi is allowed to cast. Actual allowed action names, JA IDs and level progression require checking the current gameplay definitions, independently of the client's resources, before writing the client profile. No custom labels are automatically invented.
 
@@ -88,11 +88,11 @@ Command-execution call sites (`0x22E788` for `/ma` and `0x226546`/`0x226576`/`0x
 
 ### Non-hooked Surfaces & Verified Technical Findings
 - **Casting bar (`menu    casttime`, `0x1012D360`)**: Renders only the progress bar (`0x101CC610`), remaining time (`0x101CA990`), and percentage (`%d%%`); it does not render a spell name.
-- **Native `@` chat/combat-log expander (`0x101BBBA0` -> `0x101BBC3D`/`0x101BBC4C`)**: Receives only a token string with **no actor ID**, so hooking it natively would mislabel other players' actions. Instead, `overlords_soul_actions/combat_log.lua` rewrites only verified local-player lines in-place via Ashita `text_in` (zero duplicates, zero inference of other players' Souls).
-- **Macro & slash-command resolution**: Handled in `overlords_soul_actions/macro_resolver.lua` via Ashita `command` event, translating active Soul names in `/ma`, `/nin`, `/ja`, `/ws` commands/macros to canonical vanilla names while preserving targets.
+- **Native `@` chat/combat-log expander (`0x101BBBA0` -> `0x101BBC3D`/`0x101BBC4C`)**: Receives only a token string with **no actor ID**, so hooking it natively would mislabel other players' actions. Instead, `soulspire_soul_actions/combat_log.lua` rewrites only verified local-player lines in-place via Ashita `text_in` (zero duplicates, zero inference of other players' Souls).
+- **Macro & slash-command resolution**: Handled in `soulspire_soul_actions/macro_resolver.lua` via Ashita `command` event, translating active Soul names in `/ma`, `/nin`, `/ja`, `/ws` commands/macros to canonical vanilla names while preserving targets.
 - **Native cooldowns/recasts**: Preserved natively because underlying action IDs are never altered.
 - **Per-caster action animations / VFX**: Not hooked natively in this pass. FFXI VFX/animation selection is driven by `0x028` action packets and shared DAT tables; safe per-caster substitution without global DAT mutation or desync across clients requires dedicated two-client packet/effect research and is explicitly reported as unimplemented in the capability matrix.
 
 ### External Data Architecture
-- Action definitions live in `addons/ashita4/overlords_soul_actions/data/soul_actions.tsv` (no Soul action names or descriptions are hardcoded in C++ or `builtin_profiles.lua`).
+- Action definitions live in `addons/ashita4/soulspire_soul_actions/data/soul_actions.tsv` (no Soul action names or descriptions are hardcoded in C++ or `builtin_profiles.lua`).
 - `native_actions.lua` pushes the full catalog atomically via `CrystalJobsReplaceCatalog` on load and `/soulactions reload`.

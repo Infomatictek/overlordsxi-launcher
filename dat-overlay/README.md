@@ -2,7 +2,7 @@ LSB-Faerie XIPivot overlay
 ==========================
 
 This overlay does not replace any live FFXI install files. It contains custom
-client text DATs for the OverlordsXI SCH **Call Eos** (Medic) and **Call Titania** (Sage) abilities.
+client text DATs for the SoulspireXI SCH **Call Eos** (Medic) and **Call Titania** (Sage) abilities.
 
 Files:
 

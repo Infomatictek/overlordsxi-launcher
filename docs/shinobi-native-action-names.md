@@ -7,11 +7,11 @@
 | 13 (NIN) | Shinobi (branch 1 / legacy key `kurogane`) | 338 | Utsusemi: Ichi | Shadow Squadron: Ichi | Summon 2 offensive shadow clones. They copy your appearance and independently attack your engaged target. Maximum 5 active clones. |
 | 13 (NIN) | Shinobi (branch 1 / legacy key `kurogane`) | 339 | Utsusemi: Ni | Shadow Squadron: Ni | Summon 3 offensive shadow clones. They copy your appearance and independently attack your engaged target. Maximum 5 active clones. |
 
-**Names describe the current Soul behavior, not the original FFXI effect.** The client map is included in `addons/ashita4/overlords_soul_actions/builtin_profiles.lua` and installed automatically. IDs 338 and 339 are vanilla client action IDs, not new spells. The mapping does not change casting, recasts, clones, skill levels, targeting, packet IDs, animation IDs or server rules.
+**Names describe the current Soul behavior, not the original FFXI effect.** The client map is included in `addons/ashita4/soulspire_soul_actions/builtin_profiles.lua` and installed automatically. IDs 338 and 339 are vanilla client action IDs, not new spells. The mapping does not change casting, recasts, clones, skill levels, targeting, packet IDs, animation IDs or server rules.
 
 ## Current implementation boundary
 
-The built-in data is visible in the optional `overlords_soul_actions` ImGui viewer. **It does not yet replace native Magic menu entries.** Do not globally modify `spells.names`, FFXI spell DAT strings or other resources shared by Ninja/subjobs/other Souls. Do not advertise the menu as renamed until it is actually intercepted in-game.
+The built-in data is visible in the optional `soulspire_soul_actions` ImGui viewer. **It does not yet replace native Magic menu entries.** Do not globally modify `spells.names`, FFXI spell DAT strings or other resources shared by Ninja/subjobs/other Souls. Do not advertise the menu as renamed until it is actually intercepted in-game.
 
 ## Native implementation task (Windows / installed FFXiMain.dll)
 

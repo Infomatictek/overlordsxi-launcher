@@ -1,7 +1,7 @@
 addon.name = 'crystalsocket'
-addon.author = 'OverlordsXI / Crystal Socket'
+addon.author = 'SoulspireXI / Crystal Socket'
 addon.version = '0.3.6'
-addon.desc = 'OverlordsXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
+addon.desc = 'SoulspireXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
 
 require('common')
 local ffi = require('ffi')

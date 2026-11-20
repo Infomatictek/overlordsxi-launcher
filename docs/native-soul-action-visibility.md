@@ -11,7 +11,7 @@
 
 - Effective main level (including Level Sync) is read directly from `FFXiMain.dll` `base + 0x4867F1`.
 - Versioned native C-ABI exports: `CrystalJobsReplaceVisibility`, `CrystalJobsClearVisibility`, `CrystalJobsGetVisibilityStatus` (capability flags `1u << 10` and `1u << 11`).
-- Server audit (`overlordsxi-main/modules/custom/lua/nin_specs.lua`): confirms server grants spell IDs `338` (Utsusemi: Ichi) and `339` (Utsusemi: Ni) via `player:addSpell`; `data/visibility.tsv` governs Shinobi's Lv. 10 / Lv. 37 progression while leaving all unspecified actions `unmanaged` (fail-open to vanilla).
+- Server audit (`soulspirexi-main/modules/custom/lua/nin_specs.lua`): confirms server grants spell IDs `338` (Utsusemi: Ichi) and `339` (Utsusemi: Ni) via `player:addSpell`; `data/visibility.tsv` governs Shinobi's Lv. 10 / Lv. 37 progression while leaving all unspecified actions `unmanaged` (fail-open to vanilla).
 
 ## Expected player behavior
 
@@ -27,7 +27,7 @@
 
 ## External policy data already staged
 
-File: `addons/ashita4/overlords_soul_actions/data/visibility.tsv`
+File: `addons/ashita4/soulspire_soul_actions/data/visibility.tsv`
 
 Five columns: `soul<TAB>kind<TAB>id<TAB>min_effective_level<TAB>rule`
 

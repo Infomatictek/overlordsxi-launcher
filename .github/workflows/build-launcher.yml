@@ -72,7 +72,7 @@ jobs:
           echo "Changed files:"
           echo "$changed"
 
-          if echo "$changed" | grep -Eq '^(OverlordsLauncher/|OverlordsLauncher\.Tests/|OverlordsLauncher\.sln|manifest\.json|dat-overlay/|addons/|plugins/|scripts/|tests/|\.github/workflows/build-launcher\.yml)'; then
+          if echo "$changed" | grep -Eq '^(SoulspireLauncher/|SoulspireLauncher\.Tests/|SoulspireLauncher\.sln|manifest\.json|dat-overlay/|addons/|plugins/|scripts/|tests/|\.github/workflows/build-launcher\.yml)'; then
             echo "should_build=true" >> "$GITHUB_OUTPUT"
           else
             echo "No launcher/client/manifest files changed; skipping redundant Windows build."
@@ -101,24 +101,24 @@ jobs:
             nuget-${{ runner.os }}-
 
       - name: Restore dependencies
-        run: dotnet restore OverlordsLauncher.sln
+        run: dotnet restore SoulspireLauncher.sln
 
       - name: Build solution
-        run: dotnet build OverlordsLauncher.sln -c Release --no-restore
+        run: dotnet build SoulspireLauncher.sln -c Release --no-restore
 
       - name: Run unit tests
-        run: dotnet test OverlordsLauncher.sln -c Release --no-build --verbosity normal
+        run: dotnet test SoulspireLauncher.sln -c Release --no-build --verbosity normal
 
       - name: Publish single-file Windows client launcher
         run: >
-          dotnet publish OverlordsLauncher/OverlordsLauncher.csproj
+          dotnet publish SoulspireLauncher/SoulspireLauncher.csproj
           -c Release
           -r win-x64
           --self-contained true
           -p:PublishSingleFile=true
           -p:IncludeNativeLibrariesForSelfExtract=true
           -p:PublishReadyToRun=true
-          -o publish/OverlordsLauncher
+          -o publish/SoulspireLauncher
 
       - name: Package distributable archive
         shell: pwsh
@@ -126,26 +126,30 @@ jobs:
           $ErrorActionPreference = 'Stop'
           $sampleConfig = @'
           {
-            "ServerName": "OverlordsXI",
+            "ServerName": "SoulspireXI",
             "DefaultHost": "play.soulspirexi.com",
             "UseHairpin": false,
             "LobbyPort": 54231,
             "SearchPort": 54002
           }
           '@
-          Set-Content -Path "publish/OverlordsLauncher/overlords-server.example.json" -Value $sampleConfig -Encoding UTF8
-          Compress-Archive -Path "publish/OverlordsLauncher/OverlordsLauncher.exe", "publish/OverlordsLauncher/overlords-server.example.json" -DestinationPath "OverlordsLauncher-win-x64.zip" -Force
-          if (-not (Test-Path "publish/OverlordsLauncher/OverlordsLauncher.exe")) { throw "Missing OverlordsLauncher.exe" }
-          if (-not (Test-Path "OverlordsLauncher-win-x64.zip")) { throw "Missing OverlordsLauncher-win-x64.zip" }
+          Set-Content -Path "publish/SoulspireLauncher/soulspire-server.example.json" -Value $sampleConfig -Encoding UTF8
+          # Transitional compatibility copy so existing OverlordsLauncher.exe installs auto-update cleanly
+          Copy-Item -Path "publish/SoulspireLauncher/SoulspireLauncher.exe" -Destination "publish/SoulspireLauncher/OverlordsLauncher.exe" -Force
+          Compress-Archive -Path "publish/SoulspireLauncher/SoulspireLauncher.exe", "publish/SoulspireLauncher/soulspire-server.example.json" -DestinationPath "SoulspireLauncher-win-x64.zip" -Force
+          if (-not (Test-Path "publish/SoulspireLauncher/SoulspireLauncher.exe")) { throw "Missing SoulspireLauncher.exe" }
+          if (-not (Test-Path "publish/SoulspireLauncher/OverlordsLauncher.exe")) { throw "Missing compatibility OverlordsLauncher.exe" }
+          if (-not (Test-Path "SoulspireLauncher-win-x64.zip")) { throw "Missing SoulspireLauncher-win-x64.zip" }
 
       - name: Upload launcher build artifact
         uses: actions/upload-artifact@v7
         with:
-          name: OverlordsLauncher-win-x64
+          name: SoulspireLauncher-win-x64
           retention-days: 14
           path: |
-            publish/OverlordsLauncher/OverlordsLauncher.exe
-            OverlordsLauncher-win-x64.zip
+            publish/SoulspireLauncher/SoulspireLauncher.exe
+            publish/SoulspireLauncher/OverlordsLauncher.exe
+            SoulspireLauncher-win-x64.zip
 
   publish-release:
     needs: build-and-test
@@ -157,20 +161,23 @@ jobs:
       - name: Download launcher build artifact
         uses: actions/download-artifact@v8
         with:
-          name: OverlordsLauncher-win-x64
+          name: SoulspireLauncher-win-x64
           path: release-assets
 
       - name: Verify release assets exist
         shell: bash
         run: |
           set -euo pipefail
-          test -s release-assets/publish/OverlordsLauncher/OverlordsLauncher.exe
-          test -s release-assets/OverlordsLauncher-win-x64.zip
+          test -s release-assets/publish/SoulspireLauncher/SoulspireLauncher.exe
+          test -s release-assets/publish/SoulspireLauncher/OverlordsLauncher.exe
+          test -s release-assets/SoulspireLauncher-win-x64.zip
 
       - name: Publish GitHub Release on tag
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
           files: |
-            release-assets/publish/OverlordsLauncher/OverlordsLauncher.exe
-            release-assets/OverlordsLauncher-win-x64.zip
+            release-assets/publish/SoulspireLauncher/SoulspireLauncher.exe
+            release-assets/publish/SoulspireLauncher/OverlordsLauncher.exe
+            release-assets/SoulspireLauncher-win-x64.zip
+            release-assets/SoulspireLauncher-win-x64.zip

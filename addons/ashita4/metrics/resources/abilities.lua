@@ -27,7 +27,7 @@ Res.Abilities.Damaging =
     [841] = {id = 841              , en = "Intervene"},
     [856] = {id = 856              , en = "Swipe"},
     [880] = {id = 880              , en = "Lunge"},
-    -- OverlordsXI Custom Damaging Abilities (client ID = server ID + 512)
+    -- SoulspireXI Custom Damaging Abilities (client ID = server ID + 512)
     [913] = {id = 913, old_id = 401, en = "Savage Cleave"},
     [914] = {id = 914, old_id = 402, en = "Crimson Crush"},
     [919] = {id = 919, old_id = 407, en = "Corpse Explosion"},
@@ -178,7 +178,7 @@ Res.Abilities.Healing =
     [705] = {id = 705, oldid = 193, en = "Curing Waltz IV"},
     [707] = {id = 707, oldid = 195, en = "Divine Waltz"},
     [895] = {id = 895,              en = "Vivacious Pulse"},
-    -- OverlordsXI Custom Healing Abilities (client ID = server ID + 512)
+    -- SoulspireXI Custom Healing Abilities (client ID = server ID + 512)
     [929] = {id = 929, oldid = 417, en = "Font of Life"},
 }
 
@@ -197,7 +197,7 @@ Res.Abilities.MPRecovery =
     [670] = {id = 670, oldid = 158, en = "Chivalry"},
 }
 
--- OverlordsXI non-damaging PetCommands whose action.param represents shield/count/effect rather than damage.
+-- SoulspireXI non-damaging PetCommands whose action.param represents shield/count/effect rather than damage.
 Res.Abilities.NoDamagePetCommands =
 {
     [231] = true, -- Call Eos
