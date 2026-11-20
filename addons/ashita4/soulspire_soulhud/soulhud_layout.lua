@@ -346,6 +346,19 @@ BESPOKE.scarletweaver = function(kv)
     }
 end
 
+BESPOKE.royaltactician = function(kv)
+    local pending = num(kv, 'pending')
+    local duration = num(kv, 'pending_rem')
+    local cooldown = num(kv, 'order_cd')
+    local label = pending == 1 and 'Advance' or (pending == 2 and 'Recompose' or 'No order')
+    if num(kv, 'half') > 0 then label = label .. ' (half)' end
+    return {
+        pips = pips('Order', pending > 0 and 1 or 0, 1, 'gold', pending > 0 and cooldown == 0, label),
+        bar = duration > 0 and timerBar('order', 'Pending Order', duration, 'Idle', 6)
+            or timerBar('order_cd', 'Issue Order', cooldown, 'Ready', 18),
+    }
+end
+
 BESPOKE.crimsonduelist = function(kv)
     local hexes     = num(kv, 'hexes')
     local fencer    = num(kv, 'fencer') > 0
