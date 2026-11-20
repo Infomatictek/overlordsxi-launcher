@@ -122,3 +122,23 @@ beastspeaker	ability	582	Recall Tracker	Call your tracker back to your side. 5s 
 beastspeaker	ability	583	Release Tracker	Dismiss your active tracker. 5s recast.
 beastspeaker	ability	585	Choose Weakness	Cycle the recorded weakness through blunt, slashing, and piercing for your next exposure. 1s recast.
 beastspeaker	ability	597	Call Tracker	Summon your mandragora tracker without spending a jug. 300s recast.
+primalist	ability	600	Challenge Aspect	Send your avatar after an enemy and commit its element to the next matching pact. 20s recast.
+primalist	ability	601	Recall Avatar	Call your avatar back and close any open Challenge. 5s recast.
+primalist	ability	602	End Manifestation	Dismiss your avatar and close any open Challenge. 5s recast.
+primalist	ability	603	Elemental Pacts	Open the active avatar’s elemental pact menu.
+primalist	ability	744	Attune First Prime	Cycle the first avatar loan slot from Lv. 30 through 49. 1s recast.
+primalist	ability	808	Attune Second Prime	Cycle the second avatar loan slot from Lv. 30 through 49. 1s recast.
+primalist	ability	1028	Astral Comet	Command Carbuncle to strike one enemy with light. The matching Challenge can empower this strike. 18s base recast.
+primalist	ability	1057	Inferno Brand	Command Ifrit to strike one enemy with fire. The matching Challenge can empower this strike. 18s base recast.
+primalist	ability	1073	Fault Strike	Command Titan to strike one enemy with earth. The matching Challenge can empower this strike. 18s base recast.
+primalist	ability	1089	Undertow	Command Leviathan to strike one enemy with water. The matching Challenge can empower this strike. 18s base recast.
+primalist	ability	1105	Gale Rend	Command Garuda to strike one enemy with wind. The matching Challenge can empower this strike. 18s base recast.
+primalist	ability	1121	Glacial Edge	Command Shiva to strike one enemy with ice. The matching Challenge can empower this strike. 18s base recast.
+primalist	ability	1137	Storm Lance	Command Ramuh to strike one enemy with thunder. The matching Challenge can empower this strike. 18s base recast.
+primalist	spell	296	Call Carbuncle	Summon Carbuncle for its light pact. Costs 5 MP. 5s recast.
+primalist	spell	298	Call Ifrit	Summon Ifrit for its fire pact. Costs 5 MP. 5s recast.
+primalist	spell	299	Call Titan	Summon Titan for its earth pact. Select a loan from Lv. 30 or use the full roster from Lv. 50. Costs 5 MP. 5s recast.
+primalist	spell	300	Call Leviathan	Summon Leviathan for its water pact. Select a loan from Lv. 30 or use the full roster from Lv. 50. Costs 5 MP. 5s recast.
+primalist	spell	301	Call Garuda	Summon Garuda for its wind pact. Select a loan from Lv. 30 or use the full roster from Lv. 50. Costs 5 MP. 5s recast.
+primalist	spell	302	Call Shiva	Summon Shiva for its ice pact. Select a loan from Lv. 30 or use the full roster from Lv. 50. Costs 5 MP. 5s recast.
+primalist	spell	303	Call Ramuh	Summon Ramuh for its thunder pact. Select a loan from Lv. 30 or use the full roster from Lv. 50. Costs 5 MP. 5s recast.

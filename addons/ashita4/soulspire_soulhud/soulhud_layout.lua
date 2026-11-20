@@ -1129,6 +1129,18 @@ BESPOKE.beastspeaker = function(kv)
     return { pips = badge(label, detail, exposed > 0), bar = bar }
 end
 
+BESPOKE.primalist = function(kv)
+    local avatar, choices = str(kv, 'avatar'), str(kv, 'choice')
+    local window, cost = num(kv, 'window'), num(kv, 'pact_mp')
+    local match = num(kv, 'match') == 1
+    local detail = avatar == '' and choices or ('%d MP per pact'):format(cost)
+    local bar
+    if window > 0 then
+        bar = timerBar('challenge', match and 'Aspect Matched' or 'Aspect Resisted', window, 'Expired', 15)
+    end
+    return { pips = badge(avatar ~= '' and avatar or 'CALL AVATAR', detail, window > 0 and match), bar = bar }
+end
+
 BESPOKE.archivist = function(kv)
     local entries = num(kv, 'entries')
     local slots = math.max(1, num(kv, 'slots'))
