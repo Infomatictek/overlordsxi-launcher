@@ -90,3 +90,15 @@ lancer	ability	578	Piercing Jump	Leap and strike with your polearm. From Lv.50, 
 lancer	ability	579	Spineshatter Vault	Vault to an enemy 4 to 12 yalms away and strike with your polearm. A longer lane hits harder. Blocked terrain gives a three-second retry. 18s recast.
 skyborn	ability	578	Grounding Cry	Challenge one enemy from up to 15 yalms and build immediate enmity. 16s recast.
 skyborn	ability	577	Skyward Guard	Brace for 1.5 seconds to soften one direct hit. Stay targetable and hold enmity. From Lv.30, intercepting a hit creates a short ward. 20s recast.
+warmage	ability	606	Assess Prey	Assess your engaged enemy. For eight seconds, matching Blue Magic gains damage against its least-resistant available categories. 12s recast.
+warmage	spell	597	Briar Hammer	Crush one enemy with a blunt Blue Magic strike. Costs 6 MP. 7s recast.
+warmage	spell	551	Needle Lunge	Pierce one enemy with a quick Blue Magic thrust. Costs 5 MP. 7s recast.
+warmage	spell	577	Razor Heel	Slash one enemy with a cutting kick. Costs 5 MP. 7s recast.
+warmage	spell	529	Skullbreaker Volley	Strike one enemy three times with blunt force. Costs 16 MP. 12s recast.
+warmage	spell	527	Iron Cleave	Cut one enemy with a heavy slashing strike. Costs 24 MP. 13s recast.
+warmage	spell	569	Gale Knuckle	Land three blunt strikes on one enemy from up to eight yalms. Costs 28 MP. 16s recast.
+warmage	spell	543	Serrated Bite	Deliver a deep slashing bite to one enemy. Costs 25 MP. 17s recast.
+warmage	spell	626	Ember Charge	Hurl a concentrated fire charge at one enemy. Costs 26 MP. 16s recast.
+warmage	spell	554	Guillotine Shears	Shear one enemy with a heavy slashing finisher. Costs 32 MP. 20s recast.
+warmage	spell	591	Furnace Breath	Focus fire on one enemy within ten yalms. Costs 36 MP. 20s recast.
+warmage	spell	644	Storm Gaze	Strike one enemy with lightning. Costs 30 MP. 18s recast.

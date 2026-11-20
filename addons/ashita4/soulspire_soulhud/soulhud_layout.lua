@@ -871,6 +871,20 @@ BESPOKE.magus = function(kv)
     }
 end
 
+BESPOKE.warmage = function(kv)
+    local mask = num(kv, 'match')
+    local window = num(kv, 'window')
+    local cooldown = num(kv, 'assess_cd')
+    local labels = {}
+    for index, label in ipairs({ 'BLUNT', 'SLASH', 'PIERCE', 'ELEMENTAL' }) do
+        if math.floor(mask / (2 ^ (index - 1))) % 2 == 1 then labels[#labels + 1] = label end
+    end
+    local bar = window > 0 and timerBar('window', 'Assessment', window, 'Expired', 8)
+        or timerBar('assess', 'Assess Prey', cooldown, 'Ready', 12)
+    local label = #labels > 0 and table.concat(labels, ' / ') or 'ASSESS YOUR TARGET'
+    return { pips = pips('Weakness Categories', #labels, 4, 'crimson', window > 0, label), bar = bar }
+end
+
 BESPOKE.azurebastion = function(kv)
     return {
         pips = pips('Carapace', first(kv, 'carapace', 'chitin_stacks'), 5, 'azure'),
