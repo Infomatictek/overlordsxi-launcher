@@ -273,6 +273,20 @@ end
 -- =============================================================================
 -- 4. BLM: necromancer
 -- =============================================================================
+BESPOKE.astromancer = function(kv)
+    local elements = { 'FIRE', 'ICE', 'WIND', 'EARTH', 'THUNDER', 'WATER' }
+    local element = elements[num(kv, 'element')] or 'EARTH'
+    local recovery = num(kv, 'recovery_cd')
+    local saturation = num(kv, 'sat_rem')
+    local aether = num(kv, 'aether_cd')
+    local status = saturation > 0 and string.format('%s · SAT %ds', element, saturation) or element
+    return {
+        pips = pips('Ancient Magic', recovery == 0 and 1 or 0, 1, 'azure', recovery == 0 and saturation == 0, status),
+        bar = recovery > 0 and timerBar('ancient', 'Ancient Recovery', recovery, 'Ready', 18)
+            or timerBar('aether', 'Gather Aether', aether, 'Ready', 90),
+    }
+end
+
 BESPOKE.necromancer = function(kv)
     local mode = str(kv, 'thrall_mode')
     local role = str(kv, 'thrall_role')

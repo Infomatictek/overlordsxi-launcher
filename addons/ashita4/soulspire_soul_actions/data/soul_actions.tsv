@@ -17,6 +17,22 @@ zealot	ability	586	Consecration	Empower your next damaging Zealot spell by 20%. 
 valkyrie	spell	28	Vigil Lance	Strike one enemy with a lance of light. Costs 15 MP. 15s recast.
 valkyrie	ability	785	Wingmate	Designate yourself or one nearby party member for escort. 5s recast.
 valkyrie	ability	787	Valkyrie's Escort	After enemy damage interrupts your Wingmate, protect one retry of the same spell within 6s. MP refund scales with level. 25s recast.
+astromancer	spell	144	Cinder	Fire probe. Damage aligns Ancient Invocation to this element. 6 MP. 3s recast.
+astromancer	spell	149	Rime	Ice probe. Damage aligns Ancient Invocation to this element. 8 MP. 3s recast.
+astromancer	spell	154	Gale	Wind probe. Damage aligns Ancient Invocation to this element. 6 MP. 3s recast.
+astromancer	spell	159	Bedrock	Earth probe. Damage aligns Ancient Invocation to this element. 4 MP. 3s recast.
+astromancer	spell	164	Static Spark	Thunder probe. Damage aligns Ancient Invocation to this element. 9 MP. 3s recast.
+astromancer	spell	169	Tsunami	Water probe. Damage aligns Ancient Invocation to this element. 5 MP. 3s recast.
+astromancer	spell	160	Ancient Invocation	Invoke Ancient Magic in your last damaging probe element, or earth by default. Costs 16% max MP. 18s shared recovery.
+astromancer	spell	235	Elemental Survey	Read the weakest elemental resistances of one enemy. Costs 2% max MP. 30s recast.
+astromancer	spell	261	Starway	Return to your home point. Costs 100 MP. 10s recast.
+astromancer	spell	204	Solar Collapse	Fire Ancient Magic against one enemy. Costs 22% max MP. 18s shared recovery. Can trigger Astral Saturation.
+astromancer	spell	206	Rimefall	Ice Ancient Magic against one enemy. Costs 22% max MP. 18s shared recovery. Can trigger Astral Saturation.
+astromancer	spell	208	Skybreak	Wind Ancient Magic against one enemy. Costs 22% max MP. 18s shared recovery. Can trigger Astral Saturation.
+astromancer	spell	210	Worldsplitter	Earth Ancient Magic against one enemy. Costs 22% max MP. 18s shared recovery. Can trigger Astral Saturation.
+astromancer	spell	212	Thunderstar	Thunder Ancient Magic against one enemy. Costs 22% max MP. 18s shared recovery. Can trigger Astral Saturation.
+astromancer	spell	214	Tidal Cataclysm	Water Ancient Magic against one enemy. Costs 22% max MP. 18s shared recovery. Can trigger Astral Saturation.
+astromancer	ability	587	Gather Aether	Recover 10% of your maximum MP. 90s recast.
 shinobi	spell	338	Shadow Squadron: Ichi	Summon 2 offensive shadow clones against your engaged enemy (max 5 active, 25-30s, zero defensive shadows). 20s recast.
 shinobi	spell	339	Shadow Squadron: Ni	Summon 3 offensive shadow clones against your engaged enemy (max 5 active, 25-30s, zero defensive shadows). 30s recast.
 shinobi	spell	320	False Assault	Squad feint strike that creates a 12s Opening (+25% potency or +2s duration on your next different squad command). Advances tactical phase. 12s recast.
