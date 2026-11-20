@@ -1141,6 +1141,20 @@ BESPOKE.primalist = function(kv)
     return { pips = badge(avatar ~= '' and avatar or 'CALL AVATAR', detail, window > 0 and match), bar = bar }
 end
 
+BESPOKE.herald = function(kv)
+    local avatar = str(kv, 'avatar')
+    local element = str(kv, 'element')
+    local remaining = num(kv, 'window')
+    local open, total = num(kv, 'ready'), num(kv, 'total')
+    if remaining == 0 then
+        return { pips = badge(avatar == '' and 'INVITE ENVOY' or avatar, ('Accord %d MP'):format(num(kv, 'mp')), false) }
+    end
+    return {
+        pips = pips('Open Claims', open, math.max(1, total), 'violet', open > 0, avatar),
+        bar = timerBar('accord', ('%s Accord +%d%%'):format(element, num(kv, 'pct')), remaining, 'Expired', 10),
+    }
+end
+
 BESPOKE.archivist = function(kv)
     local entries = num(kv, 'entries')
     local slots = math.max(1, num(kv, 'slots'))

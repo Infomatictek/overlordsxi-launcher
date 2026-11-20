@@ -142,3 +142,22 @@ primalist	spell	300	Call Leviathan	Summon Leviathan for its water pact. Select a
 primalist	spell	301	Call Garuda	Summon Garuda for its wind pact. Select a loan from Lv. 30 or use the full roster from Lv. 50. Costs 5 MP. 5s recast.
 primalist	spell	302	Call Shiva	Summon Shiva for its ice pact. Select a loan from Lv. 30 or use the full roster from Lv. 50. Costs 5 MP. 5s recast.
 primalist	spell	303	Call Ramuh	Summon Ramuh for its thunder pact. Select a loan from Lv. 30 or use the full roster from Lv. 50. Costs 5 MP. 5s recast.
+herald	ability	600	Send Envoy	Send your avatar after the selected enemy. 5s recast.
+herald	ability	601	Recall Envoy	Call your avatar back to your side. 5s recast.
+herald	ability	602	Dismiss Envoy	Dismiss your avatar and end its Astral Accord. 5s recast.
+herald	ability	603	Envoy Responses	Open the active avatar’s elemental response menu.
+herald	ability	762	Astral Accord	Snapshot nearby party members for one matching elemental hit. Costs 8% max MP. 30s recast.
+herald	ability	1028	Light Response	Command an elemental strike that can claim your Astral Accord. 20s base recast.
+herald	ability	1057	Flame Response	Command an elemental strike that can claim your Astral Accord. 20s base recast.
+herald	ability	1073	Stone Response	Command an elemental strike that can claim your Astral Accord. 20s base recast.
+herald	ability	1089	Tidal Response	Command an elemental strike that can claim your Astral Accord. 20s base recast.
+herald	ability	1105	Wind Response	Command an elemental strike that can claim your Astral Accord. 20s base recast.
+herald	ability	1121	Frost Response	Command an elemental strike that can claim your Astral Accord. 20s base recast.
+herald	ability	1137	Storm Response	Command an elemental strike that can claim your Astral Accord. 20s base recast.
+herald	spell	296	Invite Carbuncle	Invite Carbuncle for its elemental Accord. Costs 5 MP. 5s recast.
+herald	spell	298	Invite Ifrit	Invite Ifrit for its elemental Accord. Costs 5 MP. 5s recast.
+herald	spell	299	Invite Titan	Invite Titan for its elemental Accord. Costs 5 MP. 5s recast.
+herald	spell	300	Invite Leviathan	Invite Leviathan for its elemental Accord. Costs 5 MP. 5s recast.
+herald	spell	301	Invite Garuda	Invite Garuda for its elemental Accord. Costs 5 MP. 5s recast.
+herald	spell	302	Invite Shiva	Invite Shiva for its elemental Accord. Costs 5 MP. 5s recast.
+herald	spell	303	Invite Ramuh	Invite Ramuh for its elemental Accord. Costs 5 MP. 5s recast.
