@@ -82,3 +82,7 @@ sniper	ability	571	Deep Sight	Toggle a 4-second aim for greater Sightline Shot d
 arcanearcher	ability	569	Attunement Arrow	Fire one attuned arrow to mark an enemy within 20 yalms. The next matching party spell or skillchain deals more damage. 16s recast.
 arcanearcher	ability	571	Next Attunement	Select the next element for Attunement Arrow. 1s recast.
 arcanearcher	ability	570	Previous Attunement	Select the previous element for Attunement Arrow. 1s recast.
+nightblade	spell	341	Severing Seal	Seal a hostile spell within 15 yalms. An interruptible spell can be stopped. If it completes, its direct damage is reduced. Shared cooldown: 20 seconds, 18 from Lv.50.
+nightblade	spell	344	Blunting Seal	Seal a readied enemy technique within 15 yalms. Physical damage from that move is reduced. Shared cooldown: 20 seconds, 18 from Lv.50.
+nightblade	spell	320	Signal Flare	Strike one enemy with fire. Uses no ninja tools. 10s recast.
+nightblade	ability	761	Quick Read	Prepare for 8 seconds. Your next valid seal cast takes 0.25 seconds. 45s recast.

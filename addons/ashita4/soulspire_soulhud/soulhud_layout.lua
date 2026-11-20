@@ -759,6 +759,24 @@ BESPOKE.kurogane = function(kv)
     }
 end
 
+BESPOKE.nightblade = function(kv)
+    local tell = num(kv, 'tell')
+    local sealed = num(kv, 'sealed') > 0
+    local cooldown = num(kv, 'seal_cd')
+    local quick = num(kv, 'quick_rem')
+    local quickCd = num(kv, 'quick_cd')
+    local label = tell == 1 and 'SPELL' or (tell == 2 and 'TECHNIQUE' or 'WATCHING')
+    if sealed then label = label .. ' SEALED' end
+    if quick > 0 then label = label .. '  QUICK READ' end
+    local bar = timerBar('seal', 'Seal Recast', cooldown, 'Ready', 20)
+    if quick > 0 then
+        bar = timerBar('quick', 'Quick Read', quick, 'Spent', 8)
+    elseif cooldown == 0 and quickCd > 0 then
+        bar = timerBar('quickRecast', 'Quick Read Recast', quickCd, 'Ready', 45)
+    end
+    return { pips = pips('Enemy Tell', tell > 0 and 1 or 0, 1, 'azure', tell > 0 and cooldown == 0 and not sealed, label), bar = bar }
+end
+
 BESPOKE.kagemusha = function(kv)
     local ash     = num(kv, 'ash')
     local shadows = num(kv, 'shadows')
