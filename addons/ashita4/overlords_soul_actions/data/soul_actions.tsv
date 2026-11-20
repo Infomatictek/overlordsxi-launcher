@@ -11,3 +11,9 @@
 # Editing this file and running /soulactions reload updates native menus immediately without rebuilding crystaljobs.dll.
 shinobi	spell	338	Shadow Squadron: Ichi	Summon 2 offensive shadow clones. They copy your appearance and independently attack your engaged target. Maximum 5 active clones.
 shinobi	spell	339	Shadow Squadron: Ni	Summon 3 offensive shadow clones. They copy your appearance and independently attack your engaged target. Maximum 5 active clones.
+shinobi	spell	320	False Assault	Prototype squad command. Intended to create an opening for a follow-up shadow tactic; effect not implemented.
+shinobi	spell	323	Mirror Step	Prototype squad command. Intended to coordinate alternating shadow attacks; effect not implemented.
+shinobi	spell	326	Crosscut	Prototype squad command. Intended to coordinate a rapid series of single-target shadow strikes; effect not implemented.
+shinobi	spell	329	Shadow Pin	Prototype squad command. Intended to focus your shadows on your engaged enemy; effect not implemented.
+shinobi	spell	332	Thunder Relay	Prototype squad command. Intended to relay attacks through your active shadows; effect not implemented.
+shinobi	spell	335	Final Mirage	Prototype squad command. Intended to deliver a finishing coordination pattern; effect not implemented.
