@@ -231,6 +231,24 @@ BESPOKE.zealot = function(kv)
     }
 end
 
+BESPOKE.valkyrie = function(kv)
+    local interrupt = num(kv, 'interrupt_rem')
+    local retry = num(kv, 'retry_rem')
+    local escort = num(kv, 'escort_cd')
+    local status = num(kv, 'polearm') == 0 and 'EQUIP POLEARM'
+        or (num(kv, 'wingmate') > 0 and 'WINGMATE SET' or 'SELECT WINGMATE')
+    local bar = timerBar('escort_cd', 'Escort Recast', escort, 'Ready', 25)
+    if retry > 0 then
+        bar = timerBar('escort_open', 'Escorted Retry', retry, 'Idle', 6)
+    elseif interrupt > 0 then
+        bar = timerBar('escort_interrupt', 'Interrupt Window', interrupt, 'Idle', 6)
+    end
+    return {
+        pips = pips('Escort', interrupt > 0 and escort == 0 and 1 or 0, 1, 'azure', retry > 0, status),
+        bar = bar,
+    }
+end
+
 BESPOKE.bishop = function(kv)
     local grace   = num(kv, 'grace')
     local solace  = math.floor(num(kv, 'solace'))
