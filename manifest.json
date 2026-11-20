@@ -6069,15 +6069,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/data/soul_actions.tsv",
       "targetPath": "soulspire_soul_actions/data/soul_actions.tsv",
-      "sha256": "57807dc03c3e354248007cce865cf9042faf34f7dae4a4a5445299fb070ddf9f",
-      "size": 7968
+      "sha256": "873033434ed771bd7689e9e300296da87652a3adece5b8498dcd08cfd35c907e",
+      "size": 8136
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/data/visibility.tsv",
       "targetPath": "soulspire_soul_actions/data/visibility.tsv",
-      "sha256": "52c1dca68e80609ba42966ec5fb2025aee8c296f94e993c00a63f7f45b75e2dc",
-      "size": 2238
+      "sha256": "d2e76ee7226596b6e2b1b67ad26ab8323ec7403474f5b8ccbf4e38febbaab848",
+      "size": 2270
     },
     {
       "category": "addon",
@@ -7392,8 +7392,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soulhud/soulhud_layout.lua",
       "targetPath": "soulspire_soulhud/soulhud_layout.lua",
-      "sha256": "b27c2f1d0d60bd163fcf9426cd7f084f20327cc2d325a6ede3d8e66aea912b8f",
-      "size": 40663
+      "sha256": "0f6d827545efe8350458981291576c8f61166f13c253d48ae8a16495aaabeb78",
+      "size": 41204
     },
     {
       "category": "addon",

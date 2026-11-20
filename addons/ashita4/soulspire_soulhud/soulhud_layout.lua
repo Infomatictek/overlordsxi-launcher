@@ -346,6 +346,18 @@ BESPOKE.scarletweaver = function(kv)
     }
 end
 
+BESPOKE.trickster = function(kv)
+    local suppression = num(kv, 'suppress_cd')
+    local blamed = num(kv, 'blame_ready') > 0
+    local down = num(kv, 'target_down') > 0
+    return {
+        pips = pips('Suppression', suppression == 0 and 1 or 0, 1, 'azure', blamed,
+            blamed and 'ALIGN WITH ALLY' or (down and 'ATTACK DOWN' or nil)),
+        bar = suppression > 0 and timerBar('suppress', 'Suppression', suppression, 'Ready', 20)
+            or timerBar('blame_cd', 'Pass the Blame', num(kv, 'blame_cd'), 'Ready', 35),
+    }
+end
+
 BESPOKE.bandit = function(kv)
     local gap = num(kv, 'gap_rem')
     local cooldown = num(kv, 'exploit_cd')
