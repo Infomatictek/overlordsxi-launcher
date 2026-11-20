@@ -6069,15 +6069,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/data/soul_actions.tsv",
       "targetPath": "overlords_soul_actions/data/soul_actions.tsv",
-      "sha256": "7bad1a161c916200bd8dcf536909c3248f8202827dfd5c5cfcfe92fe8b0d71f1",
-      "size": 1113
+      "sha256": "90dee923bc4940889edfd53c42f15bba9fbf7ce5633adfc2e1fa77d343114d17",
+      "size": 1934
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/overlords_soul_actions/data/visibility.tsv",
       "targetPath": "overlords_soul_actions/data/visibility.tsv",
-      "sha256": "73c37c32fbec545ca71992f0d8acc2bd9c4da89a26887af665952d053fd6d723",
-      "size": 594
+      "sha256": "23f4d24cea96f518d215601d16804390e39b65a9c75a3f1126848cad09ce81f4",
+      "size": 762
     },
     {
       "category": "addon",
