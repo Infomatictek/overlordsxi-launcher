@@ -6006,8 +6006,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_gear/og/state.lua",
       "targetPath": "soulspire_gear/og/state.lua",
-      "sha256": "45e923779534eda8d02210db5278447e9e5725a30d000159e3c88f513cd06e4b",
-      "size": 23516
+      "sha256": "b11c32042fb73263fdfd385a61aca3b5399bbd0fb2d659897fe23bca85b036c2",
+      "size": 23749
     },
     {
       "category": "addon",
