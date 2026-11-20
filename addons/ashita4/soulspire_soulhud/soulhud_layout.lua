@@ -287,6 +287,18 @@ BESPOKE.astromancer = function(kv)
     }
 end
 
+BESPOKE.channeler = function(kv)
+    local link = num(kv, 'link_rem')
+    local casting = num(kv, 'casting') > 0
+    local recast = num(kv, 'link_cd')
+    return {
+        pips = pips('Conduit Link', (link > 0 or casting) and 1 or 0, 1, 'azure', casting,
+            casting and 'ALLY CASTING' or nil),
+        bar = link > 0 and timerBar('conduit', 'Conduit Link', link, 'Idle', 8)
+            or timerBar('conduit_cd', 'Conduit Recast', recast, 'Ready', 24),
+    }
+end
+
 BESPOKE.necromancer = function(kv)
     local mode = str(kv, 'thrall_mode')
     local role = str(kv, 'thrall_role')
