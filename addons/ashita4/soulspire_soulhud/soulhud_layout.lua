@@ -477,6 +477,17 @@ end
 -- =============================================================================
 -- 7. DRK: dreadnought
 -- =============================================================================
+BESPOKE.reaper = function(kv)
+    local recovery = num(kv, 'recovery')
+    local rounds = num(kv, 'enemy_rounds')
+    local cooldown = num(kv, 'finality_cd')
+    local bar = recovery > 0 and timerBar('opening', 'Recovery', recovery, 'Closed', 5)
+        or timerBar('finality', 'Finality', cooldown, 'Ready', 16)
+    local label = recovery > 0 and (cooldown > 0 and ('FINALITY %ds'):format(math.ceil(cooldown)) or 'FINALITY READY')
+        or ('ENEMY ROUNDS %d/6'):format(rounds)
+    return { pips = pips('Enemy Rounds', recovery > 0 and 6 or rounds, 6, 'crimson', recovery > 0 and cooldown == 0, label), bar = bar }
+end
+
 BESPOKE.dreadnought = function(kv)
     local tithe  = num(kv, 'tithe')
     local reap   = num(kv, 'reap_rem')

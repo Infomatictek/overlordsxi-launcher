@@ -71,3 +71,5 @@ shinobi	spell	332	Thunder Relay	High-tempo escalating sequential strikes across 
 shinobi	spell	335	Final Mirage	High-commitment single-target finisher scaling with living clones (1-5) and consuming your active tactical phase for peak burst. 45s recast.
 shinobi	ability	999	Shadow Legion	Every living shadow launches one staggered single-target physical strike at your engaged enemy. Integrates with Opening and tactical phases. 90s recast.
 shinobi	ability	1000	Phantom Assault	Reduces living shadows' native autoattack interval by 25% for 8s while preserving staggered attack timing. Integrates with tactical phases. 30s recast.
+reaper	ability	589	Finality	Strike with your Scythe. Land during enemy recovery for greater damage, with a finishing bonus from Lv.50. 16s recast.
+reaper	spell	245	Grave Toll	Strike one enemy with darkness from range. Enemy recovery increases the damage. Costs 12 MP. 12s recast.
