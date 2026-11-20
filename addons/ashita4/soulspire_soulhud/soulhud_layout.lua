@@ -804,6 +804,22 @@ BESPOKE.lancer = function(kv)
     return { pips = pips('Launch Lane', lane > 0 and lane <= 2 and lane or 0, 2, 'crimson', followup > 0, label), bar = bar }
 end
 
+BESPOKE.skyborn = function(kv)
+    local guard = num(kv, 'guard_ms') / 1000
+    local ward = num(kv, 'ward_ms') / 1000
+    local wardHP = num(kv, 'ward_hp')
+    local cooldown = num(kv, 'guard_cd')
+    local cry = num(kv, 'cry_cd')
+    local bar = timerBar('guard', 'Skyward Guard', cooldown, 'Ready', 20)
+    if guard > 0 then
+        bar = timerBar('intercept', 'Guard Window', guard, 'Landed', 1.5)
+    elseif ward > 0 then
+        bar = timerBar('ward', ('Landing Ward (%d HP)'):format(wardHP), ward, 'Expired', 5)
+    end
+    local label = cry > 0 and ('CRY %ds'):format(math.ceil(cry)) or 'CRY READY'
+    return { pips = pips('Guard', guard > 0 and 1 or 0, 1, 'azure', guard > 0, label), bar = bar }
+end
+
 BESPOKE.wyvernheart = function(kv)
     local scale = num(kv, 'wyrmscale')
     local rem   = num(kv, 'wyrmscale_rem')
