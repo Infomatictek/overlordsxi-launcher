@@ -218,6 +218,19 @@ end
 -- =============================================================================
 -- 3. WHM: bishop
 -- =============================================================================
+BESPOKE.zealot = function(kv)
+    local seal = num(kv, 'seal_rem')
+    local recast = num(kv, 'seal_cd')
+    local communion = num(kv, 'communion_cd')
+    local staff = num(kv, 'staff') > 0
+    local status = staff and (communion > 0 and 'COMMUNION WAIT' or 'COMMUNION READY') or 'EQUIP STAFF'
+    return {
+        pips = pips('Consecration', seal > 0 and 1 or 0, 1, 'gold', seal > 0, status),
+        bar = seal > 0 and timerBar('seal', 'Consecration', seal, 'Ready', 20)
+            or timerBar('seal_cd', 'Consecration Recast', recast, 'Ready', 90),
+    }
+end
+
 BESPOKE.bishop = function(kv)
     local grace   = num(kv, 'grace')
     local solace  = math.floor(num(kv, 'solace'))
