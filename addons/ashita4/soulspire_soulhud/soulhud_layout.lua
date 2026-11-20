@@ -794,6 +794,16 @@ end
 -- =============================================================================
 -- 13. DRG: wyvernheart
 -- =============================================================================
+BESPOKE.lancer = function(kv)
+    local lane = num(kv, 'lane')
+    local followup = num(kv, 'followup')
+    local cooldown = num(kv, 'vault_cd')
+    local label = lane == 2 and 'LONG LANE' or (lane == 1 and 'SHORT LANE' or 'OUTSIDE VAULT RANGE')
+    local bar = followup > 0 and timerBar('followup', 'Piercing Jump Follow-up', followup, 'Expired', 5)
+        or timerBar('vault', 'Spineshatter Vault', cooldown, 'Ready', 18)
+    return { pips = pips('Launch Lane', lane > 0 and lane <= 2 and lane or 0, 2, 'crimson', followup > 0, label), bar = bar }
+end
+
 BESPOKE.wyvernheart = function(kv)
     local scale = num(kv, 'wyrmscale')
     local rem   = num(kv, 'wyrmscale_rem')

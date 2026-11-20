@@ -86,3 +86,5 @@ nightblade	spell	341	Severing Seal	Seal a hostile spell within 15 yalms. An inte
 nightblade	spell	344	Blunting Seal	Seal a readied enemy technique within 15 yalms. Physical damage from that move is reduced. Shared cooldown: 20 seconds, 18 from Lv.50.
 nightblade	spell	320	Signal Flare	Strike one enemy with fire. Uses no ninja tools. 10s recast.
 nightblade	ability	761	Quick Read	Prepare for 8 seconds. Your next valid seal cast takes 0.25 seconds. 45s recast.
+lancer	ability	578	Piercing Jump	Leap and strike with your polearm. From Lv.50, a landed long vault can strengthen this hit against the same enemy. 60s recast.
+lancer	ability	579	Spineshatter Vault	Vault to an enemy 4 to 12 yalms away and strike with your polearm. A longer lane hits harder. Blocked terrain gives a three-second retry. 18s recast.
