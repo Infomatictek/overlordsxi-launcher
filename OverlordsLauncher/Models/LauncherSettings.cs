@@ -12,7 +12,7 @@ public enum WindowModeOption
 public sealed class LauncherSettings
 {
     public bool UseCustomServer { get; set; }
-    public string CustomServerHost { get; set; } = "127.0.0.1";
+    public string CustomServerHost { get; set; } = "play.soulspirexi.com";
     public bool CustomUseHairpin { get; set; }
     public int CustomLobbyPort { get; set; } = 54231;
     public int CustomSearchPort { get; set; } = 54002;

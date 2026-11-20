@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "serverName": "OverlordsXI",
   "tagline": "Faerie Companions (Eos & Titania) \u2022 Job Specs \u2022 4-Tier Weaponskill Talent Trees",
-  "defaultHost": "127.0.0.1",
+  "defaultHost": "play.soulspirexi.com",
   "useHairpin": false,
   "ports": {
     "lobby": 54231,

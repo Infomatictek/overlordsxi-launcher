@@ -14,7 +14,7 @@ public sealed class LauncherManifest
     public string Tagline { get; set; } = string.Empty;
 
     [JsonPropertyName("defaultHost")]
-    public string DefaultHost { get; set; } = "127.0.0.1";
+    public string DefaultHost { get; set; } = "play.soulspirexi.com";
 
     [JsonPropertyName("useHairpin")]
     public bool UseHairpin { get; set; }

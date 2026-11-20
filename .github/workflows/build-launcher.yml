@@ -127,7 +127,7 @@ jobs:
           $sampleConfig = @'
           {
             "ServerName": "OverlordsXI",
-            "DefaultHost": "127.0.0.1",
+            "DefaultHost": "play.soulspirexi.com",
             "UseHairpin": false,
             "LobbyPort": 54231,
             "SearchPort": 54002
