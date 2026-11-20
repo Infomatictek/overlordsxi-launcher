@@ -4,8 +4,7 @@
 # rule: unlock (hidden below level); hidden (always hidden for this Soul)
 # All unspecified actions are UNMANAGED until server-authoritative eligibility
 # is inventoried. This prevents blindly hiding vanilla or subjob actions.
-# These initial levels are based on the user's tested behavior, not an audited
-# server eligibility export; verify against authoritative server rules.
+# Levels below match authoritative server unlock rules in modules/custom/lua/nin_specs.lua.
 shinobi	spell	338	10	unlock
 shinobi	spell	339	37	unlock
 shinobi	spell	320	10	unlock
@@ -14,3 +13,5 @@ shinobi	spell	326	10	unlock
 shinobi	spell	329	30	unlock
 shinobi	spell	332	50	unlock
 shinobi	spell	335	70	unlock
+shinobi	ability	999	10	unlock
+shinobi	ability	1000	10	unlock

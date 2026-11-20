@@ -228,12 +228,19 @@ local KV = {
 
     -- 12. NIN: kurogane (Shinobi), kagemusha
     kurogane       = function(t)
-        local c = step(t, 0.7, 6)
-        local pRem = (step(t, 0.3, 3) == 0 and c > 0) and (8 - (t % 8)) or 0
+        local c = math.max(1, step(t, 0.4, 5))
+        local ph = step(t, 0.35, 4) -- 0=Build, 1=Feint, 2=Switch, 3=Cascade
+        local pRem = (ph == 0 and step(t, 0.5, 2) == 0) and (8 - (t % 8)) or 0
+        local lastCmds = { [0] = '', [1] = '', [2] = 'FA', [3] = 'MS' }
         return {
             clones      = c,
             engaged     = c,
-            clone_exp   = c > 0 and (30 - (t % 30)) or 0,
+            clone_exp   = 30 - (t % 30),
+            phase       = ph,
+            phase_rem   = ph > 0 and (20 - (t % 20)) or 0,
+            feint_hits  = ph == 0 and step(t, 0.9, 2) or 0,
+            opening_rem = (ph == 2) and (12 - (t % 12)) or 0,
+            last_cmd    = lastCmds[ph] or '',
             legion_cd   = (step(t, 0.2, 2) == 0) and 0 or (90 - (t % 90)),
             phantom_cd  = pRem > 0 and (30 - (8 - pRem)) or ((step(t, 0.25, 2) == 0) and 0 or (30 - (t % 30))),
             phantom_rem = pRem,
