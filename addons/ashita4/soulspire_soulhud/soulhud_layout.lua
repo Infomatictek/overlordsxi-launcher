@@ -346,6 +346,21 @@ BESPOKE.scarletweaver = function(kv)
     }
 end
 
+BESPOKE.oathbreaker = function(kv)
+    local vow = num(kv, 'vow')
+    local retaliation = num(kv, 'retaliate_rem')
+    local reckoning = num(kv, 'reckoning_cd')
+    local switching = num(kv, 'vow_cd')
+    local label = vow == 1 and 'CONDEMN' or (vow == 2 and 'ABSOLVE' or 'CHOOSE VOW')
+    local bar = timerBar('reckon', 'Reckoning', reckoning, 'Ready', 18)
+    if retaliation > 0 then
+        bar = timerBar('retaliate', 'Retaliation', retaliation, 'Idle', 7)
+    elseif switching > 0 then
+        bar = timerBar('vow', 'Vow Change', switching, 'Ready', 5)
+    end
+    return { pips = pips('Vow', vow > 0 and 1 or 0, 1, 'crimson', retaliation > 0, label), bar = bar }
+end
+
 BESPOKE.phantom = function(kv)
     local guard = num(kv, 'guard_rem')
     local dare = num(kv, 'dare_cd')
