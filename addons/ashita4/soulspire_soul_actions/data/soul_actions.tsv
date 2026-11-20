@@ -106,3 +106,12 @@ archivist	ability	726	Record	Watch one enemy for 12 seconds and record its next 
 archivist	ability	745	Index Pages	Cycle between your live records to select a different countermeasure. 1s recast.
 archivist	spell	99	File Countermeasure	Give one party member a page against your selected recorded action. One exact matching action deals less damage. 15s recast.
 archivist	spell	159	Margin Note	Strike one enemy with earth magic between observations. Costs 4 MP. 6s recast.
+untamed	ability	564	Pack Rend	Strike your beast’s target with an axe. A landed hit feeds TP to your beast when the link is ready. 8s recast.
+untamed	ability	581	Set Quarry	Order your beast to attack one enemy. 5s recast.
+untamed	ability	582	Fall Back	Call your beast back to your side. 5s recast.
+untamed	ability	583	Dismiss Beast	Dismiss your active companion. 5s recast.
+untamed	ability	590	Feed Beast	Spend pet food from the ammo slot to heal your companion. 90s recast.
+untamed	ability	597	Call Packmate	Summon a hare companion without spending a jug. 300s recast.
+untamed	ability	763	Pack Commands	Open your companion’s technique list.
+untamed	ability	899	Rally Packmate	Summon a replacement hare companion on a separate cooldown. 1200s recast.
+untamed	ability	1184	Raking Kick	Your beast strikes your shared enemy. A landed hit returns TP to you when the link is ready. Costs one charge.

@@ -1093,6 +1093,25 @@ BESPOKE.medic = function(kv)
     }
 end
 
+BESPOKE.untamed = function(kv)
+    if num(kv, 'pet') == 0 then return { pips = badge('NO PACKMATE', 'CALL PACKMATE', false) } end
+    local shared = num(kv, 'shared') == 1
+    local petTP = num(kv, 'pet_tp')
+    local petCD, masterCD = num(kv, 'to_pet'), num(kv, 'to_master')
+    local function linkTime(seconds)
+        return seconds > 0 and ('%ds'):format(seconds) or 'Ready'
+    end
+    return {
+        pips = badge(shared and 'SHARED QUARRY' or 'SET QUARRY',
+            ('Hare %d TP · You %d TP'):format(petTP, num(kv, 'master_tp')), shared),
+        bar = {
+            key = 'pack_link', label = 'Feral Synchronization', cur = math.max(petCD, masterCD),
+            max = 8, countdown = true, fmt = 'sec', idle = 'Ready',
+            right = ('To hare %s · To you %s'):format(linkTime(petCD), linkTime(masterCD)),
+        },
+    }
+end
+
 BESPOKE.archivist = function(kv)
     local entries = num(kv, 'entries')
     local slots = math.max(1, num(kv, 'slots'))
