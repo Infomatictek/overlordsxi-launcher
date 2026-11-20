@@ -45,6 +45,9 @@ if not "%VCVARS%"=="" (
         echo     CrystalJobsClearActiveSoul=CrystalJobsClearActiveSoul@0
         echo     CrystalJobsGetActionStatus=CrystalJobsGetActionStatus@8
         echo     CrystalJobsSetActionRowLimit=CrystalJobsSetActionRowLimit@4
+        echo     CrystalJobsReplaceVisibility=CrystalJobsReplaceVisibility@8
+        echo     CrystalJobsClearVisibility=CrystalJobsClearVisibility@0
+        echo     CrystalJobsGetVisibilityStatus=CrystalJobsGetVisibilityStatus@8
         echo     expCreatePlugin=expCreatePlugin@4
         echo     expDestroyPlugin=expDestroyPlugin@4
         echo     expGetInterfaceVersion=expGetInterfaceVersion@0

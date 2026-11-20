@@ -40,7 +40,14 @@ enum {
     CRYSTALJOBS_CAP_ABILITY_MENU_NAMES  = 1u << 6,
     CRYSTALJOBS_CAP_ABILITY_MENU_DESC   = 1u << 7,
     CRYSTALJOBS_CAP_ABILITY_TARGET_HDR  = 1u << 8,
-    CRYSTALJOBS_CAP_ABILITY_MENU_ICONS  = 1u << 9
+    CRYSTALJOBS_CAP_ABILITY_MENU_ICONS  = 1u << 9,
+    CRYSTALJOBS_CAP_MAGIC_MENU_FILTER   = 1u << 10,
+    CRYSTALJOBS_CAP_ABILITY_MENU_FILTER = 1u << 11
+};
+
+enum {
+    CRYSTALJOBS_VIS_RULE_UNLOCK = 1,
+    CRYSTALJOBS_VIS_RULE_HIDDEN = 2
 };
 
 typedef struct CrystalJobsActionEntry {
@@ -82,6 +89,35 @@ uint32_t CRYSTALJOBS_CALL CrystalJobsClearActiveSoul(void);
 uint32_t CRYSTALJOBS_CALL CrystalJobsGetActionStatus(CrystalJobsActionStatus* status, uint32_t size);
 /* Configurable menu-row glyph budget; 8..48 chars. 0=success, 1=invalid. */
 uint32_t CRYSTALJOBS_CALL CrystalJobsSetActionRowLimit(uint32_t max_chars);
+
+/* Generic native Soul Action Visibility Policy API (version 1). */
+typedef struct CrystalJobsVisibilityEntry {
+    uint32_t size;
+    uint8_t  job;
+    uint8_t  branch;
+    uint8_t  min_effective_level;
+    uint8_t  rule;
+    uint32_t kind;
+    uint16_t action_id;
+    uint16_t reserved;
+} CrystalJobsVisibilityEntry;
+
+typedef struct CrystalJobsVisibilityStatus {
+    uint32_t size;
+    uint32_t version;
+    uint32_t policy_count;
+    uint32_t policy_generation;
+    uint32_t effective_level;
+    uint32_t magic_hidden_count;
+    uint32_t magic_shown_count;
+    uint32_t ability_hidden_count;
+    uint32_t total_hooks;
+    uint32_t expected_hooks;
+} CrystalJobsVisibilityStatus;
+
+uint32_t CRYSTALJOBS_CALL CrystalJobsReplaceVisibility(const CrystalJobsVisibilityEntry* entries, uint32_t count);
+uint32_t CRYSTALJOBS_CALL CrystalJobsClearVisibility(void);
+uint32_t CRYSTALJOBS_CALL CrystalJobsGetVisibilityStatus(CrystalJobsVisibilityStatus* status, uint32_t size);
 
 #ifdef __cplusplus
 }

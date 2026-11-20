@@ -1,6 +1,17 @@
 # Soul-aware native action visibility — integration contract
 
-**Status:** external policy and pure parser staged on feature branch. **Native menu row filtering is NOT yet implemented, compiled or deployed.** Do not advertise Shinobi Ni as hidden until a real in-game test proves it.
+**Status:** Native visibility engine implemented, compiled (`crystaljobs.dll` 20/20 hooks), self-tested, and live-verified against installed `FFXiMain.dll`. Full live UI acceptance screenshots remain for in-game testing.
+
+## Verified native `FFXiMain.dll` list-filtering sites (`TS=0x6ae818b4`, `SizeOfImage=0xC17000`)
+
+| Hook # | RVA | Callee RVA | ABI | Behavior |
+|---:|---|---|---|---|
+| 19 | `0x22DAB9` | `0x22CDE0` (`CanShowSpell`) | `__cdecl`, `ret` | Filters spells inside `Magic::Populate` (`0x1022D9B0`) **before** row append, preserving native compaction, scroll bounds, selection, descriptions, recasts, and vanilla action IDs. |
+| 20 | `0x22562F` | `0x223090` (`SetListCount`) | `__thiscall`, `ret 8` | Compacts `AbilityMenu`'s display index array (`[ecx+0x20]`) in-place inside `Ability::Populate` (`0x102254D0`) before `SetListCount`, remapping `saved_sel` (`[esp+0x1c]`) and leaving persistent sort order (`0x10668308`) untouched. |
+
+- Effective main level (including Level Sync) is read directly from `FFXiMain.dll` `base + 0x4867F1`.
+- Versioned native C-ABI exports: `CrystalJobsReplaceVisibility`, `CrystalJobsClearVisibility`, `CrystalJobsGetVisibilityStatus` (capability flags `1u << 10` and `1u << 11`).
+- Server audit (`overlordsxi-main/modules/custom/lua/nin_specs.lua`): confirms server grants spell IDs `338` (Utsusemi: Ichi) and `339` (Utsusemi: Ni) via `player:addSpell`; `data/visibility.tsv` governs Shinobi's Lv. 10 / Lv. 37 progression while leaving all unspecified actions `unmanaged` (fail-open to vanilla).
 
 ## Expected player behavior
 

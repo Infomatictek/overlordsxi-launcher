@@ -205,4 +205,99 @@ private:
     uint32_t generation_ = 0;
 };
 
+enum class VisibilityDecision : uint8_t {
+    Unmanaged = 0,
+    Show      = 1,
+    Hide      = 2,
+};
+
+struct VisibilityRecord {
+    uint8_t  job = 0;
+    uint8_t  branch = 0;
+    uint8_t  min_effective_level = 1;
+    uint8_t  rule = CRYSTALJOBS_VIS_RULE_UNLOCK;
+    uint32_t kind = 0;
+    uint16_t action_id = 0;
+};
+
+inline bool vis_key_less(const VisibilityRecord& a, const ActionKey& b) noexcept {
+    if (a.job != b.job) return a.job < b.job;
+    if (a.branch != b.branch) return a.branch < b.branch;
+    if (a.kind != b.kind) return a.kind < b.kind;
+    return a.action_id < b.action_id;
+}
+
+inline bool vis_record_less(const VisibilityRecord& a, const VisibilityRecord& b) noexcept {
+    return vis_key_less(a, ActionKey{b.job, b.branch, b.kind, b.action_id});
+}
+
+inline bool vis_key_equal(const VisibilityRecord& a, const ActionKey& b) noexcept {
+    return a.job == b.job && a.branch == b.branch && a.kind == b.kind && a.action_id == b.action_id;
+}
+
+inline bool validate_and_convert_visibility(const CrystalJobsVisibilityEntry& in, VisibilityRecord& out) noexcept {
+    if (in.size != sizeof(CrystalJobsVisibilityEntry)) return false;
+    if (in.job < 1 || in.job > 22 || !valid_branch(in.job, in.branch)) return false;
+    if (!valid_action_kind(in.kind) || !valid_action_id(in.kind, in.action_id)) return false;
+    if (in.min_effective_level < 1 || in.min_effective_level > 99) return false;
+    if (in.rule != CRYSTALJOBS_VIS_RULE_UNLOCK && in.rule != CRYSTALJOBS_VIS_RULE_HIDDEN) return false;
+    out = {};
+    out.job = in.job;
+    out.branch = in.branch;
+    out.min_effective_level = in.min_effective_level;
+    out.rule = in.rule;
+    out.kind = in.kind;
+    out.action_id = in.action_id;
+    return true;
+}
+
+class VisibilityCatalog {
+public:
+    static constexpr uint32_t kMaxEntries = 4096;
+
+    bool replace_all(const CrystalJobsVisibilityEntry* entries, uint32_t count) {
+        if (count > kMaxEntries) return false;
+        if (count > 0 && entries == nullptr) return false;
+        std::vector<VisibilityRecord> next;
+        next.reserve(count);
+        for (uint32_t i = 0; i < count; ++i) {
+            VisibilityRecord rec;
+            if (!validate_and_convert_visibility(entries[i], rec)) return false;
+            next.push_back(rec);
+        }
+        std::sort(next.begin(), next.end(), vis_record_less);
+        for (size_t i = 1; i < next.size(); ++i) {
+            if (vis_key_equal(next[i - 1], ActionKey{next[i].job, next[i].branch, next[i].kind, next[i].action_id})) {
+                return false;
+            }
+        }
+        records_.swap(next);
+        ++generation_;
+        return true;
+    }
+
+    void clear() noexcept {
+        records_.clear();
+        ++generation_;
+    }
+
+    VisibilityDecision decide(uint8_t job, uint8_t branch, uint32_t kind, uint16_t action_id, uint8_t effective_level) const noexcept {
+        if (records_.empty() || job == 0 || branch == 0 || effective_level == 0) return VisibilityDecision::Unmanaged;
+        const ActionKey key{job, branch, kind, action_id};
+        auto it = std::lower_bound(records_.begin(), records_.end(), key, vis_key_less);
+        if (it == records_.end() || !vis_key_equal(*it, key)) return VisibilityDecision::Unmanaged;
+        if (it->rule == CRYSTALJOBS_VIS_RULE_HIDDEN || effective_level < it->min_effective_level) {
+            return VisibilityDecision::Hide;
+        }
+        return VisibilityDecision::Show;
+    }
+
+    uint32_t count() const noexcept { return static_cast<uint32_t>(records_.size()); }
+    uint32_t generation() const noexcept { return generation_; }
+
+private:
+    std::vector<VisibilityRecord> records_;
+    uint32_t generation_ = 0;
+};
+
 } // namespace crystaljobs

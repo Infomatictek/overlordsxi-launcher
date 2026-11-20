@@ -13,9 +13,11 @@
 using namespace crystaljobs;
 static SRWLOCK state_lock = SRWLOCK_INIT;
 static SRWLOCK action_lock = SRWLOCK_INIT;
+static SRWLOCK visibility_lock = SRWLOCK_INIT;
 static State state;
 static Transport transport;
 static ActionCatalog action_catalog;
+static VisibilityCatalog visibility_catalog;
 struct ActiveSoulOverride {
     bool active = false;
     uint8_t job = 0;
@@ -28,17 +30,20 @@ static std::atomic<bool> enabled{};
 static std::atomic<uint32_t> decoded_rows{}, short_draws{}, full_lookups{}, item_lookups{};
 static std::atomic<uint32_t> magic_name_hits{}, magic_desc_hits{}, magic_icon_hits{};
 static std::atomic<uint32_t> ability_name_hits{}, ability_desc_hits{}, ability_icon_hits{};
+static std::atomic<uint32_t> magic_hidden_count{}, magic_shown_count{}, ability_hidden_count{};
 using Lookup = const char* (__cdecl*)(int, int);
 using Decode = void* (__cdecl*)(const uint8_t*, uint8_t*, int);
 using Encode = int (__cdecl*)(const void*, uint8_t*);
 using NativeText = int (__cdecl*)(int, int, const char*, uint32_t, float, float, int);
 using DrawSprite = int (__fastcall*)(void*, void*, int, int, float, float, uint32_t, int, int, int);
 using ActionIcon = void* (__cdecl*)(uint32_t, uint32_t);
+using CanShowSpell = uint8_t (__cdecl*)(const uint8_t*);
 static Lookup original_lookup;
 static Decode original_decode;
 static Encode original_encode;
 static NativeText native_text;
 static ActionIcon original_action_icon;
+static CanShowSpell original_can_show_spell;
 static uintptr_t original_sprite;
 static uintptr_t original_sprite_simple;
 static uintptr_t original_spell_name;
@@ -46,8 +51,11 @@ static uintptr_t original_spell_desc;
 static uintptr_t original_ability_name_row;
 static uintptr_t original_ability_name_target;
 static uintptr_t original_ability_desc;
+static uintptr_t original_set_list_count;
 static void** pname_sheet_slot;
 static const uint8_t* main_job_slot;
+static const uint8_t* main_lvl_slot;
+static uint8_t** ability_list_slot;
 static thread_local int32_t tls_magic_row_id = -1;
 static thread_local int32_t tls_ability_row_id = -1;
 static thread_local char tls_action_name[80]{};
@@ -597,6 +605,108 @@ static __declspec(naked) void ability_target_hook() {
     }
 }
 
+static VisibilityDecision decide_local_visibility(uint32_t kind, uint16_t action_id) noexcept {
+    if (main_lvl_slot == nullptr) return VisibilityDecision::Unmanaged;
+    const uint8_t effective_level = *main_lvl_slot;
+    if (effective_level == 0) return VisibilityDecision::Unmanaged;
+    uint8_t job = 0, branch = 0;
+    if (!active_action_soul(job, branch)) return VisibilityDecision::Unmanaged;
+    AcquireSRWLockShared(&visibility_lock);
+    const VisibilityDecision decision = visibility_catalog.decide(job, branch, kind, action_id, effective_level);
+    ReleaseSRWLockShared(&visibility_lock);
+    return decision;
+}
+
+static uint8_t __cdecl magic_list_filter_hook(const uint8_t* spell_resource) noexcept {
+    if (spell_resource != nullptr) {
+        const uint16_t spell_id = u16(spell_resource);
+        if (spell_id > 0 && spell_id <= 1023u) {
+            const VisibilityDecision decision = decide_local_visibility(CRYSTALJOBS_ACTION_SPELL, spell_id);
+            if (decision == VisibilityDecision::Hide) {
+                ++magic_hidden_count;
+                return 0;
+            }
+            if (decision == VisibilityDecision::Show) {
+                ++magic_shown_count;
+                return 1;
+            }
+        }
+    }
+    return original_can_show_spell(spell_resource);
+}
+
+static void __stdcall compact_ability_menu_rows(uint8_t* menu_obj, int32_t* count_ptr, int32_t* saved_sel_ptr) noexcept {
+    if (menu_obj == nullptr || count_ptr == nullptr || *count_ptr <= 0) return;
+    if (ability_list_slot == nullptr || main_lvl_slot == nullptr) return;
+    const uint8_t effective_level = *main_lvl_slot;
+    if (effective_level == 0) return;
+    uint8_t job = 0, branch = 0;
+    if (!active_action_soul(job, branch)) return;
+
+    AcquireSRWLockShared(&visibility_lock);
+    const bool has_rules = visibility_catalog.count() > 0;
+    ReleaseSRWLockShared(&visibility_lock);
+    if (!has_rules) return;
+
+    uint8_t* list_obj = *ability_list_slot;
+    if (list_obj == nullptr) return;
+    auto* rows = *reinterpret_cast<uint32_t**>(menu_obj + 0x20);
+    const int32_t capacity = *reinterpret_cast<const int32_t*>(menu_obj + 0x44);
+    if (rows == nullptr || capacity <= 0) return;
+
+    const int32_t total_raw = *reinterpret_cast<const int32_t*>(list_obj + 0x1760);
+    if (total_raw <= 0 || total_raw > 0xB00) return;
+    const auto* raw_ids = reinterpret_cast<const uint16_t*>(list_obj + 0x160);
+
+    const int32_t count = (*count_ptr < capacity) ? *count_ptr : capacity;
+    const int32_t orig_sel = (saved_sel_ptr != nullptr) ? *saved_sel_ptr : -1;
+    int32_t new_sel = -1;
+    int32_t write = 0;
+
+    AcquireSRWLockShared(&visibility_lock);
+    for (int32_t i = 0; i < count; ++i) {
+        const uint32_t raw_idx = rows[i * 2];
+        bool hide = false;
+        if (raw_idx < static_cast<uint32_t>(total_raw)) {
+            const uint16_t ability_id = raw_ids[raw_idx];
+            const uint32_t kind = ability_kind_for_id(ability_id);
+            if (visibility_catalog.decide(job, branch, kind, ability_id, effective_level) == VisibilityDecision::Hide) {
+                hide = true;
+            }
+        }
+        if (hide) {
+            ++ability_hidden_count;
+            continue;
+        }
+        if (i == orig_sel) new_sel = write;
+        if (write != i) {
+            rows[write * 2] = rows[i * 2];
+            rows[write * 2 + 1] = rows[i * 2 + 1];
+        }
+        ++write;
+    }
+    ReleaseSRWLockShared(&visibility_lock);
+
+    *count_ptr = write;
+    if (saved_sel_ptr != nullptr && orig_sel >= 0 && orig_sel < count) {
+        *saved_sel_ptr = new_sel;
+    }
+}
+
+static __declspec(naked) void ability_list_filter_hook() {
+    __asm {
+        pushad
+        lea eax, [esp + 36]
+        lea edx, [esp + 72]
+        push edx
+        push eax
+        push ecx
+        call compact_ability_menu_rows
+        popad
+        jmp dword ptr [original_set_list_count]
+    }
+}
+
 static __declspec(naked) void full_job_hook() {
     __asm {
         pushad
@@ -748,6 +858,8 @@ static Patch patches[] = {
     {0x225F5D, reinterpret_cast<void*>(&ability_desc_hook)},
     {0x225916, reinterpret_cast<void*>(&ability_target_hook)},
     {0x22614E, reinterpret_cast<void*>(&ability_icon_hook)},
+    {0x22DAB9, reinterpret_cast<void*>(&magic_list_filter_hook)},
+    {0x22562F, reinterpret_cast<void*>(&ability_list_filter_hook)},
 };
 
 static bool host_detour(uint8_t* entry, const uint8_t* expected, size_t length, size_t stolen, HMODULE host) noexcept {
@@ -791,6 +903,9 @@ static void relocate_signature(uintptr_t rva, uint8_t (&expected)[24], uint32_t 
     } else if (rva == 0x225120 || rva == 0x2250A0) {
         const uint32_t lang_ptr = u32(expected + 2) + delta;
         std::memcpy(expected + 2, &lang_ptr, 4);
+    } else if (rva == 0x22CDE0) {
+        const uint32_t job_ptr = u32(expected + 1) + delta;
+        std::memcpy(expected + 1, &job_ptr, 4);
     }
 }
 
@@ -862,6 +977,8 @@ extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     enabled.store(false);
     pname_sheet_slot = nullptr;
     main_job_slot = nullptr;
+    main_lvl_slot = nullptr;
+    ability_list_slot = nullptr;
     AcquireSRWLockExclusive(&state_lock);
     transport.reset(state);
     soul_override = {};
@@ -890,6 +1007,7 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     original_encode = reinterpret_cast<Encode>(base + 0x104330);
     native_text = reinterpret_cast<NativeText>(base + 0x1CAD80);
     original_action_icon = reinterpret_cast<ActionIcon>(base + 0x222350);
+    original_can_show_spell = reinterpret_cast<CanShowSpell>(base + 0x22CDE0);
     original_sprite = reinterpret_cast<uintptr_t>(base + 0x121110);
     original_sprite_simple = reinterpret_cast<uintptr_t>(base + 0x120FF0);
     original_spell_name = reinterpret_cast<uintptr_t>(base + 0x22D510);
@@ -897,8 +1015,11 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     original_ability_name_row = reinterpret_cast<uintptr_t>(base + 0x225120);
     original_ability_name_target = reinterpret_cast<uintptr_t>(base + 0x2250A0);
     original_ability_desc = reinterpret_cast<uintptr_t>(base + 0x225190);
+    original_set_list_count = reinterpret_cast<uintptr_t>(base + 0x223090);
     pname_sheet_slot = reinterpret_cast<void**>(base + 0x664014);
     main_job_slot = base + 0x4867F0;
+    main_lvl_slot = base + 0x4867F1;
+    ability_list_slot = reinterpret_cast<uint8_t**>(base + 0x668308);
     original_map_decode = reinterpret_cast<MapDecode>(base + 0xDD6C0);
     original_map_encode = reinterpret_cast<MapEncode>(base + 0xDF7C0);
     HMODULE pinned;
@@ -1044,6 +1165,8 @@ extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus
         if (patch_installed_at(0x225F5D)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_DESC;
         if (patch_installed_at(0x225916)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_TARGET_HDR;
         if (patch_installed_at(0x22614E)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_ICONS;
+        if (patch_installed_at(0x22DAB9)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_FILTER;
+        if (patch_installed_at(0x22562F)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_FILTER;
     }
     ReleaseSRWLockShared(&lifecycle_lock);
 
@@ -1066,6 +1189,49 @@ extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus
     st.ability_name_hits = ability_name_hits.load();
     st.ability_desc_hits = ability_desc_hits.load();
     st.ability_icon_hits = ability_icon_hits.load();
+    *output = st;
+    return 0;
+}
+
+static_assert(sizeof(CrystalJobsVisibilityEntry) == 16);
+static_assert(sizeof(CrystalJobsVisibilityStatus) == 40);
+
+extern "C" uint32_t __stdcall CrystalJobsReplaceVisibility(const CrystalJobsVisibilityEntry* entries, uint32_t count) {
+    AcquireSRWLockExclusive(&visibility_lock);
+    const bool ok = visibility_catalog.replace_all(entries, count);
+    ReleaseSRWLockExclusive(&visibility_lock);
+    return ok ? 0 : 1;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsClearVisibility() {
+    AcquireSRWLockExclusive(&visibility_lock);
+    visibility_catalog.clear();
+    ReleaseSRWLockExclusive(&visibility_lock);
+    return 0;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsGetVisibilityStatus(CrystalJobsVisibilityStatus* output, uint32_t size) {
+    if (output == nullptr || size < sizeof(*output)) return 1;
+    CrystalJobsVisibilityStatus st{};
+    st.size = sizeof(st);
+    st.version = 1;
+    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches));
+
+    AcquireSRWLockShared(&lifecycle_lock);
+    for (const auto& patch : patches) {
+        if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++st.total_hooks;
+    }
+    ReleaseSRWLockShared(&lifecycle_lock);
+
+    AcquireSRWLockShared(&visibility_lock);
+    st.policy_count = visibility_catalog.count();
+    st.policy_generation = visibility_catalog.generation();
+    ReleaseSRWLockShared(&visibility_lock);
+
+    st.effective_level = (main_lvl_slot != nullptr) ? *main_lvl_slot : 0u;
+    st.magic_hidden_count = magic_hidden_count.load();
+    st.magic_shown_count = magic_shown_count.load();
+    st.ability_hidden_count = ability_hidden_count.load();
     *output = st;
     return 0;
 }

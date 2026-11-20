@@ -2,7 +2,7 @@
 -- local combat-log presentation, and optional ImGui inspector for Ashita v4.
 addon.name = 'overlords_soul_actions'
 addon.author = 'OverlordsXI'
-addon.version = '0.4.10'
+addon.version = '0.5.0'
 addon.desc = 'Soul-specific spell, ability, and weapon skill native presentation.'
 addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
 require('common')
@@ -16,6 +16,7 @@ local soulPacket = require('soul_packet')
 local resourceAudit = require('resource_audit')
 local nativeActions = require('native_actions')
 local presentationConfig = require('presentation_config')
+local visibility = require('visibility')
 local macroResolver = require('macro_resolver')
 local combatLog = require('combat_log')
 local peerSouls = require('peer_souls')
@@ -36,6 +37,8 @@ local state = {
     lastDllStatus = nil,
     lastActionStatus = nil,
     catalogSynced = false,
+    visibilityPolicy = nil,
+    visibilitySynced = false,
     lastSyncedSoul = nil,
     textSeen = 0,
     textRewritten = 0,
@@ -137,6 +140,24 @@ local function syncNativeCatalog()
     elseif why then
         log('Presentation configuration warning: ' .. tostring(why))
     end
+    -- Load and sync external Soul action visibility policy (data/visibility.tsv).
+    -- Unspecified actions remain unmanaged (fail-open to vanilla FFXI behavior).
+    if type(addon.path) == 'string' and addon.path ~= '' then
+        local visPath = addon.path:gsub('[/\\]+$', '') .. '/data/visibility.tsv'
+        local policy, visErr = visibility.load(visPath)
+        if policy then
+            state.visibilityPolicy = policy
+            local vok = nativeActions.syncVisibility(policy)
+            state.visibilitySynced = vok == true
+        else
+            state.visibilityPolicy = nil
+            state.visibilitySynced = false
+            nativeActions.clearVisibility()
+            if visErr ~= 'cannot_open_policy' then
+                log('Visibility policy warning (' .. visPath .. '): ' .. tostring(visErr))
+            end
+        end
+    end
     return ok, countOrErr
 end
 
@@ -210,6 +231,7 @@ ashita.events.register('command', 'osa_command', function(e)
     elseif op == 'status' then
         local d = state.lastDllStatus
         local a = nativeActions.readStatus()
+        local v = nativeActions.readVisibilityStatus()
         state.lastActionStatus = a
         log('Soul=' .. tostring(state.soul or 'unknown') .. ', source=' .. state.source ..
             ', DLL=' .. (d and ('enabled=' .. tostring(d.enabled) .. ', known=' .. tostring(d.known) ..
@@ -217,7 +239,9 @@ ashita.events.register('command', 'osa_command', function(e)
             ', character=' .. tostring(d.character_id)) or 'unavailable') ..
             ', NativeActions=' .. (a and ('hooks=' .. tostring(a.total_hooks) .. '/' .. tostring(a.expected_hooks) ..
             ', catalog=' .. tostring(a.catalog_count) .. ', gen=' .. tostring(a.catalog_generation) ..
-            ', caps=0x' .. string.format('%x', a.capabilities)) or 'unavailable'))
+            ', caps=0x' .. string.format('%x', a.capabilities)) or 'unavailable') ..
+            ', Visibility=' .. (v and ('rules=' .. tostring(v.policy_count) .. ', effLv=' .. tostring(v.effective_level) ..
+            ', hidden=' .. tostring(v.magic_hidden_count) .. '/' .. tostring(v.ability_hidden_count)) or 'unavailable'))
     elseif op == 'chatnames' then
         local choice = (args[3] or 'status'):lower()
         if choice == 'on' then
