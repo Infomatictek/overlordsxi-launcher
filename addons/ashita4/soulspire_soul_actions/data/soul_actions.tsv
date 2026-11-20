@@ -79,3 +79,6 @@ scourge	spell	271	Famine	Curse one enemy to reduce its own combat healing for 24
 scourge	ability	562	Rite of Malice	Recover MP while your current enemy bears one of your curses or immunity wards. 24s recast.
 sniper	ability	569	Sightline Shot	Aim for 3 seconds, then fire one powerful gun or crossbow shot within 20 yalms. Movement can cancel aim. 12s recast.
 sniper	ability	571	Deep Sight	Toggle a 4-second aim for greater Sightline Shot damage. 5s recast.
+arcanearcher	ability	569	Attunement Arrow	Fire one attuned arrow to mark an enemy within 20 yalms. The next matching party spell or skillchain deals more damage. 16s recast.
+arcanearcher	ability	571	Next Attunement	Select the next element for Attunement Arrow. 1s recast.
+arcanearcher	ability	570	Previous Attunement	Select the previous element for Attunement Arrow. 1s recast.

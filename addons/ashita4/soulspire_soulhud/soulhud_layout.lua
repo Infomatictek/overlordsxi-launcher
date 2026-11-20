@@ -621,6 +621,18 @@ BESPOKE.sniper = function(kv)
     }
 end
 
+BESPOKE.arcanearcher = function(kv)
+    local elements = { 'Fire', 'Ice', 'Wind', 'Earth', 'Lightning', 'Water' }
+    local selected = elements[num(kv, 'element')] or 'Fire'
+    local marked = elements[num(kv, 'mark_element')]
+    local mark = num(kv, 'mark_rem')
+    local cooldown = num(kv, 'arrow_cd')
+    local bar = mark > 0 and timerBar('mark', (marked or 'Elemental') .. ' Mark', mark, 'Expired', 14)
+        or timerBar('arrow', 'Attunement Arrow', cooldown, 'Ready', 16)
+    local label = selected:upper() .. (cooldown > 0 and ('  ARROW %ds'):format(math.ceil(cooldown)) or '  ARROW READY')
+    return { pips = pips('Attunement', mark > 0 and 1 or 0, 1, 'azure', mark > 0, label), bar = bar }
+end
+
 BESPOKE.huntsman = function(kv)
     local pid  = math.floor(num(kv, 'pet_id'))
     local hpp  = num(kv, 'pet_hpp')
