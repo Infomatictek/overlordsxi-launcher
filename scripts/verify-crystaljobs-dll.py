@@ -35,10 +35,11 @@ REQUIRED_EXPORTS = (
     "expDestroyPlugin",
 )
 
-# Binary-verified FFXiMain.dll signature prefixes embedded in 26-hook crystaljobs.dll
+# Binary-verified FFXiMain.dll signature prefixes embedded in 27-hook crystaljobs.dll
 # (absent in the legacy 24-hook binary).
 HOOK_25_SIG_PREFIX = bytes([0x85, 0x46, 0xF4, 0x74, 0x5F, 0x8B, 0x42, 0x0C])  # RVA 0x21DF85
 HOOK_26_SIG_PREFIX = bytes([0x68, 0x99, 0x00, 0x00, 0x00, 0xE8, 0xE3, 0x74, 0xFF, 0xFF])  # RVA 0x133DD3
+HOOK_27_SIG_PREFIX = bytes([0xE8, 0x48, 0xF7, 0xFF, 0xFF, 0x84, 0xC0, 0x75, 0x24, 0xFE])  # RVA 0x133E33
 
 
 def _rva_to_offset(rva: int, sections: list[tuple[int, int, int, int]]) -> int:
@@ -137,10 +138,11 @@ def verify_dll(
 
     has_hook_25 = HOOK_25_SIG_PREFIX in data
     has_hook_26 = HOOK_26_SIG_PREFIX in data
-    if require_26_hooks and (not has_hook_25 or not has_hook_26):
+    has_hook_27 = HOOK_27_SIG_PREFIX in data
+    if require_26_hooks and (not has_hook_25 or not has_hook_26 or not has_hook_27):
         raise ValueError(
-            f"DLL does not contain 26-hook DUAL_2H signatures "
-            f"(hook_25_0x21DF85={has_hook_25}, hook_26_0x133DD3={has_hook_26})"
+            f"DLL does not contain 27-hook DUAL_2H signatures "
+            f"(hook_25_0x21DF85={has_hook_25}, hook_26_0x133DD3={has_hook_26}, hook_27_0x133E33={has_hook_27})"
         )
 
     commit_sha: str | None = None
@@ -183,7 +185,7 @@ def verify_dll(
         "size": len(data),
         "sha256": sha256,
         "export_count": len(exports),
-        "has_26_hook_sigs": has_hook_25 and has_hook_26,
+        "has_26_hook_sigs": has_hook_25 and has_hook_26 and has_hook_27,
         "commit_sha": commit_sha,
     }
 

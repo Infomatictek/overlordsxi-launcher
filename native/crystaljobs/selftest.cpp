@@ -1259,7 +1259,7 @@ int main() {
         hook_diag.init_stage = CRYSTALJOBS_INIT_OK;
         CrystalJobsHookDiagnostics diag{};
         assert(CrystalJobsGetHookDiagnostics(&diag, sizeof(diag)) == 0);
-        assert(diag.total_hooks == 1 && diag.expected_hooks == 26);
+        assert(diag.total_hooks == 1 && diag.expected_hooks == 27);
         assert((diag.installed_mask & (1u << 23)) != 0 && (diag.site_set_mask & (1u << 23)) != 0);
         // Simulate external overwrite of hook #24 in memory.
         memory[0x100] = 0x90;
@@ -1311,20 +1311,20 @@ int main() {
     const auto get_wpn_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsWeaponStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetWeaponStatus"));
     assert(get_wpn_st != nullptr);
     CrystalJobsWeaponStatus wpn_st{};
-    assert(get_wpn_st(&wpn_st, sizeof(wpn_st)) == 0 && wpn_st.version == 1 && wpn_st.expected_hooks == 26 && wpn_st.total_hooks == 0);
+    assert(get_wpn_st(&wpn_st, sizeof(wpn_st)) == 0 && wpn_st.version == 1 && wpn_st.expected_hooks == 27 && wpn_st.total_hooks == 0);
     const auto get_diag = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsHookDiagnostics*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetHookDiagnostics"));
     assert(get_diag != nullptr);
     CrystalJobsHookDiagnostics dll_diag{};
     assert(get_diag(&dll_diag, sizeof(dll_diag)) == 0 && dll_diag.size == 60 && dll_diag.version == 1 &&
-           dll_diag.expected_hooks == 26 && dll_diag.total_hooks == 0 && dll_diag.init_stage == CRYSTALJOBS_INIT_NOT_RUN);
+           dll_diag.expected_hooks == 27 && dll_diag.total_hooks == 0 && dll_diag.init_stage == CRYSTALJOBS_INIT_NOT_RUN);
     const auto get_vis_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsVisibilityStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetVisibilityStatus"));
     assert(get_vis_st != nullptr);
     CrystalJobsVisibilityStatus vis_st{};
-    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 26 && vis_st.total_hooks == 0);
+    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 27 && vis_st.total_hooks == 0);
     const auto get_action_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsActionStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetActionStatus"));
     assert(get_action_st != nullptr);
     CrystalJobsActionStatus act_st{};
-    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 26 && act_st.total_hooks == 0);
+    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 27 && act_st.total_hooks == 0);
     assert(get_iface != nullptr && create_plugin != nullptr && destroy_plugin != nullptr);
     assert(get_iface() == 4.30);
     void* plugin = create_plugin("");

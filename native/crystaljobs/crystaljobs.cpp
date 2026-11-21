@@ -43,6 +43,7 @@ using ActionIcon = void* (__cdecl*)(uint32_t, uint32_t);
 using CanShowSpell = uint8_t (__cdecl*)(const uint8_t*);
 using GetInventoryItem = const uint8_t* (__cdecl*)(uint32_t, uint32_t);
 using GetItemResource = const uint8_t* (__fastcall*)(void*, void*, uint32_t);
+using CanEquipItemInSlot = uint8_t (__fastcall*)(void*, void*, const uint8_t*, uint32_t);
 static Lookup original_lookup;
 static Decode original_decode;
 static Encode original_encode;
@@ -51,6 +52,7 @@ static ActionIcon original_action_icon;
 static CanShowSpell original_can_show_spell;
 static GetInventoryItem original_get_inv_item;
 static GetItemResource original_get_item_res;
+static CanEquipItemInSlot original_can_equip_in_slot;
 static uintptr_t original_sprite;
 static uintptr_t original_sprite_simple;
 static uintptr_t original_spell_name;
@@ -832,7 +834,12 @@ static uint8_t __stdcall soul_allows_dual_2h_menu_item(uint32_t item_id) noexcep
     const bool allowed = weapon_rule_catalog.allows_dual_2h_menu_item(
         job, branch, effective_level, sub_skill, static_cast<uint16_t>(item_id));
     ReleaseSRWLockShared(&weapon_lock);
-    return allowed ? 1 : 0;
+    if (allowed) {
+        ++weapon_allow_hits;
+        return 1;
+    }
+    ++weapon_deny_hits;
+    return 0;
 }
 
 static __declspec(naked) void soul_sub_menu_filter_hook() {
@@ -905,6 +912,42 @@ static __declspec(naked) void soul_sub_2h_main_hook() {
         push 0x99
         jmp dword ptr [soul_sub_2h_main_deny_resume]
     }
+}
+
+// EquipMenu::TryEquipItem (0x133E33) calls CanEquipItemInSlot (0x133580) to verify
+// item->slots & (1 << equip_slot). Vanilla 2H weapons have slots == 1 (Main only),
+// so equipping a 2H weapon into Sub (slot 1, mask 2) is rejected here even after
+// passing Hooks #24 and #26. When CanEquipItemInSlot(item, 1) returns 0, allow
+// Main-slot 2H weapons only if CanEquipItemInSlot(item, 0) passes (unencumbered +
+// Main-capable) and an active dual_2h Soul weapon rule explicitly authorizes it.
+static uint8_t __fastcall soul_can_equip_in_slot_hook(
+    void* self, void*, const uint8_t* parsed_item, uint32_t equip_slot) noexcept {
+    if (original_can_equip_in_slot == nullptr) return 0;
+    if (original_can_equip_in_slot(self, nullptr, parsed_item, equip_slot) != 0) return 1;
+    if (equip_slot != 1u || parsed_item == nullptr || !enabled.load()) return 0;
+    if (original_can_equip_in_slot(self, nullptr, parsed_item, 0u) == 0) return 0;
+    if (main_lvl_slot == nullptr) return 0;
+    const uint8_t effective_level = *main_lvl_slot;
+    if (effective_level == 0) return 0;
+    uint8_t job = 0, branch = 0;
+    if (!active_action_soul(job, branch)) return 0;
+
+    const uint16_t sub_item_id = u16(parsed_item + 0x14B0);
+    const uint16_t* skill_ptr = *reinterpret_cast<const uint16_t* const*>(parsed_item + 0x14E4);
+    if (skill_ptr == nullptr) return 0;
+    const uint16_t sub_skill = *skill_ptr;
+
+    AcquireSRWLockShared(&weapon_lock);
+    const bool allowed = weapon_rule_catalog.allows_dual_2h_menu_item(
+        job, branch, effective_level, sub_skill, sub_item_id);
+    ReleaseSRWLockShared(&weapon_lock);
+
+    if (allowed) {
+        ++weapon_allow_hits;
+        return 1;
+    }
+    ++weapon_deny_hits;
+    return 0;
 }
 
 static void __stdcall compact_ability_menu_rows(uint8_t* menu_obj, int32_t* count_ptr, int32_t* saved_sel_ptr) noexcept {
@@ -1133,6 +1176,7 @@ static Patch patches[] = {
     {0x22DAB9, reinterpret_cast<void*>(&magic_list_filter_hook)},
     {0x22562F, reinterpret_cast<void*>(&ability_list_filter_hook)},
     {0x22E64D, reinterpret_cast<void*>(&menu_spell_elig_hook)},
+    {0x133E33, reinterpret_cast<void*>(&soul_can_equip_in_slot_hook)},
 };
 
 // Detour the central FFXI CanUseSpell function (0x22CDE0) itself so BOTH the
@@ -1305,8 +1349,8 @@ static void safe_read_bytes(const void* src, uint8_t (&out)[8]) noexcept {
 
 static constexpr uint32_t kPatchCount = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches));
 static constexpr uint32_t kExpectedHooks = kPatchCount + 5u;
-static_assert(kPatchCount == 21u);
-static_assert(kExpectedHooks == 26u);
+static_assert(kPatchCount == 22u);
+static_assert(kExpectedHooks == 27u);
 
 static bool supported_impl(uint8_t* base) noexcept {
     hook_diag = {};
@@ -1408,6 +1452,7 @@ extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     ability_list_slot = nullptr;
     original_get_inv_item = nullptr;
     original_get_item_res = nullptr;
+    original_can_equip_in_slot = nullptr;
     soul_sub_weapon_allow_resume = 0;
     soul_sub_weapon_deny_resume = 0;
     soul_sub_menu_allow_resume = 0;
@@ -1450,6 +1495,7 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     original_can_show_spell = reinterpret_cast<CanShowSpell>(base + 0x22CDE0);
     original_get_inv_item = reinterpret_cast<GetInventoryItem>(base + 0xEB5D0);
     original_get_item_res = reinterpret_cast<GetItemResource>(base + 0x15D210);
+    original_can_equip_in_slot = reinterpret_cast<CanEquipItemInSlot>(base + 0x133580);
     original_sprite = reinterpret_cast<uintptr_t>(base + 0x121110);
     original_sprite_simple = reinterpret_cast<uintptr_t>(base + 0x120FF0);
     original_spell_name = reinterpret_cast<uintptr_t>(base + 0x22D510);

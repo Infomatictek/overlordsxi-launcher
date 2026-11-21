@@ -86,6 +86,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
         self.assertIn("soul_sub_weapon_detour{0x133D56", cpp)
         self.assertIn("soul_sub_menu_filter_detour{0x21DF85", cpp)
         self.assertIn("soul_sub_2h_main_detour{0x133DD3", cpp)
+        self.assertIn("{0x133E33, reinterpret_cast<void*>(&soul_can_equip_in_slot_hook)}", cpp)
         self.assertIn("rva == 0xEB5D0", cpp)
         self.assertIn("base + 0x133D5B", cpp)
         self.assertIn("base + 0x133D65", cpp)
@@ -93,7 +94,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
         self.assertIn("static_assert(sizeof(CrystalJobsWeaponRule) == 24)", cpp)
         self.assertIn("static_assert(sizeof(CrystalJobsWeaponStatus) == 36)", cpp)
         self.assertIn("static_assert(sizeof(CrystalJobsHookDiagnostics) == 60)", cpp)
-        self.assertIn("static_assert(kExpectedHooks == 26u)", cpp)
+        self.assertIn("static_assert(kExpectedHooks == 27u)", cpp)
         self.assertIn("collect_hook_state(", cpp)
         self.assertIn("CrystalJobsGetHookDiagnostics", cpp)
         self.assertIn("CRYSTALJOBS_CAP_SOUL_SUB_WEAPON", cpp)
@@ -101,9 +102,9 @@ class NativeEquipmentHookTests(unittest.TestCase):
 
         selftest = (NATIVE_DIR / "selftest.cpp").read_text(encoding="utf-8")
         self.assertIn("weapon_rule_checks();", selftest)
-        self.assertIn("wpn_st.expected_hooks == 26", selftest)
-        self.assertIn("vis_st.expected_hooks == 26", selftest)
-        self.assertIn("act_st.expected_hooks == 26", selftest)
+        self.assertIn("wpn_st.expected_hooks == 27", selftest)
+        self.assertIn("vis_st.expected_hooks == 27", selftest)
+        self.assertIn("act_st.expected_hooks == 27", selftest)
         self.assertIn("CrystalJobsGetHookDiagnostics", selftest)
 
     def test_crystalsocket_removed_custom_equipment_picker_and_preserves_soul_ui(self):

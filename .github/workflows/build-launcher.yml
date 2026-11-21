@@ -318,7 +318,7 @@ jobs:
           run_id=${{ github.run_id }}
           crystaljobs_dll_sha256=${DLL_SHA}
           manifest_json_sha256=${MANIFEST_SHA}
-          expected_hooks=26
+          expected_hooks=27
           required_exports=21
           manifest_verified=true
           EOF
