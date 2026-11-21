@@ -156,6 +156,41 @@ class NativeEquipmentHookTests(unittest.TestCase):
         self.assertEqual(len(exports), 21, f"Expected 21 PE exports, found {len(exports)}: {exports}")
         self.assertEqual(sorted(exports), sorted(expected_exports))
 
+    def test_automated_packaging_workflow_and_dll_verifier_safeguards(self):
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "verify_crystaljobs_dll",
+            ROOT / "scripts" / "verify-crystaljobs-dll.py",
+        )
+        mod = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(mod)
+
+        # Must reject the legacy 24-hook DLL when 26-hook validation is active,
+        # and accept the fresh 26-hook DLL once staged in CI.
+        summary = mod.verify_dll(SHIPPED_DLL, require_26_hooks=False)
+        self.assertEqual(summary["export_count"], 21)
+        if summary["sha256"] == mod.STALE_24_HOOK_SHA256:
+            with self.assertRaises(ValueError):
+                mod.verify_dll(SHIPPED_DLL, require_26_hooks=True)
+        else:
+            strict = mod.verify_dll(SHIPPED_DLL, require_26_hooks=True)
+            self.assertTrue(strict["has_26_hook_sigs"])
+
+        wf = (ROOT / ".github" / "workflows" / "build-launcher.yml").read_text(encoding="utf-8")
+        for required in (
+            "package-verified-launcher:",
+            "needs: [verify-manifest, build-crystaljobs, build-and-test]",
+            "actions/download-artifact@",
+            "name: crystaljobs-win-x86",
+            "scripts/verify-crystaljobs-dll.py",
+            "scripts/update-launcher-manifest.py",
+            "scripts/verify-launcher-manifest.py",
+            "name: SoulspireXI-Verified-Package-win-x64",
+        ):
+            self.assertIn(required, wf)
+
 
 if __name__ == "__main__":
     unittest.main()
