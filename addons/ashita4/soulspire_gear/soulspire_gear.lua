@@ -33,7 +33,7 @@ addon.name    = 'soulspire_gear'
 addon.author  = 'SoulspireXI'
 addon.version = '1.0.0'
 addon.desc    = 'Standalone automatic gear builder & swapper tailored for SoulspireXI.'
-addon.link    = 'https://github.com/Infomatictek/overlordsxi-launcher'
+addon.link    = 'https://github.com/Infomatictek/soulspirexi-launcher'
 
 require('common')
 local chat = require('chat')

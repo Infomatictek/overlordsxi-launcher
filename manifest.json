@@ -11,9 +11,9 @@
   },
   "repo": {
     "owner": "Infomatictek",
-    "name": "overlordsxi-launcher",
+    "name": "soulspirexi-launcher",
     "branch": "main",
-    "rawBaseUrl": "https://raw.githubusercontent.com/Infomatictek/overlordsxi-launcher/main"
+    "rawBaseUrl": "https://raw.githubusercontent.com/Infomatictek/soulspirexi-launcher/main"
   },
   "bootstrap": {
     "ashitaZipUrl": "https://github.com/AshitaXI/Ashita-v4beta/archive/refs/heads/main.zip",
@@ -6034,7 +6034,7 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_gear/soulspire_gear.lua",
       "targetPath": "soulspire_gear/soulspire_gear.lua",
-      "sha256": "04ed75bf701655869f51fa6451e4db94cebf476b930b002d754cb1099482d01b",
+      "sha256": "ef50fce0340914bded5b2c9d699193c040a92051c41bd83a2e10803483ce1c4e",
       "size": 4407
     },
     {
@@ -6153,7 +6153,7 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/soulspire_soul_actions.lua",
       "targetPath": "soulspire_soul_actions/soulspire_soul_actions.lua",
-      "sha256": "3cd1b8751f3f355aeeed8cc13a2e1f4fba24848cfbae653ba706b149a6aff099",
+      "sha256": "856af906631037935f98654439e2adf8b93ed9c550926d22b264f6533ae858d2",
       "size": 25059
     },
     {
@@ -7476,7 +7476,7 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soulhud/soulspire_soulhud.lua",
       "targetPath": "soulspire_soulhud/soulspire_soulhud.lua",
-      "sha256": "ac67e0b7abcd9c72dd5fee961ec3e20caa0c11338302a6d9076935e45438e9c5",
+      "sha256": "c0361de8132567868b47328f33230eb795e2a30da99748587e6f61cf3da4aeec",
       "size": 23124
     },
     {

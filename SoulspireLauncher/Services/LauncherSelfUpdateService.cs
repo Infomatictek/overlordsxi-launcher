@@ -148,7 +148,7 @@ public sealed class LauncherSelfUpdateService
     {
         var currentVersion = GetCurrentVersion();
         var owner = string.IsNullOrWhiteSpace(manifest.Repo.Owner) ? "Infomatictek" : manifest.Repo.Owner.Trim();
-        var repo = string.IsNullOrWhiteSpace(manifest.Repo.Name) ? "overlordsxi-launcher" : manifest.Repo.Name.Trim();
+        var repo = string.IsNullOrWhiteSpace(manifest.Repo.Name) ? "soulspirexi-launcher" : manifest.Repo.Name.Trim();
         var apiUrl = $"https://api.github.com/repos/{owner}/{repo}/releases/latest";
 
         using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);

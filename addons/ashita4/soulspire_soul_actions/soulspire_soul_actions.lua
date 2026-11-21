@@ -4,7 +4,7 @@ addon.name = 'soulspire_soul_actions'
 addon.author = 'SoulspireXI'
 addon.version = '0.5.0'
 addon.desc = 'Soul-specific spell, ability, and weapon skill native presentation.'
-addon.link = 'https://github.com/Infomatictek/overlordsxi-launcher'
+addon.link = 'https://github.com/Infomatictek/soulspirexi-launcher'
 require('common')
 local imgui = require('imgui')
 local catalog = require('catalog')

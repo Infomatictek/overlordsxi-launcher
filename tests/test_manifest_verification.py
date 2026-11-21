@@ -39,9 +39,9 @@ def _make_valid_repo(tmp: Path) -> tuple[Path, dict]:
         "ports": {"lobby": 54231, "auth": 54001, "search": 54002},
         "repo": {
             "owner": "Infomatictek",
-            "name": "overlordsxi-launcher",
+            "name": "soulspirexi-launcher",
             "branch": "main",
-            "rawBaseUrl": "https://raw.githubusercontent.com/Infomatictek/overlordsxi-launcher/main",
+            "rawBaseUrl": "https://raw.githubusercontent.com/Infomatictek/soulspirexi-launcher/main",
         },
         "bootstrap": {},
         "files": [
