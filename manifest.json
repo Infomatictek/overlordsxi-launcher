@@ -362,24 +362,17 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/crystalsocket/buckler.lua",
-      "targetPath": "crystalsocket/buckler.lua",
-      "sha256": "1a4c85621bfcad55cd6a48f4b6be8463db53f13c6e6d752a9baf1168df3c1be1",
-      "size": 5003
-    },
-    {
-      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "0498ee4b14cac90c5f34e3d1337b77ae34dea58825e57834b0c2d056b660edf4",
-      "size": 19379
+      "sha256": "b3ec0325a84197c5fa7c8b1a66dfc9f855b4f268f0c3f014f71dad8d672b1865",
+      "size": 20519
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/job_labels.lua",
       "targetPath": "crystalsocket/job_labels.lua",
-      "sha256": "0e04e2970f693a947317b37f28140bc616269caa2ca4c022c143e7658468aff0",
-      "size": 10178
+      "sha256": "17fc74f30eb8a1ac094413317592cd39cd8b511829a00fadd4f510a4a495eb87",
+      "size": 15558
     },
     {
       "category": "addon",
@@ -420,22 +413,22 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/tests/weapon_config_test.lua",
       "targetPath": "crystalsocket/tests/weapon_config_test.lua",
-      "sha256": "d5542f7d7e03345711d35e9a450db57a930ecc97b032bcefbcafb9522d838fa8",
-      "size": 6993
+      "sha256": "eaab96fbccc33aeb46e20ec018d01e2524ee8dfc3df62e877194f43f202e2262",
+      "size": 5535
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "77bb657f94e8964e0a12bf5ce3956d656cffabaa0fc3fcc9f6e364bf556d13ca",
-      "size": 24202
+      "sha256": "2d6a06f296cce66c3d5777ced93bfcaafb3799120006f41fb794677603bcc60b",
+      "size": 19701
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/weapon_config.lua",
       "targetPath": "crystalsocket/weapon_config.lua",
-      "sha256": "cc8051b08317e47ad62362b706b5d38e9090874c4e3993c5aa7ada15882df142",
-      "size": 9347
+      "sha256": "4f458591f57b8e8797d34e9abb5ea61d151d49a180aeb3b0effff423f42d3d8f",
+      "size": 3167
     },
     {
       "category": "addon",

@@ -10,6 +10,23 @@ local status_type = ffi.typeof([=[struct {
     uint32_t search_rows, decoded_rows, item_labels, search_labels, full_labels;
     uint32_t queries_sent, replies_accepted, replies_rejected, last_error;
 }[1]]=])
+local weapon_rule_array_type = ffi.typeof([=[struct {
+    uint32_t size;
+    uint8_t  job;
+    uint8_t  branch;
+    uint8_t  min_effective_level;
+    uint8_t  mode;
+    uint32_t main_skill_mask;
+    uint32_t sub_skill_mask;
+    uint16_t main_item_id;
+    uint16_t sub_item_id;
+    uint32_t reserved;
+}[?]]=])
+local weapon_rule_size = 24
+local weapon_status_type = ffi.typeof([=[struct {
+    uint32_t size, version, rule_count, rule_generation, effective_level;
+    uint32_t allow_hits, deny_hits, total_hooks, expected_hooks;
+}[1]]=])
 
 -- Cache named function-pointer types once. Re-parsing an anonymous FFI
 -- function-pointer signature on every render/sync can exhaust LuaJIT's type
@@ -18,6 +35,9 @@ local signature_types = {
     CrystalJobsGetStatus = ffi.typeof('uint32_t (__stdcall *)(void*, uint32_t)'),
     CrystalJobsSetState = ffi.typeof('uint32_t (__stdcall *)(const uint8_t*, uint32_t)'),
     CrystalJobsInitialize = ffi.typeof('uint32_t (__stdcall *)(void)'),
+    CrystalJobsReplaceWeaponRules = ffi.typeof('uint32_t (__stdcall *)(const void*, uint32_t)'),
+    CrystalJobsClearWeaponRules = ffi.typeof('uint32_t (__stdcall *)(void)'),
+    CrystalJobsGetWeaponStatus = ffi.typeof('uint32_t (__stdcall *)(void*, uint32_t)'),
 }
 local exported = {}
 local state_bytes_type = ffi.typeof('uint8_t[8]')
@@ -78,6 +98,11 @@ function Labels.new(resolve, dll_path)
         last_status_error = nil,
         status_failures = 0,
         status_successes = 0,
+        weapon_rules_synced = false,
+        weapon_rules_missing = false,
+        weapon_rules_module = nil,
+        weapon_rules_count = 0,
+        weapon_rules_error = nil,
     }, Labels)
 end
 
@@ -183,6 +208,116 @@ function Labels:status()
     self.last_status_error = nil
     self.status_successes = self.status_successes + 1
     return info
+end
+
+function Labels:sync_weapon_rules(rules, override_replace)
+    if type(rules) ~= 'table' then return false, 'invalid rules table' end
+    if override_replace then
+        local count = #rules
+        local buf = count > 0 and ffi.new(weapon_rule_array_type, count) or nil
+        for i = 1, count do
+            local r = rules[i]
+            local dst = buf[i - 1]
+            dst.size = weapon_rule_size
+            dst.job = r.job or 0
+            dst.branch = r.branch or 0
+            dst.min_effective_level = r.min_effective_level or 10
+            dst.mode = r.mode or 0
+            dst.main_skill_mask = r.main_skill_mask or 0
+            dst.sub_skill_mask = r.sub_skill_mask or 0
+            dst.main_item_id = r.main_item_id or 0
+            dst.sub_item_id = r.sub_item_id or 0
+            dst.reserved = 0
+        end
+        local rc = override_replace(buf, count)
+        self.weapon_rules_synced = (rc == 0)
+        if self.weapon_rules_synced then
+            self.weapon_rules_count = count
+            self.weapon_rules_error = nil
+        else
+            self.weapon_rules_count = 0
+            self.weapon_rules_error = 'replace returned ' .. tostring(rc)
+        end
+        return self.weapon_rules_synced, self.weapon_rules_error
+    end
+
+    local ok, synced, err = pcall(function()
+        self:ensure_loaded()
+        local module = ffi.C.GetModuleHandleA('crystaljobs.dll')
+        if module == nil then
+            self.weapon_rules_synced = false
+            self.weapon_rules_module = nil
+            return false, 'crystaljobs.dll is not loaded'
+        end
+        if self.weapon_rules_synced and self.weapon_rules_module == module then
+            return true, nil
+        end
+        if self.weapon_rules_missing and self.weapon_rules_module == module then
+            return false, self.weapon_rules_error
+        end
+        local replace_fn, why = loaded_function('CrystalJobsReplaceWeaponRules')
+        if not replace_fn then
+            self.weapon_rules_synced = false
+            self.weapon_rules_missing = true
+            self.weapon_rules_module = module
+            return false, why or 'CrystalJobsReplaceWeaponRules export missing'
+        end
+        self.weapon_rules_missing = false
+        local count = #rules
+        local buf = count > 0 and ffi.new(weapon_rule_array_type, count) or nil
+        for i = 1, count do
+            local r = rules[i]
+            local dst = buf[i - 1]
+            dst.size = weapon_rule_size
+            dst.job = r.job or 0
+            dst.branch = r.branch or 0
+            dst.min_effective_level = r.min_effective_level or 10
+            dst.mode = r.mode or 0
+            dst.main_skill_mask = r.main_skill_mask or 0
+            dst.sub_skill_mask = r.sub_skill_mask or 0
+            dst.main_item_id = r.main_item_id or 0
+            dst.sub_item_id = r.sub_item_id or 0
+            dst.reserved = 0
+        end
+        local rc = tonumber(replace_fn(buf, count))
+        if rc ~= 0 then
+            self.weapon_rules_synced = false
+            return false, 'CrystalJobsReplaceWeaponRules returned ' .. tostring(rc)
+        end
+        self.weapon_rules_synced = true
+        self.weapon_rules_module = module
+        self.weapon_rules_count = count
+        return true, nil
+    end)
+    if not ok then
+        self.weapon_rules_synced = false
+        self.weapon_rules_error = 'weapon rules sync exception: ' .. tostring(synced)
+        return false, self.weapon_rules_error
+    end
+    self.weapon_rules_error = err
+    return synced, err
+end
+
+function Labels:weapon_status()
+    local ok, info = pcall(function()
+        self:ensure_loaded()
+        local get_status = loaded_function('CrystalJobsGetWeaponStatus')
+        if not get_status then return nil end
+        local st = ffi.new(weapon_status_type)
+        if get_status(st, ffi.sizeof(st)) ~= 0 or st[0].size ~= 36 or st[0].version ~= 1 then
+            return nil
+        end
+        return {
+            rule_count = tonumber(st[0].rule_count),
+            rule_generation = tonumber(st[0].rule_generation),
+            effective_level = tonumber(st[0].effective_level),
+            allow_hits = tonumber(st[0].allow_hits),
+            deny_hits = tonumber(st[0].deny_hits),
+            total_hooks = tonumber(st[0].total_hooks),
+            expected_hooks = tonumber(st[0].expected_hooks),
+        }
+    end)
+    return ok and info or nil
 end
 
 function Labels:clear_hud_hint()

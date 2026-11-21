@@ -1,6 +1,5 @@
 local bit = require('bit')
 local protocol = require('protocol')
-local WeaponConfig = require('weapon_config')
 local UI = {}
 UI.__index = UI
 
@@ -86,14 +85,8 @@ function UI:close()
     self.state:cancel()
 end
 
-function UI:close_buckler()
-    if self.buckler and not self.focused then self.focus_window, self.focus_cursor = nil, nil end
-    self.buckler = nil
-end
-
 function UI:blur()
     self:close()
-    self.buckler = nil
     self.focused, self.focus_window, self.focus_cursor = false, nil, nil
 end
 
@@ -129,24 +122,6 @@ end
 
 function UI:key(key, now, navigation)
     local snapshot = self.state:snapshot()
-
-    -- Polearm + Buckler picker (opened from the native Equipment menu's locked Sub slot).
-    if self.buckler then
-        local list = self.buckler.list
-        if key == 'back' then
-            self:close_buckler()
-        elseif key == 'up' then
-            self.buckler.sel = ((self.buckler.sel - 2) % #list) + 1
-        elseif key == 'down' then
-            self.buckler.sel = (self.buckler.sel % #list) + 1
-        elseif key == 'enter' then
-            WeaponConfig.equip(list[self.buckler.sel].entry)
-            self:close_buckler()
-        elseif key ~= 'left' and key ~= 'right' then
-            return false
-        end
-        return true
-    end
     local entries = (snapshot.catalog and snapshot.catalog.entries) or {}
     local total_rows = #entries + 1
     if total_rows < 1 then total_rows = 1 end
@@ -181,13 +156,6 @@ function UI:key(key, now, navigation)
         return true
     end
 
-    -- Sub slot (row 1, col 2) is filtered/locked by the stock client for Soul weapon configs; open our picker instead.
-    if key == 'enter' and navigation and navigation.selected == WeaponConfig.SUB_NATIVE_SLOT
-        and WeaponConfig.active(snapshot) then
-        self:open_buckler(snapshot, navigation)
-        return true
-    end
-
     -- FFXI's 4x4 Equipment grid indexes slots column-major (col 1: 1..4, col 2: 5..8, col 3: 9..12, col 4: 13..16),
     -- so the bottom row (Legs, Feet, Back, Waist) is slots 4, 8, 12, and 16.
     if key == 'down' and self:has_socket(snapshot) and navigation
@@ -199,19 +167,6 @@ function UI:key(key, now, navigation)
         return true
     end
     return false
-end
-
-function UI:open_buckler(snapshot, navigation)
-    local rule = WeaponConfig.active_rule(snapshot)
-    local list = { { label = '[Unequip]', entry = nil } }
-    for _, item in ipairs(WeaponConfig.list(snapshot)) do
-        list[#list + 1] = { label = item.name, entry = item }
-    end
-    self.buckler = { list = list, sel = 1, title = (rule and rule.title) or 'Sub: Offhand' }
-    if not self.focused then
-        self.focus_window = navigation and navigation.window
-        self.focus_cursor = navigation and (navigation.cursor or navigation.selected)
-    end
 end
 
 function UI:resolve_icon(entry)
@@ -403,60 +358,6 @@ function UI:draw(anchor, now, window, cursor)
     imgui.PopStyleVar()
 
     snapshot = self.state:snapshot()
-    if self.buckler and not WeaponConfig.active(snapshot) then self:close_buckler() end
-
-    if self.buckler and not snapshot.open then
-        local bk = self.buckler
-        local rows, row_h = #bk.list, 28
-        local bw, bh = 240 * sx, (36 + rows * row_h + 8) * sy
-        local display = imgui.GetIO().DisplaySize
-        local dw, dh = display.x or display[1], display.y or display[2]
-        if dw > 0 and dh > 0 then
-            local bx = anchor.x + 52 * sx
-            if bx + bw > dw then bx = anchor.x - bw - 8 * sx end
-            bx = math.max(0, math.min(bx, dw - bw))
-            local by = math.max(0, math.min(anchor.y + 2 * sy, dh - bh))
-            local mx, my = imgui.GetMousePos()
-            local moved = mx ~= self.mouse_x or my ~= self.mouse_y
-            self.mouse_x, self.mouse_y = mx, my
-            imgui.PushStyleVar(ImGuiStyleVar_WindowPadding, { 0, 0 })
-            imgui.SetNextWindowPos({ bx, by }, ImGuiCond_Always)
-            imgui.SetNextWindowSize({ bw, bh }, ImGuiCond_Always)
-            local chosen
-            if imgui.Begin('##crystal_buckler', nil, flags) then
-                local draw = imgui.GetWindowDrawList()
-                panel(draw, bx, by, bw, bh)
-                text(draw, bx + 12 * sx, by + 9 * sy, bk.title or 'Sub: Offhand')
-                draw:AddLine({ bx + 12 * sx, by + 32 * sy }, { bx + bw - 12 * sx, by + 32 * sy }, colors.edge)
-                for i, row in ipairs(bk.list) do
-                    local top = 36 + (i - 1) * row_h
-                    imgui.SetCursorPos({ 5 * sx, top * sy })
-                    local clicked = imgui.InvisibleButton('##buckler_' .. i, { bw - 10 * sx, row_h * sy })
-                    if clicked then
-                        bk.sel = i
-                        chosen = i
-                    elseif imgui.IsItemHovered() and moved then
-                        bk.sel = i
-                    end
-                    if bk.sel == i then
-                        draw:AddRectFilled({ bx + 5 * sx, by + top * sy },
-                            { bx + bw - 5 * sx, by + (top + row_h) * sy }, colors.selection, 2 * sy)
-                        draw:AddRectFilled({ bx + 5 * sx, by + (top + 6) * sy },
-                            { bx + 7 * sx, by + (top + row_h - 6) * sy }, colors.silver)
-                    end
-                    text(draw, bx + 16 * sx, by + (top + 7) * sy, row.label,
-                        row.entry and colors.text or colors.secondary)
-                end
-            end
-            imgui.End()
-            imgui.PopStyleVar()
-            if chosen then
-                WeaponConfig.equip(bk.list[chosen].entry)
-                self:close_buckler()
-            end
-        end
-    end
-
     if not snapshot.open then return end
     catalog = snapshot.catalog
     entries = (catalog and catalog.entries) or {}

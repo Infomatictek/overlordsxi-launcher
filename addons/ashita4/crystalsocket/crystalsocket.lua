@@ -1,6 +1,6 @@
 addon.name = 'crystalsocket'
 addon.author = 'SoulspireXI / Crystal Socket'
-addon.version = '0.3.7'
+addon.version = '0.3.8'
 addon.desc = 'SoulspireXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
 
 require('common')
@@ -12,6 +12,8 @@ local state = require('state').new()
 local UI = require('ui')
 local Menu = require('menu')
 local labels = require('job_labels').new()
+local WeaponConfig = require('weapon_config')
+local native_weapon_rules = WeaponConfig.native_rules()
 
 local character_id = 0
 local ui, menu
@@ -145,14 +147,6 @@ end
 
 ashita.events.register('command', 'crystalsocket_command', function(e)
     local cmd = e.command:lower()
-    if cmd:match('^/equip%s+sub%f[%s%z]') then
-        context()
-        local WeaponConfig = require('weapon_config')
-        if WeaponConfig.command(cmd, state:snapshot()) then
-            e.blocked = true
-            return
-        end
-    end
     if cmd:match('^/crystalsocket%s+sync%s*$') then
         e.blocked = true
         context()
@@ -175,6 +169,14 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
                 dll_st.search_rows, dll_st.hooks, dll_st.enabled, dll_st.last_error))
         else
             print('[crystalsocket] Native status unavailable: ' .. tostring(labels.last_status_error))
+        end
+        local wpn_st = labels:weapon_status()
+        if wpn_st then
+            print(('[crystalsocket] Native weapon rules: count=%d gen=%d lvl=%d allow=%d deny=%d hooks=%d/%d'):format(
+                wpn_st.rule_count, wpn_st.rule_generation, wpn_st.effective_level,
+                wpn_st.allow_hits, wpn_st.deny_hits, wpn_st.total_hooks, wpn_st.expected_hooks))
+        else
+            print('[crystalsocket] Native weapon rules unavailable: ' .. tostring(labels.weapon_rules_error))
         end
         return
     end
@@ -219,6 +221,15 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
             dll_st.enabled, dll_st.hooks, dll_st.job, dll_st.known, dll_st.branch,
             dll_st.item_labels, dll_st.search_labels, dll_st.full_labels, dll_st.search_rows, dll_st.last_error))
     end
+    local wpn_st = labels:weapon_status()
+    if wpn_st then
+        report(('[crystalsocket] weapon_rules synced=%s count=%d gen=%d lvl=%d allow=%d deny=%d hooks=%d/%d'):format(
+            tostring(labels.weapon_rules_synced), wpn_st.rule_count, wpn_st.rule_generation,
+            wpn_st.effective_level, wpn_st.allow_hits, wpn_st.deny_hits, wpn_st.total_hooks, wpn_st.expected_hooks))
+    else
+        report(('[crystalsocket] weapon_rules synced=%s error=%s'):format(
+            tostring(labels.weapon_rules_synced), tostring(labels.weapon_rules_error)))
+    end
     report(('[crystalsocket] tx queued=%d request=%s observed=%d size=%s buffer=%s injected=%s blocked=%s'):format(
         transport.queued, tostring(transport.request_id), transport.outgoing, tostring(transport.out_size),
         tostring(transport.out_buffer), tostring(transport.out_injected), tostring(transport.out_blocked)))
@@ -258,6 +269,7 @@ ashita.events.register('load', 'crystalsocket_load', function()
     if type(addon.path) == 'string' and addon.path ~= '' then
         labels:set_dll_path(addon.path:gsub('[/\\]+$', '') .. '\\..\\..\\plugins\\crystaljobs.dll')
         labels:ensure_loaded()
+        labels:sync_weapon_rules(native_weapon_rules)
     end
     local ok, scaling = pcall(require, 'scaling')
     if not ok or scaling.scaled.w <= 0 or scaling.scaled.h <= 0 then
@@ -393,6 +405,9 @@ ashita.events.register('d3d_present', 'crystalsocket_present', function()
         ui:draw(anchor, ts, native and native.window or nil, native and native.cursor or nil)
     end
     labels:sync(state:snapshot(), character_id, ts)
+    if not labels.weapon_rules_synced and not labels.weapon_rules_missing and labels.native then
+        labels:sync_weapon_rules(native_weapon_rules)
+    end
 end)
 
 ashita.events.register('unload', 'crystalsocket_unload', function()
