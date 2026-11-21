@@ -121,7 +121,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
         self.assertNotIn("AddOutgoingPacket", wc_lua, "weapon_config.lua must not inject raw 0x050 packets")
         self.assertIn("function W.native_rules()", wc_lua)
 
-    def test_shipped_crystaljobs_dll_is_x86_pe32_with_all_20_exports(self):
+    def test_shipped_crystaljobs_dll_is_x86_pe32_with_all_21_exports(self):
         self.assertTrue(SHIPPED_DLL.is_file(), "Missing plugins/ashita4/crystaljobs.dll")
         machine, magic, chars, exports = parse_pe32_exports(SHIPPED_DLL)
         self.assertEqual(machine, 0x014C, "crystaljobs.dll must be Win32 x86 (IMAGE_FILE_MACHINE_I386)")
@@ -133,6 +133,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
             "CrystalJobsClearVisibility",
             "CrystalJobsClearWeaponRules",
             "CrystalJobsGetActionStatus",
+            "CrystalJobsGetHookDiagnostics",
             "CrystalJobsGetStatus",
             "CrystalJobsGetVisibilityStatus",
             "CrystalJobsGetWeaponStatus",
@@ -149,9 +150,8 @@ class NativeEquipmentHookTests(unittest.TestCase):
             "expDestroyPlugin",
             "expGetInterfaceVersion",
         ]
-        self.assertGreaterEqual(len(exports), 20, f"Expected >=20 PE exports, found {len(exports)}: {exports}")
-        for name in expected_exports:
-            self.assertIn(name, exports)
+        self.assertEqual(len(exports), 21, f"Expected 21 PE exports, found {len(exports)}: {exports}")
+        self.assertEqual(sorted(exports), sorted(expected_exports))
 
 
 if __name__ == "__main__":
