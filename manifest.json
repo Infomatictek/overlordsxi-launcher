@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "serverName": "SoulspireXI",
-  "tagline": "Faerie Companions (Eos & Titania) • Job Specs • 4-Tier Weaponskill Talent Trees",
+  "tagline": "Faerie Companions (Eos & Titania) \u2022 Job Specs \u2022 4-Tier Weaponskill Talent Trees",
   "defaultHost": "play.soulspirexi.com",
   "useHairpin": false,
   "ports": {
@@ -371,8 +371,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "fc894fd101e1784196c01f10ea5db0ee10d11df61ae12b4dc9f3bfa93ad06bec",
-      "size": 19363
+      "sha256": "0498ee4b14cac90c5f34e3d1337b77ae34dea58825e57834b0c2d056b660edf4",
+      "size": 19379
     },
     {
       "category": "addon",
@@ -418,10 +418,24 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/tests/weapon_config_test.lua",
+      "targetPath": "crystalsocket/tests/weapon_config_test.lua",
+      "sha256": "d5542f7d7e03345711d35e9a450db57a930ecc97b032bcefbcafb9522d838fa8",
+      "size": 6993
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "77e764d7f64151af9b4af1939e453949a236e1d62471ec88d734e8d3718a41a6",
-      "size": 24033
+      "sha256": "77bb657f94e8964e0a12bf5ce3956d656cffabaa0fc3fcc9f6e364bf556d13ca",
+      "size": 24202
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/weapon_config.lua",
+      "targetPath": "crystalsocket/weapon_config.lua",
+      "sha256": "cc8051b08317e47ad62362b706b5d38e9090874c4e3993c5aa7ada15882df142",
+      "size": 9347
     },
     {
       "category": "addon",
