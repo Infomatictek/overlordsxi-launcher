@@ -65,6 +65,8 @@ class SoulSpellClientAuditTests(unittest.TestCase):
         self.assertIn("can_use_spell_detour.restore()", cpp)
         self.assertIn("missing_spell_bit_detour.install(base)", cpp)
         self.assertIn("missing_spell_bit_detour.restore()", cpp)
+        self.assertIn("{0x22E64D, reinterpret_cast<void*>(&menu_spell_elig_hook)}", cpp)
+        self.assertIn("original_spell_elig = reinterpret_cast<uintptr_t>(base + 0x1021A0)", cpp)
         self.assertIn("format_action_description(", cpp)
         self.assertIn("format_action_description(", hdr)
         self.assertIn("ch < 0x20u || ch >= 0x7Fu", hdr)

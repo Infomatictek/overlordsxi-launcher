@@ -737,11 +737,47 @@ static CrystalJobsVisibilityEntry make_vis(uint8_t job, uint8_t branch, uint32_t
     return e;
 }
 
+static uint32_t fake_spell_elig_calls = 0;
+static uint8_t fake_spell_elig_return = 0;
+static uint32_t fake_spell_elig_last_arg0 = 0;
+static uint8_t __cdecl fake_spell_elig_fn(uint32_t a0, uint32_t, uint32_t, uint32_t, uint32_t,
+                                          uint32_t, uint32_t, uint32_t, uint32_t, uint32_t) noexcept {
+    ++fake_spell_elig_calls;
+    fake_spell_elig_last_arg0 = a0;
+    return fake_spell_elig_return;
+}
+
+static __declspec(naked) uint8_t __cdecl menu_spell_elig_abi(const uint8_t*, uint32_t) {
+    __asm {
+        push esi
+        mov esi, [esp + 8]
+        mov eax, [esp + 12]
+        push 0
+        push 0
+        push 0
+        push 0
+        push 0
+        push 0
+        push 0
+        push 0
+        push 0
+        push eax
+        call menu_spell_elig_hook
+        add esp, 40
+        pop esi
+        ret
+    }
+}
+
 static void visibility_checks() {
     original_can_show_spell = &fake_can_show_spell_fn;
     original_set_list_count = reinterpret_cast<uintptr_t>(&fake_set_list_count_fn);
+    original_spell_elig = reinterpret_cast<uintptr_t>(&fake_spell_elig_fn);
     fake_can_show_calls = 0;
     fake_set_list_count_calls = 0;
+    fake_spell_elig_calls = 0;
+    fake_spell_elig_return = 0;
+    fake_spell_elig_last_arg0 = 0;
 
     uint8_t mock_job = 13;
     uint8_t mock_lvl = 25;
@@ -808,15 +844,27 @@ static void visibility_checks() {
     mock_job = 21; mock_lvl = 9; ev[2] = 21; ev[3] = 3;
     state.update(ev, 8, GetTickCount());
     assert(soul_knows_missing_spell(spell160) == 0);
+    // Magic Menu pre-cast validator (0x22E64D -> 0x1021A0) must reject below unlock,
+    // allow at GEO10..30 even when vanilla 114.DAT returns 0, and fall through for unmanaged spells.
+    fake_spell_elig_return = 0;
+    assert(menu_spell_elig_abi(spell160, 0x11223344u) == 0 && fake_spell_elig_calls == 0);
     mock_lvl = 10;
     assert(soul_knows_missing_spell(spell160) == 1);
     assert(soul_knows_missing_spell(spell339) == 0);
+    assert(menu_spell_elig_abi(spell160, 0x11223344u) == 1 && fake_spell_elig_calls == 0);
     mock_lvl = 30;
     assert(soul_knows_missing_spell(spell160) == 1);
+    assert(menu_spell_elig_abi(spell160, 0x11223344u) == 1 && fake_spell_elig_calls == 0);
+    assert(menu_spell_elig_abi(spell339, 0x11223344u) == 0 && fake_spell_elig_calls == 1 && fake_spell_elig_last_arg0 == 0x11223344u);
+    fake_spell_elig_return = 1;
+    assert(menu_spell_elig_abi(spell339, 0x55667788u) == 1 && fake_spell_elig_calls == 2 && fake_spell_elig_last_arg0 == 0x55667788u);
     mock_lvl = 35;
     assert(soul_knows_missing_spell(spell160) == 1);
+    assert(menu_spell_elig_abi(spell160, 0x11223344u) == 1 && fake_spell_elig_calls == 2);
     mock_job = 13;
     assert(soul_knows_missing_spell(spell160) == 0);
+    fake_spell_elig_return = 0;
+    assert(menu_spell_elig_abi(spell160, 0x99AABBCCu) == 0 && fake_spell_elig_calls == 3 && fake_spell_elig_last_arg0 == 0x99AABBCCu);
     mock_job = 13; ev[2] = 13; ev[3] = 1;
     state.update(ev, 8, GetTickCount());
 
@@ -992,11 +1040,11 @@ int main() {
     const auto get_vis_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsVisibilityStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetVisibilityStatus"));
     assert(get_vis_st != nullptr);
     CrystalJobsVisibilityStatus vis_st{};
-    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 22 && vis_st.total_hooks == 0);
+    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 23 && vis_st.total_hooks == 0);
     const auto get_action_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsActionStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetActionStatus"));
     assert(get_action_st != nullptr);
     CrystalJobsActionStatus act_st{};
-    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 22 && act_st.total_hooks == 0);
+    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 23 && act_st.total_hooks == 0);
     assert(get_iface != nullptr && create_plugin != nullptr && destroy_plugin != nullptr);
     assert(get_iface() == 4.30);
     void* plugin = create_plugin("");

@@ -52,6 +52,7 @@ static uintptr_t original_ability_name_row;
 static uintptr_t original_ability_name_target;
 static uintptr_t original_ability_desc;
 static uintptr_t original_set_list_count;
+static uintptr_t original_spell_elig;
 static void** pname_sheet_slot;
 static const uint8_t* main_job_slot;
 static const uint8_t* main_lvl_slot;
@@ -675,6 +676,37 @@ static __declspec(naked) void missing_spell_bit_hook() {
     }
 }
 
+// The Magic Menu pre-cast validator (0x22E540, called by 0x22DDC0 on menu cast
+// confirmation and 0x22E4B0 on row coloring) checks static ROM/118/114.DAT job
+// levels via 0x1021A0 at 0x22E64D without calling CanUseSpell (0x22CDE0).
+// Intercept that call so active-Soul unlocked spells pass the job/level check
+// while preserving silence, recast, MP, BLU set-spell, and vanilla/subjob checks.
+static int32_t __stdcall decide_menu_spell_elig(const uint8_t* spell_resource) noexcept {
+    if (spell_resource == nullptr) return -1;
+    const uint16_t spell_id = u16(spell_resource);
+    if (spell_id == 0 || spell_id > 1023u) return -1;
+    const VisibilityDecision decision = decide_local_visibility(CRYSTALJOBS_ACTION_SPELL, spell_id);
+    if (decision == VisibilityDecision::Show) return 1;
+    if (decision == VisibilityDecision::Hide) return 0;
+    return -1;
+}
+
+static __declspec(naked) void menu_spell_elig_hook() {
+    __asm {
+        pushad
+        push esi
+        call decide_menu_spell_elig
+        test eax, eax
+        js stock
+        mov [esp + 28], eax
+        popad
+        ret
+    stock:
+        popad
+        jmp dword ptr [original_spell_elig]
+    }
+}
+
 static void __stdcall compact_ability_menu_rows(uint8_t* menu_obj, int32_t* count_ptr, int32_t* saved_sel_ptr) noexcept {
     if (menu_obj == nullptr || count_ptr == nullptr || *count_ptr <= 0) return;
     if (ability_list_slot == nullptr || main_lvl_slot == nullptr) return;
@@ -900,6 +932,7 @@ static Patch patches[] = {
     {0x22614E, reinterpret_cast<void*>(&ability_icon_hook)},
     {0x22DAB9, reinterpret_cast<void*>(&magic_list_filter_hook)},
     {0x22562F, reinterpret_cast<void*>(&ability_list_filter_hook)},
+    {0x22E64D, reinterpret_cast<void*>(&menu_spell_elig_hook)},
 };
 
 // Detour the central FFXI CanUseSpell function (0x22CDE0) itself so BOTH the
@@ -1129,6 +1162,7 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     original_ability_name_target = reinterpret_cast<uintptr_t>(base + 0x2250A0);
     original_ability_desc = reinterpret_cast<uintptr_t>(base + 0x225190);
     original_set_list_count = reinterpret_cast<uintptr_t>(base + 0x223090);
+    original_spell_elig = reinterpret_cast<uintptr_t>(base + 0x1021A0);
     pname_sheet_slot = reinterpret_cast<void**>(base + 0x664014);
     main_job_slot = base + 0x4867F0;
     main_lvl_slot = base + 0x4867F1;
@@ -1295,7 +1329,8 @@ extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus
         if (patch_installed_at(0x22614E)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_ICONS;
         if (patch_installed_at(0x22DAB9)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_FILTER;
         if (patch_installed_at(0x22562F)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_FILTER;
-        if (can_use_spell_detour.site != nullptr && missing_spell_bit_detour.site != nullptr &&
+        if (patch_installed_at(0x22E64D) &&
+            can_use_spell_detour.site != nullptr && missing_spell_bit_detour.site != nullptr &&
             std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0 &&
             std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) {
             st.capabilities |= CRYSTALJOBS_CAP_SOUL_CAST_LOOKUP;
