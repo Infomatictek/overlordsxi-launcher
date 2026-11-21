@@ -35,7 +35,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "fc3acf733034e21aa1b820f0338371dd28be08f662ddde07ab9e75069979f2c0",
+      "sha256": "c015f4fb1f228d5ce6396d9b8eeda2e81193304b62b58520f3e74f22b98385a4",
       "size": 403280
     },
     {
@@ -6069,15 +6069,15 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/data/soul_actions.tsv",
       "targetPath": "soulspire_soul_actions/data/soul_actions.tsv",
-      "sha256": "0ddcfa43f464c345b086d19fcaff8c664b8790d5f010ef9b5c0377f2c6cbcc9f",
-      "size": 20476
+      "sha256": "2081c953a81dcd883d8d9e9125b58bb563f536a9d20060e8c1f58b4ff4298e94",
+      "size": 20462
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/data/visibility.tsv",
       "targetPath": "soulspire_soul_actions/data/visibility.tsv",
-      "sha256": "567782dd1de1b8f2adc1b5d6db494564262820d1d91b135978f3c8ef2b1eff57",
-      "size": 5410
+      "sha256": "480953cd89a3f189e483900148aca0d6f80d2b23665917b6206d3aadf27af78b",
+      "size": 5440
     },
     {
       "category": "addon",

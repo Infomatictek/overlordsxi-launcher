@@ -60,7 +60,9 @@ static thread_local int32_t tls_magic_row_id = -1;
 static thread_local int32_t tls_ability_row_id = -1;
 static thread_local char tls_action_name[80]{};
 static thread_local char tls_action_desc[192]{};
+static thread_local char tls_action_desc_fmt[192]{};
 static thread_local char tls_action_row[80]{};
+static constexpr size_t kHelpWindDescMaxChars = 96;
 static std::atomic<uint32_t> action_row_max_chars{16};
 #ifdef CRYSTALJOBS_SELFTEST
 static bool selftest_alive;
@@ -444,8 +446,11 @@ static const char* __stdcall resolve_magic_target_name(int32_t spell_id) noexcep
 
 static const char* __stdcall resolve_magic_desc(int32_t spell_id) noexcept {
     if (const char* custom = resolve_action_string(CRYSTALJOBS_ACTION_SPELL, spell_id, true)) {
+        if (!format_action_description(custom, tls_action_desc_fmt, sizeof(tls_action_desc_fmt), kHelpWindDescMaxChars)) {
+            return nullptr;
+        }
         ++magic_desc_hits;
-        return custom;
+        return tls_action_desc_fmt;
     }
     return nullptr;
 }
@@ -484,8 +489,11 @@ static const char* __stdcall resolve_ability_target_name(int32_t ability_id) noe
 
 static const char* __stdcall resolve_ability_desc(int32_t ability_id) noexcept {
     if (const char* custom = resolve_action_string(ability_kind_for_id(ability_id), ability_id, true)) {
+        if (!format_action_description(custom, tls_action_desc_fmt, sizeof(tls_action_desc_fmt), kHelpWindDescMaxChars)) {
+            return nullptr;
+        }
         ++ability_desc_hits;
-        return custom;
+        return tls_action_desc_fmt;
     }
     return nullptr;
 }
@@ -862,6 +870,67 @@ static Patch patches[] = {
     {0x22562F, reinterpret_cast<void*>(&ability_list_filter_hook)},
 };
 
+// Detour the central FFXI CanUseSpell function (0x22CDE0) itself so BOTH the
+// Magic Menu display AND cast-execution / /ma command checks consult the active
+// Soul's visibility/eligibility policy instead of rejecting Soul-backported
+// spells against static ROM/118/114.DAT job levels.
+// The verified 5-byte prologue at 0x22CDE0 is a single self-contained
+// `mov eax, ds:[main_job_slot]` (0xA1 imm32) instruction.
+struct PrologueDetour {
+    uintptr_t rva;
+    void* replacement;
+    uint8_t original[5]{}, installed[5]{};
+    uint8_t* site = nullptr;
+    uint8_t* trampoline = nullptr;
+
+    bool install(uint8_t* base, CanShowSpell& out_trampoline) {
+        if (site != nullptr) return std::memcmp(site, installed, 5) == 0;
+        uint8_t* target = base + rva;
+        if (target[0] != 0xA1u) return false;
+        if (trampoline == nullptr) {
+            trampoline = static_cast<uint8_t*>(VirtualAlloc(nullptr, 16, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE));
+            if (trampoline == nullptr) return false;
+        }
+        std::memcpy(original, target, 5);
+        std::memcpy(trampoline, original, 5);
+        trampoline[5] = 0xE9u;
+        const uint32_t back_rel = static_cast<uint32_t>(
+            reinterpret_cast<uintptr_t>(target + 5) - reinterpret_cast<uintptr_t>(trampoline + 10));
+        std::memcpy(trampoline + 6, &back_rel, 4);
+        FlushInstructionCache(GetCurrentProcess(), trampoline, 10);
+        out_trampoline = reinterpret_cast<CanShowSpell>(trampoline);
+
+        installed[0] = 0xE9u;
+        const uint32_t jmp_rel = static_cast<uint32_t>(
+            reinterpret_cast<uintptr_t>(replacement) - reinterpret_cast<uintptr_t>(target + 5));
+        std::memcpy(installed + 1, &jmp_rel, 4);
+
+        DWORD protection = 0, discarded = 0;
+        if (!VirtualProtect(target, 5, PAGE_EXECUTE_READWRITE, &protection)) return false;
+        std::memcpy(target, installed, 5);
+        const bool flushed = FlushInstructionCache(GetCurrentProcess(), target, 5) != 0;
+        const bool restored = VirtualProtect(target, 5, protection, &discarded) != 0;
+        if (!flushed || !restored) return false;
+        site = target;
+        return true;
+    }
+
+    bool restore() {
+        if (site == nullptr) return true;
+        if (std::memcmp(site, original, 5) == 0) { site = nullptr; return true; }
+        if (std::memcmp(site, installed, 5) != 0) { site = nullptr; return false; }
+        DWORD protection = 0, discarded = 0;
+        if (!VirtualProtect(site, 5, PAGE_EXECUTE_READWRITE, &protection)) return false;
+        std::memcpy(site, original, 5);
+        const bool flushed = FlushInstructionCache(GetCurrentProcess(), site, 5) != 0;
+        const bool restored = VirtualProtect(site, 5, protection, &discarded) != 0;
+        site = nullptr;
+        return flushed && restored;
+    }
+};
+
+static PrologueDetour can_use_spell_detour{0x22CDE0, reinterpret_cast<void*>(&magic_list_filter_hook)};
+
 static bool host_detour(uint8_t* entry, const uint8_t* expected, size_t length, size_t stolen, HMODULE host) noexcept {
     if (host == nullptr || entry[0] != 0xe9 || stolen < 5 || stolen >= length) return false;
     for (size_t at = 5; at < stolen; ++at) {
@@ -954,6 +1023,8 @@ static bool supported_impl(uint8_t* base) noexcept {
         for (const auto& patch : patches) {
             if (patch.rva == signature.rva && patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) skip = 5;
         }
+        if (signature.rva == can_use_spell_detour.rva && can_use_spell_detour.site != nullptr &&
+            std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) skip = 5;
         if (std::memcmp(base + signature.rva + skip, expected + skip, sizeof(expected) - skip) != 0) return false;
     }
     return true;
@@ -984,6 +1055,7 @@ extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     soul_override = {};
     ReleaseSRWLockExclusive(&state_lock);
     uint32_t failure = 0;
+    if (!can_use_spell_detour.restore()) failure = 3;
     for (size_t index = sizeof(patches) / sizeof(*patches); index-- > 0;) {
         auto& patch = patches[index];
         // Late high-ID replies must still be consumed after their last request was sent.
@@ -1033,6 +1105,11 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
             const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
             last_error.store(failure); return failure;
         }
+    }
+    if (!can_use_spell_detour.install(base, original_can_show_spell)) {
+        ReleaseSRWLockExclusive(&lifecycle_lock);
+        const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
+        last_error.store(failure); return failure;
     }
     AcquireSRWLockExclusive(&state_lock);
     transport.reset(state);
