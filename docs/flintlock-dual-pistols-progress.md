@@ -68,10 +68,40 @@ True live runtime switching of the 278 dual-pistol DATs on Soul change (without 
   - `tests/flintlock_spec.lua`: Pure-Lua unit tests covering Soul gating, `0x01A`/`0x0028` packet parsing, cancel handling, firearm classification, yaw math, zone reset, and reversible Pivot INI toggling.
 - **Compatibility**: Zero modifications to `native/crystaljobs/crystaljobs.dll`, `crystalsocket`, `soulspire_soul_actions`, equipment rules, or server combat mechanics.
 
-### Stage 3 — Validation (Pending)
-- Run focused automated tests (manifest verification, asset mapping/integrity, Flintlock-only gating, CrystalSocket / Soul Actions / `crystaljobs.dll` compatibility).
-- Provide manual Windows in-game test checklist.
-- Commit and push Stage 3 separately.
+### Stage 3 — Validation (Completed — Automated; Windows In-Game Verification Pending)
+
+#### Automated Test Results (All Passing)
+- `scripts/verify-launcher-manifest.py`: **PASSED** (1,114 core entries + 278 optional overlay entries verified, read-only, 0 conflicts with base `dat-overlay/ROM/`).
+- `tests/test_flintlock_dual_pistols.py`: **4/4 PASSED** (asset count/mapping for 7 skeletons + 271 firearms, 0 base DAT conflicts, `defaultEnabled: false` & `soulGate` checks, conflict rejection, Flintlock Lua spec).
+- `tests/test_manifest_verification.py`: **9/9 PASSED**.
+- `tests/test_soul_spell_dat_and_actions.py`: **5/5 PASSED**.
+- `tests/test_native_equipment_hook.py`: **5/5 PASSED** (`crystaljobs.dll` Win32 x86 PE32 with all 21 exports intact and untouched).
+- LuaJIT addon regression suite: **12/12 PASSED** (`crystalsocket` 2/2, `soulspire_soul_actions` 9/9, `soulspire_flintlock` 1/1).
+- Note: `SoulspireLauncher.Tests` (C# / .NET WPF) and live FFXI client rendering require Windows and have not yet been executed in-game; do not claim live animation compatibility until the checklist below is verified on Windows.
+
+#### Manual Windows In-Game Test Checklist
+1. **Default / Non-Flintlock Safety**:
+   - Launch SoulspireXI Launcher with default settings (`Enable Flintlock Dual Pistols DAT overlay` unchecked).
+   - Verify `config/pivot/soulspirexi.ini` has only `0=soulspirexi` and `polplugins/DATs/flintlock-akimbo-compact/` is NOT synced.
+   - Log in as COR Gambler/Buccaneer or RNG with a gun; confirm normal single-gun idle, holster, and `/ra <t>`. Run `/flintlock status` and confirm `FlintlockActive=false`.
+2. **Opt-In Sync & Idle / Holster**:
+   - Close FFXI, check **Enable Flintlock Dual Pistols DAT overlay (75% compact, COR Flintlock opt-in)** in the launcher, sync, and launch a fresh FFXI client.
+   - Equip COR **Flintlock** Soul + **Silver Gun** + **Bronze Bullet**.
+   - Stand, walk, and run in a 3/4 camera view: verify 75% matching dual pistols on both hips in the Mariner leather-and-brass loops.
+   - Equip a second firearm (e.g., Troll Gun or Death Penalty) and verify both pistols update together; unequip firearm to confirm both disappear.
+3. **Ranged Attacks & Auto-Facing**:
+   - Face away from a mob and execute `/ra <t>` (and `/ra <stnpc>`): verify character turns toward the target (Flintlock auto-aim), draws both pistols from the hip loops, fires two visual recoil beats with dual muzzle flashes, and returns both guns to the holsters while resolving one vanilla ranged attack (damage, TP, 1 ammo).
+   - Move mid-ready to cancel `/ra`: verify clean interrupted return and no stuck weapons.
+   - Fire a stock single-gun WS (e.g., Slug Shot / Last Stand): verify primary pistol draws while second remains holstered.
+4. **Soul Switching**:
+   - Switch COR Soul from **Flintlock** to **Gambler** or **Buccaneer**: verify `/flintlock status` shows `FlintlockActive=false`, auto-facing stops immediately, and the one-time restart advisory appears.
+   - Run `/flintlock overlay off`, restart FFXI, and confirm vanilla single-gun animations are restored with no residual artifacts.
+5. **Zoning & Relogging**:
+   - With Flintlock overlay enabled, zone across 2–3 zones (town ↔ field ↔ mog house) and perform a full `/logout` + relog.
+   - Confirm no client crash, no corrupted skeleton/weapon state, and `/flintlock status` re-syncs cleanly after zone/relog.
+6. **Controller / Gamepad Operation**:
+   - Trigger `/ra <t>` via gamepad macro/menu and navigate the Equipment + CrystalSocket menu (`crystalsocket`) and Magic/Ability menus (`soulspire_soul_actions`) with controller D-pad/confirm/cancel.
+   - Confirm zero input conflicts with `soulspire_flintlock`, `crystalsocket`, or `crystaljobs.dll`.
 
 ---
 
