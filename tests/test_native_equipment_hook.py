@@ -62,9 +62,11 @@ class NativeEquipmentHookTests(unittest.TestCase):
             "CRYSTALJOBS_WEAPON_MODE_DUAL_1H",
             "typedef struct CrystalJobsWeaponRule",
             "typedef struct CrystalJobsWeaponStatus",
+            "typedef struct CrystalJobsHookDiagnostics",
             "CrystalJobsReplaceWeaponRules",
             "CrystalJobsClearWeaponRules",
             "CrystalJobsGetWeaponStatus",
+            "CrystalJobsGetHookDiagnostics",
         ):
             self.assertIn(sym, header)
 
@@ -74,6 +76,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
             "CrystalJobsReplaceWeaponRules@8",
             "CrystalJobsClearWeaponRules@0",
             "CrystalJobsGetWeaponStatus@8",
+            "CrystalJobsGetHookDiagnostics@8",
         ):
             self.assertIn(exp, def_text)
             self.assertIn(exp, build_cmd)
@@ -87,7 +90,10 @@ class NativeEquipmentHookTests(unittest.TestCase):
         self.assertIn("base + 0x6229C0", cpp)
         self.assertIn("static_assert(sizeof(CrystalJobsWeaponRule) == 24)", cpp)
         self.assertIn("static_assert(sizeof(CrystalJobsWeaponStatus) == 36)", cpp)
-        self.assertIn("sizeof(patches) / sizeof(*patches)) + 3", cpp)
+        self.assertIn("static_assert(sizeof(CrystalJobsHookDiagnostics) == 60)", cpp)
+        self.assertIn("static_assert(kExpectedHooks == 24u)", cpp)
+        self.assertIn("collect_hook_state(", cpp)
+        self.assertIn("CrystalJobsGetHookDiagnostics", cpp)
         self.assertIn("CRYSTALJOBS_CAP_SOUL_SUB_WEAPON", cpp)
 
         selftest = (NATIVE_DIR / "selftest.cpp").read_text(encoding="utf-8")
@@ -95,6 +101,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
         self.assertIn("wpn_st.expected_hooks == 24", selftest)
         self.assertIn("vis_st.expected_hooks == 24", selftest)
         self.assertIn("act_st.expected_hooks == 24", selftest)
+        self.assertIn("CrystalJobsGetHookDiagnostics", selftest)
 
     def test_crystalsocket_removed_custom_equipment_picker_and_preserves_soul_ui(self):
         self.assertFalse((CS_DIR / "buckler.lua").exists(), "Legacy buckler.lua must be removed")
@@ -114,7 +121,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
         self.assertNotIn("AddOutgoingPacket", wc_lua, "weapon_config.lua must not inject raw 0x050 packets")
         self.assertIn("function W.native_rules()", wc_lua)
 
-    def test_shipped_crystaljobs_dll_is_x86_pe32_with_all_20_exports(self):
+    def test_shipped_crystaljobs_dll_is_x86_pe32_with_all_21_exports(self):
         self.assertTrue(SHIPPED_DLL.is_file(), "Missing plugins/ashita4/crystaljobs.dll")
         machine, magic, chars, exports = parse_pe32_exports(SHIPPED_DLL)
         self.assertEqual(machine, 0x014C, "crystaljobs.dll must be Win32 x86 (IMAGE_FILE_MACHINE_I386)")
@@ -126,6 +133,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
             "CrystalJobsClearVisibility",
             "CrystalJobsClearWeaponRules",
             "CrystalJobsGetActionStatus",
+            "CrystalJobsGetHookDiagnostics",
             "CrystalJobsGetStatus",
             "CrystalJobsGetVisibilityStatus",
             "CrystalJobsGetWeaponStatus",
@@ -142,7 +150,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
             "expDestroyPlugin",
             "expGetInterfaceVersion",
         ]
-        self.assertEqual(len(exports), 20, f"Expected 20 PE exports, found {len(exports)}: {exports}")
+        self.assertEqual(len(exports), 21, f"Expected 21 PE exports, found {len(exports)}: {exports}")
         self.assertEqual(sorted(exports), sorted(expected_exports))
 
 

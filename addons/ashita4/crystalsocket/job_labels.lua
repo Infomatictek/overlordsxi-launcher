@@ -27,6 +27,53 @@ local weapon_status_type = ffi.typeof([=[struct {
     uint32_t size, version, rule_count, rule_generation, effective_level;
     uint32_t allow_hits, deny_hits, total_hooks, expected_hooks;
 }[1]]=])
+local hook_diag_type = ffi.typeof([=[struct {
+    uint32_t size, version, total_hooks, expected_hooks;
+    uint32_t installed_mask, site_set_mask, capabilities;
+    uint32_t ffxi_base, ffxi_timestamp, ffxi_image_size;
+    uint32_t init_stage, failed_rva, failed_index;
+    uint8_t  observed_bytes[8];
+}[1]]=])
+
+local bit = require('bit')
+
+Labels.INIT_STAGES = {
+    [0] = 'not_run',
+    [1] = 'bad_pe',
+    [2] = 'sig_mismatch',
+    [3] = 'pin_fail',
+    [4] = 'patch_install_fail',
+    [5] = 'detour_install_fail',
+    [6] = 'ok',
+}
+
+-- Matches crystaljobs.cpp hook bit ordering: 0..20 = patches[0..20], 21..23 = PrologueDetours.
+Labels.HOOK_SPECS = {
+    [0]  = { rva = 0x0D8CCD, name = 'encode_request' },
+    [1]  = { rva = 0x0E2282, name = 'decode_row' },
+    [2]  = { rva = 0x13C302, name = 'item_label' },
+    [3]  = { rva = 0x14868F, name = 'persona_job' },
+    [4]  = { rva = 0x1CBD4C, name = 'normal_sprite' },
+    [5]  = { rva = 0x1CC086, name = 'master_sprite' },
+    [6]  = { rva = 0x1DEE6D, name = 'full_job_1' },
+    [7]  = { rva = 0x1DEEFB, name = 'full_job_2' },
+    [8]  = { rva = 0x0FA795, name = 'map_decode' },
+    [9]  = { rva = 0x0DD5F6, name = 'map_encode' },
+    [10] = { rva = 0x22E4F5, name = 'magic_row_name' },
+    [11] = { rva = 0x22E245, name = 'magic_desc' },
+    [12] = { rva = 0x22DED1, name = 'magic_target' },
+    [13] = { rva = 0x22E51B, name = 'magic_icon' },
+    [14] = { rva = 0x226129, name = 'ability_row_name' },
+    [15] = { rva = 0x225F5D, name = 'ability_desc' },
+    [16] = { rva = 0x225916, name = 'ability_target' },
+    [17] = { rva = 0x22614E, name = 'ability_icon' },
+    [18] = { rva = 0x22DAB9, name = 'magic_list_filter' },
+    [19] = { rva = 0x22562F, name = 'ability_list_filter' },
+    [20] = { rva = 0x22E64D, name = 'menu_spell_elig' },
+    [21] = { rva = 0x22CDE0, name = 'can_use_spell_detour' },
+    [22] = { rva = 0x22CB44, name = 'missing_spell_bit_detour' },
+    [23] = { rva = 0x133D56, name = 'soul_sub_weapon_detour' },
+}
 
 -- Cache named function-pointer types once. Re-parsing an anonymous FFI
 -- function-pointer signature on every render/sync can exhaust LuaJIT's type
@@ -38,6 +85,7 @@ local signature_types = {
     CrystalJobsReplaceWeaponRules = ffi.typeof('uint32_t (__stdcall *)(const void*, uint32_t)'),
     CrystalJobsClearWeaponRules = ffi.typeof('uint32_t (__stdcall *)(void)'),
     CrystalJobsGetWeaponStatus = ffi.typeof('uint32_t (__stdcall *)(void*, uint32_t)'),
+    CrystalJobsGetHookDiagnostics = ffi.typeof('uint32_t (__stdcall *)(void*, uint32_t)'),
 }
 local exported = {}
 local state_bytes_type = ffi.typeof('uint8_t[8]')
@@ -315,6 +363,79 @@ function Labels:weapon_status()
             deny_hits = tonumber(st[0].deny_hits),
             total_hooks = tonumber(st[0].total_hooks),
             expected_hooks = tonumber(st[0].expected_hooks),
+        }
+    end)
+    return ok and info or nil
+end
+
+function Labels.format_hook_diagnostics(diag)
+    if type(diag) ~= 'table' then return {} end
+    local stage = Labels.INIT_STAGES[diag.init_stage] or tostring(diag.init_stage)
+    local sub_ok = bit.band(diag.installed_mask or 0, bit.lshift(1, 23)) ~= 0
+    local lines = {
+        ('hooks_diag stage=%s installed=%d/%d mask=0x%06X site_mask=0x%06X caps=0x%04X sub_weapon_hook=%s'):format(
+            stage, diag.total_hooks or 0, diag.expected_hooks or 24,
+            diag.installed_mask or 0, diag.site_set_mask or 0, diag.capabilities or 0,
+            sub_ok and 'OK' or 'MISSING'),
+        ('ffxi base=0x%08X ts=0x%08X size=0x%X'):format(
+            diag.ffxi_base or 0, diag.ffxi_timestamp or 0, diag.ffxi_image_size or 0),
+    }
+    local missing = {}
+    local expected = diag.expected_hooks or 24
+    for i = 0, expected - 1 do
+        local m = bit.lshift(1, i)
+        if bit.band(diag.installed_mask or 0, m) == 0 then
+            local spec = Labels.HOOK_SPECS[i]
+            local state = bit.band(diag.site_set_mask or 0, m) ~= 0 and 'overwritten' or 'not_installed'
+            if spec then
+                missing[#missing + 1] = ('#%d(0x%X %s:%s)'):format(i + 1, spec.rva, spec.name, state)
+            else
+                missing[#missing + 1] = ('#%d(%s)'):format(i + 1, state)
+            end
+        end
+    end
+    if #missing > 0 then
+        lines[#lines + 1] = 'missing_hooks=[' .. table.concat(missing, ', ') .. ']'
+    else
+        lines[#lines + 1] = 'missing_hooks=[none]'
+    end
+    if (diag.failed_rva or 0) ~= 0 or (diag.init_stage or 0) ~= 6 then
+        lines[#lines + 1] = ('failed_detail index=%s rva=0x%X observed=%s'):format(
+            diag.failed_index == 0xFFFFFFFF and 'none' or tostring(diag.failed_index),
+            diag.failed_rva or 0, tostring(diag.observed_hex or ''))
+    end
+    return lines
+end
+
+function Labels:hook_diagnostics(override_get_diag)
+    local ok, info = pcall(function()
+        local get_diag = override_get_diag
+        if not get_diag then
+            self:ensure_loaded()
+            get_diag = loaded_function('CrystalJobsGetHookDiagnostics')
+        end
+        if not get_diag then return nil end
+        local d = ffi.new(hook_diag_type)
+        if get_diag(d, ffi.sizeof(d)) ~= 0 or d[0].size ~= 60 or d[0].version ~= 1 then
+            return nil
+        end
+        local hex = {}
+        for i = 0, 7 do
+            hex[#hex + 1] = ('%02X'):format(tonumber(d[0].observed_bytes[i]))
+        end
+        return {
+            total_hooks = tonumber(d[0].total_hooks),
+            expected_hooks = tonumber(d[0].expected_hooks),
+            installed_mask = tonumber(d[0].installed_mask),
+            site_set_mask = tonumber(d[0].site_set_mask),
+            capabilities = tonumber(d[0].capabilities),
+            ffxi_base = tonumber(d[0].ffxi_base),
+            ffxi_timestamp = tonumber(d[0].ffxi_timestamp),
+            ffxi_image_size = tonumber(d[0].ffxi_image_size),
+            init_stage = tonumber(d[0].init_stage),
+            failed_rva = tonumber(d[0].failed_rva),
+            failed_index = tonumber(d[0].failed_index),
+            observed_hex = table.concat(hex, ' '),
         }
     end)
     return ok and info or nil

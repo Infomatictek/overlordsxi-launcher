@@ -51,6 +51,7 @@ if not "%VCVARS%"=="" (
         echo     CrystalJobsReplaceWeaponRules=CrystalJobsReplaceWeaponRules@8
         echo     CrystalJobsClearWeaponRules=CrystalJobsClearWeaponRules@0
         echo     CrystalJobsGetWeaponStatus=CrystalJobsGetWeaponStatus@8
+        echo     CrystalJobsGetHookDiagnostics=CrystalJobsGetHookDiagnostics@8
         echo     expCreatePlugin=expCreatePlugin@4
         echo     expDestroyPlugin=expDestroyPlugin@4
         echo     expGetInterfaceVersion=expGetInterfaceVersion@0

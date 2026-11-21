@@ -1223,13 +1223,39 @@ int main() {
     const uint8_t missing_bit_instruction[5] = {0xbd, 0xfe, 0xff, 0xff, 0xff};
     std::memcpy(memory, missing_bit_instruction, 5);
     PrologueDetour missing_bit_test{0, reinterpret_cast<void*>(&missing_spell_bit_hook), 0xBDu};
-    assert(missing_bit_test.install(memory) && memory[0] == 0xe9);
+    assert(missing_bit_test.install(memory) && memory[0] == 0xe9 && missing_bit_test.site == memory &&
+           std::memcmp(missing_bit_test.site, missing_bit_test.installed, 5) == 0);
     assert(missing_bit_test.restore() && std::memcmp(memory, missing_bit_instruction, 5) == 0);
     const uint8_t sub_weapon_instruction[5] = {0x68, 0x8b, 0x00, 0x00, 0x00};
     std::memcpy(memory, sub_weapon_instruction, 5);
     PrologueDetour sub_weapon_test{0, reinterpret_cast<void*>(&soul_sub_weapon_hook), 0x68u};
-    assert(sub_weapon_test.install(memory) && memory[0] == 0xe9);
+    assert(sub_weapon_test.install(memory) && memory[0] == 0xe9 && sub_weapon_test.site == memory &&
+           std::memcmp(sub_weapon_test.site, sub_weapon_test.installed, 5) == 0);
     assert(sub_weapon_test.restore() && std::memcmp(memory, sub_weapon_instruction, 5) == 0);
+
+    // Verify per-hook diagnostics distinguish never-installed vs post-init overwritten hooks.
+    {
+        std::memcpy(memory + 0x100, sub_weapon_instruction, 5);
+        memory[0x105] = 0xAA; memory[0x106] = 0xBB; memory[0x107] = 0xCC;
+        const uintptr_t saved_rva = soul_sub_weapon_detour.rva;
+        soul_sub_weapon_detour.rva = 0x100;
+        assert(soul_sub_weapon_detour.install(memory));
+        hook_diag = {};
+        hook_diag.init_stage = CRYSTALJOBS_INIT_OK;
+        CrystalJobsHookDiagnostics diag{};
+        assert(CrystalJobsGetHookDiagnostics(&diag, sizeof(diag)) == 0);
+        assert(diag.total_hooks == 1 && diag.expected_hooks == 24);
+        assert((diag.installed_mask & (1u << 23)) != 0 && (diag.site_set_mask & (1u << 23)) != 0);
+        // Simulate external overwrite of hook #24 in memory.
+        memory[0x100] = 0x90;
+        assert(CrystalJobsGetHookDiagnostics(&diag, sizeof(diag)) == 0);
+        assert(diag.total_hooks == 0 && (diag.installed_mask & (1u << 23)) == 0 && (diag.site_set_mask & (1u << 23)) != 0);
+        // Restore cleanly (force expected bytes back before restore so restore succeeds).
+        std::memcpy(memory + 0x100, soul_sub_weapon_detour.installed, 5);
+        assert(soul_sub_weapon_detour.restore());
+        soul_sub_weapon_detour.rva = saved_rva;
+        hook_diag = {};
+    }
     VirtualFree(memory, 0, MEM_RELEASE);
     // Verify signature relocation when FFXiMain.dll is relocated (e.g. 0x04860000 under Ashita v4).
     uint8_t reloc_sig[24];
@@ -1271,6 +1297,11 @@ int main() {
     assert(get_wpn_st != nullptr);
     CrystalJobsWeaponStatus wpn_st{};
     assert(get_wpn_st(&wpn_st, sizeof(wpn_st)) == 0 && wpn_st.version == 1 && wpn_st.expected_hooks == 24 && wpn_st.total_hooks == 0);
+    const auto get_diag = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsHookDiagnostics*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetHookDiagnostics"));
+    assert(get_diag != nullptr);
+    CrystalJobsHookDiagnostics dll_diag{};
+    assert(get_diag(&dll_diag, sizeof(dll_diag)) == 0 && dll_diag.size == 60 && dll_diag.version == 1 &&
+           dll_diag.expected_hooks == 24 && dll_diag.total_hooks == 0 && dll_diag.init_stage == CRYSTALJOBS_INIT_NOT_RUN);
     const auto get_vis_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsVisibilityStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetVisibilityStatus"));
     assert(get_vis_st != nullptr);
     CrystalJobsVisibilityStatus vis_st{};
@@ -1287,6 +1318,7 @@ int main() {
     CrystalJobsStatus snapshot{};
     assert(status(&snapshot, sizeof(snapshot)) == 0 && snapshot.version == 1 && snapshot.hooks == 0);
     assert(initialize() == 1 && status(&snapshot, sizeof(snapshot)) == 0 && snapshot.hooks == 0 && snapshot.last_error == 1);
+    assert(get_diag(&dll_diag, sizeof(dll_diag)) == 0 && dll_diag.init_stage == CRYSTALJOBS_INIT_BAD_PE);
     assert(shutdown() == 0);
     FreeLibrary(dll);
     std::puts("PASS: all 7 SoulspireXI soul jobs (WAR/MNK/BLM/SAM/DNC/SCH/RUN), mixed rows/privacy/revoke/lease, x86 adapter ABI, patch restore/conflict, native codec preservation/correlation/bounds, timeout/nonce exhaustion, late-reply sink.");
