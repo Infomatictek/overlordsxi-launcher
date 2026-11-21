@@ -1260,11 +1260,11 @@ int main() {
         CrystalJobsHookDiagnostics diag{};
         assert(CrystalJobsGetHookDiagnostics(&diag, sizeof(diag)) == 0);
         assert(diag.total_hooks == 1 && diag.expected_hooks == 27);
-        assert((diag.installed_mask & (1u << 23)) != 0 && (diag.site_set_mask & (1u << 23)) != 0);
-        // Simulate external overwrite of hook #24 in memory.
+        assert((diag.installed_mask & (1u << (kPatchCount + 2u))) != 0 && (diag.site_set_mask & (1u << (kPatchCount + 2u))) != 0);
+        // Simulate external overwrite of soul_sub_weapon_detour in memory.
         memory[0x100] = 0x90;
         assert(CrystalJobsGetHookDiagnostics(&diag, sizeof(diag)) == 0);
-        assert(diag.total_hooks == 0 && (diag.installed_mask & (1u << 23)) == 0 && (diag.site_set_mask & (1u << 23)) != 0);
+        assert(diag.total_hooks == 0 && (diag.installed_mask & (1u << (kPatchCount + 2u))) == 0 && (diag.site_set_mask & (1u << (kPatchCount + 2u))) != 0);
         // Restore cleanly (force expected bytes back before restore so restore succeeds).
         std::memcpy(memory + 0x100, soul_sub_weapon_detour.installed, 5);
         assert(soul_sub_weapon_detour.restore());
