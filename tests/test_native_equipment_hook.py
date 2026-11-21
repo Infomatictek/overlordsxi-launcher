@@ -1,10 +1,51 @@
 import pathlib
 import re
+import struct
 import unittest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 NATIVE_DIR = ROOT / "native" / "crystaljobs"
 CS_DIR = ROOT / "addons" / "ashita4" / "crystalsocket"
+SHIPPED_DLL = ROOT / "plugins" / "ashita4" / "crystaljobs.dll"
+
+
+def parse_pe32_exports(path: pathlib.Path):
+    data = path.read_bytes()
+    if data[:2] != b"MZ":
+        raise AssertionError("Missing MZ DOS signature")
+    pe_off = struct.unpack_from("<I", data, 0x3C)[0]
+    if data[pe_off : pe_off + 4] != b"PE\x00\x00":
+        raise AssertionError("Missing PE signature")
+    machine, num_sections, _, _, _, opt_size, chars = struct.unpack_from("<HHIIIHH", data, pe_off + 4)
+    opt_off = pe_off + 24
+    magic = struct.unpack_from("<H", data, opt_off)[0]
+    export_rva, export_size = struct.unpack_from("<II", data, opt_off + 96)
+
+    sections = []
+    sec_off = opt_off + opt_size
+    for i in range(num_sections):
+        off = sec_off + i * 40
+        vsize, vaddr, rsize, rptr = struct.unpack_from("<IIII", data, off + 8)
+        sections.append((vaddr, max(vsize, rsize), rptr))
+
+    def rva_to_off(rva: int) -> int:
+        for vaddr, span, rptr in sections:
+            if vaddr <= rva < vaddr + span:
+                return rptr + (rva - vaddr)
+        raise AssertionError(f"Unmapped RVA 0x{rva:x}")
+
+    names = []
+    if export_rva and export_size:
+        exp_off = rva_to_off(export_rva)
+        num_names = struct.unpack_from("<I", data, exp_off + 24)[0]
+        names_rva = struct.unpack_from("<I", data, exp_off + 32)[0]
+        names_off = rva_to_off(names_rva)
+        for i in range(num_names):
+            name_rva = struct.unpack_from("<I", data, names_off + i * 4)[0]
+            name_off = rva_to_off(name_rva)
+            end = data.index(b"\x00", name_off)
+            names.append(data[name_off:end].decode("ascii"))
+    return machine, magic, chars, names
 
 
 class NativeEquipmentHookTests(unittest.TestCase):
@@ -72,6 +113,37 @@ class NativeEquipmentHookTests(unittest.TestCase):
         wc_lua = (CS_DIR / "weapon_config.lua").read_text(encoding="utf-8")
         self.assertNotIn("AddOutgoingPacket", wc_lua, "weapon_config.lua must not inject raw 0x050 packets")
         self.assertIn("function W.native_rules()", wc_lua)
+
+    def test_shipped_crystaljobs_dll_is_x86_pe32_with_all_20_exports(self):
+        self.assertTrue(SHIPPED_DLL.is_file(), "Missing plugins/ashita4/crystaljobs.dll")
+        machine, magic, chars, exports = parse_pe32_exports(SHIPPED_DLL)
+        self.assertEqual(machine, 0x014C, "crystaljobs.dll must be Win32 x86 (IMAGE_FILE_MACHINE_I386)")
+        self.assertEqual(magic, 0x010B, "crystaljobs.dll must be PE32")
+        self.assertNotEqual(chars & 0x2000, 0, "crystaljobs.dll must have IMAGE_FILE_DLL characteristic")
+        expected_exports = [
+            "CrystalJobsClearActiveSoul",
+            "CrystalJobsClearCatalog",
+            "CrystalJobsClearVisibility",
+            "CrystalJobsClearWeaponRules",
+            "CrystalJobsGetActionStatus",
+            "CrystalJobsGetStatus",
+            "CrystalJobsGetVisibilityStatus",
+            "CrystalJobsGetWeaponStatus",
+            "CrystalJobsInitialize",
+            "CrystalJobsReplaceCatalog",
+            "CrystalJobsReplaceVisibility",
+            "CrystalJobsReplaceWeaponRules",
+            "CrystalJobsSetActionRowLimit",
+            "CrystalJobsSetActiveSoul",
+            "CrystalJobsSetState",
+            "CrystalJobsShutdown",
+            "CrystalJobsUpsertAction",
+            "expCreatePlugin",
+            "expDestroyPlugin",
+            "expGetInterfaceVersion",
+        ]
+        self.assertEqual(len(exports), 20, f"Expected 20 PE exports, found {len(exports)}: {exports}")
+        self.assertEqual(sorted(exports), sorted(expected_exports))
 
 
 if __name__ == "__main__":
