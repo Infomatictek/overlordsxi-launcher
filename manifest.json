@@ -8019,49 +8019,49 @@
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/136/117.DAT",
           "targetPath": "ROM/136/117.DAT",
-          "sha256": "baef95ffb2c61cc931fbd7df689725d359dbe1c83747c2f0b08fd29c02528332",
+          "sha256": "12020a0a6bb3ca8c1136e24f082b8c0499ecc275d990aa41cd2d983c488b3084",
           "size": 521712
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/137/36.DAT",
           "targetPath": "ROM/137/36.DAT",
-          "sha256": "6d53cca270d5433d33802838be9f7c1ada55a27b4ef1007c2481ef622327f8df",
+          "sha256": "6dcc7adb87fd294c446f0b531eb834fffceeddee46fdff4015ee3e5207191de1",
           "size": 521712
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/137/84.DAT",
           "targetPath": "ROM/137/84.DAT",
-          "sha256": "96d90c6000e2c3ed184ccae473a9c1ba94033917d083953fa87846370bf7760a",
+          "sha256": "1b6eccab1207ca7676080674d278136d2e8799523f3fbab125cdf330d4e6904d",
           "size": 521712
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/138/106.DAT",
           "targetPath": "ROM/138/106.DAT",
-          "sha256": "154a9bacba67165363b55eb2889aa4afbd13c7f9b931a8c96be3b8cb0c5d2ccf",
+          "sha256": "aa364788f15ea46fda49c94a7c7acef8aaf15978564eda99c3a9ccab08dc171f",
           "size": 521712
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/138/3.DAT",
           "targetPath": "ROM/138/3.DAT",
-          "sha256": "9b09556146b595b9be86ffc54c3f476b236cd74c704702773bd96ce3a65ed8d6",
+          "sha256": "989e32de27d875ab26e7bddd3b26d7affe52cc4a38080f51604563aeb2894540",
           "size": 521712
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/138/50.DAT",
           "targetPath": "ROM/138/50.DAT",
-          "sha256": "dc8965b41449dd26061f598a7e05b74ed8b5106d36f21b48504d2e17195dddb3",
+          "sha256": "36bfa0573e6f690dd5000b53506fe88327f4f2f8b30c42baa6eadd23653c7c6a",
           "size": 521712
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/139/25.DAT",
           "targetPath": "ROM/139/25.DAT",
-          "sha256": "64bcc9571e602a86d9a68950061813d8a73de40b172e9dbde9a800c642ef69e6",
+          "sha256": "415318691809b0f2aa86cc1311f02e6c32ce1718002e7d419f6ebf1849e54d2e",
           "size": 521712
         },
         {
@@ -8117,98 +8117,98 @@
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/143/109.DAT",
           "targetPath": "ROM/143/109.DAT",
-          "sha256": "26b752055f154fe4d9abb45f56dc7ab67e6ef28a1e9cd4969f217a7dcf29b0ce",
+          "sha256": "305e81ff8d51c48b5d0d46cb67074924ccaf16f44c717d0731ed85f4789cf6fc",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/144/125.DAT",
           "targetPath": "ROM/144/125.DAT",
-          "sha256": "d086f42c53099bcdfdfdf97a10ec0cefe7746f5f7b9df9fbc7e03b010e78761a",
+          "sha256": "853cd08add0f53a4d2ac22e98b8dfab1f2442c6829f0cb449b66b1e93b41bdae",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/144/17.DAT",
           "targetPath": "ROM/144/17.DAT",
-          "sha256": "c3366caa48ca6244721e309918d13c54a1dfa78bef245df1aae02718611323bb",
+          "sha256": "299bcfc13773473170a68361d4c8dc1057349db80d7b5184ace15c5d6d1e85f7",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/144/53.DAT",
           "targetPath": "ROM/144/53.DAT",
-          "sha256": "d75b62945700d192ecfdac5ae7cf29ac968b49d7fb21587a7ad375990d069012",
+          "sha256": "2f34c38bfd7aa1c15a10a47188aa7e1cf1f63b90d5374a22597c5c6078ae80a0",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/144/89.DAT",
           "targetPath": "ROM/144/89.DAT",
-          "sha256": "4e16551b173ea895f133afbdbf2d58030e2a1b15bd7f49ff750f2e4003b30531",
+          "sha256": "efbe42fe706f32d0a2cbdf670520e5c593b0021505d1873df5f654a4ab42a9b8",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/145/33.DAT",
           "targetPath": "ROM/145/33.DAT",
-          "sha256": "f3144d1a5ce0f61bfa771f46a364748e9d9206ea1d2146a8138de4d803dd7cb2",
+          "sha256": "366eb3657fb371a1960ae5d00cdb224f4b18a65ec5fba327c794dd254edea19a",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/145/69.DAT",
           "targetPath": "ROM/145/69.DAT",
-          "sha256": "db5d5140e156cc818567146dfd7e57840b0b19fbb5e6a82a24b7d91d6bb30a58",
+          "sha256": "77b0a98a39645f4d0aa4a684fbc8b4bdf0de642f84ea90febbf18b05b4ec4465",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/163/101.DAT",
           "targetPath": "ROM/163/101.DAT",
-          "sha256": "99dbf8cb0906280dd87d64b4883f3fb99a8d762c7f0e6ae312888dcf582f6c1d",
+          "sha256": "3b67ed34b175f70d350f0f2bd12c848a5a0083ec8f07393b9377f1c6cc0e284f",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/163/107.DAT",
           "targetPath": "ROM/163/107.DAT",
-          "sha256": "1931aee23195a6c3b9be219e51680f1257bbab2a49f4106724e02011cdf71c48",
+          "sha256": "5719070c560e6392f1065aa0c60d634df207779fd44121f2e1752489488997ff",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/163/113.DAT",
           "targetPath": "ROM/163/113.DAT",
-          "sha256": "ca3b712055b6e0dd281c373b8d311c38657bc160505a84c204e08443c470786a",
+          "sha256": "31f25bdb5674853b705769d8874b93d729cc97ed8ac025cd354de9a7d89ffbe5",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/163/119.DAT",
           "targetPath": "ROM/163/119.DAT",
-          "sha256": "aec3feadddd99936fbdc9d54849cafecd8532d7c251319a6286b1e5d1904a694",
+          "sha256": "23948b6b0af42907576ac286a64c9d86ac42bc7f3315446814e04e9c301b45d2",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/163/125.DAT",
           "targetPath": "ROM/163/125.DAT",
-          "sha256": "9b32ba11dd2681ee501ac2e7d352f48f520548581e9274f661038f02aeaa7efb",
+          "sha256": "5a567946efda7525ac4d60a61dfc38a332a75efc25a5e85eaf2218c884727882",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/164/24.DAT",
           "targetPath": "ROM/164/24.DAT",
-          "sha256": "6a502c6f555ee38c4083c59a653695049b391983cae3b6a73daa51e22349b809",
+          "sha256": "5875a8774a8c54aa9148a858d3b2e4a0990e72d0616641423260844aeff7dd36",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/164/3.DAT",
           "targetPath": "ROM/164/3.DAT",
-          "sha256": "c240ef89dcce0d3341f66b078576c6a84a898eb7f89b5c4f93d9964d36810db7",
+          "sha256": "c2911e1982471d16d87541a8d600bd2e0fa0a394d0367fed2184675a46b9e5bb",
           "size": 530576
         },
         {
@@ -8271,196 +8271,196 @@
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/169/110.DAT",
           "targetPath": "ROM/169/110.DAT",
-          "sha256": "2a2fb7e995ae04ce261ae615f5fca0c33cbcbd4306e1fea1a68177369cf25fd4",
+          "sha256": "c26830427c16bf210f466f125058f674365336aca894b71802200030441cd99a",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/169/113.DAT",
           "targetPath": "ROM/169/113.DAT",
-          "sha256": "b36933e489a2462aca3dd4c250e25e190312328cbb1e931b938b30eccfb6ca5a",
+          "sha256": "757e808eeda615453170a6a64bc2278e62ad3d094961cdd021a12a10ef93f93f",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/169/116.DAT",
           "targetPath": "ROM/169/116.DAT",
-          "sha256": "3d347cb9a9ee11a062c972de25ae5a7428eefd6428297b6e9ed7706ca8792888",
+          "sha256": "37d18c33ebfed1a1aab783cbcadcd764366e9985accecf91a73a84bc3b9c4f06",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/169/119.DAT",
           "targetPath": "ROM/169/119.DAT",
-          "sha256": "82f7128fc0d623beedabdbb5c8420ae16086120d60d71d34db658d1ffab7e475",
+          "sha256": "785a0ec7519f488bf7a5ef33d23e2d7c45fde4780ed6bb03ab0f2af479ac7552",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/169/122.DAT",
           "targetPath": "ROM/169/122.DAT",
-          "sha256": "7bf5fe685d691d80998198de1438fa5bbe3f3c44f953f298a175ccfa4927ba42",
+          "sha256": "48482a62c7799fad8b98909390d272113570889060292c7d3899b4bd8da975cb",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/169/125.DAT",
           "targetPath": "ROM/169/125.DAT",
-          "sha256": "d4706098d673cb755e481eb9c333c15cb6fe5f7bcbdcb9a447fe776fcc92f6d3",
+          "sha256": "38998998a231713bc30f478173f20bec47f4ddf90b6c4a601fe33b69ff8be339",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/170/0.DAT",
           "targetPath": "ROM/170/0.DAT",
-          "sha256": "5f520783f55d173fb9b4edf4aaffb44494af791ac7227a92bbf4e545852cd08a",
+          "sha256": "a0c3803ac03a8825fd2340362963d7b0b5a9a75191d37cf853093f767924cf65",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/183/70.DAT",
           "targetPath": "ROM/183/70.DAT",
-          "sha256": "1d9e5d672e5e5b1ae43844ac8302693731fdf9ee4803fab9fa65f391718896a7",
+          "sha256": "887d2d910dbebcdf5bbf86f6a25c3e7768943bbdcaa538a888e0d53a66dbc862",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/183/74.DAT",
           "targetPath": "ROM/183/74.DAT",
-          "sha256": "9c40c3a3003bc8e1b65088cc2246ebeeda036da0b483c6b624ea9b0246520f6e",
+          "sha256": "fb4735694d8635534bd675b4cb6036f97f4623bae305c99690c8759c78b2ff3c",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/183/78.DAT",
           "targetPath": "ROM/183/78.DAT",
-          "sha256": "9686182ab03d6cdf60a9449668723c9841eb596766568899fd37b705d062e925",
+          "sha256": "db5ebfb372d83a9c551779cf4db55d4b7688932d8ce20a4b72abf72ce2be8981",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/183/82.DAT",
           "targetPath": "ROM/183/82.DAT",
-          "sha256": "b53811b08518445360dceae78a3eb150a6d1c3d56f24ab64957f5e5ad8b7938b",
+          "sha256": "5b2c69e632e90ce255523153a4d5ed6811417e31252fd3301174780ba9b096e7",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/183/86.DAT",
           "targetPath": "ROM/183/86.DAT",
-          "sha256": "7db410d8a409ada4f01d8385a9f115e2488f95db1b7a5a065d7913a1548e3684",
+          "sha256": "d3755af3b4834785e3f681d8fdab0f7a5faed0211367e9214a158a969a6117ec",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/183/90.DAT",
           "targetPath": "ROM/183/90.DAT",
-          "sha256": "8f2855b5ce6ea73480d6c944fd9b83ad528cf444d7bf2f52c65c95d9de7e3c45",
+          "sha256": "fc785d360cd8577e18fd016838b8102190b69e9d3338670325072a21ad0effae",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/183/94.DAT",
           "targetPath": "ROM/183/94.DAT",
-          "sha256": "0d0d8e13f77bfb1d305425562496740faa4f3f4490c244b0e5fdd621e8fad71b",
+          "sha256": "f52140a49f754d7639a193101693588b65b951673e90f97a2eaf4649f5837006",
           "size": 530576
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/199/119.DAT",
           "targetPath": "ROM/199/119.DAT",
-          "sha256": "acc25a19ef7b837eb492d431b806d8cbcdf1dd4459b0fb40ad872f69769ebb35",
+          "sha256": "f7f39234b13652a15d5d2211af81c5c18f77390016cb6dbc5c8f420255af2507",
           "size": 530800
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/199/127.DAT",
           "targetPath": "ROM/199/127.DAT",
-          "sha256": "eec0cabf1853ea970afcccc8a8c6eaf8b81ce7d62bf3e474f2c7e8b3ea60eea1",
+          "sha256": "9ab7386f4dd6436b36cd9649ddef79b5f1abbddfce441c6855d130a4401e7116",
           "size": 530800
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/200/15.DAT",
           "targetPath": "ROM/200/15.DAT",
-          "sha256": "d8896d6278899edacb377bcaf83c6edc75063759ca5f63099da556773cb436e6",
+          "sha256": "729862367fa14f2bb34f1ae710912762c5a1795b7a6bf11cb8f90623a5b45ad7",
           "size": 530800
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/200/23.DAT",
           "targetPath": "ROM/200/23.DAT",
-          "sha256": "f8f1ced6160782615e135f2f7c88b8c39462ebb1eca9850e8e5bf75c7d2a5239",
+          "sha256": "a3cc4e034eba289d4769b1436519634b0882d171008bc03d470b38ae4aa56dd0",
           "size": 530800
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/200/31.DAT",
           "targetPath": "ROM/200/31.DAT",
-          "sha256": "84d14320f20720cd3b328e3d485a060db2953201aa738d05b44cab9a265f5007",
+          "sha256": "b6c9bc239d3914a828d45179bc7d52ac94aa8c0e5e7ec8f54ecd76bd771b39c0",
           "size": 530800
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/200/39.DAT",
           "targetPath": "ROM/200/39.DAT",
-          "sha256": "73735fa3598ab3bd1b98996ca93cf1869d18a97326a914ea1f351433dc1b4dd4",
+          "sha256": "c6b6afdf06f73668f7fc57e7a2546c244250c66d0f19eccda8a3b1390d8ea1a8",
           "size": 530800
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/200/7.DAT",
           "targetPath": "ROM/200/7.DAT",
-          "sha256": "a2e0cdd62a8643ef40ef534bdca53ab3eb67ce308074e263dd54733e03da30d8",
+          "sha256": "03938edcca0dc1a0659c14858a668dab969d0f1eebef9528d08f749af2e1774b",
           "size": 530800
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/203/92.DAT",
           "targetPath": "ROM/203/92.DAT",
-          "sha256": "1c4b3a48e3b96f898b8cd58894c11c0c53c9754b522ee56f25885777581cefc8",
+          "sha256": "5d0ffd93342992d9d18ab1206fcdade25d7aa177b7309ee69bd939293f859ce7",
           "size": 552896
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/204/106.DAT",
           "targetPath": "ROM/204/106.DAT",
-          "sha256": "8d71280401b4dd5b9270f42b1a8f3ea2684415cf6b711395dbdd7080ebb9e193",
+          "sha256": "13a73b59cef43da8ce05d029e90da192d3408c4b88e6621421d0af95994a7c96",
           "size": 552896
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/204/127.DAT",
           "targetPath": "ROM/204/127.DAT",
-          "sha256": "572ada9b066246360682720ade69f07e337e365ba1820d0b34a3ff49ec277880",
+          "sha256": "1f807b5d6f8209198e549068a6f60280b5efb0c0f90651a6a40ad31b20e9b31d",
           "size": 552896
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/205/20.DAT",
           "targetPath": "ROM/205/20.DAT",
-          "sha256": "50329e8e7cc80741be096a810f21dd84d9cf4e85e59903274904fad7ec2a2ca7",
+          "sha256": "393446c5a2c31f218d58c2058bb7dee4231f2f75d92b34b0d87ec066ab317c3e",
           "size": 552896
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/205/41.DAT",
           "targetPath": "ROM/205/41.DAT",
-          "sha256": "b669edc4014c67b7ae8f18703eeb88a9663952a268d660a372c8c9d8548bcdec",
+          "sha256": "20a054bf7c92e445c45c35dd703b20674d0bcc458ec2ba654be729a7efe0603a",
           "size": 552896
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/205/62.DAT",
           "targetPath": "ROM/205/62.DAT",
-          "sha256": "1a9c0391ff74dc142e5870b554bfdd0397dae0c676ed2984c2d0cabe3d3564f5",
+          "sha256": "6022b64cc3ae782e7a9be5117ddc144365c8c020e4919788ac8dcccbe2c812c1",
           "size": 552896
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/205/83.DAT",
           "targetPath": "ROM/205/83.DAT",
-          "sha256": "8ff628b8dadca7e88d238a1978f69d8c6db0cfc084855575300d5f9eca4ab209",
+          "sha256": "1f9b9007598347ed06033565bef27cb1acaf3358d9138f85992ac6ae4deb5c44",
           "size": 552896
         },
         {
@@ -8565,77 +8565,77 @@
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/210/10.DAT",
           "targetPath": "ROM/210/10.DAT",
-          "sha256": "1e276f3af0c4e73ebb59722294d2fbb84fd8fc63549ac2baffb2ebed8140d4f5",
+          "sha256": "cefd44dd3a3e29691a926979202e638660a619d7cb8b83dff2cf8a5150d87b68",
           "size": 528320
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/210/24.DAT",
           "targetPath": "ROM/210/24.DAT",
-          "sha256": "78f838ea9404f9d58a0766c620ba693c7ed32b53df88030f86b1a24b42e0b17c",
+          "sha256": "f2f0a83cc61bdd0602057ba794cc4b0b90551fa93d8337b3c667f8795c910fe4",
           "size": 528320
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/210/38.DAT",
           "targetPath": "ROM/210/38.DAT",
-          "sha256": "b0f987afb9c6af57ecf67d5aef326454b78af007e54abc20b1e6493226bbf9f1",
+          "sha256": "b0bb7a53a871856c33629f213c7fd5819e751f89ce351a9fd193254f6a1c251f",
           "size": 528320
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/210/52.DAT",
           "targetPath": "ROM/210/52.DAT",
-          "sha256": "a67620666c14a3442aa0821a1936103db18cb3c857b5e113a74ff5ca60564772",
+          "sha256": "057a958287565230a8ed8a641e3565fe98f5aaa4b328d3ef646c1e9d99f03126",
           "size": 528320
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/210/66.DAT",
           "targetPath": "ROM/210/66.DAT",
-          "sha256": "65dff93ec2f37ae9f8e85458e515cfbb0af56f7d19c99de14731134ba19478a8",
+          "sha256": "9c3c2d6990cd85fda24ad0ed3560325f5ef95d367fc4bb97eaf4ae539fee67a2",
           "size": 528320
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/210/80.DAT",
           "targetPath": "ROM/210/80.DAT",
-          "sha256": "641f9c8f101531383af6e105aa106546918722f751dd4f8b5af74e071a857e25",
+          "sha256": "7586fa48cd539d345147a0598147bc41b1d8142dbc65f7e2dc20b34269747c86",
           "size": 528320
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/210/94.DAT",
           "targetPath": "ROM/210/94.DAT",
-          "sha256": "79d6731834b60d6baa52e9b1a98fa0ce5052164a9f350e711247941877ed6b4f",
+          "sha256": "bd8a8fc5603e4daeed98d07f4b245f7139d9b930c39b7e971d8483c31bc63b00",
           "size": 528320
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/241/115.DAT",
           "targetPath": "ROM/241/115.DAT",
-          "sha256": "e60b049cafe885369ad8a6bdbd889225a86c87583efa7bde9794768c194826d6",
+          "sha256": "66f14944963cf9b36a51a5e6f92d5b5c0461ec5fc87f457ff3c07eee8183072c",
           "size": 536640
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/241/120.DAT",
           "targetPath": "ROM/241/120.DAT",
-          "sha256": "f6eb96ac1154c03ef2c31bde61028f37d34914faca855787f00990b26a5585b6",
+          "sha256": "44094d073be5a5211ac79ee8318d7b57fb7ab92164fe7221de8791ae4f498674",
           "size": 536640
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/241/125.DAT",
           "targetPath": "ROM/241/125.DAT",
-          "sha256": "65900961ad9bac2263749fb614afb9676c6caf4d87a948e18c9c408a83053cf5",
+          "sha256": "8720e3271116eea9e1e975208f1b997c508a542a0ee8dc657a4b979bd5188c32",
           "size": 536640
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/242/12.DAT",
           "targetPath": "ROM/242/12.DAT",
-          "sha256": "b497268e11021bca6834d7a61169f9ffd4988e8425a11c4a7be90fb7500eaa89",
+          "sha256": "050aef57316d71343fde7dcf6043c9f92a03b49c920b6dad39c34e485981bc03",
           "size": 536640
         },
         {
@@ -8649,21 +8649,21 @@
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/242/17.DAT",
           "targetPath": "ROM/242/17.DAT",
-          "sha256": "41e0102a66b4883869f486ca9b3e7f28b509da92e939885b2469e6ac7bbddf65",
+          "sha256": "f8fb76911d880d0b7d5ad43cdec1f9daa2648c20572bca841cc249db9ec5adf2",
           "size": 536640
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/242/2.DAT",
           "targetPath": "ROM/242/2.DAT",
-          "sha256": "321a86e8bb9e116dd999a0593b2b38f0a7f10e25c48d97d1a8a93539457c6d63",
+          "sha256": "5a588c020aaa1c37517ce243e495df2652dbf24e37abfc7b59d38e205c2461a7",
           "size": 536640
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/242/7.DAT",
           "targetPath": "ROM/242/7.DAT",
-          "sha256": "3ef5d0172ee540874489bae1c90d1dc4b532347a42b8bc2c568ed29f4a726bf8",
+          "sha256": "068ebc85e9b622cc5c0f9502310a498e20a03330e1e0028cda7d1d1c01b0f927",
           "size": 536640
         },
         {
@@ -8761,7 +8761,7 @@
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/27/82.DAT",
           "targetPath": "ROM/27/82.DAT",
-          "sha256": "97ba0c1d8db5e72d6e3ed7d4daa5f912f1f373e0268f0d373a775fe80d48af33",
+          "sha256": "b73ed259008f16949cafd23681367837223fa40728fa3e128bd4f94a94502261",
           "size": 3024944
         },
         {
@@ -8817,875 +8817,875 @@
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/272/126.DAT",
           "targetPath": "ROM/272/126.DAT",
-          "sha256": "d18fbc9038ff1ce301d068c30878ef09ff94d3482f684672404097b427800a4f",
+          "sha256": "d9836a22e10ce2730343096c14e3a46a8351589a81027f598b75c058d99e6a0c",
           "size": 542192
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/102.DAT",
           "targetPath": "ROM/273/102.DAT",
-          "sha256": "6b8e7bbf329bbfe363f112c730d56142865678f7718951124ba0e3e2228675a5",
+          "sha256": "49bfefabdecadd3d315be69c6ae305bfd72d7e8272d3fb6e862ff1416f357626",
           "size": 565968
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/104.DAT",
           "targetPath": "ROM/273/104.DAT",
-          "sha256": "43f914829ff62fc3fc04710a07c4a3a6ae0462a847498709a04a7d9b5c30e8a7",
+          "sha256": "1ee35168ef921f0750f8b7240ac2578036a969b1df6b22aed01d484f0637f75e",
           "size": 549696
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/110.DAT",
           "targetPath": "ROM/273/110.DAT",
-          "sha256": "36645abc35ceae1a3edb956dbebab0808c6633a61ea907a00ffeb47c31231e72",
+          "sha256": "bc9c29ec7c4fbeac753f453dcb7ae45772195b3988c3c8c8685ef8ce76ee2844",
           "size": 542192
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/114.DAT",
           "targetPath": "ROM/273/114.DAT",
-          "sha256": "9fe9906fbd95b780267261d2f2101a447680f289cd981687f3323d51ae943586",
+          "sha256": "f8d3036f478f3e099ca5343d18a261f8fdf985510664b0f6de379c9091606a44",
           "size": 565968
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/116.DAT",
           "targetPath": "ROM/273/116.DAT",
-          "sha256": "5febb3e32554457d324f6bebbdb5ce6cfbea9fa6257b9c62570078ce40e10431",
+          "sha256": "79905d72c94e113dd13be3110539dd7a220135215b4f1c1b9e16e39a7f1c5d01",
           "size": 549696
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/122.DAT",
           "targetPath": "ROM/273/122.DAT",
-          "sha256": "b7454e0fd08fa859a182fb2bbe624fa406717ebd76b255fa130d4ce2717d0030",
+          "sha256": "e613f64e46534689a8038384bd1531b59288acd5d26f2dcd5cf749a620d6625d",
           "size": 542192
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/126.DAT",
           "targetPath": "ROM/273/126.DAT",
-          "sha256": "2b1625c3da56020e0f0e5c28a87ccb0211fca0ab1886537aa22d459fc6f6a67f",
+          "sha256": "6d4a69fbc1e6fcaa274f6ec620c6928aa14a583b0db163f80cedc5c9f191292a",
           "size": 565968
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/2.DAT",
           "targetPath": "ROM/273/2.DAT",
-          "sha256": "885af2e714126991fb0d19ca0fc88bc421df3a96e467909c56d533dd4d23ec44",
+          "sha256": "55c9bc624d6805f41ad0c20d328bb661e66e551a9d6ec90c92497e8574ee25fb",
           "size": 565968
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/4.DAT",
           "targetPath": "ROM/273/4.DAT",
-          "sha256": "2afe3b351964a3e88f7eb0d8cbbb9cf2e7255514a4bbb4b48acb0f3e0e9fa7e2",
+          "sha256": "8a7e368d357c021db9d87241b68088676ddac341abbd4d1d198cb35a6ebea93e",
           "size": 549696
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/74.DAT",
           "targetPath": "ROM/273/74.DAT",
-          "sha256": "3f9e0bad6b667e2d30fba18ef788d42702ba7a132ec647e00f217c9301b974ce",
+          "sha256": "19243a1b029625ea6267d769b9befbf240c098111e5a4abae97d8b0f1a07a76d",
           "size": 542192
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/78.DAT",
           "targetPath": "ROM/273/78.DAT",
-          "sha256": "5b9d410efe122f75e58c1317b636b7734f7b48445630776fb526e580e6190267",
+          "sha256": "5afa46ae5509d46f622a13b72d30cd8e0a968cd6d396ca350ad274925b18829f",
           "size": 565968
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/80.DAT",
           "targetPath": "ROM/273/80.DAT",
-          "sha256": "5a449f705929ff87c1517dad78c2cd0e41723ef84617ee2da7d639e357ced0ea",
+          "sha256": "835d0e51e2a7ef185db29b1398210ad4e79e2ca268d7c42d70fcc87b85c0c810",
           "size": 549696
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/86.DAT",
           "targetPath": "ROM/273/86.DAT",
-          "sha256": "2f4eb29bf4f5dcb154aea83cb76fe2ebdf50940bbe0c9a4fd46a235f21e8c42d",
+          "sha256": "3775fd0b3a103d46c91033e65afb4d952ac10b60a76c32ea470a4de4c7cfa3f7",
           "size": 542192
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/90.DAT",
           "targetPath": "ROM/273/90.DAT",
-          "sha256": "f46a824942ea740a840900768e9687f157fc9e4e7d8f11c88676051df2add0c5",
+          "sha256": "a7110b6f341992aeab004b9b8dc4cf8ebd8c3516f696bad73c806a19ed21b9c8",
           "size": 565968
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/92.DAT",
           "targetPath": "ROM/273/92.DAT",
-          "sha256": "960860fe087bdce869e6b6a84ed2b77b22f7a3fb0fe8a12f9f8324009d21695d",
+          "sha256": "e1503051b02ef79ffed4776b039a8a0004963a52cdfef3cfc3c7fb6d10f39b0d",
           "size": 549696
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/273/98.DAT",
           "targetPath": "ROM/273/98.DAT",
-          "sha256": "609ea414864374d4ae7b9085429d4c8f1b860e7917fd2eadca887c193148f9f3",
+          "sha256": "528c83ed5d85a3e6ed57ecbd92d97899855b76d85c84dd075e84bfe0903bde42",
           "size": 542192
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/274/0.DAT",
           "targetPath": "ROM/274/0.DAT",
-          "sha256": "3721d527a794061c4c44e51d8d67f26396a637fd2d8ef2b6876d6cba7d5d90b7",
+          "sha256": "d8b876b2c836dda3f06b312b01676b6193a75e7f7e8b9ea6dcc44d2ab167266e",
           "size": 549696
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/274/10.DAT",
           "targetPath": "ROM/274/10.DAT",
-          "sha256": "6b6737861fcadf4a9727e0d360c3a9ea4be63413b9e07261c0b1249fd61e37e7",
+          "sha256": "7120b838fa2708071ae3dcca5a5cc78321be723ff1cfd2f43eb4457972a29f43",
           "size": 565968
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/274/12.DAT",
           "targetPath": "ROM/274/12.DAT",
-          "sha256": "a3bf46491a436f94267de7a7c06564358848354250349ff7f0c509212beb25c1",
+          "sha256": "78dfc148639dc514d45bd330e7034c69e0d332c78b4afb0e0fcf288ab3a655da",
           "size": 549696
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/274/6.DAT",
           "targetPath": "ROM/274/6.DAT",
-          "sha256": "d30ff3eae18d676fa6c0e35e5e11045ac86ca684736e4889ebb4254619fb4a2f",
+          "sha256": "9d1f4434d9c9fa687a56f9c4f7575b1afb746e533f25ac9eb62c3cdad9a0217e",
           "size": 542192
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/31/116.DAT",
           "targetPath": "ROM/31/116.DAT",
-          "sha256": "6df5957dd88ab9effdfc3bfb7b7f50cc40ce5a246b4f4fe6a5b8a006e3b7a405",
+          "sha256": "d18fbaf0299c1dc02fed8e48fd5f1aa5a43de5d52b8bd7c00c3e70c188583286",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/31/117.DAT",
           "targetPath": "ROM/31/117.DAT",
-          "sha256": "bf8e92d74d4653a4e0092f20d0e39e92b0b0f7ecae92937bc14254f74b731fc7",
+          "sha256": "d38a831806445677c4fb222c6ba39158c8c1613d9471d8e1d984f01c4c3354f8",
           "size": 525648
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/31/118.DAT",
           "targetPath": "ROM/31/118.DAT",
-          "sha256": "152cd1ddd181f67fd10bb8941417278ebdad8d57b39a06b3b947b37372c8f37f",
+          "sha256": "167b5fc457aaa713a2940141ea806e8aba9f03f248950b3ef228aa658de3ed6c",
           "size": 525504
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/31/119.DAT",
           "targetPath": "ROM/31/119.DAT",
-          "sha256": "2a68f9af2c9d7b5de35b4120cca4520060c2b6b0188fe776060813bbdd570fcf",
+          "sha256": "8c89147e4a272da73e8897cdc36dc6a4da00cbf7edc52ffba4a1cdd5afdaf43c",
           "size": 525376
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/31/122.DAT",
           "targetPath": "ROM/31/122.DAT",
-          "sha256": "e5918a5932cc33a09995fdbf306d9e55872b03f055b34ac241e814e2617df568",
+          "sha256": "ecf5fe11003c4459a6f1b87ce3bcf3602455c2cba694cf854a08688a8fe3811a",
           "size": 521712
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/313/75.DAT",
           "targetPath": "ROM/313/75.DAT",
-          "sha256": "74ec7c148ca49c29851d46c18e6ace57f2c2f0f1064c6fd7c67818fdaaab1dbb",
+          "sha256": "9a89cec0ab611fedf9e4651940f9a4abc2f12490cc6292715bf275262e3549e8",
           "size": 568160
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/313/77.DAT",
           "targetPath": "ROM/313/77.DAT",
-          "sha256": "0a4f8ba12cdcd038b8687ae899a9998f94ccf0bd164a857628b1dd7841f2fb69",
+          "sha256": "21cac2364ba859da7ddce352542ab806d780244ac6817345c784ff674c529c3e",
           "size": 568160
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/313/79.DAT",
           "targetPath": "ROM/313/79.DAT",
-          "sha256": "8b2224ecc569433b8e15baf55fcc2e5b7caefd6f08ec2e701b633919cf82ba58",
+          "sha256": "090df8248b714907741f2beffb0e0a95ad1a6a22259ccf0ee0e39d0fc3fbc23f",
           "size": 568160
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/313/81.DAT",
           "targetPath": "ROM/313/81.DAT",
-          "sha256": "8b8db3134d5056da098e13563c08a724eac678854ae83a45a3422ff329168ecc",
+          "sha256": "a61b399568e5b145ddb25fae0eeb4e5f250bb7d96cb94a6de33a6f6a09c20da1",
           "size": 568160
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/313/83.DAT",
           "targetPath": "ROM/313/83.DAT",
-          "sha256": "56db0c7206fc7744238228accf40bafbadf8562de0e5c3f66dff1572331d7a34",
+          "sha256": "3fecccf8457c922d7ed29e0a44667c314f06471ae11542bfbf21489c72258c02",
           "size": 568160
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/313/85.DAT",
           "targetPath": "ROM/313/85.DAT",
-          "sha256": "3402603904ce382cd3cc9c3c2b2f32682d50007e825e83cbd1cd5d0833135866",
+          "sha256": "24bdba75271221b014ce55ad89940345049f3ded88298730f02df6a741c42048",
           "size": 568160
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/313/87.DAT",
           "targetPath": "ROM/313/87.DAT",
-          "sha256": "ca76ffaf000faa1e46bbdd4b033d59b8a4368bd15191e601566708e13fdf93b0",
+          "sha256": "698ddb711243ce5222425dcc5a02950c31db6ba3e52e512622658650d747508b",
           "size": 568160
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/318/125.DAT",
           "targetPath": "ROM/318/125.DAT",
-          "sha256": "10e6e682e896128228fd2ea05c2adfeb7212ea525aeb6aafa61134db5a5ca751",
+          "sha256": "7190768bd7eab28f57ed804c0c0e22d5cf93c9d126ae276da68a20f835fa4ded",
           "size": 547920
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/319/1.DAT",
           "targetPath": "ROM/319/1.DAT",
-          "sha256": "dfbafe7a004b765c2acd0ece09bc6c69887b09b258e79de3e7f713c80e28d1e9",
+          "sha256": "54ac303a2e39a70bf0b396cf3635f76f5e8ed54013020a19fa58cd731418c6e3",
           "size": 547920
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/319/13.DAT",
           "targetPath": "ROM/319/13.DAT",
-          "sha256": "f843b282c02a8e93d2fddbd86d20b29cdcd63911a2bcfc17f221c8517d14c0fd",
+          "sha256": "f27e42ad17a0d86d7027608d9e0d6df0f48a19bbb190ee6ab4e926c35e2fa09e",
           "size": 547920
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/319/17.DAT",
           "targetPath": "ROM/319/17.DAT",
-          "sha256": "bf6498d9583ea81124c16c9dd2d9e71a0ddcef6de691f26ba50b572a9ad06846",
+          "sha256": "ae20b475ca17f5ccea4fbec4ee78076632deaa7f775f75b0d6ca5ebfc207131c",
           "size": 547920
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/319/21.DAT",
           "targetPath": "ROM/319/21.DAT",
-          "sha256": "9f499683aafb10668e4acc5016275475a6b0169e09a3cf37661a6fb0657745a5",
+          "sha256": "a76faeeba05c55c93ad4a2beab9a16dc06f38c642dc56321990aed9f6043eec8",
           "size": 547920
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/319/5.DAT",
           "targetPath": "ROM/319/5.DAT",
-          "sha256": "8838f28cbd5757c6dc4cfb3a62ceb51eb34747c302b82efba0d578f21a98e4cd",
+          "sha256": "d895bee652d6a1f1d12c9e525f6366d243e38ce825a716d0dd1dfdc51d99f26f",
           "size": 547920
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/319/9.DAT",
           "targetPath": "ROM/319/9.DAT",
-          "sha256": "8d59d9853e78796ff78fe58d959fce108003b14f509bfb30f4d88ad56b11d1b2",
+          "sha256": "0f0d788e5e2b3e4859fae774c89638b0a02dc29fe3fe6eee94929f44f7e7d18e",
           "size": 547920
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/32/58.DAT",
           "targetPath": "ROM/32/58.DAT",
-          "sha256": "c86cb228eb0e9bc8930635f9fef2951e48d96682a28d4879097a7bc22bce8fb3",
+          "sha256": "a50f45de1c56bd31015901f37b63b226a21d28f6c1d3c7222c84b2aeb2d923e4",
           "size": 3047472
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/328/17.DAT",
           "targetPath": "ROM/328/17.DAT",
-          "sha256": "85b6d902263458c3eeabed72e5f187bfa7c1ce30aee4b3b961be03ecfabc91c2",
+          "sha256": "d8c1633482c3feff13a4c44159d07a747703fc76d1cd7be8b6c068593f8757d5",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/328/25.DAT",
           "targetPath": "ROM/328/25.DAT",
-          "sha256": "0390b7b42e0a57ca32d36acca0e229034a96ca0c022870a9526e8bfcf844cc8d",
+          "sha256": "cb67b3ddf396ca520c22f482e442bde101b699321796f8e170b2d7457518dc70",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/328/33.DAT",
           "targetPath": "ROM/328/33.DAT",
-          "sha256": "2762fdb29e0814e2879c6e7b410a242863d1c8d50ad43dcc4dd8d330c9f27445",
+          "sha256": "daa59384439acb4f68b5f21d42a561a566f5b6e9e607e0e796ef22cb97e64848",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/328/41.DAT",
           "targetPath": "ROM/328/41.DAT",
-          "sha256": "e3b7b84be285df8bf46252150da17a51692c523075f6c4c04a4238e4c49b757f",
+          "sha256": "02a4f23267a3a10d9b133fe457a9a4de4738be2c4e3db80e890a27e4a8930730",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/328/49.DAT",
           "targetPath": "ROM/328/49.DAT",
-          "sha256": "bca2c5360d222965b5e76b356bc7246fab66edcbbe9644689b6798e5617cb0da",
+          "sha256": "3d066a199cfc778732aba6e14cdfd388cdee994f7b35e712d241fa4d69cd1533",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/328/57.DAT",
           "targetPath": "ROM/328/57.DAT",
-          "sha256": "e894a127950ee4350e6c70c69a9a38704f8c2a92f42425c2d94711db72c061bc",
+          "sha256": "155530cccfc85bc95bcb020830339b38de8d0c038f02cc2708d753bcfa808acf",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/328/9.DAT",
           "targetPath": "ROM/328/9.DAT",
-          "sha256": "b6ab227c3587f9bed362f345d70c2ec6be8b4ba4e7f280ebb51121e1185e72cb",
+          "sha256": "724800075921d50ddb3eacf56032341c4bb387db2303f5e387efafb5ce4ca422",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/342/102.DAT",
           "targetPath": "ROM/342/102.DAT",
-          "sha256": "2ea7d69d0c67c8759b4a0a4ac9946e729fb1e20ebafed0d1488376f331952ee9",
+          "sha256": "326e6b69c1a288083ef5ffbc2bf97fcdc9cdfa836a49375e0e9dbbba8246cd26",
           "size": 577552
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/342/106.DAT",
           "targetPath": "ROM/342/106.DAT",
-          "sha256": "f584bfc68d5deb143af311fa962bf47e7318c2d4eef929502ddc304351db504d",
+          "sha256": "d1c24f99cd88849b60a38d9d272cacdc1c99abf53795f4c9411a51a4df289eb3",
           "size": 577552
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/342/110.DAT",
           "targetPath": "ROM/342/110.DAT",
-          "sha256": "4768d2b4ff8f7f5f01ae1c4b4f8a09c8bdaeff3e0362aec5788f68d040f304ba",
+          "sha256": "8e25d65ae3a69a334cb853e635567a59940d51655f922c7e828a25212c0740b4",
           "size": 577552
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/342/114.DAT",
           "targetPath": "ROM/342/114.DAT",
-          "sha256": "2f6ef6fd117802da3aa3db29fadbb106d20ef1af7034ec9c14f15b2c015a07da",
+          "sha256": "6f67af4b8b2741fc9d9ad1879793b9a08c3b28aa34728219bbeb8399e3aff3e2",
           "size": 577552
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/342/118.DAT",
           "targetPath": "ROM/342/118.DAT",
-          "sha256": "aa99805df0ffcc499f81a781d02e8fc4f56e4326c09b1bb6313bdea1753e1709",
+          "sha256": "1fb7dcbbcebca5e9ff048e6513c910865f448d25c4909f520591d6427c8c2a08",
           "size": 577552
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/342/122.DAT",
           "targetPath": "ROM/342/122.DAT",
-          "sha256": "fec668c8df7b1fdd019fc3069b84a9af56d7295adef77636b2809e08c54a6c72",
+          "sha256": "ee96505fbacf933bcd9d9e6e287557f37a3ba1849b2a409c3e4c42f7c0dabb9e",
           "size": 577552
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/342/98.DAT",
           "targetPath": "ROM/342/98.DAT",
-          "sha256": "03deca03a0dc5489888963e3093f199f382b0abc44c1bec1c69c0403ea6b2267",
+          "sha256": "16d6bea871921b2322a825e5f6512affc7e171b71d9f30c03a0660c4f69b1e8f",
           "size": 577552
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/358/18.DAT",
           "targetPath": "ROM/358/18.DAT",
-          "sha256": "bf09f59643e2857223ed396881759c8192259e503dc11397442226d610bade52",
+          "sha256": "1ad5dc31072c9fbbeb3e6f246d24cdb069ee27313748d6f07a79c844c5d0dd10",
           "size": 567312
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/358/19.DAT",
           "targetPath": "ROM/358/19.DAT",
-          "sha256": "5bd74f9afd6ca26c254ce4371485be11ff6c9de0cc283731759acbdf78ed5209",
+          "sha256": "ebb61a98bde9a1fff404fe73f9a2b53a631ea818b8dd09ceff3015aa3e3c5bb8",
           "size": 567312
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/358/20.DAT",
           "targetPath": "ROM/358/20.DAT",
-          "sha256": "2b5815984f0bb58f251599bb4a0f3555fae9c6001b20ad9192e6a06b830bb014",
+          "sha256": "c8ef31909cca20b8a8f2ec42376b61daf8ff4179358074c273201b498c3aa64d",
           "size": 567312
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/358/21.DAT",
           "targetPath": "ROM/358/21.DAT",
-          "sha256": "7ebf6b9560e9a3afb5bed22f205682d3d32ff3ca8ae71bf1eb7dc03937949dec",
+          "sha256": "03971c0de28bbc54a83bbf11a05aa76d9f98ecbe51bac4422f289516e0d0915b",
           "size": 567312
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/358/22.DAT",
           "targetPath": "ROM/358/22.DAT",
-          "sha256": "2c807e386527b8a2c7512b9c193988d377e63a08c0ab51f223c16934e14671be",
+          "sha256": "feba36340a2fb44b23ccd60fc9361dc741a73cc83d8069a0066d1e63c6d301d8",
           "size": 567312
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/358/23.DAT",
           "targetPath": "ROM/358/23.DAT",
-          "sha256": "fd5c09f3ef9de5ebea290f67f03803dfdea1bab940d74178269782a93d1aedb8",
+          "sha256": "06e06030b4e02643c9d78459a52b2e362931a6ec43dd0361b237c07f92e1d86b",
           "size": 567312
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/358/24.DAT",
           "targetPath": "ROM/358/24.DAT",
-          "sha256": "a8ac0d844f674e9268aec7b1a42b0695ba82ef93fbf58486ab4e0d03d6cf18a4",
+          "sha256": "6f406bcbed71bff06660247521694ff1afad7bf033a0e62dadf26cc65f8a6cd8",
           "size": 567312
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/36/92.DAT",
           "targetPath": "ROM/36/92.DAT",
-          "sha256": "bb64b198da080d8ef38f64a7558177ef7007ca69a1f245d88153963b1628a06f",
+          "sha256": "e3de0b7e972e1c00b39cda260e176f633f86eceeb15dae4a4a0daa666a691b4e",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/36/93.DAT",
           "targetPath": "ROM/36/93.DAT",
-          "sha256": "ba0b345dfc1720d9b6bb5740813cc6f052a1dc66aee78d1f438da5e95e7d4439",
+          "sha256": "2d6ed7f5919a1ff61f922e6c0166d6af67a2e6698777a3ee556eedbfadfe7b30",
           "size": 525648
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/36/94.DAT",
           "targetPath": "ROM/36/94.DAT",
-          "sha256": "b05f9c4bc13da82c6c2b65929178321b5dff11ce2367e1a84caf8ef3c6fccd41",
+          "sha256": "ac7803b2eeaa164f9839df83b7f98fb75f93d22dbdbcfcfca85df3376acbcafa",
           "size": 525504
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/36/95.DAT",
           "targetPath": "ROM/36/95.DAT",
-          "sha256": "c65b0c60f7ecb1827e49cfcee0490f4c2c441bb54ce9b4002d52d990960afad1",
+          "sha256": "a3b51ce6e465549a3ae423f59b7c4e60fb6cb92e53df6492a9415d9805cbec7a",
           "size": 525376
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/36/98.DAT",
           "targetPath": "ROM/36/98.DAT",
-          "sha256": "1d831c1abccd539803bc6408c719f22ac0e46081b0695bdfc106be9d5fe4a48f",
+          "sha256": "bf75cea475002fb3465ceebfd1de6fbfca735a67ee487fa95ff5876a258af459",
           "size": 521632
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/365/61.DAT",
           "targetPath": "ROM/365/61.DAT",
-          "sha256": "de1958dc5c34876a02239ce94542a3bd5f4e35b5286823bbd5fdd840f198827a",
+          "sha256": "fedf512fc95675f93ec4a45a333409948fd6c201d076a162601361007e2e824c",
           "size": 517072
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/365/65.DAT",
           "targetPath": "ROM/365/65.DAT",
-          "sha256": "7c6676d8fc4196304fe9f6a79fca455bf80ca590c948c3beaa144de33ab4db84",
+          "sha256": "f02397d37fbb25fe55daaae0689ea383c92418d50399abd5797891e10922a0d9",
           "size": 517072
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/365/69.DAT",
           "targetPath": "ROM/365/69.DAT",
-          "sha256": "5590b5d56961a43e8797b0e129b180e5c45080ddc1e1fa1d6202251daf77bdc3",
+          "sha256": "64f5caaf9eb14e5322667359baa0f95e93f820205b99b98f3b86846880801deb",
           "size": 517072
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/365/73.DAT",
           "targetPath": "ROM/365/73.DAT",
-          "sha256": "6b5ffb449baaa0976a227e6cf085ca0a8093f129929b04c6fa09663684fd19fe",
+          "sha256": "6731eda05529b4be3545b09a861a6456fb9ad6268a5e439b34d7fd6d336c2215",
           "size": 517072
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/365/77.DAT",
           "targetPath": "ROM/365/77.DAT",
-          "sha256": "d1878a511a78a2e42b4f6e2b0612ebbe6b84e5518c8baed1b804eaa121ae1b7c",
+          "sha256": "8dde879a951a5566c4dc96d759b3918b3ad1ac2142df2b16cfb57dcaf4822d24",
           "size": 517072
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/365/81.DAT",
           "targetPath": "ROM/365/81.DAT",
-          "sha256": "efa6fd0b36fefb5553e750e5ecf6f9bbeed5090d7ac76858d138b14f0ead88df",
+          "sha256": "df601b519d2b292d25ec89aee7b4c3b4235eaba202989d45281b48520240bdfd",
           "size": 517072
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/365/85.DAT",
           "targetPath": "ROM/365/85.DAT",
-          "sha256": "3c640bf1e482d28a8eb46a892f57131933a679542bd1b46fd6555c59d6e4c593",
+          "sha256": "e0dfe6efe234a92e370405d57722dfa5275aaef24461fa61122a5b65c44a264c",
           "size": 517072
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/37/31.DAT",
           "targetPath": "ROM/37/31.DAT",
-          "sha256": "aa16f16fa9ace1d87f76de3f3b84eab48fe2e096445a60facf44a18736763635",
+          "sha256": "44a78d8fd07fcbb01d0dcbe944d8db960428baeb137371986ff3029f9d918310",
           "size": 3378672
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/374/16.DAT",
           "targetPath": "ROM/374/16.DAT",
-          "sha256": "10ea4d2e4278d33327511319ed4c67d472609d5e064cff76a75afa696e19cd33",
+          "sha256": "acf6a6ca85db74dffb12d74d86a364f5fb24764a04b3fab7e1d343264af7ac77",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/374/20.DAT",
           "targetPath": "ROM/374/20.DAT",
-          "sha256": "c051577e8cf57c891d2b050407a041204a7b1a18cfdf9391bd071328eed20913",
+          "sha256": "771168c39d6092f3f7f12f62e06b1c6b9b49b3109cbb5bc62f7242074905a728",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/374/24.DAT",
           "targetPath": "ROM/374/24.DAT",
-          "sha256": "c86a4032a28d04cd5dfc1415fdd1083fe9ff028e8e581641618db0721058166c",
+          "sha256": "1a0faf8069a3ba2c7ecb11e1e213b1eb1ec120c808c47e9a5fca022aa19f5468",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/374/28.DAT",
           "targetPath": "ROM/374/28.DAT",
-          "sha256": "f71f0a8bc85d27d9288b38bb3123a019f43048df80ffed1311e6d08be9d72351",
+          "sha256": "0bdab024cb69b4200d801627897558dc07af9722a970be5114a8dd0feaee25e4",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/374/32.DAT",
           "targetPath": "ROM/374/32.DAT",
-          "sha256": "474444706bccdc4f2cfeac3ae5bc52c28ecccfa3cfbb725a0ced0645b8c0207d",
+          "sha256": "adb5379853f43e71650c7847482918e5556b6c7020cb51da98006d82e4864fc6",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/374/37.DAT",
           "targetPath": "ROM/374/37.DAT",
-          "sha256": "96ab71e35f8de085e70c6c343aae2630a3486564a017289de54cf739ee9fa70c",
+          "sha256": "79b77e7029956e34a68bb0a14fc9ad37c2eeee0c4ceb278c9682435689ba57ac",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/374/41.DAT",
           "targetPath": "ROM/374/41.DAT",
-          "sha256": "abb381b6358557148d706b1131a6b62457cfd3f0c6b4d0a033b970f792b62076",
+          "sha256": "10cb308e16f1e76c8de5dc55ba10f1182db700af2eeddd0bd49655e36295d150",
           "size": 529136
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/376/40.DAT",
           "targetPath": "ROM/376/40.DAT",
-          "sha256": "4ed8ccd3fd2e2fefd6df42df5bfda40578c1c628941b61b5253c8cbc489e0cf6",
+          "sha256": "15783fa1eff4561a338949d06acbb76fa991ab81eccb640e3536633e9eabbfe2",
           "size": 542144
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/376/44.DAT",
           "targetPath": "ROM/376/44.DAT",
-          "sha256": "7a9609fe420510735009f9861bac57eb189afd3dd685c413d9bf18668c4159f2",
+          "sha256": "b85f20d8d7cb3121fa6910122edcc77134b7e399913d057fce03bb951c8865e4",
           "size": 542144
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/376/48.DAT",
           "targetPath": "ROM/376/48.DAT",
-          "sha256": "d3d761c41dc85c38379795bfeb49dbc1d5eda8a414c5471a798f30fc91dea9d5",
+          "sha256": "bbd2ce1f23b191d0781b46360758f3dff4434c0911ff5ff1d60aa74269aaa3a7",
           "size": 542144
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/376/52.DAT",
           "targetPath": "ROM/376/52.DAT",
-          "sha256": "bc00d8c5ad968f08c86dadd43519b367857a72f603084d79079ac534281de644",
+          "sha256": "1a920ac03cd3200f40e8baa0ece1146b951a56c6253de38a7e9ed08f570548c1",
           "size": 542144
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/376/56.DAT",
           "targetPath": "ROM/376/56.DAT",
-          "sha256": "b3b7ba5dab68c7adb09d82ebd440ce1493ec455582af45553520fbb296baae4a",
+          "sha256": "2b694814542b573cb25340941b9f1c0b98c75164a405a933921e86d5561bdebc",
           "size": 542144
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/376/60.DAT",
           "targetPath": "ROM/376/60.DAT",
-          "sha256": "c13cb1996c46566dc89cc3e04465927d86ab17f9524b22fedcfb67aee51bf370",
+          "sha256": "527a39d7a183a4e338542b51725deb9134919ca447677f74a1e92b120d9f3df4",
           "size": 542144
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/376/64.DAT",
           "targetPath": "ROM/376/64.DAT",
-          "sha256": "c757529ecca97ca9d989c17351eea471bf20322acff52fd3050ddce3221fd956",
+          "sha256": "cd8ee70fa9cda6f6dc4c9f3cc392f061232ea2f085daa8212f4675add03f904b",
           "size": 542144
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/377/73.DAT",
           "targetPath": "ROM/377/73.DAT",
-          "sha256": "0a8c9e62e247d1055a05e4f040d472699fc90fb81ba09b54877bbc40bd63943e",
+          "sha256": "531bb2548f2e627aa3052aaacd0083c537d74d3cc443585bedbe883fa6b93afc",
           "size": 530368
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/377/76.DAT",
           "targetPath": "ROM/377/76.DAT",
-          "sha256": "4acefa43b525713ab90c5143ed9dfabdd6e08e71c60267cc606e9209141bf697",
+          "sha256": "4da3a4f5f8ccccd88d340b0f94f361ac21c666b1ce5d25bc74d29bf2b9588ce1",
           "size": 530368
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/377/79.DAT",
           "targetPath": "ROM/377/79.DAT",
-          "sha256": "65a9eb603abec4ec88a5de5fbec0d5622df783fc0bfb10c35d7782ecd8de4290",
+          "sha256": "f2523b4fc55672abcca5bf2b272b54e12a866e1373aff7ba45649c0836a53df0",
           "size": 530368
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/377/82.DAT",
           "targetPath": "ROM/377/82.DAT",
-          "sha256": "acb3be3a8d1273078dec411044baace52db8a8d81c66323e0ccf14fc97e1387b",
+          "sha256": "4da3db079466c7d8c04a4d1d955499e0dc84b0c4bfe1578f4a187d8e81710d3c",
           "size": 530368
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/377/85.DAT",
           "targetPath": "ROM/377/85.DAT",
-          "sha256": "0a5513752f8bc5efd90453cdf396282f31052f7ecde132ffcb596ed1bea48228",
+          "sha256": "a91738c80e5b31d86aca70371401b7bb4d24af522e9d8bfa042ea31f6aa1f121",
           "size": 530368
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/377/88.DAT",
           "targetPath": "ROM/377/88.DAT",
-          "sha256": "59f107b13db3042d63d891edacf396c8be67b02d80903c8c5675ef8c423b73f7",
+          "sha256": "ad06a5561f20d308b31f5d55f84242c43bf661e78a9ecea53492a51671ffc064",
           "size": 530368
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/377/91.DAT",
           "targetPath": "ROM/377/91.DAT",
-          "sha256": "2602a9c60342f5d89e905526aa956a4148478181fc3e19774d8c8d516c7e2e9d",
+          "sha256": "2fecee6add1ba1fd12e31bc79de932a5a641e3e1dea14536ed7b49a9e56a4272",
           "size": 530368
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/41/59.DAT",
           "targetPath": "ROM/41/59.DAT",
-          "sha256": "7750b092d541ec390655d62942bf68770ab9a697bd1eb2591d8ce7c2fc76ec8f",
+          "sha256": "c44e9e5856fb6f4304a042e078954ef3fd28df11f44a0570d5903188ca094543",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/41/60.DAT",
           "targetPath": "ROM/41/60.DAT",
-          "sha256": "c6ad2b09097a0c02f54cc82be3415b84f9dc117953cb291fda5648b0e71ae8b6",
+          "sha256": "6628b40d3249f1639d1cf6a20d947b680449f286d79e31ce3342f4e519b4fe1f",
           "size": 525648
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/41/61.DAT",
           "targetPath": "ROM/41/61.DAT",
-          "sha256": "6f536133c9ae4a4b578443a00ebf8d1df51b506c77cc70b52b11cc44cfa75080",
+          "sha256": "2b48917381547ff461aefbbeb2fa8a20bb116beeec17aa321249bd0e00c48ff6",
           "size": 525504
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/41/62.DAT",
           "targetPath": "ROM/41/62.DAT",
-          "sha256": "73b4aaacda4a34c787ccb814daa1d09c0a1a435643c5c840cb1e051a553fe385",
+          "sha256": "fd4de10100c4addf1bf8468c58d673be2fdede6ea10cda9eface63acf802994d",
           "size": 525376
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/41/65.DAT",
           "targetPath": "ROM/41/65.DAT",
-          "sha256": "57befaf3e5c95a8a5e38bbba08a3dda4da9d238ec82be08715bdc3b92d012ece",
+          "sha256": "fb103fd1fdf091f9da6313c928bb1664122d05e478a915c16b3cbc92ff044b35",
           "size": 521632
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/42/4.DAT",
           "targetPath": "ROM/42/4.DAT",
-          "sha256": "d7d5977d33eec0761d67723d4d0da92a23b0135faa3c61e136d47c70e30f0b3e",
+          "sha256": "f30e6ddb40e30e3302f66486400bfd0ffedf15488c146ecad73710e058d2458c",
           "size": 3237488
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/46/32.DAT",
           "targetPath": "ROM/46/32.DAT",
-          "sha256": "0d0684b9680a56ba8ed4f1a2ed3723e19265c7bc1f08251731ba232737373b0e",
+          "sha256": "56b7b3542133976468c9de87455084573290d383f426bca1efe56dd12b5334e0",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/46/33.DAT",
           "targetPath": "ROM/46/33.DAT",
-          "sha256": "762d66f376bb5fd9caea5cca5524a591f790ae83b1a0bd5ca3c1152539fc7b0c",
+          "sha256": "a64d8cd4c4d30c53014a44653304c18f472ced61e3c26c63437078fa59d0e72e",
           "size": 525648
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/46/34.DAT",
           "targetPath": "ROM/46/34.DAT",
-          "sha256": "fe316f7623089175fb5b78bcb5036767c113bf8702e75539953d7c78e2090d6b",
+          "sha256": "ecc5c21d166e8d9374992bc471c4549655283bb61953784e47e1bd05598564ae",
           "size": 525504
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/46/35.DAT",
           "targetPath": "ROM/46/35.DAT",
-          "sha256": "8cee6615ebbbcdc5428f897fb3404587d6e88b766b5d56582f57cb5469bcece5",
+          "sha256": "d4765129ad21ed0b171f699b0ee6d3fcdd44f218573265bb7930a74f1b67cd07",
           "size": 525376
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/46/38.DAT",
           "targetPath": "ROM/46/38.DAT",
-          "sha256": "5692747e0ccfe1cf4ffd9f5c4f0c429bf514759ed7ed28c3ac7c8fb03c3da313",
+          "sha256": "e4cc6a80581dc43901b2795d3ee99c3314af6d36fbfa33625757be0a59b55351",
           "size": 521632
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/46/93.DAT",
           "targetPath": "ROM/46/93.DAT",
-          "sha256": "04ae069d7caefc4c9d89a5ea4a7d29eb8d6fa3fc16c85b8781ea5cd0baf151e6",
+          "sha256": "18a6dbead3a7cff6356c1a255fd69decc50df1361783929e3627b15ba8128c60",
           "size": 3063696
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/50/122.DAT",
           "targetPath": "ROM/50/122.DAT",
-          "sha256": "148cf145c12f2428aa35997517ea96015410bf31f01dea53382a09fa3dd88dbf",
+          "sha256": "34b850a02bc44fe45cfabfde6390064581652a47cb6f7bfb03e95411f4bdffe2",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/50/123.DAT",
           "targetPath": "ROM/50/123.DAT",
-          "sha256": "75e7f042eab9d3a45dbb1ab154db3280f7214378d98264373cc6781ffdd2a99e",
+          "sha256": "ead9ccedb398ffe1b950a603fb38d6c0da69943f36f9753c9fbacb03a2249bf0",
           "size": 525648
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/50/124.DAT",
           "targetPath": "ROM/50/124.DAT",
-          "sha256": "7ed68240edef30d7a1b0e674e7cc144bb78aa385fb3e39c50598a9c742b06633",
+          "sha256": "d2d7c07afdc163913fb864b0483ff63a4a8c0d1786f20da2995b1608311c77d5",
           "size": 525504
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/50/125.DAT",
           "targetPath": "ROM/50/125.DAT",
-          "sha256": "7689bccd223b354d123c6a7eb7b28ed93b063a157acaceb66c0240e60796712b",
+          "sha256": "d7931a86b6f5fbeacff0d046aa5d44dbb250f03e95e4ddfd7525725e45692ac9",
           "size": 525376
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/51/0.DAT",
           "targetPath": "ROM/51/0.DAT",
-          "sha256": "98c1543087105b57e452caf720ba5241d503cffceea2a5b21e2bb7a8a0a86559",
+          "sha256": "8069ada537f2c323ac7b944910c6538026181bece3ef95ba1f3829874d77f134",
           "size": 521632
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/51/89.DAT",
           "targetPath": "ROM/51/89.DAT",
-          "sha256": "9953dc7a6d2ea95710dd66dd5a34c644f92c7a515cb2556cc8321878ddaffbe6",
+          "sha256": "4b8adae6519c3966237e26309b5de1fd75fde2b085b7f9b99140136a8aad00c2",
           "size": 3295664
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/55/117.DAT",
           "targetPath": "ROM/55/117.DAT",
-          "sha256": "df9fa2c07f0f01be630fbac013f4174274598bf6bc0c4172955367087bf1919c",
+          "sha256": "fe8286e0caee88cad67bff6d12006e4ffc5c0b04ef5066cbcacc6a6ace8b610f",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/55/118.DAT",
           "targetPath": "ROM/55/118.DAT",
-          "sha256": "93b377317f143aa8b478fd2b4261ddad7ee7ad273f967b645c79a0052ea41648",
+          "sha256": "43c361f628447446af21aa9ef9f82902711f25a555716df9f9f42ef0af35e05e",
           "size": 525648
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/55/119.DAT",
           "targetPath": "ROM/55/119.DAT",
-          "sha256": "4ffa9a4fc2c3486629afe456eac0597cf2a8564885bd1da8ed708ebaaacb485f",
+          "sha256": "c66b5242370e31f34f21725be92a3cbc88a2f33ecbc5a393e578faa867e64708",
           "size": 525504
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/55/120.DAT",
           "targetPath": "ROM/55/120.DAT",
-          "sha256": "fbdcdca05076a587dc0b15ddd711e132e89b5ffe4374944132d04c6eb291add5",
+          "sha256": "89a79535a48b5839261dab0bf36e9aa852c322e6a68d14990cac0f2adf26cf7f",
           "size": 525376
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/55/123.DAT",
           "targetPath": "ROM/55/123.DAT",
-          "sha256": "35e72354b6f02ab6a2bd587418df497cafc3c4362c339491c590954e3783d363",
+          "sha256": "41b7f8e8a12004794f75862ad3bef02dd0e5c1cb5e16f655f5616e1dd90f2b77",
           "size": 521712
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/56/59.DAT",
           "targetPath": "ROM/56/59.DAT",
-          "sha256": "d47e47056caca196d37c05a6b9a4b0f8a66a45275215b22aad3b8a41ade6fb41",
+          "sha256": "988c028ea11ede0bcf374695e0b982164ade878f78557a082f466d6422fa87ee",
           "size": 3583152
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/60/87.DAT",
           "targetPath": "ROM/60/87.DAT",
-          "sha256": "3858b0990de9a683acfb1102a037ea5bdea3a68ae12d5f6cb16880a5970696bd",
+          "sha256": "95bab7854a42144a55a5740f5390d2e37f6e8b84df5bd7dd1fe636282091239f",
           "size": 525792
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/60/88.DAT",
           "targetPath": "ROM/60/88.DAT",
-          "sha256": "41f0018f82eae683cb536f59628ea11eec95b4ce4b64894258f9ab1e8db43354",
+          "sha256": "24ade3402836dbfd2cb9671e19d0f1e08261f724ab8780a869ecc5bbc5016791",
           "size": 525648
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/60/89.DAT",
           "targetPath": "ROM/60/89.DAT",
-          "sha256": "633bac7048ca24384e6530adc69db492e9865b45dbecda57990f75020fcfc909",
+          "sha256": "9068a99389d5ed0db7b1197e02289b78d202da8f2b254a71e7528ebc242d6ab0",
           "size": 525504
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/60/90.DAT",
           "targetPath": "ROM/60/90.DAT",
-          "sha256": "fa7246c76b4b6f825e641d5286d06a5156995cc6a1cea7c1727f30adfec0078c",
+          "sha256": "70dd3a1ccd88d1c3f6ccbfa3c5c9529940f3f52f4af79120a6639e8e120f76b2",
           "size": 525376
         },
         {
           "category": "dat-optional",
           "sourcePath": "dat-overlays/flintlock-akimbo-compact/ROM/60/93.DAT",
           "targetPath": "ROM/60/93.DAT",
-          "sha256": "1aa2f0868f9f893fbfcb58e37db1ffc4e9bf34bd4fafaa528d37e7e416d7d043",
+          "sha256": "8a2e28e8b297f89cad645ab5fb149db1cda1838e5968f961e22bd17c6cff3f7d",
           "size": 521632
         },
         {
