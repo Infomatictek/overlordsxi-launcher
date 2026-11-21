@@ -4,7 +4,9 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import math
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -146,6 +148,83 @@ class FlintlockDualPistolsValidationTests(unittest.TestCase):
         proc = subprocess.run([lua_bin, str(spec)], cwd=str(REPO_ROOT), capture_output=True, text=True, check=False)
         self.assertEqual(proc.returncode, 0, f"Lua test failed:\n{proc.stdout}\n{proc.stderr}")
         self.assertIn("soulspire_flintlock tests: OK", proc.stdout)
+
+    def test_no_0xa3_blink_opcode_and_valid_weapon_visibility_and_motions(self):
+        patcher_path = REPO_ROOT / "tools" / "patch_flintlock_skeleton_blink.py"
+        spec = importlib.util.spec_from_file_location("patch_flintlock_skeleton_blink", str(patcher_path))
+        assert spec and spec.loader
+        patcher = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(patcher)
+
+        overlay_root = REPO_ROOT / "dat-overlays" / "flintlock-akimbo-compact"
+        # 1. Verify zero 0xa3 scheduler commands across ALL 278 overlay DATs
+        a3_hits = []
+        for dat_path in sorted((overlay_root / "ROM").rglob("*.DAT")):
+            for kind, name, raw in patcher.parse_sections(dat_path.read_bytes()):
+                if kind != 7:
+                    continue
+                try:
+                    _, _, _, events = patcher.parse_routine(raw[16:])
+                except ValueError:
+                    continue
+                for tick, cmd in events:
+                    if cmd[0] == 0xA3:
+                        a3_hits.append((dat_path.relative_to(overlay_root).as_posix(), name, tick))
+        self.assertEqual(a3_hits, [], f"Unexpected 0xa3 actor-visibility commands found: {a3_hits}")
+
+        # 2. Verify all 7 skeleton DATs preserve 0x75 weapon visibility timing and clean q3* motion clips
+        for rel in sorted(EXPECTED_RACE_SKELETON_DATS):
+            rows = patcher.parse_sections((overlay_root / rel).read_bytes())
+            routines = {name: raw for kind, name, raw in rows if kind == 7 and name in {b"lc07", b"ls07", b"splg"}}
+            self.assertEqual(set(routines.keys()), {b"lc07", b"ls07", b"splg"}, f"Missing routines in {rel}")
+
+            def vis75(rname):
+                _, _, _, evs = patcher.parse_routine(routines[rname][16:])
+                return [
+                    (t, struct.unpack_from("<H", c, 6)[0], struct.unpack_from("<I", c, 8)[0], struct.unpack_from("<h", c, 12)[0])
+                    for t, c in evs
+                    if c[0] == 0x75
+                ]
+
+            lc07_vis = vis75(b"lc07")
+            self.assertIn((0, 0, 1, 2), lc07_vis, f"{rel} lc07 missing t=0 hide wep2")
+            self.assertIn((1, 0, 1, 2), lc07_vis, f"{rel} lc07 missing t=1 hide wep2")
+            self.assertIn((16, 0, 0, 2), lc07_vis, f"{rel} lc07 missing t=16 show wep2")
+            self.assertTrue(any(t == 16 and slot == 8 and dur > 0 for t, dur, _, slot in lc07_vis))
+            self.assertTrue(any(t == 16 and slot == 7 and dur > 0 for t, dur, _, slot in lc07_vis))
+
+            ls07_vis = vis75(b"ls07")
+            self.assertIn((74, 0, 1, 2), ls07_vis, f"{rel} ls07 missing t=74 hide wep2")
+            self.assertIn((74, 0, 0, 8), ls07_vis, f"{rel} ls07 missing t=74 restore wep8")
+            self.assertIn((74, 0, 0, 7), ls07_vis, f"{rel} ls07 missing t=74 restore wep7")
+
+            splg_vis = vis75(b"splg")
+            self.assertIn((0, 0, 1, 2), splg_vis, f"{rel} splg missing t=0 hide wep2")
+            self.assertIn((0, 0, 0, 8), splg_vis, f"{rel} splg missing t=0 restore wep8")
+            self.assertIn((0, 0, 0, 7), splg_vis, f"{rel} splg missing t=0 restore wep7")
+
+            # Check all 9 custom motion clips (q3d0..2, q3h0..2, q3a0..2) for finite transforms & positive scale
+            motions = {name: raw for kind, name, raw in rows if kind == 0x2B and name.startswith(b"q3")}
+            self.assertEqual(len(motions), 9, f"Expected 9 q3* motion sections in {rel}")
+            for mname, mraw in motions.items():
+                d = mraw[16:]
+                _, joints, frames, _ = struct.unpack_from("<HHHf", d)
+                self.assertGreater(joints, 0)
+                self.assertGreater(frames, 0)
+                for row_i in range(joints):
+                    st = 10 + 84 * row_i + 4
+                    for g_idx, width in enumerate((4, 3, 3)):
+                        offs = struct.unpack_from(f"<{width}i", d, st)
+                        consts = struct.unpack_from(f"<{width}f", d, st + width * 4)
+                        st += 8 * width
+                        if any(v < 0 for v in offs):
+                            break
+                        for off, cval in zip(offs, consts):
+                            vals = struct.unpack_from(f"<{frames}f", d, 10 + 4 * off) if off else (cval,)
+                            for v in vals:
+                                self.assertTrue(math.isfinite(v), f"Non-finite value in {rel} {mname!r}")
+                                if g_idx == 2:
+                                    self.assertGreater(v, 0.0, f"Non-positive bone scale in {rel} {mname!r}")
 
 
 if __name__ == "__main__":
