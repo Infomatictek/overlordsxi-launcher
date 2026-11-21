@@ -11,6 +11,8 @@ public sealed class AshitaConfigGenerator
     public const string LegacyScriptFileName = "overlordsxi.txt";
     public const string PivotConfigName = "soulspirexi";
     public const string OverlayFolderName = "soulspirexi";
+    public const string FlintlockOverlayId = "flintlock-akimbo-compact";
+    public const string FlintlockOverlayFolderName = "flintlock-akimbo-compact";
 
     public string BuildXiloaderCommand(
         string serverHost,
@@ -188,7 +190,7 @@ public sealed class AshitaConfigGenerator
     private static string ValueOrPassthrough(string? value) =>
         string.IsNullOrWhiteSpace(value) ? "-1" : value.Trim();
 
-    public string BuildPivotIniContent(string datsRootPath)
+    public string BuildPivotIniContent(string datsRootPath, bool enableFlintlockOverlay = false)
     {
         var sb = new StringBuilder();
         sb.AppendLine("[settings]");
@@ -196,7 +198,15 @@ public sealed class AshitaConfigGenerator
         sb.AppendLine("debug_log=false");
         sb.AppendLine();
         sb.AppendLine("[overlays]");
-        sb.AppendLine($"0={OverlayFolderName}");
+        if (enableFlintlockOverlay)
+        {
+            sb.AppendLine($"0={FlintlockOverlayFolderName}");
+            sb.AppendLine($"1={OverlayFolderName}");
+        }
+        else
+        {
+            sb.AppendLine($"0={OverlayFolderName}");
+        }
         sb.AppendLine();
         sb.AppendLine("[cache]");
         sb.AppendLine("enabled=false");
@@ -245,6 +255,8 @@ public sealed class AshitaConfigGenerator
                     trimmed.Equals("/addon unload soulspire_soulhud", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon load overlords_soulhud", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload overlords_soulhud", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load soulspire_flintlock", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon unload soulspire_flintlock", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.StartsWith("/fps ", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
@@ -317,6 +329,11 @@ public sealed class AshitaConfigGenerator
             EnsureLine(lines, "/addon load soulspire_soulhud", insertAtTop: false);
         }
 
+        if (settings.AutoLoadFlintlockAddon)
+        {
+            EnsureLine(lines, "/addon load soulspire_flintlock", insertAtTop: false);
+        }
+
         // Soul Actions is client-only and starts hidden; launch it automatically for everyone.
         // Normalize existing script entries above to prevent duplicate loads on repeat launches.
         EnsureLine(lines, "/addon load soulspire_soul_actions", insertAtTop: false);
@@ -358,10 +375,21 @@ public sealed class AshitaConfigGenerator
         var bootIni = BuildBootIniContent(settings, serverHost, useHairpin, password, xiloaderPath);
         File.WriteAllText(bootIniPath, bootIni, new UTF8Encoding(false));
 
+        var pivotIniPath = Path.Combine(pivotDir, $"{PivotConfigName}.ini");
         if (settings.EnablePivotOverlay)
         {
-            var pivotIniPath = Path.Combine(pivotDir, $"{PivotConfigName}.ini");
-            var pivotIni = BuildPivotIniContent(datsRoot);
+            if (settings.EnableFlintlockDualPistolsOverlay)
+            {
+                Directory.CreateDirectory(Path.Combine(datsRoot, FlintlockOverlayFolderName));
+            }
+
+            var pivotIni = BuildPivotIniContent(datsRoot, settings.EnableFlintlockDualPistolsOverlay);
+            File.WriteAllText(pivotIniPath, pivotIni, new UTF8Encoding(false));
+        }
+        else if (File.Exists(pivotIniPath))
+        {
+            // Clear any previously enabled optional Flintlock overlay so disabling Pivot never leaves stale config on disk.
+            var pivotIni = BuildPivotIniContent(datsRoot, enableFlintlockOverlay: false);
             File.WriteAllText(pivotIniPath, pivotIni, new UTF8Encoding(false));
         }
 

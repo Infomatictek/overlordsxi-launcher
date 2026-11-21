@@ -161,6 +161,7 @@
                                     <CheckBox Content="Auto-load soulspire_gear (/og Gear Manager)" IsChecked="{Binding AutoLoadGearAddon}" />
                                     <CheckBox Content="Auto-load soulspire_soulhud (/soulhud Crystal Job Gauge + Chi Weaver Boost)" IsChecked="{Binding AutoLoadSoulHudAddon}" />
                                     <CheckBox Content="Enable Pivot DAT overlay (Call Eos)" IsChecked="{Binding EnablePivotOverlay}" />
+                                    <CheckBox Content="Enable Flintlock Dual Pistols DAT overlay (75% compact, COR Flintlock opt-in)" IsChecked="{Binding EnableFlintlockDualPistolsOverlay}" IsEnabled="{Binding EnablePivotOverlay}" />
                                     <CheckBox Content="Close launcher when game starts" IsChecked="{Binding AutoCloseOnLaunch}" />
 
                                     <Border Background="#0E1420" BorderBrush="{StaticResource BorderSubtle}" BorderThickness="1" CornerRadius="6" Padding="10" Margin="0,12,0,0">

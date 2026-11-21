@@ -88,6 +88,42 @@ public sealed class ManifestTests
             f.Category == "dat" &&
             f.TargetPath == "ROM/118/108.DAT" &&
             !string.IsNullOrWhiteSpace(f.Sha256));
+
+        var flintlockOverlay = Assert.Single(manifest.OptionalOverlays, o => o.Id == AshitaConfigGenerator.FlintlockOverlayId);
+        Assert.False(flintlockOverlay.DefaultEnabled);
+        Assert.Equal("flintlock-akimbo-compact", flintlockOverlay.OverlayFolder);
+        Assert.Equal(278, flintlockOverlay.Files.Count);
+        Assert.NotNull(flintlockOverlay.SoulGate);
+        Assert.Equal(17, flintlockOverlay.SoulGate!.Job);
+        Assert.Equal(1, flintlockOverlay.SoulGate.Branch);
+        Assert.Equal("flintlock", flintlockOverlay.SoulGate.Soul);
+    }
+
+    [Fact]
+    public void OptionalFlintlockOverlay_IsSkippedByDefaultAndRoutesToDedicatedFolderWhenEnabled()
+    {
+        var settings = new LauncherSettings
+        {
+            AshitaPath = Path.Combine("C:", "Games", "Ashita"),
+            EnablePivotOverlay = true,
+            EnableFlintlockDualPistolsOverlay = false
+        };
+        var manifest = new ManifestUpdateService().LoadEmbeddedManifest();
+
+        var activeDefault = ManifestUpdateService.EnumerateActiveFiles(manifest, settings).ToList();
+        Assert.DoesNotContain(activeDefault, f => f.Category == "dat-optional");
+
+        settings.EnableFlintlockDualPistolsOverlay = true;
+        var activeOptIn = ManifestUpdateService.EnumerateActiveFiles(manifest, settings).ToList();
+        var optionalFiles = activeOptIn.Where(f => f.Category == "dat-optional").ToList();
+        Assert.Equal(278, optionalFiles.Count);
+
+        var sample = optionalFiles[0];
+        var resolved = ManifestUpdateService.ResolveTargetFilePath(settings, sample);
+        Assert.StartsWith(
+            Path.Combine("C:", "Games", "Ashita", "polplugins", "DATs", "flintlock-akimbo-compact", "ROM") + Path.DirectorySeparatorChar,
+            resolved,
+            StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]

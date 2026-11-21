@@ -7,16 +7,22 @@ from lupa.luajit21 import LuaRuntime
 
 
 def main() -> int:
-    addon = Path(__file__).resolve().parents[1] / "addons/ashita4/soulspire_soul_actions"
-    os.chdir(addon)
+    repo_root = Path(__file__).resolve().parents[1]
+    suites = [
+        (repo_root / "addons/ashita4/soulspire_soul_actions", "*_test.lua"),
+        (repo_root / "addons/ashita4/soulspire_flintlock", "*_spec.lua"),
+    ]
     failures = []
-    for path in sorted(Path("tests").glob("*_test.lua")):
-        try:
-            LuaRuntime().execute(f"dofile({str(path)!r})")
-            print(f"PASS {path.name}")
-        except Exception as error:
-            failures.append(path.name)
-            print(f"FAIL {path.name}: {error}")
+    for addon, pattern in suites:
+        os.chdir(addon)
+        for path in sorted(Path("tests").glob(pattern)):
+            label = f"{addon.name}/{path.name}"
+            try:
+                LuaRuntime().execute(f"dofile({str(path)!r})")
+                print(f"PASS {label}")
+            except Exception as error:
+                failures.append(label)
+                print(f"FAIL {label}: {error}")
     return bool(failures)
 
 

@@ -13,6 +13,24 @@ from pathlib import Path
 
 TEXT_LF_SUFFIXES = {".lua", ".md", ".json", ".yml", ".yaml", ".py", ".cs", ".xaml", ".csproj", ".tsv", ".txt", ".csv", ".cfg", ".ini", ".conf"}
 
+OPTIONAL_OVERLAY_METADATA: dict[str, dict[str, object]] = {
+    "flintlock-akimbo-compact": {
+        "name": "COR Flintlock Dual Pistols (AkimboRA v3.7 Compact 75%)",
+        "description": (
+            "Optional visual-only dual-pistol ranged attack and Mariner hip-holster overlay "
+            "for COR Flintlock (75% compact scale, 7 player skeletons, 26 firearm models). "
+            "Disabled by default to avoid affecting other Souls."
+        ),
+        "overlayFolder": "flintlock-akimbo-compact",
+        "defaultEnabled": False,
+        "soulGate": {
+            "job": 17,
+            "branch": 1,
+            "soul": "flintlock",
+        },
+    },
+}
+
 
 def sha256_file(path: Path) -> tuple[str, int]:
     raw = path.read_bytes()
@@ -119,9 +137,69 @@ def main(argv: list[str] | None = None) -> int:
             )
 
     manifest["files"] = entries
+
+    optional_overlays: list[dict[str, object]] = []
+    optional_root = repo_root / "dat-overlays"
+    if optional_root.exists():
+        for overlay_dir in sorted(
+            (p for p in optional_root.iterdir() if p.is_dir()),
+            key=lambda p: p.name.lower(),
+        ):
+            rom_root = overlay_dir / "ROM"
+            if not rom_root.exists():
+                continue
+            overlay_id = overlay_dir.name
+            meta = OPTIONAL_OVERLAY_METADATA.get(
+                overlay_id,
+                {
+                    "name": overlay_id,
+                    "description": f"Optional DAT overlay ({overlay_id}).",
+                    "overlayFolder": overlay_id,
+                    "defaultEnabled": False,
+                },
+            )
+            overlay_files: list[dict[str, object]] = []
+            for file_path in sorted(
+                (p for p in rom_root.rglob("*") if p.is_file()),
+                key=lambda p: p.relative_to(repo_root).as_posix().lower(),
+            ):
+                rel_repo = file_path.relative_to(repo_root).as_posix()
+                rel_dat = file_path.relative_to(overlay_dir).as_posix()
+                digest, size = sha256_file(file_path)
+                overlay_files.append(
+                    {
+                        "category": "dat-optional",
+                        "sourcePath": rel_repo,
+                        "targetPath": rel_dat,
+                        "sha256": digest,
+                        "size": size,
+                    }
+                )
+            if overlay_files:
+                overlay_entry: dict[str, object] = {
+                    "id": overlay_id,
+                    "name": meta["name"],
+                    "description": meta["description"],
+                    "overlayFolder": meta["overlayFolder"],
+                    "defaultEnabled": bool(meta.get("defaultEnabled", False)),
+                }
+                if "soulGate" in meta:
+                    overlay_entry["soulGate"] = meta["soulGate"]
+                overlay_entry["files"] = overlay_files
+                optional_overlays.append(overlay_entry)
+
+    if optional_overlays:
+        manifest["optionalOverlays"] = optional_overlays
+    else:
+        manifest.pop("optionalOverlays", None)
+
     with manifest_path.open("w", encoding="utf-8", newline="\n") as f:
         f.write(json.dumps(manifest, indent=2) + "\n")
-    print(f"Updated {manifest_path} with {len(entries)} file entries.")
+    opt_count = sum(len(o["files"]) for o in optional_overlays)  # type: ignore[arg-type]
+    print(
+        f"Updated {manifest_path} with {len(entries)} core file entries"
+        + (f" and {opt_count} optional overlay file entries ({len(optional_overlays)} overlay(s))." if optional_overlays else ".")
+    )
     return 0
 
 

@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 VALID_CATEGORIES = {"dat", "plugin", "addon"}
+VALID_OPTIONAL_OVERLAY_CATEGORIES = {"dat-optional"}
 SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 CONFLICT_MARKER_RE = re.compile(r"^(<{7}|={7}|>{7})(?:\s|$)")
 
@@ -227,6 +228,143 @@ def verify_manifest(repo_root: Path, manifest_path: Path | None = None) -> list[
     for src in sorted(manifest_sources):
         if src not in expected:
             errors.append(f"Manifest entry points outside expected client payload roots: {src}")
+
+    # 6. Optional DAT overlays verification (strictly read-only, zero conflicts with base dat-overlay)
+    base_dat_targets = {
+        tgt.lower()
+        for _src, (cat, tgt) in expected.items()
+        if cat == "dat"
+    }
+    expected_optional: dict[str, dict[str, str]] = {}
+    optional_root = repo_root / "dat-overlays"
+    if optional_root.exists():
+        for overlay_dir in sorted((p for p in optional_root.iterdir() if p.is_dir()), key=lambda p: p.name.lower()):
+            rom_root = overlay_dir / "ROM"
+            if not rom_root.exists():
+                continue
+            ov_files: dict[str, str] = {}
+            for file_path in sorted(
+                (p for p in rom_root.rglob("*") if p.is_file()),
+                key=lambda p: p.relative_to(repo_root).as_posix().lower(),
+            ):
+                ov_files[file_path.relative_to(repo_root).as_posix()] = file_path.relative_to(overlay_dir).as_posix()
+            if ov_files:
+                expected_optional[overlay_dir.name] = ov_files
+
+    optional_overlays = manifest.get("optionalOverlays")
+    if optional_overlays is None:
+        for ov_id in sorted(expected_optional):
+            errors.append(f"Optional overlay directory missing from manifest.json optionalOverlays: {ov_id}")
+    elif not isinstance(optional_overlays, list):
+        errors.append("optionalOverlays must be a list when present")
+    else:
+        seen_overlay_ids: set[str] = set()
+        for ov_idx, ov in enumerate(optional_overlays):
+            if not isinstance(ov, dict):
+                errors.append(f"optionalOverlays[{ov_idx}] must be an object")
+                continue
+            ov_id = ov.get("id")
+            if not isinstance(ov_id, str) or not ov_id.strip():
+                errors.append(f"optionalOverlays[{ov_idx}].id must be a non-empty string")
+                continue
+            if ov_id in seen_overlay_ids:
+                errors.append(f"Duplicate optional overlay id: {ov_id!r}")
+                continue
+            seen_overlay_ids.add(ov_id)
+
+            ov_folder = ov.get("overlayFolder")
+            if not isinstance(ov_folder, str) or not ov_folder.strip() or "/" in ov_folder or "\\" in ov_folder or ".." in ov_folder:
+                errors.append(f"optionalOverlays[{ov_idx}].overlayFolder must be a safe folder name: {ov_folder!r}")
+
+            if not isinstance(ov.get("defaultEnabled"), bool):
+                errors.append(f"optionalOverlays[{ov_idx}].defaultEnabled must be a boolean")
+
+            ov_files_list = ov.get("files")
+            if not isinstance(ov_files_list, list) or len(ov_files_list) == 0:
+                errors.append(f"optionalOverlays[{ov_idx}].files must be a non-empty list")
+                continue
+
+            seen_ov_sources: dict[str, int] = {}
+            seen_ov_targets: dict[str, int] = {}
+            manifest_ov_sources: dict[str, str] = {}
+
+            for f_idx, entry in enumerate(ov_files_list):
+                if not isinstance(entry, dict):
+                    errors.append(f"optionalOverlays[{ov_idx}].files[{f_idx}] must be an object")
+                    continue
+                category = entry.get("category")
+                if category not in VALID_OPTIONAL_OVERLAY_CATEGORIES:
+                    errors.append(
+                        f"optionalOverlays[{ov_idx}].files[{f_idx}].category invalid: {category!r} "
+                        f"(expected one of {sorted(VALID_OPTIONAL_OVERLAY_CATEGORIES)})"
+                    )
+                source_path = _validate_rel_posix_path(
+                    entry.get("sourcePath"), f"optionalOverlays[{ov_idx}].sourcePath", f_idx, errors
+                )
+                target_path = _validate_rel_posix_path(
+                    entry.get("targetPath"), f"optionalOverlays[{ov_idx}].targetPath", f_idx, errors
+                )
+                sha256 = entry.get("sha256")
+                if not isinstance(sha256, str) or not SHA256_RE.match(sha256):
+                    errors.append(f"optionalOverlays[{ov_idx}].files[{f_idx}].sha256 invalid: {sha256!r}")
+                size = entry.get("size")
+                if not isinstance(size, int) or isinstance(size, bool) or size < 0:
+                    errors.append(f"optionalOverlays[{ov_idx}].files[{f_idx}].size invalid: {size!r}")
+
+                if source_path:
+                    sk = source_path.lower()
+                    if sk in seen_ov_sources:
+                        errors.append(f"Duplicate optional overlay sourcePath in {ov_id!r}: {source_path!r}")
+                    else:
+                        seen_ov_sources[sk] = f_idx
+
+                if target_path:
+                    tk = target_path.lower()
+                    if tk in seen_ov_targets:
+                        errors.append(f"Duplicate optional overlay targetPath in {ov_id!r}: {target_path!r}")
+                    else:
+                        seen_ov_targets[tk] = f_idx
+                    if tk in base_dat_targets:
+                        errors.append(
+                            f"Optional overlay {ov_id!r} conflicts with base dat-overlay targetPath: {target_path!r}"
+                        )
+
+                if source_path and target_path:
+                    manifest_ov_sources[source_path] = target_path
+
+                if source_path and isinstance(sha256, str) and SHA256_RE.match(sha256) and isinstance(size, int):
+                    full_path = repo_root / source_path
+                    if not full_path.is_file():
+                        errors.append(f"Missing optional overlay source file ({ov_id}): {source_path}")
+                        continue
+                    raw_bytes = full_path.read_bytes()
+                    actual_size = len(raw_bytes)
+                    actual_sha = hashlib.sha256(raw_bytes).hexdigest()
+                    if actual_sha != sha256 or actual_size != size:
+                        errors.append(
+                            f"Optional overlay checksum/size mismatch for {source_path}: "
+                            f"manifest=({sha256[:12]}..., {size}B) vs disk=({actual_sha[:12]}..., {actual_size}B)"
+                        )
+
+            expected_ov = expected_optional.get(ov_id)
+            if expected_ov is None:
+                errors.append(f"Manifest optionalOverlay {ov_id!r} has no matching dat-overlays/{ov_id}/ROM directory")
+            else:
+                for src, tgt in sorted(expected_ov.items()):
+                    if src not in manifest_ov_sources:
+                        errors.append(f"Optional overlay file missing from manifest.json ({ov_id}): {src}")
+                    elif manifest_ov_sources[src] != tgt:
+                        errors.append(
+                            f"Optional overlay routing mismatch ({ov_id}) for {src}: "
+                            f"manifest={manifest_ov_sources[src]!r} vs expected={tgt!r}"
+                        )
+                for src in sorted(manifest_ov_sources):
+                    if src not in expected_ov:
+                        errors.append(f"Optional overlay entry outside dat-overlays/{ov_id}/ROM: {src}")
+
+        for ov_id in sorted(expected_optional):
+            if ov_id not in seen_overlay_ids:
+                errors.append(f"Optional overlay directory missing from manifest.json optionalOverlays: {ov_id}")
 
     return errors
 

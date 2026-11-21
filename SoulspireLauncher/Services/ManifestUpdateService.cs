@@ -212,6 +212,14 @@ public sealed class ManifestUpdateService
     public static string ResolveTargetFilePath(LauncherSettings settings, ManifestFileEntry entry)
     {
         var relative = entry.TargetPath.Replace('/', Path.DirectorySeparatorChar);
+        if (entry.Category.Equals("dat-optional", StringComparison.OrdinalIgnoreCase))
+        {
+            var folder = string.IsNullOrWhiteSpace(entry.OverlayFolder)
+                ? AshitaConfigGenerator.FlintlockOverlayFolderName
+                : entry.OverlayFolder.Trim();
+            return Path.Combine(settings.AshitaPath, "polplugins", "DATs", folder, relative);
+        }
+
         if (entry.Category.Equals("dat", StringComparison.OrdinalIgnoreCase))
         {
             return Path.Combine(settings.AshitaPath, "polplugins", "DATs", AshitaConfigGenerator.OverlayFolderName, relative);
@@ -225,13 +233,53 @@ public sealed class ManifestUpdateService
         return Path.Combine(settings.AshitaPath, "addons", relative);
     }
 
+    public static bool IsOptionalOverlayEnabled(LauncherSettings settings, ManifestOptionalOverlay overlay)
+    {
+        if (!settings.EnablePivotOverlay)
+        {
+            return false;
+        }
+
+        if (overlay.Id.Equals(AshitaConfigGenerator.FlintlockOverlayId, StringComparison.OrdinalIgnoreCase))
+        {
+            return settings.EnableFlintlockDualPistolsOverlay;
+        }
+
+        return overlay.DefaultEnabled;
+    }
+
+    public static IEnumerable<ManifestFileEntry> EnumerateActiveFiles(
+        LauncherManifest manifest,
+        LauncherSettings settings)
+    {
+        foreach (var entry in manifest.Files)
+        {
+            yield return entry;
+        }
+
+        foreach (var overlay in manifest.OptionalOverlays)
+        {
+            if (!IsOptionalOverlayEnabled(settings, overlay))
+            {
+                continue;
+            }
+
+            var folder = string.IsNullOrWhiteSpace(overlay.OverlayFolder) ? overlay.Id : overlay.OverlayFolder;
+            foreach (var entry in overlay.Files)
+            {
+                entry.OverlayFolder = folder;
+                yield return entry;
+            }
+        }
+    }
+
     public List<ManifestFileEntry> GetOutdatedFiles(
         LauncherManifest manifest,
         LauncherSettings settings,
         bool forceAll = false)
     {
         var pending = new List<ManifestFileEntry>();
-        foreach (var entry in manifest.Files)
+        foreach (var entry in EnumerateActiveFiles(manifest, settings))
         {
             var dest = ResolveTargetFilePath(settings, entry);
             if (forceAll || !FileMatchesHash(dest, entry.Sha256))

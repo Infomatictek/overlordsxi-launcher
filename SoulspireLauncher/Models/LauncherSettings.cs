@@ -48,6 +48,7 @@ public sealed class LauncherSettings
     public string Language { get; set; } = "US";
 
     public bool EnablePivotOverlay { get; set; } = true;
+    public bool EnableFlintlockDualPistolsOverlay { get; set; }
     public bool AutoLoadTalentsAddon { get; set; } = true;
     public bool AutoLoadCrystalSocketAddon { get; set; } = true;
     public bool AutoLoadMetricsAddon { get; set; } = true;
@@ -56,6 +57,7 @@ public sealed class LauncherSettings
     public bool AutoLoadKazenoeyeAddon { get; set; } = true;
     public bool AutoLoadGearAddon { get; set; } = true;
     public bool AutoLoadSoulHudAddon { get; set; } = true;
+    public bool AutoLoadFlintlockAddon { get; set; } = true;
     public bool AutoCloseOnLaunch { get; set; }
     public bool AutoCheckUpdatesOnStartup { get; set; } = true;
     public bool AutoUpdateLauncher { get; set; } = true;
