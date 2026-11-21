@@ -54,12 +54,12 @@ local state = {
     peerRevokes = 0,
     peerRejectReasons = {},
     peerEnvelopeSamples = {},
-    -- Fail closed: native menus remain Soul-aware, combat text stays untouched
-    -- until the two-player actor attribution regression is validated.
-    chatNamesEnabled = false,
+    -- Rewriting is scoped to the exact local actor or a verified OXSI peer.
+    chatNamesEnabled = true,
 }
 
 local vanillaCache = { spell = {}, ability = {}, weaponskill = {} }
+local vanillaAliasCache = { spell = {}, ability = {}, weaponskill = {} }
 
 local function log(message) print('[Soul Actions] ' .. tostring(message)) end
 
@@ -87,6 +87,8 @@ end
 -- Collect every resource-provided spelling for local log matching. Unlike macro
 -- dispatch, combat lines may use a different language/name index.
 local function readVanillaAliases(kind, id)
+    local bucket = vanillaAliasCache[kind]
+    if bucket and bucket[id] then return bucket[id] end
     local primary = readVanillaName(kind, id)
     local result, seen = {}, {}
     local function append(value)
@@ -107,6 +109,7 @@ local function readVanillaAliases(kind, id)
             end
         end
     end)
+    if bucket then bucket[id] = result end
     return result
 end
 
@@ -246,7 +249,7 @@ ashita.events.register('command', 'osa_command', function(e)
         local choice = (args[3] or 'status'):lower()
         if choice == 'on' then
             state.chatNamesEnabled = true
-            log('Experimental combat-log Soul name substitution ENABLED for this session.')
+            log('Combat-log Soul name substitution ENABLED for this session.')
         elseif choice == 'off' then
             state.chatNamesEnabled = false
             log('Combat-log Soul name substitution DISABLED; stock messages preserved.')
@@ -255,7 +258,7 @@ ashita.events.register('command', 'osa_command', function(e)
             log('Usage: /soulactions chatnames on|off|status')
         end
     elseif op == 'logstatus' then
-        log('Combat-log substitution=' .. (state.chatNamesEnabled and 'ON' or 'OFF (safe default)'))
+        log('Combat-log substitution=' .. (state.chatNamesEnabled and 'ON' or 'OFF'))
         log(('Combat log: seen=%d rewritten=%d cast_lines_unmodified=%d soul=%s player=%s'):format(
             state.textSeen, state.textRewritten, state.castNameMisses,
             tostring(state.soul), tostring(state.lastPlayerName)))

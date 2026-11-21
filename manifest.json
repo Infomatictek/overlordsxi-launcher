@@ -6055,8 +6055,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/combat_log.lua",
       "targetPath": "soulspire_soul_actions/combat_log.lua",
-      "sha256": "71dc3d5f36ba6a4578291e84a45502765486168415597e04893509f9c7e8c0a2",
-      "size": 5339
+      "sha256": "d18138aa11920a3be562fe33f22611a1d48180b6bce0dd348d6a6c91d78c67f8",
+      "size": 5660
     },
     {
       "category": "addon",
@@ -6132,8 +6132,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/resource_audit.lua",
       "targetPath": "soulspire_soul_actions/resource_audit.lua",
-      "sha256": "654bcb7e73c96455f00a64929e29663abdb2fab3d39355ca1f063d9f9cbeb4f8",
-      "size": 3546
+      "sha256": "d57731fc56b460d937ed022807e2716db6574fab34222cde0f2a19ef1384cb34",
+      "size": 3556
     },
     {
       "category": "addon",
@@ -6153,22 +6153,22 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/soulspire_soul_actions.lua",
       "targetPath": "soulspire_soul_actions/soulspire_soul_actions.lua",
-      "sha256": "856af906631037935f98654439e2adf8b93ed9c550926d22b264f6533ae858d2",
-      "size": 25059
+      "sha256": "5aa8f2f312953c94613228c83214965188b22c77eed80d2d3f1cf6aee8a7baa3",
+      "size": 25171
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/tests/builtin_profiles_test.lua",
       "targetPath": "soulspire_soul_actions/tests/builtin_profiles_test.lua",
-      "sha256": "a4fb25362dcc11ebaf543b7d616e36c74f434ba1c4f32739612771208bdbb99c",
-      "size": 1481
+      "sha256": "ee59c8546c5eb33b36f8cd22f120e9deb7963c7d57466bec7b7ed076d2ff0835",
+      "size": 1483
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/tests/macro_and_combat_log_test.lua",
       "targetPath": "soulspire_soul_actions/tests/macro_and_combat_log_test.lua",
-      "sha256": "38cdcf968a7dd6a1eda37cf36195464df8223f7b76450707504ebc8be1a25070",
-      "size": 8408
+      "sha256": "a60826eeb6942358b9fbb2a18345b9ffcd1a2019f97a4f2789e15342d247e550",
+      "size": 9866
     },
     {
       "category": "addon",

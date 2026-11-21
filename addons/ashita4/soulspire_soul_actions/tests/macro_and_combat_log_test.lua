@@ -6,7 +6,7 @@ local combatLog = require('combat_log')
 local nativeActions = require('native_actions')
 
 catalog.clear()
-assert(builtins.install(catalog) == 10)
+assert(builtins.install(catalog) == 160)
 assert(catalog.register('shinobi', 'weaponskill', 128, {
     name = 'Shadow Rend',
     description = 'Shinobi shadow-infused weapon skill.',
@@ -64,6 +64,26 @@ assert(combatLog.rewriteLine('\x1f\x01Nappy uses Yonin.', 'Nappy', catalog, 'shi
 assert(combatLog.rewriteLine('OtherNinja starts casting Utsusemi: Ichi.', 'Nappy', catalog, 'shinobi', getVanilla) == nil)
 assert(combatLog.rewriteLine('NappyTwo starts casting Utsusemi: Ichi.', 'Nappy', catalog, 'shinobi', getVanilla) == nil)
 assert(combatLog.rewriteLine('Nappy starts casting Utsusemi: Ichi.', 'Nappy', catalog, 'kagemusha', getVanilla) == nil)
+-- The alias must be the action token, never a target or later message text.
+assert(combatLog.rewriteLine('Nappy uses Provoke on Utsusemi: Ichi.',
+    'Nappy', catalog, 'shinobi', getVanilla) == nil)
+assert(combatLog.rewriteLine('Nappy starts casting Provoke on Utsusemi: Ichi.',
+    'Nappy', catalog, 'shinobi', getVanilla) == nil)
+assert(combatLog.rewriteLine('Nappy casts Utsusemi: Ichi on Utsusemi: Ichi.',
+    'Nappy', catalog, 'shinobi', getVanilla)
+    == 'Nappy casts Shadow Squadron: Ichi on Utsusemi: Ichi.')
+assert(combatLog.rewriteLine('Nappy casts Utsusemi: Ichi.',
+    'Nappy', catalog, 'kagemusha', getVanilla) == nil)
+local function stoneName(kind, id)
+    return kind == 'spell' and id == 160 and 'Stone II' or nil
+end
+assert(combatLog.rewriteLine('Rin starts casting Stone II on Goblin Butcher.',
+    'Rin', catalog, 'terramancer', stoneName)
+    == 'Rin starts casting Shallow Fault on Goblin Butcher.')
+assert(combatLog.rewriteLine('Rin starts casting Stone II on Goblin Butcher.',
+    'Rin', catalog, 'shinobi', stoneName) == nil)
+assert(combatLog.rewriteLine('Rin uses Provoke on Stone II.',
+    'Rin', catalog, 'terramancer', stoneName) == nil)
 
 -- Actual local cast lines include targets, and resource managers can expose
 -- multiple localized names for one underlying spell ID.
@@ -128,6 +148,11 @@ assert(combatLog.rewriteLine(actualTimestamp .. 'Offset starts casting Utsusemi:
     'Rin', catalog, 'shinobi', aliases) == nil)
 assert(combatLog.rewriteLine(actualTimestamp .. 'OtherRin starts casting Utsusemi: Ichi on OtherRin.',
     'Rin', catalog, 'shinobi', aliases) == nil)
+assert(combatLog.rewriteLine(actualTimestamp .. 'Rin starts casting '
+    .. string.char(0x1F, 0x30) .. 'Utsusemi: Ichi on Rin.',
+    'Rin', catalog, 'shinobi', aliases)
+    == actualTimestamp .. 'Rin starts casting ' .. string.char(0x1F, 0x30)
+        .. 'Shadow Squadron: Ichi on Rin.')
 assert(combatLog.rewriteLine(string.char(0x1E) .. 'Q[16:39:04] Other '
     .. vanillaCast, 'Rin', catalog, 'shinobi', aliases) == nil)
 

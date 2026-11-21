@@ -10,7 +10,7 @@ The native `/ma` resolver at RVA `0x22CA40`, called from command paths `0x77802`
 
 The client fix intercepts only the `mov ebp,-2` instruction at `0x22CB44`, skipping it when the current verified Soul policy explicitly unlocks that spell at the effective level. Unmanaged spells, other Souls, and levels below unlock retain the native learned-bit check. The server still checks real cast authorization. No spell DAT levels or policy unlock levels change. The status hook count now includes both prologue detours, so `22/22` verifies them in game.
 
-Combat log names are independent of the native Magic Menu names. The Ashita `text_in` substitution is deliberately disabled by default (`chatNamesEnabled=false`); native combat messages therefore use the original Stone II name until `/soulactions chatnames on` is enabled for an in-game attribution test.
+Combat log names are independent of the native Magic Menu names. The Ashita `text_in` substitution is enabled by default for the exact local actor and for peers with a current verified OXSI identity. It changes only the action token after the actor's cast/use verb; unknown actors and actions without Soul overrides keep their vanilla names. `/soulactions chatnames off` disables this presentation for the session. Live two-player verification is still needed before claiming peer behavior is proven in game.
 
 ## Verified native `FFXiMain.dll` list-filtering sites (`TS=0x6ae818b4`, `SizeOfImage=0xC17000`)
 
