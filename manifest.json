@@ -371,8 +371,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "801c2aa382c42c07aecf6a214d4fd086ed3cfea27772b56d933b727d440496e3",
-      "size": 18682
+      "sha256": "fc894fd101e1784196c01f10ea5db0ee10d11df61ae12b4dc9f3bfa93ad06bec",
+      "size": 19363
     },
     {
       "category": "addon",

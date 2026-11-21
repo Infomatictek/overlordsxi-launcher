@@ -1,6 +1,6 @@
 addon.name = 'crystalsocket'
 addon.author = 'SoulspireXI / Crystal Socket'
-addon.version = '0.3.6'
+addon.version = '0.3.7'
 addon.desc = 'SoulspireXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
 
 require('common')
@@ -161,6 +161,20 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
             print('[crystalsocket] Sync failed: ' .. tostring(why))
         else
             print('[crystalsocket] Syncing soul crystals for current job...')
+        end
+        return
+    end
+    if cmd:match('^/crystalsocket%s+debug%s*$') then
+        e.blocked = true
+        print(('[crystalsocket] Equipment native label hook activity: %s (opens=%d open=%s)'):format(
+            equipment_probe.last, equipment_probe.opens, tostring(equipment_probe.open)))
+        local dll_st = labels:status()
+        if dll_st then
+            print(('[crystalsocket] Native label counters: item=%d full=%d search=%d rows=%d hooks=%d enabled=%d err=%d'):format(
+                dll_st.item_labels, dll_st.full_labels, dll_st.search_labels,
+                dll_st.search_rows, dll_st.hooks, dll_st.enabled, dll_st.last_error))
+        else
+            print('[crystalsocket] Native status unavailable: ' .. tostring(labels.last_status_error))
         end
         return
     end
@@ -373,7 +387,6 @@ ashita.events.register('d3d_present', 'crystalsocket_present', function()
         else
             equipment_probe.last = 'native status unavailable: ' .. tostring(labels.last_status_error)
         end
-        print('[crystalsocket] Equipment native label hook activity: ' .. equipment_probe.last)
     end
     was_anchored = anchor ~= nil
     if ui then
