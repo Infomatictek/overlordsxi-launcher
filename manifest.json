@@ -6090,8 +6090,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/native_actions.lua",
       "targetPath": "soulspire_soul_actions/native_actions.lua",
-      "sha256": "5bb367c18b0bdeab401de93ea2843df841b508a3979786d2f0c336913f9340d6",
-      "size": 14011
+      "sha256": "85c2fc8037a2dbc385ecc3f3ff1f3adf7fb123eacbc812ff053a56940206f808",
+      "size": 14058
     },
     {
       "category": "addon",

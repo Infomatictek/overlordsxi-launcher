@@ -1,6 +1,16 @@
 # Soul-aware native action visibility — integration contract
 
-**Status:** Native visibility engine implemented, compiled (`crystaljobs.dll` 20/20 hooks), self-tested, and live-verified against installed `FFXiMain.dll`. Full live UI acceptance screenshots remain for in-game testing.
+**Status:** Native visibility engine implemented and live-verified against installed `FFXiMain.dll`. The new cast lookup hook needs a Windows CI build and in-game acceptance test.
+
+## GEO30 Shallow Fault cast rejection (2026-11-20)
+
+The installed `crystaljobs.dll` SHA-256 `e405c73a59d506a270d359be65ba2646eeb49223ef77dba931a8c24866a9727e` matches the Windows CI artifact. The supplied packed `FFXiMain.dll` SHA-256 `d809ebe333019395ad43ab7ec1d94d9f58fe1f62c2ae730334f730fa8e7d48fb` unpacks to the already supported timestamp `0x6ae818b4` and image size `0xc17000`. The prior audit's claim that detouring `0x22CDE0` covers the whole cast check was incomplete.
+
+The native `/ma` resolver at RVA `0x22CA40`, called from command paths `0x77802`, `0x7B76A`, and `0x7BC25`, first reads the learned-spell bitmap from `0xF01E0`. On a missing bit, `0x22CB44` writes `-2` into `EBP`. It then calls the detoured `0x22CDE0` at `0x22CB4A`. An allowed result from that detour leaves `EBP=-2`; the resolver returns `-2` to the command path, which produces the observed local job/level error. The Magic Menu's `0x22DAB9` call checks `0x22CDE0` without that bitmap rejection, so it can show spell 160 at GEO30. At GEO35, the vanilla GEO34 learned bit is present and this rejection does not occur. `0x22CDE0` also has callers at `0x22CC5F` and `0x22DAB9`; none removes the resolver's earlier `-2`.
+
+The client fix intercepts only the `mov ebp,-2` instruction at `0x22CB44`, skipping it when the current verified Soul policy explicitly unlocks that spell at the effective level. Unmanaged spells, other Souls, and levels below unlock retain the native learned-bit check. The server still checks real cast authorization. No spell DAT levels or policy unlock levels change. The status hook count now includes both prologue detours, so `22/22` verifies them in game.
+
+Combat log names are independent of the native Magic Menu names. The Ashita `text_in` substitution is deliberately disabled by default (`chatNamesEnabled=false`); native combat messages therefore use the original Stone II name until `/soulactions chatnames on` is enabled for an in-game attribution test.
 
 ## Verified native `FFXiMain.dll` list-filtering sites (`TS=0x6ae818b4`, `SizeOfImage=0xC17000`)
 
