@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import json
 import shutil
+import struct
 import subprocess
 import sys
 import tempfile
@@ -137,6 +138,74 @@ class FlintlockDualPistolsValidationTests(unittest.TestCase):
                 any("conflicts with base dat-overlay" in e for e in errors),
                 f"Expected conflict error, got: {errors}",
             )
+
+    def test_holstered_pistols_are_symmetrical_across_all_182_firearm_dats(self):
+        overlay_root = REPO_ROOT / "dat-overlays" / "flintlock-akimbo-compact" / "ROM"
+        firearm_count = 0
+        skel_count = 0
+
+        def iter_sections(raw: bytes):
+            pos = 0
+            n = len(raw)
+            while pos + 16 <= n:
+                name = raw[pos : pos + 4]
+                word = struct.unpack_from("<I", raw, pos + 4)[0]
+                kind = word & 0x7F
+                size = ((word >> 7) & 0x7FFFF) * 16
+                if size < 16 or pos + size > n:
+                    break
+                yield kind, name, raw[pos : pos + size]
+                pos += size
+
+        def rigid_centroid(sec_raw: bytes, n_verts: int):
+            body = sec_raw[16:]
+            v_off = 2 * struct.unpack_from("<I", body, 30)[0]
+            sx = sy = sz = 0.0
+            for i in range(n_verts):
+                x, y, z = struct.unpack_from("<fff", body, v_off + i * 24)
+                sx += x
+                sy += y
+                sz += z
+            return sx / n_verts, sy / n_verts, sz / n_verts
+
+        for dat_path in sorted(overlay_root.rglob("*.DAT")):
+            rel = dat_path.relative_to(overlay_root.parent).as_posix()
+            raw = dat_path.read_bytes()
+            secs = {(k, n): d for k, n, d in iter_sections(raw)}
+
+            if rel in EXPECTED_RACE_SKELETON_DATS:
+                skel_count += 1
+                for req in (
+                    (0x2B, b"q3d0"), (0x2B, b"q3d1"), (0x2B, b"q3d2"),
+                    (0x2B, b"q3h0"), (0x2B, b"q3h1"), (0x2B, b"q3h2"),
+                    (0x2B, b"q3a0"), (0x2B, b"q3a1"), (0x2B, b"q3a2"),
+                    (0x07, b"lc07"), (0x07, b"ls07"), (0x07, b"splg"),
+                ):
+                    self.assertIn(req, secs, f"Missing skeleton section {req} in {rel}")
+                continue
+
+            if (0x2A, b"wep8") not in secs or (0x2A, b"wep7") not in secs:
+                continue
+
+            firearm_count += 1
+            self.assertIn((0x2A, b"wep2"), secs, f"Missing wep2 in {rel}")
+            info = next((d for (k, n), d in secs.items() if n == b"info"), None)
+            self.assertIsNotNone(info, f"Missing info section in {rel}")
+            self.assertEqual(info[30], 0x07, f"Expected AkimboRA info[30]=0x07 in {rel}")
+
+            wep2_body = secs[(0x2A, b"wep2")][16:]
+            n_gun = struct.unpack_from("<H", wep2_body, 2 * struct.unpack_from("<I", wep2_body, 18)[0])[0]
+            c8 = rigid_centroid(secs[(0x2A, b"wep8")], n_gun)
+            c7 = rigid_centroid(secs[(0x2A, b"wep7")], n_gun)
+
+            self.assertLess(abs(c8[0] + c7[0]), 0.015, f"X asymmetry in {rel}: wep8={c8} wep7={c7}")
+            self.assertLess(abs(c8[1] - c7[1]), 0.005, f"Y asymmetry in {rel}: wep8={c8} wep7={c7}")
+            self.assertLess(abs(c8[2] - c7[2]), 0.005, f"Z asymmetry in {rel}: wep8={c8} wep7={c7}")
+            self.assertLess(abs(c8[2]), 0.25, f"Unexpected rear/front Z offset in {rel}: wep8={c8}")
+            self.assertLess(abs(c7[2]), 0.25, f"Unexpected rear/front Z offset in {rel}: wep7={c7}")
+
+        self.assertEqual(skel_count, 7)
+        self.assertEqual(firearm_count, 182)
 
     def test_flintlock_lua_unit_suite_passes(self):
         lua_bin = shutil.which("luajit") or shutil.which("lua")

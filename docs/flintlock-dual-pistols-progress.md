@@ -105,6 +105,28 @@ True live runtime switching of the 278 dual-pistol DATs on Soul change (without 
 
 ---
 
+## Holstered Pistol Alignment Fix (`fix/flintlock-holster-alignment`)
+
+### Root Cause
+Upstream `AkimboRA-Source/work/ra-rigs/v3_holster.py` (`_CARRY`) derived dual-pistol holster sockets from vanilla FFXI **sheathed-dagger (`EID 99`)** placements. On most races, vanilla FFXI places one dagger at the hip and the other **behind the back/waist** (up to 33.4 cm rear Z offset), or points/rolls both holsters unnaturally:
+- **HumeF (`32/58.DAT`)**: side 0 `Z = +0.082` (hip) vs side 1 `Z = -0.234` (31.6 cm behind back).
+- **ElvaanM (`37/31.DAT`)**: side 0 `Z = +0.023` (hip) vs side 1 `Z = -0.301` (32.4 cm behind back).
+- **ElvaanF (`42/4.DAT`)**: side 0 `Z = -0.273` (33.4 cm behind back) vs side 1 `Z = +0.061` (hip).
+- **Mithra (`51/89.DAT`)**: side 0 `Z = -0.053` vs side 1 `Z = -0.205` (15.2 cm front-to-back offset).
+- **Tarutaru (`46/93.DAT`)**: both pistols pointed nearly horizontally forward (`barrel = (0.0, +0.37, +0.93)`) and rolled outward.
+- **Galka (`56/59.DAT`)**: both pistols behind the back (`Z = -0.383 / -0.466`) and rolled sideways.
+- **HumeM (`27/82.DAT`)**: minor 1–2 cm left/right drift (`Z = +0.065 / +0.085`).
+
+### Fix Applied (Visual-Only, Firing Preserved)
+Rebuilt holstered carry sockets across all 7 race skeletons and 182 firearm model DATs with cleanly mirrored sagittal (`X = 0`) hip-holster transforms (`(-qx, qy, qz, -qw)`):
+- **7 skeleton DATs**: rebuilt **only** `q3d0..2` (draw) and `q3a0..2` (return) so hand reach matches the corrected hip holsters. `q3h0..2` (aim hold), `lc07`, `ls07`, `splg`, `lc03`, `ls03`, and all stock sections are **byte-for-byte unchanged**.
+- **182 firearm model DATs**: rebuilt **only** `wep8`, `wep7`, `wep6` (hip meshes + Mariner leather loops) and `q4m0`/`q4m1` (leather loop morph targets). `wep2` (in-hand firing pistols), `q3f1`/`q3f2` (muzzle flashes), `q3lt`, `q4d0..q4r1`, `q4x*`, `info[30] = 0x07`, sounds, and textures are **byte-for-byte unchanged**.
+- **89 shared WS DATs**: **byte-for-byte unchanged**.
+- **Verified symmetry across all 182 firearms**: `max|w8.x + w7.x| = 0.0107`, `max|w8.y - w7.y| = 0.0010`, `max|w8.z - w7.z| = 0.0007` (down from 0.334 m rear offset). Guarded by `test_holstered_pistols_are_symmetrical_across_all_182_firearm_dats` in `tests/test_flintlock_dual_pistols.py`.
+- **Live Windows visual verification**: `NOT TESTED (Windows client required)` — verify idle, walk/run, draw/return transitions, repeated `/ra`, multiple gun models, zoning/relogging, and disabled-overlay safety before merging into `main`.
+
+---
+
 ## Future Phases (Document Only — Out of Scope for Phase 1)
 - **Independent pistol firing**: Separate main-hand / off-hand shot cadence and animation state machine.
 - **Shared ammunition**: Dual-shot ammo consumption accounting against the single ranged ammo slot.
