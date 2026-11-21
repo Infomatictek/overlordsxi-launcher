@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "serverName": "SoulspireXI",
-  "tagline": "Faerie Companions (Eos & Titania) \u2022 Job Specs \u2022 4-Tier Weaponskill Talent Trees",
+  "tagline": "Faerie Companions (Eos & Titania) • Job Specs • 4-Tier Weaponskill Talent Trees",
   "defaultHost": "play.soulspirexi.com",
   "useHairpin": false,
   "ports": {
@@ -35,7 +35,7 @@
       "category": "dat",
       "sourcePath": "dat-overlay/ROM/118/114.DAT",
       "targetPath": "ROM/118/114.DAT",
-      "sha256": "c015f4fb1f228d5ce6396d9b8eeda2e81193304b62b58520f3e74f22b98385a4",
+      "sha256": "c03224f15e9c68d5672c51aa96950ffb8c3a8b8292ff3183897a4a5d8e13d5ec",
       "size": 403280
     },
     {
@@ -6076,8 +6076,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/data/visibility.tsv",
       "targetPath": "soulspire_soul_actions/data/visibility.tsv",
-      "sha256": "480953cd89a3f189e483900148aca0d6f80d2b23665917b6206d3aadf27af78b",
-      "size": 5440
+      "sha256": "cfabc20c2ba519ffb0f7a7dd437cae341396d06f44b1489b96b5f27e16c1bf1f",
+      "size": 6320
     },
     {
       "category": "addon",
@@ -6216,8 +6216,8 @@
       "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_soul_actions/tests/visibility_test.lua",
       "targetPath": "soulspire_soul_actions/tests/visibility_test.lua",
-      "sha256": "122b8e3184052f20b9c401aae22d053e9bb2cfa706cf6373978d5fe7543b576b",
-      "size": 1458
+      "sha256": "b246611d7359511e19767c73cc2d0d5ecc4d9a76cb22b41162d12550921bf186",
+      "size": 3316
     },
     {
       "category": "addon",
