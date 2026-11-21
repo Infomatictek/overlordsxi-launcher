@@ -15,9 +15,9 @@ assert(WC.skill_mask({ WC.SKILLS.DAGGER, WC.SKILLS.SWORD }) == bit.bor(dagger_bi
 assert(WC.skill_mask({}) == 0, 'empty skill_mask must return 0')
 assert(WC.skill_mask({ 0, 32, -1, 2.5 }) == 0, 'out-of-range skills must be ignored')
 
--- 2. Native weapon rules export (BRD Adventurer Dagger/Sword dual_1h)
+-- 2. Native weapon rules export (BRD Adventurer dual_1h + WAR Berserker dual_2h)
 local rules = WC.native_rules()
-assert(#rules == 1, 'Expected 1 native dual_1h rule (BRD Adventurer)')
+assert(#rules == 2, 'Expected 2 native rules (BRD Adventurer dual_1h + WAR Berserker dual_2h)')
 local brd_adv = rules[1]
 assert(brd_adv.job == 10, 'BRD job id must be 10')
 assert(brd_adv.branch == 1, 'Adventurer branch must be 1')
@@ -27,6 +27,14 @@ assert(brd_adv.main_skill_mask == bit.bor(dagger_bit, sword_bit), 'main_skill_ma
 assert(brd_adv.sub_skill_mask == bit.bor(dagger_bit, sword_bit), 'sub_skill_mask must allow Dagger + Sword')
 assert(brd_adv.main_item_id == 0 and brd_adv.sub_item_id == 0, 'item_id overrides default to 0 (any Dagger/Sword)')
 
+local ga_bit = bit.lshift(1, WC.SKILLS.GREAT_AXE)
+local war_ber = rules[2]
+assert(war_ber.job == 1, 'WAR job id must be 1')
+assert(war_ber.branch == 2, 'Berserker branch must be 2')
+assert(war_ber.min_effective_level == 10, 'WAR Berserker min level must be 10')
+assert(war_ber.mode == WC.MODES.DUAL_2H, 'mode must be DUAL_2H (2)')
+assert(war_ber.main_skill_mask == ga_bit and war_ber.sub_skill_mask == ga_bit, 'WAR Berserker must allow Great Axe + Great Axe')
+
 -- Ensure legacy custom Sub-slot picker / packet injection helpers were removed.
 assert(WC.list == nil and WC.equip == nil and WC.command == nil and WC.SUB_NATIVE_SLOT == nil,
     'weapon_config must not expose custom Sub picker or 0x050 injection helpers')
@@ -35,9 +43,10 @@ assert(WC.list == nil and WC.equip == nil and WC.command == nil and WC.SUB_NATIV
 local labels = Labels.new(function() return function() return 0 end end)
 local captured_count = 0
 local captured_first = nil
+local captured_second = nil
 local ok, err = labels:sync_weapon_rules(rules, function(buf, count)
     captured_count = count
-    assert(count == 1)
+    assert(count == 2)
     assert(ffi.sizeof(buf[0]) == 24, 'CrystalJobsWeaponRule must be 24 bytes')
     captured_first = {
         size = tonumber(buf[0].size),
@@ -51,16 +60,27 @@ local ok, err = labels:sync_weapon_rules(rules, function(buf, count)
         sub_item_id = tonumber(buf[0].sub_item_id),
         reserved = tonumber(buf[0].reserved),
     }
+    captured_second = {
+        size = tonumber(buf[1].size),
+        job = tonumber(buf[1].job),
+        branch = tonumber(buf[1].branch),
+        min_effective_level = tonumber(buf[1].min_effective_level),
+        mode = tonumber(buf[1].mode),
+        main_skill_mask = tonumber(buf[1].main_skill_mask),
+        sub_skill_mask = tonumber(buf[1].sub_skill_mask),
+    }
     return 0
 end)
 assert(ok == true and err == nil, 'sync_weapon_rules must succeed when native replace returns 0')
-assert(labels.weapon_rules_synced == true and labels.weapon_rules_count == 1)
-assert(captured_count == 1)
+assert(labels.weapon_rules_synced == true and labels.weapon_rules_count == 2)
+assert(captured_count == 2)
 assert(captured_first.size == 24)
 assert(captured_first.job == 10 and captured_first.branch == 1)
 assert(captured_first.min_effective_level == 10 and captured_first.mode == 1)
 assert(captured_first.main_skill_mask == 12 and captured_first.sub_skill_mask == 12)
 assert(captured_first.main_item_id == 0 and captured_first.sub_item_id == 0 and captured_first.reserved == 0)
+assert(captured_second.size == 24 and captured_second.job == 1 and captured_second.branch == 2)
+assert(captured_second.mode == 2 and captured_second.main_skill_mask == ga_bit and captured_second.sub_skill_mask == ga_bit)
 
 -- Failure return code resets synced state cleanly
 local fail_ok, fail_err = labels:sync_weapon_rules(rules, function() return 1 end)

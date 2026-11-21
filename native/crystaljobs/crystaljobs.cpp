@@ -804,6 +804,109 @@ static __declspec(naked) void soul_sub_weapon_hook() {
     }
 }
 
+static uintptr_t soul_sub_menu_allow_resume;
+static uintptr_t soul_sub_menu_skip_resume;
+static uintptr_t soul_sub_2h_main_allow_resume;
+static uintptr_t soul_sub_2h_main_deny_resume;
+
+static uint8_t __stdcall soul_allows_dual_2h_menu_item(uint32_t item_id) noexcept {
+    if (!enabled.load() || item_id == 0 || item_id > 0xFFFFu) return 0;
+    if (main_lvl_slot == nullptr || item_res_mgr_slot == nullptr || original_get_item_res == nullptr) return 0;
+    const uint8_t effective_level = *main_lvl_slot;
+    if (effective_level == 0) return 0;
+    uint8_t job = 0, branch = 0;
+    if (!active_action_soul(job, branch)) return 0;
+
+    AcquireSRWLockShared(&weapon_lock);
+    const bool has_rules = weapon_rule_catalog.has_rules_for(job, branch);
+    ReleaseSRWLockShared(&weapon_lock);
+    if (!has_rules) return 0;
+
+    void* res_mgr = *item_res_mgr_slot;
+    if (res_mgr == nullptr) return 0;
+    const uint8_t* sub_res = original_get_item_res(res_mgr, nullptr, item_id);
+    if (sub_res == nullptr) return 0;
+    const uint16_t sub_skill = u16(sub_res + 0x10);
+
+    AcquireSRWLockShared(&weapon_lock);
+    const bool allowed = weapon_rule_catalog.allows_dual_2h_menu_item(
+        job, branch, effective_level, sub_skill, static_cast<uint16_t>(item_id));
+    ReleaseSRWLockShared(&weapon_lock);
+    return allowed ? 1 : 0;
+}
+
+static __declspec(naked) void soul_sub_menu_filter_hook() {
+    __asm {
+        test [esi - 0x0C], eax
+        jnz allow_item
+        cmp eax, 2
+        jne skip_item
+        test dword ptr [esi - 0x0C], 1
+        jz skip_item
+        pushfd
+        pushad
+        movzx eax, di
+        push eax
+        call soul_allows_dual_2h_menu_item
+        test al, al
+        jz deny_item
+        popad
+        popfd
+    allow_item:
+        jmp dword ptr [soul_sub_menu_allow_resume]
+    deny_item:
+        popad
+        popfd
+    skip_item:
+        jmp dword ptr [soul_sub_menu_skip_resume]
+    }
+}
+
+static uint8_t __stdcall soul_allows_2h_main_with_sub(const uint8_t* main_res, const uint8_t* sub_res) noexcept {
+    if (!enabled.load() || main_res == nullptr || sub_res == nullptr) return 0;
+    if (main_lvl_slot == nullptr) return 0;
+    const uint8_t effective_level = *main_lvl_slot;
+    if (effective_level == 0) return 0;
+    uint8_t job = 0, branch = 0;
+    if (!active_action_soul(job, branch)) return 0;
+
+    const uint16_t main_item_id = u16(main_res);
+    const uint16_t main_skill = u16(main_res + 0x10);
+    const uint16_t sub_item_id = u16(sub_res);
+    const uint16_t sub_skill = u16(sub_res + 0x10);
+
+    AcquireSRWLockShared(&weapon_lock);
+    const bool allowed = weapon_rule_catalog.allows_2h_main_with_sub(
+        job, branch, effective_level, main_skill, main_item_id, sub_skill, sub_item_id);
+    ReleaseSRWLockShared(&weapon_lock);
+
+    if (allowed) {
+        ++weapon_allow_hits;
+        return 1;
+    }
+    return 0;
+}
+
+static __declspec(naked) void soul_sub_2h_main_hook() {
+    __asm {
+        pushfd
+        pushad
+        push esi
+        push edi
+        call soul_allows_2h_main_with_sub
+        test al, al
+        jz stock
+        popad
+        popfd
+        jmp dword ptr [soul_sub_2h_main_allow_resume]
+    stock:
+        popad
+        popfd
+        push 0x99
+        jmp dword ptr [soul_sub_2h_main_deny_resume]
+    }
+}
+
 static void __stdcall compact_ability_menu_rows(uint8_t* menu_obj, int32_t* count_ptr, int32_t* saved_sel_ptr) noexcept {
     if (menu_obj == nullptr || count_ptr == nullptr || *count_ptr <= 0) return;
     if (ability_list_slot == nullptr || main_lvl_slot == nullptr) return;
@@ -1099,6 +1202,8 @@ struct PrologueDetour {
 static PrologueDetour can_use_spell_detour{0x22CDE0, reinterpret_cast<void*>(&magic_list_filter_hook)};
 static PrologueDetour missing_spell_bit_detour{0x22CB44, reinterpret_cast<void*>(&missing_spell_bit_hook), 0xBDu};
 static PrologueDetour soul_sub_weapon_detour{0x133D56, reinterpret_cast<void*>(&soul_sub_weapon_hook), 0x68u};
+static PrologueDetour soul_sub_menu_filter_detour{0x21DF85, reinterpret_cast<void*>(&soul_sub_menu_filter_hook), 0x85u};
+static PrologueDetour soul_sub_2h_main_detour{0x133DD3, reinterpret_cast<void*>(&soul_sub_2h_main_hook), 0x68u};
 
 static bool host_detour(uint8_t* entry, const uint8_t* expected, size_t length, size_t stolen, HMODULE host) noexcept {
     if (host == nullptr || entry[0] != 0xe9 || stolen < 5 || stolen >= length) return false;
@@ -1199,9 +1304,9 @@ static void safe_read_bytes(const void* src, uint8_t (&out)[8]) noexcept {
 }
 
 static constexpr uint32_t kPatchCount = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches));
-static constexpr uint32_t kExpectedHooks = kPatchCount + 3u;
+static constexpr uint32_t kExpectedHooks = kPatchCount + 5u;
 static_assert(kPatchCount == 21u);
-static_assert(kExpectedHooks == 24u);
+static_assert(kExpectedHooks == 26u);
 
 static bool supported_impl(uint8_t* base) noexcept {
     hook_diag = {};
@@ -1264,6 +1369,10 @@ static bool supported_impl(uint8_t* base) noexcept {
             std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) skip = 5;
         if (signature.rva == soul_sub_weapon_detour.rva && soul_sub_weapon_detour.site != nullptr &&
             std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) skip = 5;
+        if (signature.rva == soul_sub_menu_filter_detour.rva && soul_sub_menu_filter_detour.site != nullptr &&
+            std::memcmp(soul_sub_menu_filter_detour.site, soul_sub_menu_filter_detour.installed, 5) == 0) skip = 5;
+        if (signature.rva == soul_sub_2h_main_detour.rva && soul_sub_2h_main_detour.site != nullptr &&
+            std::memcmp(soul_sub_2h_main_detour.site, soul_sub_2h_main_detour.installed, 5) == 0) skip = 5;
         if (std::memcmp(base + signature.rva + skip, expected + skip, sizeof(expected) - skip) != 0) {
             hook_diag.init_stage = CRYSTALJOBS_INIT_SIG_MISMATCH;
             hook_diag.failed_rva = static_cast<uint32_t>(signature.rva);
@@ -1301,11 +1410,17 @@ extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     original_get_item_res = nullptr;
     soul_sub_weapon_allow_resume = 0;
     soul_sub_weapon_deny_resume = 0;
+    soul_sub_menu_allow_resume = 0;
+    soul_sub_menu_skip_resume = 0;
+    soul_sub_2h_main_allow_resume = 0;
+    soul_sub_2h_main_deny_resume = 0;
     AcquireSRWLockExclusive(&state_lock);
     transport.reset(state);
     soul_override = {};
     ReleaseSRWLockExclusive(&state_lock);
     uint32_t failure = 0;
+    if (!soul_sub_2h_main_detour.restore()) failure = 3;
+    if (!soul_sub_menu_filter_detour.restore()) failure = 3;
     if (!soul_sub_weapon_detour.restore()) failure = 3;
     if (!missing_spell_bit_detour.restore()) failure = 3;
     if (!can_use_spell_detour.restore()) failure = 3;
@@ -1399,6 +1514,28 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
         const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
         last_error.store(failure); return failure;
     }
+    soul_sub_menu_allow_resume = reinterpret_cast<uintptr_t>(base + 0x21DF8A);
+    soul_sub_menu_skip_resume = reinterpret_cast<uintptr_t>(base + 0x21DFE9);
+    if (!soul_sub_menu_filter_detour.install(base)) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_DETOUR_FAIL;
+        hook_diag.failed_index = kPatchCount + 3u;
+        hook_diag.failed_rva = static_cast<uint32_t>(soul_sub_menu_filter_detour.rva);
+        safe_read_bytes(base + soul_sub_menu_filter_detour.rva, hook_diag.observed_bytes);
+        ReleaseSRWLockExclusive(&lifecycle_lock);
+        const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
+        last_error.store(failure); return failure;
+    }
+    soul_sub_2h_main_deny_resume = reinterpret_cast<uintptr_t>(base + 0x133DD8);
+    soul_sub_2h_main_allow_resume = reinterpret_cast<uintptr_t>(base + 0x133E05);
+    if (!soul_sub_2h_main_detour.install(base)) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_DETOUR_FAIL;
+        hook_diag.failed_index = kPatchCount + 4u;
+        hook_diag.failed_rva = static_cast<uint32_t>(soul_sub_2h_main_detour.rva);
+        safe_read_bytes(base + soul_sub_2h_main_detour.rva, hook_diag.observed_bytes);
+        ReleaseSRWLockExclusive(&lifecycle_lock);
+        const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
+        last_error.store(failure); return failure;
+    }
     AcquireSRWLockExclusive(&state_lock);
     transport.reset(state);
     soul_override = {};
@@ -1443,6 +1580,8 @@ static uint32_t hook_rva_at(uint32_t index) noexcept {
     if (index == kPatchCount) return static_cast<uint32_t>(can_use_spell_detour.rva);
     if (index == kPatchCount + 1u) return static_cast<uint32_t>(missing_spell_bit_detour.rva);
     if (index == kPatchCount + 2u) return static_cast<uint32_t>(soul_sub_weapon_detour.rva);
+    if (index == kPatchCount + 3u) return static_cast<uint32_t>(soul_sub_menu_filter_detour.rva);
+    if (index == kPatchCount + 4u) return static_cast<uint32_t>(soul_sub_2h_main_detour.rva);
     return 0;
 }
 
@@ -1451,6 +1590,8 @@ static const uint8_t* hook_site_at(uint32_t index) noexcept {
     if (index == kPatchCount) return can_use_spell_detour.site;
     if (index == kPatchCount + 1u) return missing_spell_bit_detour.site;
     if (index == kPatchCount + 2u) return soul_sub_weapon_detour.site;
+    if (index == kPatchCount + 3u) return soul_sub_menu_filter_detour.site;
+    if (index == kPatchCount + 4u) return soul_sub_2h_main_detour.site;
     return nullptr;
 }
 
@@ -1470,12 +1611,14 @@ static void collect_hook_state(uint32_t& total, uint32_t& installed_mask, uint32
             }
         }
     }
-    const PrologueDetour* detours[3] = {
+    const PrologueDetour* detours[5] = {
         &can_use_spell_detour,
         &missing_spell_bit_detour,
         &soul_sub_weapon_detour,
+        &soul_sub_menu_filter_detour,
+        &soul_sub_2h_main_detour,
     };
-    for (uint32_t j = 0; j < 3u; ++j) {
+    for (uint32_t j = 0; j < 5u; ++j) {
         const uint32_t bit = kPatchCount + j;
         if (detours[j]->site != nullptr) {
             site_set_mask |= (1u << bit);
@@ -1508,6 +1651,10 @@ static void collect_hook_state(uint32_t& total, uint32_t& installed_mask, uint32
         }
         if ((installed_mask & (1u << (kPatchCount + 2u))) != 0) {
             caps |= CRYSTALJOBS_CAP_SOUL_SUB_WEAPON;
+        }
+        if (((installed_mask & (1u << (kPatchCount + 3u))) != 0) &&
+            ((installed_mask & (1u << (kPatchCount + 4u))) != 0)) {
+            caps |= CRYSTALJOBS_CAP_SOUL_SUB_2H;
         }
     }
 }

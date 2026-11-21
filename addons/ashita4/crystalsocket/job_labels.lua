@@ -73,6 +73,8 @@ Labels.HOOK_SPECS = {
     [21] = { rva = 0x22CDE0, name = 'can_use_spell_detour' },
     [22] = { rva = 0x22CB44, name = 'missing_spell_bit_detour' },
     [23] = { rva = 0x133D56, name = 'soul_sub_weapon_detour' },
+    [24] = { rva = 0x21DF85, name = 'soul_sub_menu_filter_detour' },
+    [25] = { rva = 0x133DD3, name = 'soul_sub_2h_main_detour' },
 }
 
 -- Cache named function-pointer types once. Re-parsing an anonymous FFI

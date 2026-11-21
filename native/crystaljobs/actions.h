@@ -374,7 +374,9 @@ inline bool validate_and_convert_weapon_rule(const CrystalJobsWeaponRule& in, We
     if (in.size != sizeof(CrystalJobsWeaponRule)) return false;
     if (in.job < 1 || in.job > 22 || !valid_branch(in.job, in.branch)) return false;
     if (in.min_effective_level < 1 || in.min_effective_level > 99) return false;
-    if (in.mode != CRYSTALJOBS_WEAPON_MODE_DUAL_1H) return false;
+    if (in.mode != CRYSTALJOBS_WEAPON_MODE_DUAL_1H &&
+        in.mode != CRYSTALJOBS_WEAPON_MODE_DUAL_2H &&
+        in.mode != CRYSTALJOBS_WEAPON_MODE_TWOHAND_SHIELD) return false;
     if (in.main_skill_mask == 0 || in.sub_skill_mask == 0) return false;
     out = {};
     out.job = in.job;
@@ -429,7 +431,43 @@ public:
         for (const auto& rec : records_) {
             if (rec.job != job || rec.branch != branch) continue;
             if (effective_level < rec.min_effective_level) continue;
-            if (rec.mode != CRYSTALJOBS_WEAPON_MODE_DUAL_1H) continue;
+            if (rec.mode != CRYSTALJOBS_WEAPON_MODE_DUAL_1H && rec.mode != CRYSTALJOBS_WEAPON_MODE_DUAL_2H) continue;
+            if ((rec.main_skill_mask & main_bit) == 0) continue;
+            if ((rec.sub_skill_mask & sub_bit) == 0) continue;
+            if (rec.main_item_id != 0 && rec.main_item_id != main_item_id) continue;
+            if (rec.sub_item_id != 0 && rec.sub_item_id != sub_item_id) continue;
+            return true;
+        }
+        return false;
+    }
+
+    bool allows_dual_2h_menu_item(uint8_t job, uint8_t branch, uint8_t effective_level,
+                                  uint16_t sub_skill, uint16_t sub_item_id) const noexcept {
+        if (records_.empty() || job == 0 || branch == 0 || effective_level == 0) return false;
+        if (sub_skill == 0 || sub_skill >= 32u) return false;
+        const uint32_t sub_bit = 1u << sub_skill;
+        for (const auto& rec : records_) {
+            if (rec.job != job || rec.branch != branch) continue;
+            if (effective_level < rec.min_effective_level) continue;
+            if (rec.mode != CRYSTALJOBS_WEAPON_MODE_DUAL_2H) continue;
+            if ((rec.sub_skill_mask & sub_bit) == 0) continue;
+            if (rec.sub_item_id != 0 && rec.sub_item_id != sub_item_id) continue;
+            return true;
+        }
+        return false;
+    }
+
+    bool allows_2h_main_with_sub(uint8_t job, uint8_t branch, uint8_t effective_level,
+                                 uint16_t main_skill, uint16_t main_item_id,
+                                 uint16_t sub_skill, uint16_t sub_item_id) const noexcept {
+        if (records_.empty() || job == 0 || branch == 0 || effective_level == 0) return false;
+        if (main_skill == 0 || main_skill >= 32u || sub_skill == 0 || sub_skill >= 32u) return false;
+        const uint32_t main_bit = 1u << main_skill;
+        const uint32_t sub_bit = 1u << sub_skill;
+        for (const auto& rec : records_) {
+            if (rec.job != job || rec.branch != branch) continue;
+            if (effective_level < rec.min_effective_level) continue;
+            if (rec.mode != CRYSTALJOBS_WEAPON_MODE_DUAL_2H) continue;
             if ((rec.main_skill_mask & main_bit) == 0) continue;
             if ((rec.sub_skill_mask & sub_bit) == 0) continue;
             if (rec.main_item_id != 0 && rec.main_item_id != main_item_id) continue;

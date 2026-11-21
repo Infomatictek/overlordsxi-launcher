@@ -38,7 +38,9 @@ W.SKILLS = {
 
 -- Matches CRYSTALJOBS_WEAPON_MODE_* in native/crystaljobs/crystaljobs.h.
 W.MODES = {
-    DUAL_1H = 1,
+    DUAL_1H        = 1,
+    DUAL_2H        = 2,
+    TWOHAND_SHIELD = 3,
 }
 
 function W.skill_mask(skills)
@@ -56,7 +58,7 @@ end
 -- Only explicitly configured Souls receive client-side offhand exceptions;
 -- all other Souls preserve vanilla FFXI Equipment menu behavior.
 W.RULES = {
-    -- Phase 4 vertical slice: BRD Adventurer (job=10, branch=1, Lv10+)
+    -- Template 1 Reference (dual_1h): BRD Adventurer (job=10, branch=1, Lv10+)
     -- Permits Dagger/Sword Dual Wield natively in the FFXI Equipment menu.
     {
         job = W.JOBS.BRD,
@@ -66,6 +68,19 @@ W.RULES = {
         mode = W.MODES.DUAL_1H,
         main_skills = { W.SKILLS.DAGGER, W.SKILLS.SWORD },
         sub_skills  = { W.SKILLS.DAGGER, W.SKILLS.SWORD },
+        main_item_id = 0,
+        sub_item_id  = 0,
+    },
+    -- Template 2 Prototype (dual_2h): WAR Berserker (job=1, branch=2, Lv10+)
+    -- Permits Dual Great Axes natively in the FFXI Equipment menu.
+    {
+        job = W.JOBS.WAR,
+        branch = 2,
+        key = 'berserker',
+        min_effective_level = 10,
+        mode = W.MODES.DUAL_2H,
+        main_skills = { W.SKILLS.GREAT_AXE },
+        sub_skills  = { W.SKILLS.GREAT_AXE },
         main_item_id = 0,
         sub_item_id  = 0,
     },

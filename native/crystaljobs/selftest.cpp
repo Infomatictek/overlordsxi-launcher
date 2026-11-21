@@ -1065,12 +1065,27 @@ static void weapon_rule_checks() {
     bad.mode = 99;
     assert(CrystalJobsReplaceWeaponRules(&bad, 1) == 1);
 
-    // Load BRD Adventurer (job=10, branch=1, minLv=10): Dagger/Sword <-> Dagger/Sword.
-    CrystalJobsWeaponRule rules[1] = {
+    // Load BRD Adventurer (job=10, branch=1, minLv=10): Dagger/Sword <-> Dagger/Sword,
+    // and WAR Berserker (job=1, branch=2, minLv=10): Great Axe <-> Great Axe (DUAL_2H).
+    constexpr uint32_t kGreatAxeBit = 1u << 6;
+    CrystalJobsWeaponRule berserker_rule = make_weapon_rule(1, 2, 10, kGreatAxeBit, kGreatAxeBit);
+    berserker_rule.mode = CRYSTALJOBS_WEAPON_MODE_DUAL_2H;
+    CrystalJobsWeaponRule rules[2] = {
         make_weapon_rule(10, 1, 10, kDaggerBit | kSwordBit, kDaggerBit | kSwordBit),
+        berserker_rule,
     };
-    assert(CrystalJobsReplaceWeaponRules(rules, 1) == 0);
-    assert(weapon_rule_catalog.count() == 1);
+    assert(CrystalJobsReplaceWeaponRules(rules, 2) == 0);
+    assert(weapon_rule_catalog.count() == 2);
+
+    // Verify WAR Berserker DUAL_2H catalog queries (menu filter + 2H main check + sub weapon).
+    assert(weapon_rule_catalog.allows_dual_2h_menu_item(1, 2, 10, 6, 16704));
+    assert(!weapon_rule_catalog.allows_dual_2h_menu_item(1, 2, 9, 6, 16704));
+    assert(!weapon_rule_catalog.allows_dual_2h_menu_item(1, 2, 75, 8, 16832)); // Polearm rejected
+    assert(!weapon_rule_catalog.allows_dual_2h_menu_item(1, 1, 75, 6, 16704)); // WAR Commander rejected
+    assert(weapon_rule_catalog.allows_2h_main_with_sub(1, 2, 10, 6, 16704, 6, 16705));
+    assert(weapon_rule_catalog.allows_sub_weapon(1, 2, 75, 6, 16704, 6, 16705));
+    assert(!weapon_rule_catalog.allows_2h_main_with_sub(1, 2, 75, 6, 16704, 3, 16535)); // Sword sub rejected
+    assert(!weapon_rule_catalog.allows_2h_main_with_sub(10, 1, 75, 6, 16704, 6, 16705)); // BRD Adventurer rejected
 
     uint8_t sub_dagger[0x20]{}, sub_sword[0x20]{}, sub_club[0x20]{};
     make_item_res(sub_dagger, 16448, 2); // Wind Knife +1 (Dagger)
@@ -1244,7 +1259,7 @@ int main() {
         hook_diag.init_stage = CRYSTALJOBS_INIT_OK;
         CrystalJobsHookDiagnostics diag{};
         assert(CrystalJobsGetHookDiagnostics(&diag, sizeof(diag)) == 0);
-        assert(diag.total_hooks == 1 && diag.expected_hooks == 24);
+        assert(diag.total_hooks == 1 && diag.expected_hooks == 26);
         assert((diag.installed_mask & (1u << 23)) != 0 && (diag.site_set_mask & (1u << 23)) != 0);
         // Simulate external overwrite of hook #24 in memory.
         memory[0x100] = 0x90;
@@ -1296,20 +1311,20 @@ int main() {
     const auto get_wpn_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsWeaponStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetWeaponStatus"));
     assert(get_wpn_st != nullptr);
     CrystalJobsWeaponStatus wpn_st{};
-    assert(get_wpn_st(&wpn_st, sizeof(wpn_st)) == 0 && wpn_st.version == 1 && wpn_st.expected_hooks == 24 && wpn_st.total_hooks == 0);
+    assert(get_wpn_st(&wpn_st, sizeof(wpn_st)) == 0 && wpn_st.version == 1 && wpn_st.expected_hooks == 26 && wpn_st.total_hooks == 0);
     const auto get_diag = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsHookDiagnostics*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetHookDiagnostics"));
     assert(get_diag != nullptr);
     CrystalJobsHookDiagnostics dll_diag{};
     assert(get_diag(&dll_diag, sizeof(dll_diag)) == 0 && dll_diag.size == 60 && dll_diag.version == 1 &&
-           dll_diag.expected_hooks == 24 && dll_diag.total_hooks == 0 && dll_diag.init_stage == CRYSTALJOBS_INIT_NOT_RUN);
+           dll_diag.expected_hooks == 26 && dll_diag.total_hooks == 0 && dll_diag.init_stage == CRYSTALJOBS_INIT_NOT_RUN);
     const auto get_vis_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsVisibilityStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetVisibilityStatus"));
     assert(get_vis_st != nullptr);
     CrystalJobsVisibilityStatus vis_st{};
-    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 24 && vis_st.total_hooks == 0);
+    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 26 && vis_st.total_hooks == 0);
     const auto get_action_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsActionStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetActionStatus"));
     assert(get_action_st != nullptr);
     CrystalJobsActionStatus act_st{};
-    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 24 && act_st.total_hooks == 0);
+    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 26 && act_st.total_hooks == 0);
     assert(get_iface != nullptr && create_plugin != nullptr && destroy_plugin != nullptr);
     assert(get_iface() == 4.30);
     void* plugin = create_plugin("");
