@@ -1168,29 +1168,92 @@ static bool readable_range(const void* ptr, size_t len) noexcept {
 }
 #endif
 
+static SRWLOCK lifecycle_lock = SRWLOCK_INIT;
+static bool ever_started;
+
+struct HookDiagnosticsState {
+    uint32_t ffxi_base = 0;
+    uint32_t ffxi_timestamp = 0;
+    uint32_t ffxi_image_size = 0;
+    uint32_t init_stage = CRYSTALJOBS_INIT_NOT_RUN;
+    uint32_t failed_rva = 0;
+    uint32_t failed_index = 0xFFFFFFFFu;
+    uint8_t  observed_bytes[8]{};
+};
+static HookDiagnosticsState hook_diag;
+
+static void safe_read_bytes(const void* src, uint8_t (&out)[8]) noexcept {
+    std::memset(out, 0, sizeof(out));
+    if (src == nullptr) return;
+#ifdef _MSC_VER
+    __try {
+        std::memcpy(out, src, sizeof(out));
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        std::memset(out, 0, sizeof(out));
+    }
+#else
+    if (readable_range(src, sizeof(out))) {
+        std::memcpy(out, src, sizeof(out));
+    }
+#endif
+}
+
+static constexpr uint32_t kPatchCount = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches));
+static constexpr uint32_t kExpectedHooks = kPatchCount + 3u;
+static_assert(kPatchCount == 21u);
+static_assert(kExpectedHooks == 24u);
+
 static bool supported_impl(uint8_t* base) noexcept {
-    if (base == nullptr || (reinterpret_cast<uintptr_t>(base) & 0xFFFFu) != 0) return false;
+    hook_diag = {};
+    hook_diag.ffxi_base = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(base));
+    if (base == nullptr || (reinterpret_cast<uintptr_t>(base) & 0xFFFFu) != 0) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_BAD_PE;
+        return false;
+    }
 #ifndef _MSC_VER
-    if (!readable_range(base, sizeof(IMAGE_DOS_HEADER))) return false;
+    if (!readable_range(base, sizeof(IMAGE_DOS_HEADER))) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_BAD_PE;
+        return false;
+    }
 #endif
     const auto* dos = reinterpret_cast<IMAGE_DOS_HEADER*>(base);
-    if (dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew < 0 || dos->e_lfanew > 0x1000) return false;
+    if (dos->e_magic != IMAGE_DOS_SIGNATURE || dos->e_lfanew < 0 || dos->e_lfanew > 0x1000) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_BAD_PE;
+        return false;
+    }
 #ifndef _MSC_VER
-    if (!readable_range(base + dos->e_lfanew, sizeof(IMAGE_NT_HEADERS32))) return false;
+    if (!readable_range(base + dos->e_lfanew, sizeof(IMAGE_NT_HEADERS32))) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_BAD_PE;
+        return false;
+    }
 #endif
     const auto* pe = reinterpret_cast<IMAGE_NT_HEADERS32*>(base + dos->e_lfanew);
+    hook_diag.ffxi_timestamp = pe->FileHeader.TimeDateStamp;
+    hook_diag.ffxi_image_size = pe->OptionalHeader.SizeOfImage;
     if (pe->Signature != IMAGE_NT_SIGNATURE || pe->FileHeader.Machine != IMAGE_FILE_MACHINE_I386 ||
-        pe->FileHeader.TimeDateStamp != 0x6ae818b4 || pe->OptionalHeader.SizeOfImage != 0xc17000) return false;
+        pe->FileHeader.TimeDateStamp != 0x6ae818b4 || pe->OptionalHeader.SizeOfImage != 0xc17000) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_BAD_PE;
+        return false;
+    }
     const uint32_t delta = static_cast<uint32_t>(reinterpret_cast<uintptr_t>(base) - 0x10000000u);
+    uint32_t sig_index = 0;
     for (const auto& signature : signatures) {
 #ifndef _MSC_VER
-        if (!readable_range(base + signature.rva, sizeof(signature.bytes))) return false;
+        if (!readable_range(base + signature.rva, sizeof(signature.bytes))) {
+            hook_diag.init_stage = CRYSTALJOBS_INIT_SIG_MISMATCH;
+            hook_diag.failed_rva = static_cast<uint32_t>(signature.rva);
+            hook_diag.failed_index = sig_index;
+            return false;
+        }
 #endif
         uint8_t expected[24];
         std::memcpy(expected, signature.bytes, sizeof(expected));
         relocate_signature(signature.rva, expected, delta);
         if ((signature.rva == 0xDD6C0 || signature.rva == 0xDF7C0) && host_detour(base + signature.rva,
-            expected, sizeof(expected), signature.rva == 0xDD6C0 ? 10 : 5, GetModuleHandleW(L"Ashita.dll"))) continue;
+            expected, sizeof(expected), signature.rva == 0xDD6C0 ? 10 : 5, GetModuleHandleW(L"Ashita.dll"))) {
+            ++sig_index;
+            continue;
+        }
         size_t skip = 0;
         for (const auto& patch : patches) {
             if (patch.rva == signature.rva && patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) skip = 5;
@@ -1201,7 +1264,14 @@ static bool supported_impl(uint8_t* base) noexcept {
             std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) skip = 5;
         if (signature.rva == soul_sub_weapon_detour.rva && soul_sub_weapon_detour.site != nullptr &&
             std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) skip = 5;
-        if (std::memcmp(base + signature.rva + skip, expected + skip, sizeof(expected) - skip) != 0) return false;
+        if (std::memcmp(base + signature.rva + skip, expected + skip, sizeof(expected) - skip) != 0) {
+            hook_diag.init_stage = CRYSTALJOBS_INIT_SIG_MISMATCH;
+            hook_diag.failed_rva = static_cast<uint32_t>(signature.rva);
+            hook_diag.failed_index = sig_index;
+            std::memcpy(hook_diag.observed_bytes, base + signature.rva, sizeof(hook_diag.observed_bytes));
+            return false;
+        }
+        ++sig_index;
     }
     return true;
 }
@@ -1210,14 +1280,14 @@ static bool supported(uint8_t* base) noexcept {
 #ifdef _MSC_VER
     __try {
         return supported_impl(base);
-    } __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_BAD_PE;
+        return false;
+    }
 #else
     return supported_impl(base);
 #endif
 }
-
-static SRWLOCK lifecycle_lock = SRWLOCK_INIT;
-static bool ever_started;
 
 extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     AcquireSRWLockExclusive(&lifecycle_lock);
@@ -1284,22 +1354,36 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     HMODULE pinned;
     if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
         reinterpret_cast<LPCWSTR>(&normal_sprite_hook), &pinned)) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_PIN_FAIL;
         last_error.store(2); ReleaseSRWLockExclusive(&lifecycle_lock); return 2;
     }
-    for (auto& patch : patches) {
+    for (uint32_t i = 0; i < kPatchCount; ++i) {
+        auto& patch = patches[i];
         if (!patch.install(base)) {
+            hook_diag.init_stage = CRYSTALJOBS_INIT_PATCH_FAIL;
+            hook_diag.failed_index = i;
+            hook_diag.failed_rva = static_cast<uint32_t>(patch.rva);
+            safe_read_bytes(base + patch.rva, hook_diag.observed_bytes);
             ReleaseSRWLockExclusive(&lifecycle_lock);
             const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
             last_error.store(failure); return failure;
         }
     }
     if (!can_use_spell_detour.install(base, &original_can_show_spell)) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_DETOUR_FAIL;
+        hook_diag.failed_index = kPatchCount;
+        hook_diag.failed_rva = static_cast<uint32_t>(can_use_spell_detour.rva);
+        safe_read_bytes(base + can_use_spell_detour.rva, hook_diag.observed_bytes);
         ReleaseSRWLockExclusive(&lifecycle_lock);
         const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
         last_error.store(failure); return failure;
     }
     missing_spell_bit_resume = reinterpret_cast<uintptr_t>(base + 0x22CB49);
     if (!missing_spell_bit_detour.install(base)) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_DETOUR_FAIL;
+        hook_diag.failed_index = kPatchCount + 1u;
+        hook_diag.failed_rva = static_cast<uint32_t>(missing_spell_bit_detour.rva);
+        safe_read_bytes(base + missing_spell_bit_detour.rva, hook_diag.observed_bytes);
         ReleaseSRWLockExclusive(&lifecycle_lock);
         const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
         last_error.store(failure); return failure;
@@ -1307,6 +1391,10 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     soul_sub_weapon_deny_resume = reinterpret_cast<uintptr_t>(base + 0x133D5B);
     soul_sub_weapon_allow_resume = reinterpret_cast<uintptr_t>(base + 0x133D65);
     if (!soul_sub_weapon_detour.install(base)) {
+        hook_diag.init_stage = CRYSTALJOBS_INIT_DETOUR_FAIL;
+        hook_diag.failed_index = kPatchCount + 2u;
+        hook_diag.failed_rva = static_cast<uint32_t>(soul_sub_weapon_detour.rva);
+        safe_read_bytes(base + soul_sub_weapon_detour.rva, hook_diag.observed_bytes);
         ReleaseSRWLockExclusive(&lifecycle_lock);
         const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
         last_error.store(failure); return failure;
@@ -1316,6 +1404,10 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     soul_override = {};
     ReleaseSRWLockExclusive(&state_lock);
     ever_started = true;
+    hook_diag.init_stage = CRYSTALJOBS_INIT_OK;
+    hook_diag.failed_rva = 0;
+    hook_diag.failed_index = 0xFFFFFFFFu;
+    std::memset(hook_diag.observed_bytes, 0, sizeof(hook_diag.observed_bytes));
     last_error.store(0);
     enabled.store(true);
     ReleaseSRWLockExclusive(&lifecycle_lock);
@@ -1337,13 +1429,98 @@ extern "C" uint32_t __stdcall CrystalJobsSetState(const uint8_t* bytes, uint32_t
     return valid ? 0 : 1;
 }
 
+static bool patch_installed_at(uintptr_t rva) noexcept {
+    for (const auto& patch : patches) {
+        if (patch.rva == rva) {
+            return patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0;
+        }
+    }
+    return false;
+}
+
+static uint32_t hook_rva_at(uint32_t index) noexcept {
+    if (index < kPatchCount) return static_cast<uint32_t>(patches[index].rva);
+    if (index == kPatchCount) return static_cast<uint32_t>(can_use_spell_detour.rva);
+    if (index == kPatchCount + 1u) return static_cast<uint32_t>(missing_spell_bit_detour.rva);
+    if (index == kPatchCount + 2u) return static_cast<uint32_t>(soul_sub_weapon_detour.rva);
+    return 0;
+}
+
+static const uint8_t* hook_site_at(uint32_t index) noexcept {
+    if (index < kPatchCount) return patches[index].site;
+    if (index == kPatchCount) return can_use_spell_detour.site;
+    if (index == kPatchCount + 1u) return missing_spell_bit_detour.site;
+    if (index == kPatchCount + 2u) return soul_sub_weapon_detour.site;
+    return nullptr;
+}
+
+// Caller must hold lifecycle_lock (shared or exclusive).
+static void collect_hook_state(uint32_t& total, uint32_t& installed_mask, uint32_t& site_set_mask, uint32_t& caps) noexcept {
+    total = 0;
+    installed_mask = 0;
+    site_set_mask = 0;
+    caps = 0;
+    for (uint32_t i = 0; i < kPatchCount; ++i) {
+        const auto& patch = patches[i];
+        if (patch.site != nullptr) {
+            site_set_mask |= (1u << i);
+            if (std::memcmp(patch.site, patch.installed, 5) == 0) {
+                installed_mask |= (1u << i);
+                ++total;
+            }
+        }
+    }
+    const PrologueDetour* detours[3] = {
+        &can_use_spell_detour,
+        &missing_spell_bit_detour,
+        &soul_sub_weapon_detour,
+    };
+    for (uint32_t j = 0; j < 3u; ++j) {
+        const uint32_t bit = kPatchCount + j;
+        if (detours[j]->site != nullptr) {
+            site_set_mask |= (1u << bit);
+            if (std::memcmp(detours[j]->site, detours[j]->installed, 5) == 0) {
+                installed_mask |= (1u << bit);
+                ++total;
+            }
+        }
+    }
+    if (enabled.load()) {
+        if (patch_installed_at(0x14868F)) caps |= CRYSTALJOBS_CAP_EQUIPMENT_SOUL_NAME;
+        if (patch_installed_at(0x1CBD4C) && patch_installed_at(0x1CC086) &&
+            patch_installed_at(0x1DEE6D) && patch_installed_at(0x1DEEFB)) {
+            caps |= CRYSTALJOBS_CAP_SEARCH_SOUL_LABELS;
+        }
+        if (patch_installed_at(0x22E4F5)) caps |= CRYSTALJOBS_CAP_MAGIC_MENU_NAMES;
+        if (patch_installed_at(0x22E245)) caps |= CRYSTALJOBS_CAP_MAGIC_MENU_DESC;
+        if (patch_installed_at(0x22DED1)) caps |= CRYSTALJOBS_CAP_MAGIC_TARGET_HEADER;
+        if (patch_installed_at(0x22E51B)) caps |= CRYSTALJOBS_CAP_MAGIC_MENU_ICONS;
+        if (patch_installed_at(0x226129)) caps |= CRYSTALJOBS_CAP_ABILITY_MENU_NAMES;
+        if (patch_installed_at(0x225F5D)) caps |= CRYSTALJOBS_CAP_ABILITY_MENU_DESC;
+        if (patch_installed_at(0x225916)) caps |= CRYSTALJOBS_CAP_ABILITY_TARGET_HDR;
+        if (patch_installed_at(0x22614E)) caps |= CRYSTALJOBS_CAP_ABILITY_MENU_ICONS;
+        if (patch_installed_at(0x22DAB9)) caps |= CRYSTALJOBS_CAP_MAGIC_MENU_FILTER;
+        if (patch_installed_at(0x22562F)) caps |= CRYSTALJOBS_CAP_ABILITY_MENU_FILTER;
+        if (patch_installed_at(0x22E64D) &&
+            ((installed_mask & (1u << kPatchCount)) != 0) &&
+            ((installed_mask & (1u << (kPatchCount + 1u))) != 0)) {
+            caps |= CRYSTALJOBS_CAP_SOUL_CAST_LOOKUP;
+        }
+        if ((installed_mask & (1u << (kPatchCount + 2u))) != 0) {
+            caps |= CRYSTALJOBS_CAP_SOUL_SUB_WEAPON;
+        }
+    }
+}
+
 extern "C" uint32_t __stdcall CrystalJobsGetStatus(CrystalJobsStatus* output, uint32_t size) {
     if (output == nullptr || size < sizeof(*output)) return 1;
     CrystalJobsStatus status{};
     status.size = sizeof(status); status.version = 1;
     AcquireSRWLockShared(&lifecycle_lock);
-    for (const auto& patch : patches) if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++status.hooks;
-    if (enabled.load() && status.hooks != sizeof(patches) / sizeof(*patches)) { enabled.store(false); last_error.store(3); }
+    uint32_t total = 0, inst_mask = 0, site_mask = 0, caps = 0;
+    collect_hook_state(total, inst_mask, site_mask, caps);
+    status.hooks = total;
+    if (enabled.load() && status.hooks != kExpectedHooks) { enabled.store(false); last_error.store(3); }
     status.enabled = enabled.load();
     ReleaseSRWLockShared(&lifecycle_lock);
     AcquireSRWLockShared(&state_lock);
@@ -1361,15 +1538,6 @@ extern "C" uint32_t __stdcall CrystalJobsGetStatus(CrystalJobsStatus* output, ui
 static_assert(sizeof(CrystalJobsStatus) == 68);
 static_assert(sizeof(CrystalJobsActionEntry) == 288);
 static_assert(sizeof(CrystalJobsActionStatus) == 64);
-
-static bool patch_installed_at(uintptr_t rva) noexcept {
-    for (const auto& patch : patches) {
-        if (patch.rva == rva) {
-            return patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0;
-        }
-    }
-    return false;
-}
 
 extern "C" uint32_t __stdcall CrystalJobsReplaceCatalog(const CrystalJobsActionEntry* entries, uint32_t count) {
     AcquireSRWLockExclusive(&action_lock);
@@ -1422,45 +1590,11 @@ extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus
     CrystalJobsActionStatus st{};
     st.size = sizeof(st);
     st.version = 1;
-    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 3;
+    st.expected_hooks = kExpectedHooks;
 
     AcquireSRWLockShared(&lifecycle_lock);
-    for (const auto& patch : patches) {
-        if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++st.total_hooks;
-    }
-    if (can_use_spell_detour.site != nullptr &&
-        std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) ++st.total_hooks;
-    if (missing_spell_bit_detour.site != nullptr &&
-        std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) ++st.total_hooks;
-    if (soul_sub_weapon_detour.site != nullptr &&
-        std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) ++st.total_hooks;
-    if (enabled.load()) {
-        if (patch_installed_at(0x14868F)) st.capabilities |= CRYSTALJOBS_CAP_EQUIPMENT_SOUL_NAME;
-        if (patch_installed_at(0x1CBD4C) && patch_installed_at(0x1CC086) &&
-            patch_installed_at(0x1DEE6D) && patch_installed_at(0x1DEEFB)) {
-            st.capabilities |= CRYSTALJOBS_CAP_SEARCH_SOUL_LABELS;
-        }
-        if (patch_installed_at(0x22E4F5)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_NAMES;
-        if (patch_installed_at(0x22E245)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_DESC;
-        if (patch_installed_at(0x22DED1)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_TARGET_HEADER;
-        if (patch_installed_at(0x22E51B)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_ICONS;
-        if (patch_installed_at(0x226129)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_NAMES;
-        if (patch_installed_at(0x225F5D)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_DESC;
-        if (patch_installed_at(0x225916)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_TARGET_HDR;
-        if (patch_installed_at(0x22614E)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_ICONS;
-        if (patch_installed_at(0x22DAB9)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_FILTER;
-        if (patch_installed_at(0x22562F)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_FILTER;
-        if (patch_installed_at(0x22E64D) &&
-            can_use_spell_detour.site != nullptr && missing_spell_bit_detour.site != nullptr &&
-            std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0 &&
-            std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) {
-            st.capabilities |= CRYSTALJOBS_CAP_SOUL_CAST_LOOKUP;
-        }
-        if (soul_sub_weapon_detour.site != nullptr &&
-            std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) {
-            st.capabilities |= CRYSTALJOBS_CAP_SOUL_SUB_WEAPON;
-        }
-    }
+    uint32_t inst_mask = 0, site_mask = 0;
+    collect_hook_state(st.total_hooks, inst_mask, site_mask, st.capabilities);
     ReleaseSRWLockShared(&lifecycle_lock);
 
     AcquireSRWLockShared(&action_lock);
@@ -1508,18 +1642,11 @@ extern "C" uint32_t __stdcall CrystalJobsGetVisibilityStatus(CrystalJobsVisibili
     CrystalJobsVisibilityStatus st{};
     st.size = sizeof(st);
     st.version = 1;
-    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 3;
+    st.expected_hooks = kExpectedHooks;
 
     AcquireSRWLockShared(&lifecycle_lock);
-    for (const auto& patch : patches) {
-        if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++st.total_hooks;
-    }
-    if (can_use_spell_detour.site != nullptr &&
-        std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) ++st.total_hooks;
-    if (missing_spell_bit_detour.site != nullptr &&
-        std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) ++st.total_hooks;
-    if (soul_sub_weapon_detour.site != nullptr &&
-        std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) ++st.total_hooks;
+    uint32_t inst_mask = 0, site_mask = 0, caps = 0;
+    collect_hook_state(st.total_hooks, inst_mask, site_mask, caps);
     ReleaseSRWLockShared(&lifecycle_lock);
 
     AcquireSRWLockShared(&visibility_lock);
@@ -1537,6 +1664,7 @@ extern "C" uint32_t __stdcall CrystalJobsGetVisibilityStatus(CrystalJobsVisibili
 
 static_assert(sizeof(CrystalJobsWeaponRule) == 24);
 static_assert(sizeof(CrystalJobsWeaponStatus) == 36);
+static_assert(sizeof(CrystalJobsHookDiagnostics) == 60);
 
 extern "C" uint32_t __stdcall CrystalJobsReplaceWeaponRules(const CrystalJobsWeaponRule* entries, uint32_t count) {
     AcquireSRWLockExclusive(&weapon_lock);
@@ -1557,18 +1685,11 @@ extern "C" uint32_t __stdcall CrystalJobsGetWeaponStatus(CrystalJobsWeaponStatus
     CrystalJobsWeaponStatus st{};
     st.size = sizeof(st);
     st.version = 1;
-    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 3;
+    st.expected_hooks = kExpectedHooks;
 
     AcquireSRWLockShared(&lifecycle_lock);
-    for (const auto& patch : patches) {
-        if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++st.total_hooks;
-    }
-    if (can_use_spell_detour.site != nullptr &&
-        std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) ++st.total_hooks;
-    if (missing_spell_bit_detour.site != nullptr &&
-        std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) ++st.total_hooks;
-    if (soul_sub_weapon_detour.site != nullptr &&
-        std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) ++st.total_hooks;
+    uint32_t inst_mask = 0, site_mask = 0, caps = 0;
+    collect_hook_state(st.total_hooks, inst_mask, site_mask, caps);
     ReleaseSRWLockShared(&lifecycle_lock);
 
     AcquireSRWLockShared(&weapon_lock);
@@ -1580,6 +1701,43 @@ extern "C" uint32_t __stdcall CrystalJobsGetWeaponStatus(CrystalJobsWeaponStatus
     st.allow_hits = weapon_allow_hits.load();
     st.deny_hits = weapon_deny_hits.load();
     *output = st;
+    return 0;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsGetHookDiagnostics(CrystalJobsHookDiagnostics* output, uint32_t size) {
+    if (output == nullptr || size < sizeof(*output)) return 1;
+    CrystalJobsHookDiagnostics d{};
+    d.size = sizeof(d);
+    d.version = 1;
+    d.expected_hooks = kExpectedHooks;
+
+    AcquireSRWLockShared(&lifecycle_lock);
+    collect_hook_state(d.total_hooks, d.installed_mask, d.site_set_mask, d.capabilities);
+    d.ffxi_base = hook_diag.ffxi_base;
+    d.ffxi_timestamp = hook_diag.ffxi_timestamp;
+    d.ffxi_image_size = hook_diag.ffxi_image_size;
+    d.init_stage = hook_diag.init_stage;
+    d.failed_rva = hook_diag.failed_rva;
+    d.failed_index = hook_diag.failed_index;
+    std::memcpy(d.observed_bytes, hook_diag.observed_bytes, sizeof(d.observed_bytes));
+
+    if (d.init_stage == CRYSTALJOBS_INIT_OK && d.total_hooks < d.expected_hooks) {
+        for (uint32_t i = 0; i < kExpectedHooks; ++i) {
+            if ((d.installed_mask & (1u << i)) == 0) {
+                d.failed_index = i;
+                d.failed_rva = hook_rva_at(i);
+                const uint8_t* site = hook_site_at(i);
+                if (site == nullptr && d.ffxi_base != 0 && d.failed_rva != 0) {
+                    site = reinterpret_cast<const uint8_t*>(static_cast<uintptr_t>(d.ffxi_base) + d.failed_rva);
+                }
+                safe_read_bytes(site, d.observed_bytes);
+                break;
+            }
+        }
+    }
+    ReleaseSRWLockShared(&lifecycle_lock);
+
+    *output = d;
     return 0;
 }
 

@@ -1,6 +1,6 @@
 addon.name = 'crystalsocket'
 addon.author = 'SoulspireXI / Crystal Socket'
-addon.version = '0.3.8'
+addon.version = '0.3.9'
 addon.desc = 'SoulspireXI Soul Job crystal socket integrated with the Equipment menu and native job labels.'
 
 require('common')
@@ -178,6 +178,14 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
         else
             print('[crystalsocket] Native weapon rules unavailable: ' .. tostring(labels.weapon_rules_error))
         end
+        local diag = labels:hook_diagnostics()
+        if diag then
+            for _, line in ipairs(labels.format_hook_diagnostics(diag)) do
+                print('[crystalsocket] ' .. line)
+            end
+        else
+            print('[crystalsocket] hooks_diag unavailable (older crystaljobs.dll without CrystalJobsGetHookDiagnostics)')
+        end
         return
     end
     if not cmd:match('^/crystalsocket%s+status%s*$') then return end
@@ -229,6 +237,14 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
     else
         report(('[crystalsocket] weapon_rules synced=%s error=%s'):format(
             tostring(labels.weapon_rules_synced), tostring(labels.weapon_rules_error)))
+    end
+    local diag = labels:hook_diagnostics()
+    if diag then
+        for _, line in ipairs(labels.format_hook_diagnostics(diag)) do
+            report('[crystalsocket] ' .. line)
+        end
+    else
+        report('[crystalsocket] hooks_diag unavailable (older crystaljobs.dll without CrystalJobsGetHookDiagnostics)')
     end
     report(('[crystalsocket] tx queued=%d request=%s observed=%d size=%s buffer=%s injected=%s blocked=%s'):format(
         transport.queued, tostring(transport.request_id), transport.outgoing, tostring(transport.out_size),

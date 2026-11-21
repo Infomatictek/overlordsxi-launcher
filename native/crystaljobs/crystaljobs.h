@@ -155,6 +155,36 @@ uint32_t CRYSTALJOBS_CALL CrystalJobsReplaceWeaponRules(const CrystalJobsWeaponR
 uint32_t CRYSTALJOBS_CALL CrystalJobsClearWeaponRules(void);
 uint32_t CRYSTALJOBS_CALL CrystalJobsGetWeaponStatus(CrystalJobsWeaponStatus* status, uint32_t size);
 
+/* Per-hook initialization & live integrity diagnostics (version 1). */
+enum {
+    CRYSTALJOBS_INIT_NOT_RUN        = 0,
+    CRYSTALJOBS_INIT_BAD_PE         = 1,
+    CRYSTALJOBS_INIT_SIG_MISMATCH   = 2,
+    CRYSTALJOBS_INIT_PIN_FAIL       = 3,
+    CRYSTALJOBS_INIT_PATCH_FAIL     = 4,
+    CRYSTALJOBS_INIT_DETOUR_FAIL    = 5,
+    CRYSTALJOBS_INIT_OK             = 6
+};
+
+typedef struct CrystalJobsHookDiagnostics {
+    uint32_t size;
+    uint32_t version;
+    uint32_t total_hooks;
+    uint32_t expected_hooks;
+    uint32_t installed_mask;
+    uint32_t site_set_mask;
+    uint32_t capabilities;
+    uint32_t ffxi_base;
+    uint32_t ffxi_timestamp;
+    uint32_t ffxi_image_size;
+    uint32_t init_stage;
+    uint32_t failed_rva;
+    uint32_t failed_index;
+    uint8_t  observed_bytes[8];
+} CrystalJobsHookDiagnostics;
+
+uint32_t CRYSTALJOBS_CALL CrystalJobsGetHookDiagnostics(CrystalJobsHookDiagnostics* diag, uint32_t size);
+
 #ifdef __cplusplus
 }
 #endif

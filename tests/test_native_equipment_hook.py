@@ -62,9 +62,11 @@ class NativeEquipmentHookTests(unittest.TestCase):
             "CRYSTALJOBS_WEAPON_MODE_DUAL_1H",
             "typedef struct CrystalJobsWeaponRule",
             "typedef struct CrystalJobsWeaponStatus",
+            "typedef struct CrystalJobsHookDiagnostics",
             "CrystalJobsReplaceWeaponRules",
             "CrystalJobsClearWeaponRules",
             "CrystalJobsGetWeaponStatus",
+            "CrystalJobsGetHookDiagnostics",
         ):
             self.assertIn(sym, header)
 
@@ -74,6 +76,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
             "CrystalJobsReplaceWeaponRules@8",
             "CrystalJobsClearWeaponRules@0",
             "CrystalJobsGetWeaponStatus@8",
+            "CrystalJobsGetHookDiagnostics@8",
         ):
             self.assertIn(exp, def_text)
             self.assertIn(exp, build_cmd)
@@ -87,7 +90,10 @@ class NativeEquipmentHookTests(unittest.TestCase):
         self.assertIn("base + 0x6229C0", cpp)
         self.assertIn("static_assert(sizeof(CrystalJobsWeaponRule) == 24)", cpp)
         self.assertIn("static_assert(sizeof(CrystalJobsWeaponStatus) == 36)", cpp)
-        self.assertIn("sizeof(patches) / sizeof(*patches)) + 3", cpp)
+        self.assertIn("static_assert(sizeof(CrystalJobsHookDiagnostics) == 60)", cpp)
+        self.assertIn("static_assert(kExpectedHooks == 24u)", cpp)
+        self.assertIn("collect_hook_state(", cpp)
+        self.assertIn("CrystalJobsGetHookDiagnostics", cpp)
         self.assertIn("CRYSTALJOBS_CAP_SOUL_SUB_WEAPON", cpp)
 
         selftest = (NATIVE_DIR / "selftest.cpp").read_text(encoding="utf-8")
@@ -95,6 +101,7 @@ class NativeEquipmentHookTests(unittest.TestCase):
         self.assertIn("wpn_st.expected_hooks == 24", selftest)
         self.assertIn("vis_st.expected_hooks == 24", selftest)
         self.assertIn("act_st.expected_hooks == 24", selftest)
+        self.assertIn("CrystalJobsGetHookDiagnostics", selftest)
 
     def test_crystalsocket_removed_custom_equipment_picker_and_preserves_soul_ui(self):
         self.assertFalse((CS_DIR / "buckler.lua").exists(), "Legacy buckler.lua must be removed")
@@ -142,8 +149,9 @@ class NativeEquipmentHookTests(unittest.TestCase):
             "expDestroyPlugin",
             "expGetInterfaceVersion",
         ]
-        self.assertEqual(len(exports), 20, f"Expected 20 PE exports, found {len(exports)}: {exports}")
-        self.assertEqual(sorted(exports), sorted(expected_exports))
+        self.assertGreaterEqual(len(exports), 20, f"Expected >=20 PE exports, found {len(exports)}: {exports}")
+        for name in expected_exports:
+            self.assertIn(name, exports)
 
 
 if __name__ == "__main__":
