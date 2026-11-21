@@ -56,8 +56,8 @@ function M.step(batch)
             return {complete = true, path = path, count = count}
         end
         local ok, record = pcall(function()
-            return kind == 'spell' and job.manager:GetSpellById(job.id)
-                or job.manager:GetAbilityById(job.id)
+            if kind == 'spell' then return job.manager:GetSpellById(job.id) end
+            return job.manager:GetAbilityById(job.id)
         end)
         if ok and record ~= nil then
             local name = lang(record, 'Name')
@@ -76,7 +76,7 @@ function M.step(batch)
             job.id = 0
         end
     end
-    return {complete = false, kind = KIN[job.kindIndex], id = job.id, count = job.count}
+    return {complete = false, kind = KINDS[job.kindIndex], id = job.id, count = job.count}
 end
 function M.running() return active ~= nil end
 return M

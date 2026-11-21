@@ -35,34 +35,38 @@ local function actorStart(message, player)
         while true do
             local first = message:find(marker, from, true)
             if not first then break end
-            if formattingPrefix(message:sub(1, first - 1)) then return true end
+            if formattingPrefix(message:sub(1, first - 1)) then return first + #marker end
             from = first + #player
         end
     end
-    return false
+    return nil
 end
 
-local function tryReplace(message, vanilla, custom)
-    if type(vanilla) ~= 'string' or vanilla == '' or vanilla == custom then return nil end
-    -- Match the *entire* action name as a substring, not a Lua pattern.
-    -- Avoid renaming "Utsusemi: Ichi" inside longer unrelated action names.
-    local offset = 1
-    while true do
-        local first, last = message:find(vanilla, offset, true)
-        if not first then return nil end
-        local before = first > 1 and message:sub(first - 1, first - 1) or ''
-        local after = message:sub(last + 1, last + 1)
-        local beforeCtrl = (before ~= '' and before:byte(1) < 32)
-            or (first >= 3 and (message:byte(first - 2) == 0x1E
-                or message:byte(first - 2) == 0x1F
-                or message:byte(first - 2) == 0x7F))
-        local afterCtrl = after ~= '' and after:byte(1) < 32
-        if (before == ' ' or before == "'" or before == '"' or beforeCtrl)
-            and (after == '' or after == ' ' or after == '.' or after == '!' or after == "'" or after == '"' or afterCtrl) then
-            return message:sub(1, first - 1) .. custom .. message:sub(last + 1)
-        end
-        offset = last + 1
+local function actionNameStart(message, start)
+    -- Native color controls may decorate the action token. Do not scan past
+    -- readable text: that could be a target or an unrelated action name.
+    local pos = start
+    for _ = 1, 4 do
+        local marker = message:byte(pos)
+        if marker ~= 0x1E and marker ~= 0x1F then break end
+        if not message:byte(pos + 1) then return nil end
+        pos = pos + 2
     end
+    return pos
+end
+
+local function tryReplace(message, start, vanilla, custom)
+    if type(vanilla) ~= 'string' or vanilla == '' or vanilla == custom then return nil end
+    local first = actionNameStart(message, start)
+    if not first or message:sub(first, first + #vanilla - 1) ~= vanilla then return nil end
+    local last = first + #vanilla - 1
+    local after = message:sub(last + 1, last + 1)
+    local afterCtrl = after ~= '' and after:byte(1) < 32
+    if after == '' or after == ' ' or after == '.' or after == '!' or after == "'"
+        or after == '"' or afterCtrl then
+        return message:sub(1, first - 1) .. custom .. message:sub(last + 1)
+    end
+    return nil
 end
 
 -- The vanilla lookup may return a string or a list of localization aliases.
@@ -73,12 +77,14 @@ function M.rewriteLine(message, localPlayerName, catalog, activeSoul, vanillaNam
     if type(activeSoul) ~= 'string' or activeSoul == '' then return nil, 'soul_unknown' end
     if type(catalog) ~= 'table' or type(catalog.souls) ~= 'table'
         or type(vanillaNameFn) ~= 'function' then return nil, 'unavailable' end
-    if not actorStart(message, localPlayerName) then return nil, 'actor_mismatch' end
+    local actionStart = actorStart(message, localPlayerName)
+    if not actionStart then return nil, 'actor_mismatch' end
     local soulData = catalog.souls[activeSoul]
     if not soulData then return nil, 'catalog_missing' end
 
     local knownAction = false
     local anyVanilla = false
+    local replacement = nil
     for _, kind in ipairs({ 'spell', 'ability', 'weaponskill' }) do
         local entries = soulData[kind]
         if type(entries) == 'table' then
@@ -91,8 +97,13 @@ function M.rewriteLine(message, localPlayerName, catalog, activeSoul, vanillaNam
                         for _, vanilla in ipairs(aliases) do
                             if type(vanilla) == 'string' and vanilla ~= '' then
                                 anyVanilla = true
-                                local rewritten = tryReplace(message, vanilla, info.name)
-                                if rewritten then return rewritten, 'rewritten' end
+                                local rewritten = tryReplace(message, actionStart, vanilla, info.name)
+                                if rewritten then
+                                    if replacement and replacement ~= rewritten then
+                                        return nil, 'ambiguous_action'
+                                    end
+                                    replacement = rewritten
+                                end
                             end
                         end
                     end
@@ -100,6 +111,7 @@ function M.rewriteLine(message, localPlayerName, catalog, activeSoul, vanillaNam
             end
         end
     end
+    if replacement then return replacement, 'rewritten' end
     if not knownAction then return nil, 'catalog_empty' end
     return nil, anyVanilla and 'name_mismatch' or 'vanilla_unavailable'
 end
