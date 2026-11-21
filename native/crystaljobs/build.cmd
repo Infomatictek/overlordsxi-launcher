@@ -69,5 +69,6 @@ if not exist "%CJ_DIR%..\..\plugins\ashita4" mkdir "%CJ_DIR%..\..\plugins\ashita
 copy /y "%CJ_DIR%crystaljobs.dll" "%CJ_DIR%..\..\plugins\ashita4\crystaljobs.dll" >nul
 if errorlevel 1 exit /b 1
 
-del /q *.obj *.exp *.lib selftest.exe 2>nul
+del /q *.obj *.exp *.lib 2>nul
+if not "%CRYSTALJOBS_KEEP_SELFTEST%"=="1" del /q selftest.exe 2>nul
 echo Built and verified crystaljobs.dll to plugins\ashita4\crystaljobs.dll

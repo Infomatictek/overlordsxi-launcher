@@ -206,7 +206,7 @@ static __declspec(naked) const char* action_str_abi(void*, int32_t) {
 }
 
 // Mirrors 0x102254d0's exact stack frame: saved_sel sits at [esp + 0x1c] after SetListCount's ret 8.
-static __declspec(naked) int32_t ability_filter_abi(void* menu_obj, int32_t count, int32_t saved_sel) {
+static __declspec(naked) int32_t ability_filter_abi(void*, int32_t, int32_t) {
     __asm {
         push ebp
         push ebx

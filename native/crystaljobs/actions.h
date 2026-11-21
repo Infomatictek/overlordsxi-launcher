@@ -58,15 +58,74 @@ inline void copy_cstr_bounded(char* dst, size_t dst_size, const char* src, size_
     if (dst == nullptr || dst_size == 0) return;
     dst[0] = '\0';
     if (src == nullptr) return;
-    size_t len = 0;
-    const size_t limit = (dst_size - 1 < src_max) ? (dst_size - 1) : src_max;
-    while (len < limit && src[len] != '\0') {
-        const unsigned char ch = static_cast<unsigned char>(src[len]);
-        // Reject control characters except space; sanitize to space if present.
-        dst[len] = (ch < 0x20u && ch != '\t') ? ' ' : static_cast<char>(ch);
-        ++len;
+    size_t in = 0;
+    size_t out = 0;
+    const size_t out_limit = dst_size - 1;
+    while (in < src_max && src[in] != '\0' && out < out_limit) {
+        const unsigned char ch = static_cast<unsigned char>(src[in]);
+        // Normalize common UTF-8 punctuation (curly quotes, dashes, ellipsis) to
+        // single-byte ASCII so FFXI's legacy Shift-JIS/helpwind renderer never
+        // misinterprets high bytes as multibyte/control sequences.
+        if (ch == 0xE2u && in + 2 < src_max && static_cast<unsigned char>(src[in + 1]) == 0x80u) {
+            const unsigned char b2 = static_cast<unsigned char>(src[in + 2]);
+            if (b2 == 0x98u || b2 == 0x99u) {
+                dst[out++] = '\'';
+                in += 3;
+                continue;
+            }
+            if (b2 == 0x9Cu || b2 == 0x9Du) {
+                dst[out++] = '"';
+                in += 3;
+                continue;
+            }
+            if (b2 == 0x93u || b2 == 0x94u) {
+                dst[out++] = '-';
+                in += 3;
+                continue;
+            }
+            if (b2 == 0xA6u) {
+                for (int k = 0; k < 3 && out < out_limit; ++k) dst[out++] = '.';
+                in += 3;
+                continue;
+            }
+        }
+        // Reject control characters (< 0x20) and remaining non-ASCII/DEL bytes (>= 0x7F).
+        if (ch < 0x20u || ch >= 0x7Fu) {
+            if (out == 0 || dst[out - 1] != ' ') dst[out++] = ' ';
+            // Skip UTF-8 continuation bytes so one multibyte char becomes at most one space.
+            ++in;
+            while (in < src_max && (static_cast<unsigned char>(src[in]) & 0xC0u) == 0x80u) ++in;
+            continue;
+        }
+        dst[out++] = static_cast<char>(ch);
+        ++in;
     }
-    dst[len] = '\0';
+    while (out > 0 && dst[out - 1] == ' ') --out;
+    dst[out] = '\0';
+}
+
+// Bound single-line helpwind description text so long Soul descriptions never
+// overflow or overlap adjacent UI elements in FFXI's top help bar.
+inline bool format_action_description(const char* full, char* output,
+                                      size_t capacity, size_t max_chars) noexcept {
+    if (!full || !output || capacity < 8 || max_chars < 16 || max_chars >= capacity) return false;
+    size_t length = 0;
+    while (length < capacity && full[length] != '\0') ++length;
+    if (length >= capacity) return false;
+    if (length <= max_chars) {
+        std::memcpy(output, full, length + 1);
+        return true;
+    }
+    size_t cut = max_chars - 3;
+    // Prefer a clean word boundary when cutting.
+    size_t word_cut = cut;
+    while (word_cut > max_chars / 2 && full[word_cut] != ' ') --word_cut;
+    if (word_cut > max_chars / 2) cut = word_cut;
+    while (cut > 0 && full[cut - 1] == ' ') --cut;
+    if (cut == 0) return false;
+    std::memcpy(output, full, cut);
+    std::memcpy(output + cut, "...", 4);
+    return true;
 }
 
 inline bool validate_and_convert(const CrystalJobsActionEntry& in, ActionRecord& out) noexcept {

@@ -106,13 +106,13 @@ archivist	ability	726	Record	Watch one enemy for 12 seconds and record its next 
 archivist	ability	745	Index Pages	Cycle between your live records to select a different countermeasure. 1s recast.
 archivist	spell	99	File Countermeasure	Give one party member a page against your selected recorded action. One exact matching action deals less damage. 15s recast.
 archivist	spell	159	Margin Note	Strike one enemy with earth magic between observations. Costs 4 MP. 6s recast.
-untamed	ability	564	Pack Rend	Strike your beast’s target with an axe. A landed hit feeds TP to your beast when the link is ready. 8s recast.
+untamed	ability	564	Pack Rend	Strike your beast's target with an axe. A landed hit feeds TP to your beast when the link is ready. 8s recast.
 untamed	ability	581	Set Quarry	Order your beast to attack one enemy. 5s recast.
 untamed	ability	582	Fall Back	Call your beast back to your side. 5s recast.
 untamed	ability	583	Dismiss Beast	Dismiss your active companion. 5s recast.
 untamed	ability	590	Feed Beast	Spend pet food from the ammo slot to heal your companion. 90s recast.
 untamed	ability	597	Call Packmate	Summon a hare companion without spending a jug. 300s recast.
-untamed	ability	763	Pack Commands	Open your companion’s technique list.
+untamed	ability	763	Pack Commands	Open your companion's technique list.
 untamed	ability	899	Rally Packmate	Summon a replacement hare companion on a separate cooldown. 1200s recast.
 untamed	ability	1184	Raking Kick	Your beast strikes your shared enemy. A landed hit returns TP to you when the link is ready. Costs one charge.
 beastspeaker	ability	565	Read Quarry	Identify the enemy family and its weakest physical damage type within 15 yalms. 10s recast.
@@ -125,7 +125,7 @@ beastspeaker	ability	597	Call Tracker	Summon your mandragora tracker without spe
 primalist	ability	600	Challenge Aspect	Send your avatar after an enemy and commit its element to the next matching pact. 20s recast.
 primalist	ability	601	Recall Avatar	Call your avatar back and close any open Challenge. 5s recast.
 primalist	ability	602	End Manifestation	Dismiss your avatar and close any open Challenge. 5s recast.
-primalist	ability	603	Elemental Pacts	Open the active avatar’s elemental pact menu.
+primalist	ability	603	Elemental Pacts	Open the active avatar's elemental pact menu.
 primalist	ability	744	Attune First Prime	Cycle the first avatar loan slot from Lv. 30 through 49. 1s recast.
 primalist	ability	808	Attune Second Prime	Cycle the second avatar loan slot from Lv. 30 through 49. 1s recast.
 primalist	ability	1028	Astral Comet	Command Carbuncle to strike one enemy with light. The matching Challenge can empower this strike. 18s base recast.
@@ -145,7 +145,7 @@ primalist	spell	303	Call Ramuh	Summon Ramuh for its thunder pact. Select a loan 
 herald	ability	600	Send Envoy	Send your avatar after the selected enemy. 5s recast.
 herald	ability	601	Recall Envoy	Call your avatar back to your side. 5s recast.
 herald	ability	602	Dismiss Envoy	Dismiss your avatar and end its Astral Accord. 5s recast.
-herald	ability	603	Envoy Responses	Open the active avatar’s elemental response menu.
+herald	ability	603	Envoy Responses	Open the active avatar's elemental response menu.
 herald	ability	762	Astral Accord	Snapshot nearby party members for one matching elemental hit. Costs 8% max MP. 30s recast.
 herald	ability	1028	Light Response	Command an elemental strike that can claim your Astral Accord. 20s base recast.
 herald	ability	1057	Flame Response	Command an elemental strike that can claim your Astral Accord. 20s base recast.
@@ -163,9 +163,9 @@ herald	spell	302	Invite Shiva	Invite Shiva for its elemental Accord. Costs 5 MP.
 herald	spell	303	Invite Ramuh	Invite Ramuh for its elemental Accord. Costs 5 MP. 5s recast.
 terramancer	ability	857	Cancel Fault	Collapse your pending fault without a refund. 10s recast.
 terramancer	spell	159	Stone Chip	Strike one enemy with earth magic and establish your claim. Costs 3 MP. 4s recast.
-terramancer	spell	160	Shallow Fault	Mark your claimed enemy’s position for a two-second delayed eruption. Costs 7% max MP. Shared 8s recast.
-terramancer	spell	161	Deep Fault	Mark your claimed enemy’s position for a stronger four-second delayed eruption. Costs 12% max MP. Shared 8s recast.
+terramancer	spell	160	Shallow Fault	Mark your claimed enemy's position for a two-second delayed eruption. Costs 7% max MP. Shared 8s recast.
+terramancer	spell	161	Deep Fault	Mark your claimed enemy's position for a stronger four-second delayed eruption. Costs 12% max MP. Shared 8s recast.
 diviner	ability	857	Recall Meridian	Remove your corridor and end its bonuses immediately.
 diviner	ability	859	Meridian Shift	Move the anchor to your current position and keep the original expiry. 20s recast.
 diviner	spell	159	Ley Spark	Strike one enemy with earth magic. Costs 4 MP. 5s recast.
-diviner	spell	783	Lay Meridian	Anchor a point beneath you. Move 3–15 yalms away to form an accuracy corridor for your party. Costs 0 MP. 18s recast.
+diviner	spell	783	Lay Meridian	Anchor a point beneath you. Move 3-15 yalms away to form an accuracy corridor for your party. Costs 0 MP. 18s recast.
