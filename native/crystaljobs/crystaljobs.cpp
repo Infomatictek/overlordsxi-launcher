@@ -14,10 +14,12 @@ using namespace crystaljobs;
 static SRWLOCK state_lock = SRWLOCK_INIT;
 static SRWLOCK action_lock = SRWLOCK_INIT;
 static SRWLOCK visibility_lock = SRWLOCK_INIT;
+static SRWLOCK weapon_lock = SRWLOCK_INIT;
 static State state;
 static Transport transport;
 static ActionCatalog action_catalog;
 static VisibilityCatalog visibility_catalog;
+static WeaponRuleCatalog weapon_rule_catalog;
 struct ActiveSoulOverride {
     bool active = false;
     uint8_t job = 0;
@@ -31,6 +33,7 @@ static std::atomic<uint32_t> decoded_rows{}, short_draws{}, full_lookups{}, item
 static std::atomic<uint32_t> magic_name_hits{}, magic_desc_hits{}, magic_icon_hits{};
 static std::atomic<uint32_t> ability_name_hits{}, ability_desc_hits{}, ability_icon_hits{};
 static std::atomic<uint32_t> magic_hidden_count{}, magic_shown_count{}, ability_hidden_count{};
+static std::atomic<uint32_t> weapon_allow_hits{}, weapon_deny_hits{};
 using Lookup = const char* (__cdecl*)(int, int);
 using Decode = void* (__cdecl*)(const uint8_t*, uint8_t*, int);
 using Encode = int (__cdecl*)(const void*, uint8_t*);
@@ -38,12 +41,16 @@ using NativeText = int (__cdecl*)(int, int, const char*, uint32_t, float, float,
 using DrawSprite = int (__fastcall*)(void*, void*, int, int, float, float, uint32_t, int, int, int);
 using ActionIcon = void* (__cdecl*)(uint32_t, uint32_t);
 using CanShowSpell = uint8_t (__cdecl*)(const uint8_t*);
+using GetInventoryItem = const uint8_t* (__cdecl*)(uint32_t, uint32_t);
+using GetItemResource = const uint8_t* (__fastcall*)(void*, void*, uint32_t);
 static Lookup original_lookup;
 static Decode original_decode;
 static Encode original_encode;
 static NativeText native_text;
 static ActionIcon original_action_icon;
 static CanShowSpell original_can_show_spell;
+static GetInventoryItem original_get_inv_item;
+static GetItemResource original_get_item_res;
 static uintptr_t original_sprite;
 static uintptr_t original_sprite_simple;
 static uintptr_t original_spell_name;
@@ -54,6 +61,7 @@ static uintptr_t original_ability_desc;
 static uintptr_t original_set_list_count;
 static uintptr_t original_spell_elig;
 static void** pname_sheet_slot;
+static void** item_res_mgr_slot;
 static const uint8_t* main_job_slot;
 static const uint8_t* main_lvl_slot;
 static uint8_t** ability_list_slot;
@@ -707,6 +715,95 @@ static __declspec(naked) void menu_spell_elig_hook() {
     }
 }
 
+static uintptr_t soul_sub_weapon_allow_resume;
+static uintptr_t soul_sub_weapon_deny_resume;
+
+// EquipMenu::TryEquipItem (0x133BD0) gates non-vanilla Dual Wield jobs at
+// 0x133D56 before checking main-hand presence, IsTwoHanded, CanEquipItem,
+// Wardrobe ownership, and sending native 0x050. Both the native Equipment
+// menu (controller / keyboard) and /equip sub route through 0x133BD0.
+// Vanilla DW jobs (NIN/THF/DNC/BLU main or sub) and non-weapon sub items
+// (shields, grips) bypass 0x133D56 entirely.
+static uint8_t __stdcall soul_allows_sub_weapon(const uint8_t* sub_item_res, const uint8_t* stack_frame) noexcept {
+    if (sub_item_res == nullptr || stack_frame == nullptr) return 0;
+    if (main_lvl_slot == nullptr || original_get_inv_item == nullptr ||
+        original_get_item_res == nullptr || item_res_mgr_slot == nullptr) {
+        return 0;
+    }
+    const uint8_t effective_level = *main_lvl_slot;
+    if (effective_level == 0) return 0;
+    uint8_t job = 0, branch = 0;
+    if (!active_action_soul(job, branch)) return 0;
+
+    AcquireSRWLockShared(&weapon_lock);
+    const bool has_rules = weapon_rule_catalog.has_rules_for(job, branch);
+    ReleaseSRWLockShared(&weapon_lock);
+    if (!has_rules) return 0;
+
+    const uint8_t main_slot = stack_frame[0x10];
+    if (main_slot == 0 || main_slot == 0xFFu) {
+        ++weapon_deny_hits;
+        return 0;
+    }
+    const uint32_t main_container = u32(stack_frame + 0x18);
+    const uint8_t* main_inv = original_get_inv_item(main_container, static_cast<uint32_t>(main_slot));
+    if (main_inv == nullptr) {
+        ++weapon_deny_hits;
+        return 0;
+    }
+    const uint16_t main_item_id = u16(main_inv);
+    if (main_item_id == 0) {
+        ++weapon_deny_hits;
+        return 0;
+    }
+    void* res_mgr = *item_res_mgr_slot;
+    if (res_mgr == nullptr) {
+        ++weapon_deny_hits;
+        return 0;
+    }
+    const uint8_t* main_res = original_get_item_res(res_mgr, nullptr, static_cast<uint32_t>(main_item_id));
+    if (main_res == nullptr) {
+        ++weapon_deny_hits;
+        return 0;
+    }
+    const uint16_t main_skill = u16(main_res + 0x10);
+    const uint16_t sub_item_id = u16(sub_item_res);
+    const uint16_t sub_skill = u16(sub_item_res + 0x10);
+
+    AcquireSRWLockShared(&weapon_lock);
+    const bool allowed = weapon_rule_catalog.allows_sub_weapon(
+        job, branch, effective_level, main_skill, main_item_id, sub_skill, sub_item_id);
+    ReleaseSRWLockShared(&weapon_lock);
+
+    if (allowed) {
+        ++weapon_allow_hits;
+        return 1;
+    }
+    ++weapon_deny_hits;
+    return 0;
+}
+
+static __declspec(naked) void soul_sub_weapon_hook() {
+    __asm {
+        pushfd
+        pushad
+        lea eax, [esp + 36]
+        push eax
+        push esi
+        call soul_allows_sub_weapon
+        test al, al
+        jz stock
+        popad
+        popfd
+        jmp dword ptr [soul_sub_weapon_allow_resume]
+    stock:
+        popad
+        popfd
+        push 0x8b
+        jmp dword ptr [soul_sub_weapon_deny_resume]
+    }
+}
+
 static void __stdcall compact_ability_menu_rows(uint8_t* menu_obj, int32_t* count_ptr, int32_t* saved_sel_ptr) noexcept {
     if (menu_obj == nullptr || count_ptr == nullptr || *count_ptr <= 0) return;
     if (ability_list_slot == nullptr || main_lvl_slot == nullptr) return;
@@ -1001,6 +1098,7 @@ struct PrologueDetour {
 
 static PrologueDetour can_use_spell_detour{0x22CDE0, reinterpret_cast<void*>(&magic_list_filter_hook)};
 static PrologueDetour missing_spell_bit_detour{0x22CB44, reinterpret_cast<void*>(&missing_spell_bit_hook), 0xBDu};
+static PrologueDetour soul_sub_weapon_detour{0x133D56, reinterpret_cast<void*>(&soul_sub_weapon_hook), 0x68u};
 
 static bool host_detour(uint8_t* entry, const uint8_t* expected, size_t length, size_t stolen, HMODULE host) noexcept {
     if (host == nullptr || entry[0] != 0xe9 || stolen < 5 || stolen >= length) return false;
@@ -1046,6 +1144,9 @@ static void relocate_signature(uintptr_t rva, uint8_t (&expected)[24], uint32_t 
     } else if (rva == 0x22CDE0) {
         const uint32_t job_ptr = u32(expected + 1) + delta;
         std::memcpy(expected + 1, &job_ptr, 4);
+    } else if (rva == 0xEB5D0) {
+        const uint32_t inv_ptr = u32(expected + 2) + delta;
+        std::memcpy(expected + 2, &inv_ptr, 4);
     }
 }
 
@@ -1098,6 +1199,8 @@ static bool supported_impl(uint8_t* base) noexcept {
             std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) skip = 5;
         if (signature.rva == missing_spell_bit_detour.rva && missing_spell_bit_detour.site != nullptr &&
             std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) skip = 5;
+        if (signature.rva == soul_sub_weapon_detour.rva && soul_sub_weapon_detour.site != nullptr &&
+            std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) skip = 5;
         if (std::memcmp(base + signature.rva + skip, expected + skip, sizeof(expected) - skip) != 0) return false;
     }
     return true;
@@ -1120,14 +1223,20 @@ extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     AcquireSRWLockExclusive(&lifecycle_lock);
     enabled.store(false);
     pname_sheet_slot = nullptr;
+    item_res_mgr_slot = nullptr;
     main_job_slot = nullptr;
     main_lvl_slot = nullptr;
     ability_list_slot = nullptr;
+    original_get_inv_item = nullptr;
+    original_get_item_res = nullptr;
+    soul_sub_weapon_allow_resume = 0;
+    soul_sub_weapon_deny_resume = 0;
     AcquireSRWLockExclusive(&state_lock);
     transport.reset(state);
     soul_override = {};
     ReleaseSRWLockExclusive(&state_lock);
     uint32_t failure = 0;
+    if (!soul_sub_weapon_detour.restore()) failure = 3;
     if (!missing_spell_bit_detour.restore()) failure = 3;
     if (!can_use_spell_detour.restore()) failure = 3;
     for (size_t index = sizeof(patches) / sizeof(*patches); index-- > 0;) {
@@ -1154,6 +1263,8 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     native_text = reinterpret_cast<NativeText>(base + 0x1CAD80);
     original_action_icon = reinterpret_cast<ActionIcon>(base + 0x222350);
     original_can_show_spell = reinterpret_cast<CanShowSpell>(base + 0x22CDE0);
+    original_get_inv_item = reinterpret_cast<GetInventoryItem>(base + 0xEB5D0);
+    original_get_item_res = reinterpret_cast<GetItemResource>(base + 0x15D210);
     original_sprite = reinterpret_cast<uintptr_t>(base + 0x121110);
     original_sprite_simple = reinterpret_cast<uintptr_t>(base + 0x120FF0);
     original_spell_name = reinterpret_cast<uintptr_t>(base + 0x22D510);
@@ -1164,6 +1275,7 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     original_set_list_count = reinterpret_cast<uintptr_t>(base + 0x223090);
     original_spell_elig = reinterpret_cast<uintptr_t>(base + 0x1021A0);
     pname_sheet_slot = reinterpret_cast<void**>(base + 0x664014);
+    item_res_mgr_slot = reinterpret_cast<void**>(base + 0x6229C0);
     main_job_slot = base + 0x4867F0;
     main_lvl_slot = base + 0x4867F1;
     ability_list_slot = reinterpret_cast<uint8_t**>(base + 0x668308);
@@ -1188,6 +1300,13 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
     }
     missing_spell_bit_resume = reinterpret_cast<uintptr_t>(base + 0x22CB49);
     if (!missing_spell_bit_detour.install(base)) {
+        ReleaseSRWLockExclusive(&lifecycle_lock);
+        const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
+        last_error.store(failure); return failure;
+    }
+    soul_sub_weapon_deny_resume = reinterpret_cast<uintptr_t>(base + 0x133D5B);
+    soul_sub_weapon_allow_resume = reinterpret_cast<uintptr_t>(base + 0x133D65);
+    if (!soul_sub_weapon_detour.install(base)) {
         ReleaseSRWLockExclusive(&lifecycle_lock);
         const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
         last_error.store(failure); return failure;
@@ -1303,7 +1422,7 @@ extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus
     CrystalJobsActionStatus st{};
     st.size = sizeof(st);
     st.version = 1;
-    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 2;
+    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 3;
 
     AcquireSRWLockShared(&lifecycle_lock);
     for (const auto& patch : patches) {
@@ -1313,6 +1432,8 @@ extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus
         std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) ++st.total_hooks;
     if (missing_spell_bit_detour.site != nullptr &&
         std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) ++st.total_hooks;
+    if (soul_sub_weapon_detour.site != nullptr &&
+        std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) ++st.total_hooks;
     if (enabled.load()) {
         if (patch_installed_at(0x14868F)) st.capabilities |= CRYSTALJOBS_CAP_EQUIPMENT_SOUL_NAME;
         if (patch_installed_at(0x1CBD4C) && patch_installed_at(0x1CC086) &&
@@ -1334,6 +1455,10 @@ extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus
             std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0 &&
             std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) {
             st.capabilities |= CRYSTALJOBS_CAP_SOUL_CAST_LOOKUP;
+        }
+        if (soul_sub_weapon_detour.site != nullptr &&
+            std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) {
+            st.capabilities |= CRYSTALJOBS_CAP_SOUL_SUB_WEAPON;
         }
     }
     ReleaseSRWLockShared(&lifecycle_lock);
@@ -1383,7 +1508,7 @@ extern "C" uint32_t __stdcall CrystalJobsGetVisibilityStatus(CrystalJobsVisibili
     CrystalJobsVisibilityStatus st{};
     st.size = sizeof(st);
     st.version = 1;
-    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 2;
+    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 3;
 
     AcquireSRWLockShared(&lifecycle_lock);
     for (const auto& patch : patches) {
@@ -1393,6 +1518,8 @@ extern "C" uint32_t __stdcall CrystalJobsGetVisibilityStatus(CrystalJobsVisibili
         std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) ++st.total_hooks;
     if (missing_spell_bit_detour.site != nullptr &&
         std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) ++st.total_hooks;
+    if (soul_sub_weapon_detour.site != nullptr &&
+        std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) ++st.total_hooks;
     ReleaseSRWLockShared(&lifecycle_lock);
 
     AcquireSRWLockShared(&visibility_lock);
@@ -1404,6 +1531,54 @@ extern "C" uint32_t __stdcall CrystalJobsGetVisibilityStatus(CrystalJobsVisibili
     st.magic_hidden_count = magic_hidden_count.load();
     st.magic_shown_count = magic_shown_count.load();
     st.ability_hidden_count = ability_hidden_count.load();
+    *output = st;
+    return 0;
+}
+
+static_assert(sizeof(CrystalJobsWeaponRule) == 24);
+static_assert(sizeof(CrystalJobsWeaponStatus) == 36);
+
+extern "C" uint32_t __stdcall CrystalJobsReplaceWeaponRules(const CrystalJobsWeaponRule* entries, uint32_t count) {
+    AcquireSRWLockExclusive(&weapon_lock);
+    const bool ok = weapon_rule_catalog.replace_all(entries, count);
+    ReleaseSRWLockExclusive(&weapon_lock);
+    return ok ? 0 : 1;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsClearWeaponRules() {
+    AcquireSRWLockExclusive(&weapon_lock);
+    weapon_rule_catalog.clear();
+    ReleaseSRWLockExclusive(&weapon_lock);
+    return 0;
+}
+
+extern "C" uint32_t __stdcall CrystalJobsGetWeaponStatus(CrystalJobsWeaponStatus* output, uint32_t size) {
+    if (output == nullptr || size < sizeof(*output)) return 1;
+    CrystalJobsWeaponStatus st{};
+    st.size = sizeof(st);
+    st.version = 1;
+    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 3;
+
+    AcquireSRWLockShared(&lifecycle_lock);
+    for (const auto& patch : patches) {
+        if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++st.total_hooks;
+    }
+    if (can_use_spell_detour.site != nullptr &&
+        std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) ++st.total_hooks;
+    if (missing_spell_bit_detour.site != nullptr &&
+        std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) ++st.total_hooks;
+    if (soul_sub_weapon_detour.site != nullptr &&
+        std::memcmp(soul_sub_weapon_detour.site, soul_sub_weapon_detour.installed, 5) == 0) ++st.total_hooks;
+    ReleaseSRWLockShared(&lifecycle_lock);
+
+    AcquireSRWLockShared(&weapon_lock);
+    st.rule_count = weapon_rule_catalog.count();
+    st.rule_generation = weapon_rule_catalog.generation();
+    ReleaseSRWLockShared(&weapon_lock);
+
+    st.effective_level = (main_lvl_slot != nullptr) ? *main_lvl_slot : 0u;
+    st.allow_hits = weapon_allow_hits.load();
+    st.deny_hits = weapon_deny_hits.load();
     *output = st;
     return 0;
 }

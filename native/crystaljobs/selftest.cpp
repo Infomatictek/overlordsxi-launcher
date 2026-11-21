@@ -929,6 +929,228 @@ static void visibility_checks() {
     selftest_alive = false;
 }
 
+static CrystalJobsWeaponRule make_weapon_rule(uint8_t job, uint8_t branch, uint8_t min_lvl,
+                                              uint32_t main_mask, uint32_t sub_mask,
+                                              uint16_t main_item_id = 0, uint16_t sub_item_id = 0) {
+    CrystalJobsWeaponRule r{};
+    r.size = sizeof(r);
+    r.job = job;
+    r.branch = branch;
+    r.min_effective_level = min_lvl;
+    r.mode = CRYSTALJOBS_WEAPON_MODE_DUAL_1H;
+    r.main_skill_mask = main_mask;
+    r.sub_skill_mask = sub_mask;
+    r.main_item_id = main_item_id;
+    r.sub_item_id = sub_item_id;
+    return r;
+}
+
+static uint16_t fake_inv_item_id = 0;
+static uint32_t fake_inv_expected_container = 0;
+static uint32_t fake_inv_expected_slot = 0;
+static uint8_t fake_inv_entry[4]{};
+static const uint8_t* __cdecl fake_get_inv_item_fn(uint32_t container, uint32_t slot) noexcept {
+    if (fake_inv_item_id == 0) return nullptr;
+    assert(container == fake_inv_expected_container && slot == fake_inv_expected_slot);
+    std::memcpy(fake_inv_entry, &fake_inv_item_id, 2);
+    return fake_inv_entry;
+}
+
+static uint8_t fake_main_item_res[0x20]{};
+static const uint8_t* __fastcall fake_get_item_res_fn(void* mgr, void*, uint32_t item_id) noexcept {
+    assert(mgr == reinterpret_cast<void*>(0x12340000u));
+    if (item_id == 0 || item_id != u16(fake_main_item_res)) return nullptr;
+    return fake_main_item_res;
+}
+
+static uint32_t sub_weapon_resume_result = 0;
+static __declspec(naked) void fake_sub_weapon_allow_resume() {
+    __asm {
+        mov sub_weapon_resume_result, 1
+        ret
+    }
+}
+static __declspec(naked) void fake_sub_weapon_deny_resume() {
+    __asm {
+        cmp dword ptr [esp], 0x8b
+        jne bad_push
+        add esp, 4
+        mov sub_weapon_resume_result, 2
+        ret
+    bad_push:
+        add esp, 4
+        mov sub_weapon_resume_result, 0xBAD0008B
+        ret
+    }
+}
+
+// Mirrors EquipMenu::TryEquipItem (0x133D56) exact register & stack frame ABI:
+// esi = sub CItemResource*, [esp+0x10] = main_slot, [esp+0x18] = main_container.
+static __declspec(naked) uint32_t __cdecl sub_weapon_abi(const uint8_t*, uint32_t, uint32_t) {
+    __asm {
+        push ebp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x1C
+        mov dword ptr [esp + 0x00], 0x55667788
+        mov eax, [esp + 0x34]
+        mov [esp + 0x0C], eax
+        mov eax, [esp + 0x38]
+        mov [esp + 0x14], eax
+        mov esi, [esp + 0x30]
+        mov ebx, 0x11223344
+        mov ecx, 0x22334455
+        mov edx, 0x33445566
+        mov edi, 0x44556677
+        mov ebp, 0x55667788
+        call soul_sub_weapon_hook
+        xor eax, eax
+        cmp dword ptr [esp + 0x00], 0x55667788
+        jne corrupted
+        cmp ebx, 0x11223344
+        jne corrupted
+        cmp ecx, 0x22334455
+        jne corrupted
+        cmp edx, 0x33445566
+        jne corrupted
+        cmp edi, 0x44556677
+        jne corrupted
+        cmp ebp, 0x55667788
+        jne corrupted
+        cmp esi, [esp + 0x30]
+        jne corrupted
+        mov eax, sub_weapon_resume_result
+    corrupted:
+        add esp, 0x1C
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    }
+}
+
+static void make_item_res(uint8_t (&buf)[0x20], uint16_t item_id, uint16_t skill) {
+    std::memset(buf, 0, sizeof(buf));
+    std::memcpy(buf + 0x00, &item_id, 2);
+    std::memcpy(buf + 0x10, &skill, 2);
+}
+
+static void weapon_rule_checks() {
+    original_get_inv_item = &fake_get_inv_item_fn;
+    original_get_item_res = &fake_get_item_res_fn;
+    void* fake_mgr = reinterpret_cast<void*>(0x12340000u);
+    item_res_mgr_slot = &fake_mgr;
+    soul_sub_weapon_allow_resume = reinterpret_cast<uintptr_t>(&fake_sub_weapon_allow_resume);
+    soul_sub_weapon_deny_resume = reinterpret_cast<uintptr_t>(&fake_sub_weapon_deny_resume);
+
+    uint8_t mock_job = 10; // BRD
+    uint8_t mock_lvl = 10;
+    main_job_slot = &mock_job;
+    main_lvl_slot = &mock_lvl;
+    selftest_alive = true;
+
+    constexpr uint32_t kDaggerBit = 1u << 2;
+    constexpr uint32_t kSwordBit  = 1u << 3;
+    constexpr uint32_t kClubBit   = 1u << 11;
+
+    // Validate malformed rule rejection without corrupting catalog.
+    CrystalJobsWeaponRule bad = make_weapon_rule(10, 1, 10, kDaggerBit | kSwordBit, kDaggerBit | kSwordBit);
+    bad.size = 4;
+    assert(CrystalJobsReplaceWeaponRules(&bad, 1) == 1);
+    bad = make_weapon_rule(10, 1, 10, kDaggerBit, 0);
+    assert(CrystalJobsReplaceWeaponRules(&bad, 1) == 1);
+    bad = make_weapon_rule(10, 1, 10, kDaggerBit, kSwordBit);
+    bad.mode = 99;
+    assert(CrystalJobsReplaceWeaponRules(&bad, 1) == 1);
+
+    // Load BRD Adventurer (job=10, branch=1, minLv=10): Dagger/Sword <-> Dagger/Sword.
+    CrystalJobsWeaponRule rules[1] = {
+        make_weapon_rule(10, 1, 10, kDaggerBit | kSwordBit, kDaggerBit | kSwordBit),
+    };
+    assert(CrystalJobsReplaceWeaponRules(rules, 1) == 0);
+    assert(weapon_rule_catalog.count() == 1);
+
+    uint8_t sub_dagger[0x20]{}, sub_sword[0x20]{}, sub_club[0x20]{};
+    make_item_res(sub_dagger, 16448, 2); // Wind Knife +1 (Dagger)
+    make_item_res(sub_sword,  16535, 3); // Onion Sword (Sword)
+    make_item_res(sub_club,   17024, 11); // Bronze Hammer (Club)
+
+    // Active BRD10 Adventurer (job=10, branch=1).
+    uint8_t ev[8] = {1, 1, 10, 1, 100, 0, 0, 0};
+    state.update(ev, 8, GetTickCount());
+
+    // Main = Onion Sword (3) in inventory slot 5 -> Sub = Wind Knife +1 (2) ALLOWED.
+    fake_inv_expected_container = 0; fake_inv_expected_slot = 5;
+    fake_inv_item_id = 16535;
+    make_item_res(fake_main_item_res, 16535, 3);
+    assert(sub_weapon_abi(sub_dagger, 5, 0) == 1);
+    // Main = Onion Sword (3) -> Sub = Onion Sword (3) ALLOWED.
+    assert(sub_weapon_abi(sub_sword, 5, 0) == 1);
+    // Main = Onion Sword (3) -> Sub = Bronze Hammer (Club, 11) DENIED.
+    assert(sub_weapon_abi(sub_club, 5, 0) == 2);
+
+    // Main = Wind Knife +1 (Dagger, 2) in Wardrobe 1 (container=8, slot=12) -> Sub = Sword ALLOWED.
+    fake_inv_expected_container = 8; fake_inv_expected_slot = 12;
+    fake_inv_item_id = 16448;
+    make_item_res(fake_main_item_res, 16448, 2);
+    assert(sub_weapon_abi(sub_sword, 12, 8) == 1);
+
+    // Empty main-hand (slot=0 or 0xFF) -> DENIED.
+    assert(sub_weapon_abi(sub_sword, 0, 0) == 2);
+    assert(sub_weapon_abi(sub_sword, 0xFFu, 0) == 2);
+
+    // Main = Club (11) -> Sub = Dagger DENIED.
+    fake_inv_expected_container = 0; fake_inv_expected_slot = 3;
+    fake_inv_item_id = 17024;
+    make_item_res(fake_main_item_res, 17024, 11);
+    assert(sub_weapon_abi(sub_dagger, 3, 0) == 2);
+
+    // Level synced below 10 (BRD9 Adventurer) -> DENIED.
+    fake_inv_expected_container = 0; fake_inv_expected_slot = 5;
+    fake_inv_item_id = 16535;
+    make_item_res(fake_main_item_res, 16535, 3);
+    mock_lvl = 9;
+    assert(sub_weapon_abi(sub_dagger, 5, 0) == 2);
+    mock_lvl = 10;
+
+    // Switch Soul to BRD Musician (branch=2, no rules) -> DENIED (vanilla).
+    ev[3] = 2; state.update(ev, 8, GetTickCount());
+    assert(sub_weapon_abi(sub_dagger, 5, 0) == 2);
+
+    // Unsocketed BRD (branch=0) -> DENIED.
+    ev[3] = 0; state.update(ev, 8, GetTickCount());
+    assert(sub_weapon_abi(sub_dagger, 5, 0) == 2);
+
+    // Verify 0xEB5D0 signature relocation under ASLR delta.
+    const uint32_t delta = static_cast<uint32_t>(0x04860000u - 0x10000000u);
+    bool checked_eb5d0 = false;
+    for (const auto& sig : signatures) {
+        if (sig.rva == 0xEB5D0) {
+            uint8_t buf[24];
+            std::memcpy(buf, sig.bytes, 24);
+            relocate_signature(sig.rva, buf, delta);
+            assert(u32(buf + 2) == 0x04860000u + 0x4E0F48u);
+            checked_eb5d0 = true;
+        }
+    }
+    assert(checked_eb5d0);
+
+    // Verify unused bit mask check does not trip compiler warnings.
+    (void)kClubBit;
+
+    assert(CrystalJobsClearWeaponRules() == 0 && weapon_rule_catalog.count() == 0);
+    item_res_mgr_slot = nullptr;
+    original_get_inv_item = nullptr;
+    original_get_item_res = nullptr;
+    soul_sub_weapon_allow_resume = 0;
+    soul_sub_weapon_deny_resume = 0;
+    main_lvl_slot = nullptr;
+    main_job_slot = nullptr;
+    selftest_alive = false;
+}
+
 int main() {
     uint8_t event[8] = {1, 1, 1, 2, 100, 0, 0, 0};
     state.update(event, 8, 0xffffff00);
@@ -1003,6 +1225,11 @@ int main() {
     PrologueDetour missing_bit_test{0, reinterpret_cast<void*>(&missing_spell_bit_hook), 0xBDu};
     assert(missing_bit_test.install(memory) && memory[0] == 0xe9);
     assert(missing_bit_test.restore() && std::memcmp(memory, missing_bit_instruction, 5) == 0);
+    const uint8_t sub_weapon_instruction[5] = {0x68, 0x8b, 0x00, 0x00, 0x00};
+    std::memcpy(memory, sub_weapon_instruction, 5);
+    PrologueDetour sub_weapon_test{0, reinterpret_cast<void*>(&soul_sub_weapon_hook), 0x68u};
+    assert(sub_weapon_test.install(memory) && memory[0] == 0xe9);
+    assert(sub_weapon_test.restore() && std::memcmp(memory, sub_weapon_instruction, 5) == 0);
     VirtualFree(memory, 0, MEM_RELEASE);
     // Verify signature relocation when FFXiMain.dll is relocated (e.g. 0x04860000 under Ashita v4).
     uint8_t reloc_sig[24];
@@ -1014,6 +1241,7 @@ int main() {
     equipment_persona_checks();
     action_catalog_checks();
     visibility_checks();
+    weapon_rule_checks();
     enabled.store(false); state = {};
     original_decode = &fake_search_decode;
     make_row(row_b, 200, marker | 3);
@@ -1037,14 +1265,20 @@ int main() {
     assert(GetProcAddress(dll, "CrystalJobsClearActiveSoul") != nullptr);
     assert(GetProcAddress(dll, "CrystalJobsReplaceVisibility") != nullptr);
     assert(GetProcAddress(dll, "CrystalJobsClearVisibility") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsReplaceWeaponRules") != nullptr);
+    assert(GetProcAddress(dll, "CrystalJobsClearWeaponRules") != nullptr);
+    const auto get_wpn_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsWeaponStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetWeaponStatus"));
+    assert(get_wpn_st != nullptr);
+    CrystalJobsWeaponStatus wpn_st{};
+    assert(get_wpn_st(&wpn_st, sizeof(wpn_st)) == 0 && wpn_st.version == 1 && wpn_st.expected_hooks == 24 && wpn_st.total_hooks == 0);
     const auto get_vis_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsVisibilityStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetVisibilityStatus"));
     assert(get_vis_st != nullptr);
     CrystalJobsVisibilityStatus vis_st{};
-    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 23 && vis_st.total_hooks == 0);
+    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 24 && vis_st.total_hooks == 0);
     const auto get_action_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsActionStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetActionStatus"));
     assert(get_action_st != nullptr);
     CrystalJobsActionStatus act_st{};
-    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 23 && act_st.total_hooks == 0);
+    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 24 && act_st.total_hooks == 0);
     assert(get_iface != nullptr && create_plugin != nullptr && destroy_plugin != nullptr);
     assert(get_iface() == 4.30);
     void* plugin = create_plugin("");

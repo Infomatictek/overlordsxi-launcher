@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "serverName": "SoulspireXI",
-  "tagline": "Faerie Companions (Eos & Titania) • Job Specs • 4-Tier Weaponskill Talent Trees",
+  "tagline": "Faerie Companions (Eos & Titania) \u2022 Job Specs \u2022 4-Tier Weaponskill Talent Trees",
   "defaultHost": "play.soulspirexi.com",
   "useHairpin": false,
   "ports": {
@@ -84,8 +84,8 @@
       "category": "plugin",
       "sourcePath": "plugins/ashita4/crystaljobs.dll",
       "targetPath": "crystaljobs.dll",
-      "sha256": "d804ad45b562184086af7d593a288d36a201acb9c45e18c05b97a4e08292f803",
-      "size": 126976
+      "sha256": "f390867a9652f119c242228033141a0b4565cbc7885faf04ba2597707d96131f",
+      "size": 130048
     },
     {
       "category": "addon",
@@ -362,24 +362,17 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/crystalsocket/buckler.lua",
-      "targetPath": "crystalsocket/buckler.lua",
-      "sha256": "1a4c85621bfcad55cd6a48f4b6be8463db53f13c6e6d752a9baf1168df3c1be1",
-      "size": 5003
-    },
-    {
-      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/crystalsocket.lua",
       "targetPath": "crystalsocket/crystalsocket.lua",
-      "sha256": "fc894fd101e1784196c01f10ea5db0ee10d11df61ae12b4dc9f3bfa93ad06bec",
-      "size": 19363
+      "sha256": "b3ec0325a84197c5fa7c8b1a66dfc9f855b4f268f0c3f014f71dad8d672b1865",
+      "size": 20519
     },
     {
       "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/job_labels.lua",
       "targetPath": "crystalsocket/job_labels.lua",
-      "sha256": "0e04e2970f693a947317b37f28140bc616269caa2ca4c022c143e7658468aff0",
-      "size": 10178
+      "sha256": "17fc74f30eb8a1ac094413317592cd39cd8b511829a00fadd4f510a4a495eb87",
+      "size": 15558
     },
     {
       "category": "addon",
@@ -418,10 +411,24 @@
     },
     {
       "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/tests/weapon_config_test.lua",
+      "targetPath": "crystalsocket/tests/weapon_config_test.lua",
+      "sha256": "eaab96fbccc33aeb46e20ec018d01e2524ee8dfc3df62e877194f43f202e2262",
+      "size": 5535
+    },
+    {
+      "category": "addon",
       "sourcePath": "addons/ashita4/crystalsocket/ui.lua",
       "targetPath": "crystalsocket/ui.lua",
-      "sha256": "77e764d7f64151af9b4af1939e453949a236e1d62471ec88d734e8d3718a41a6",
-      "size": 24033
+      "sha256": "2d6a06f296cce66c3d5777ced93bfcaafb3799120006f41fb794677603bcc60b",
+      "size": 19701
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/crystalsocket/weapon_config.lua",
+      "targetPath": "crystalsocket/weapon_config.lua",
+      "sha256": "140a4c14b5b128460a06c8bbe5f6af74e1130e11f5cf11e976c488531a883488",
+      "size": 3167
     },
     {
       "category": "addon",
