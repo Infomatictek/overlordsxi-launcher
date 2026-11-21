@@ -119,6 +119,16 @@ public sealed class AshitaConfigGeneratorTests
         Assert.Contains(@"root_path=C:\Ashita\polplugins\DATs", pivotIni);
         Assert.Contains("[overlays]", pivotIni);
         Assert.Contains("0=soulspirexi", pivotIni);
+        Assert.DoesNotContain("flintlock-akimbo-compact", pivotIni);
+    }
+
+    [Fact]
+    public void BuildPivotIniContent_IncludesFlintlockOverlayFirst_WhenOptedIn()
+    {
+        var pivotIni = _generator.BuildPivotIniContent(@"C:\Ashita\polplugins\DATs", enableFlintlockOverlay: true);
+
+        Assert.Contains("0=flintlock-akimbo-compact", pivotIni);
+        Assert.Contains("1=soulspirexi", pivotIni);
     }
 
     [Theory]

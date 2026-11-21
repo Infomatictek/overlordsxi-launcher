@@ -48,6 +48,7 @@ public sealed class LauncherSettings
     public string Language { get; set; } = "US";
 
     public bool EnablePivotOverlay { get; set; } = true;
+    public bool EnableFlintlockDualPistolsOverlay { get; set; }
     public bool AutoLoadTalentsAddon { get; set; } = true;
     public bool AutoLoadCrystalSocketAddon { get; set; } = true;
     public bool AutoLoadMetricsAddon { get; set; } = true;

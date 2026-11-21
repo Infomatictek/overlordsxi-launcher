@@ -503,6 +503,12 @@ public sealed class MainViewModel : INotifyPropertyChanged
         set { if (_settings.EnablePivotOverlay != value) { _settings.EnablePivotOverlay = value; OnPropertyChanged(); } }
     }
 
+    public bool EnableFlintlockDualPistolsOverlay
+    {
+        get => _settings.EnableFlintlockDualPistolsOverlay;
+        set { if (_settings.EnableFlintlockDualPistolsOverlay != value) { _settings.EnableFlintlockDualPistolsOverlay = value; OnPropertyChanged(); } }
+    }
+
     public bool AutoLoadTalentsAddon
     {
         get => _settings.AutoLoadTalentsAddon;

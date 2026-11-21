@@ -11,6 +11,8 @@ public sealed class AshitaConfigGenerator
     public const string LegacyScriptFileName = "overlordsxi.txt";
     public const string PivotConfigName = "soulspirexi";
     public const string OverlayFolderName = "soulspirexi";
+    public const string FlintlockOverlayId = "flintlock-akimbo-compact";
+    public const string FlintlockOverlayFolderName = "flintlock-akimbo-compact";
 
     public string BuildXiloaderCommand(
         string serverHost,
@@ -188,7 +190,7 @@ public sealed class AshitaConfigGenerator
     private static string ValueOrPassthrough(string? value) =>
         string.IsNullOrWhiteSpace(value) ? "-1" : value.Trim();
 
-    public string BuildPivotIniContent(string datsRootPath)
+    public string BuildPivotIniContent(string datsRootPath, bool enableFlintlockOverlay = false)
     {
         var sb = new StringBuilder();
         sb.AppendLine("[settings]");
@@ -196,7 +198,15 @@ public sealed class AshitaConfigGenerator
         sb.AppendLine("debug_log=false");
         sb.AppendLine();
         sb.AppendLine("[overlays]");
-        sb.AppendLine($"0={OverlayFolderName}");
+        if (enableFlintlockOverlay)
+        {
+            sb.AppendLine($"0={FlintlockOverlayFolderName}");
+            sb.AppendLine($"1={OverlayFolderName}");
+        }
+        else
+        {
+            sb.AppendLine($"0={OverlayFolderName}");
+        }
         sb.AppendLine();
         sb.AppendLine("[cache]");
         sb.AppendLine("enabled=false");
@@ -360,8 +370,13 @@ public sealed class AshitaConfigGenerator
 
         if (settings.EnablePivotOverlay)
         {
+            if (settings.EnableFlintlockDualPistolsOverlay)
+            {
+                Directory.CreateDirectory(Path.Combine(datsRoot, FlintlockOverlayFolderName));
+            }
+
             var pivotIniPath = Path.Combine(pivotDir, $"{PivotConfigName}.ini");
-            var pivotIni = BuildPivotIniContent(datsRoot);
+            var pivotIni = BuildPivotIniContent(datsRoot, settings.EnableFlintlockDualPistolsOverlay);
             File.WriteAllText(pivotIniPath, pivotIni, new UTF8Encoding(false));
         }
 

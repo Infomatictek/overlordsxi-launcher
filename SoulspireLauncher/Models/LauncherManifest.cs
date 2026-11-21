@@ -31,6 +31,9 @@ public sealed class LauncherManifest
     [JsonPropertyName("files")]
     public List<ManifestFileEntry> Files { get; set; } = [];
 
+    [JsonPropertyName("optionalOverlays")]
+    public List<ManifestOptionalOverlay> OptionalOverlays { get; set; } = [];
+
     [JsonPropertyName("news")]
     public List<ManifestNewsItem> News { get; set; } = [];
 
@@ -102,6 +105,45 @@ public sealed class ManifestFileEntry
 
     [JsonPropertyName("size")]
     public long Size { get; set; }
+
+    [JsonIgnore]
+    public string? OverlayFolder { get; set; }
+}
+
+public sealed class ManifestSoulGate
+{
+    [JsonPropertyName("job")]
+    public int Job { get; set; }
+
+    [JsonPropertyName("branch")]
+    public int Branch { get; set; }
+
+    [JsonPropertyName("soul")]
+    public string Soul { get; set; } = string.Empty;
+}
+
+public sealed class ManifestOptionalOverlay
+{
+    [JsonPropertyName("id")]
+    public string Id { get; set; } = string.Empty;
+
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonPropertyName("description")]
+    public string Description { get; set; } = string.Empty;
+
+    [JsonPropertyName("overlayFolder")]
+    public string OverlayFolder { get; set; } = string.Empty;
+
+    [JsonPropertyName("defaultEnabled")]
+    public bool DefaultEnabled { get; set; }
+
+    [JsonPropertyName("soulGate")]
+    public ManifestSoulGate? SoulGate { get; set; }
+
+    [JsonPropertyName("files")]
+    public List<ManifestFileEntry> Files { get; set; } = [];
 }
 
 public sealed class ManifestNewsItem
