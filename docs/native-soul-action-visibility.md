@@ -1,6 +1,6 @@
 # Soul-aware native action visibility — integration contract
 
-**Status:** Native visibility engine implemented and live-verified against installed `FFXiMain.dll`. The new cast lookup hook needs a Windows CI build and in-game acceptance test.
+**Status:** Native visibility engine and new cast lookup hook compiled and self-tested in Windows CI. The cast lookup hook still needs an in-game acceptance test.
 
 ## GEO30 Shallow Fault cast rejection (2026-11-20)
 
