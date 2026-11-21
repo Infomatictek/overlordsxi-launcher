@@ -13,7 +13,7 @@ Distributable Windows client launcher (`SoulspireLauncher.exe`) for **SoulspireX
 ## For Players
 
 1. Ensure FINAL FANTASY XI is installed and patched, and Windows **DirectPlay** (*Turn Windows features on or off -> Legacy Components -> DirectPlay*) is enabled.
-2. Download `SoulspireLauncher.exe` (or `SoulspireLauncher-win-x64.zip`) from the [Releases](https://github.com/Infomatictek/overlordsxi-launcher/releases) page.
+2. Download `SoulspireLauncher.exe` (or `SoulspireLauncher-win-x64.zip`) from the [Releases](https://github.com/Infomatictek/soulspirexi-launcher/releases) page.
 3. Run `SoulspireLauncher.exe` and click **PLAY SOULSPIREXI**.
 4. On first login, leave **Auto-login** unchecked to create your account inside the `xiloader` console.
 

@@ -218,6 +218,37 @@ end
 -- =============================================================================
 -- 3. WHM: bishop
 -- =============================================================================
+BESPOKE.zealot = function(kv)
+    local seal = num(kv, 'seal_rem')
+    local recast = num(kv, 'seal_cd')
+    local communion = num(kv, 'communion_cd')
+    local staff = num(kv, 'staff') > 0
+    local status = staff and (communion > 0 and 'COMMUNION WAIT' or 'COMMUNION READY') or 'EQUIP STAFF'
+    return {
+        pips = pips('Consecration', seal > 0 and 1 or 0, 1, 'gold', seal > 0, status),
+        bar = seal > 0 and timerBar('seal', 'Consecration', seal, 'Ready', 20)
+            or timerBar('seal_cd', 'Consecration Recast', recast, 'Ready', 90),
+    }
+end
+
+BESPOKE.valkyrie = function(kv)
+    local interrupt = num(kv, 'interrupt_rem')
+    local retry = num(kv, 'retry_rem')
+    local escort = num(kv, 'escort_cd')
+    local status = num(kv, 'polearm') == 0 and 'EQUIP POLEARM'
+        or (num(kv, 'wingmate') > 0 and 'WINGMATE SET' or 'SELECT WINGMATE')
+    local bar = timerBar('escort_cd', 'Escort Recast', escort, 'Ready', 25)
+    if retry > 0 then
+        bar = timerBar('escort_open', 'Escorted Retry', retry, 'Idle', 6)
+    elseif interrupt > 0 then
+        bar = timerBar('escort_interrupt', 'Interrupt Window', interrupt, 'Idle', 6)
+    end
+    return {
+        pips = pips('Escort', interrupt > 0 and escort == 0 and 1 or 0, 1, 'azure', retry > 0, status),
+        bar = bar,
+    }
+end
+
 BESPOKE.bishop = function(kv)
     local grace   = num(kv, 'grace')
     local solace  = math.floor(num(kv, 'solace'))
@@ -242,6 +273,32 @@ end
 -- =============================================================================
 -- 4. BLM: necromancer
 -- =============================================================================
+BESPOKE.astromancer = function(kv)
+    local elements = { 'FIRE', 'ICE', 'WIND', 'EARTH', 'THUNDER', 'WATER' }
+    local element = elements[num(kv, 'element')] or 'EARTH'
+    local recovery = num(kv, 'recovery_cd')
+    local saturation = num(kv, 'sat_rem')
+    local aether = num(kv, 'aether_cd')
+    local status = saturation > 0 and string.format('%s · SAT %ds', element, saturation) or element
+    return {
+        pips = pips('Ancient Magic', recovery == 0 and 1 or 0, 1, 'azure', recovery == 0 and saturation == 0, status),
+        bar = recovery > 0 and timerBar('ancient', 'Ancient Recovery', recovery, 'Ready', 18)
+            or timerBar('aether', 'Gather Aether', aether, 'Ready', 90),
+    }
+end
+
+BESPOKE.channeler = function(kv)
+    local link = num(kv, 'link_rem')
+    local casting = num(kv, 'casting') > 0
+    local recast = num(kv, 'link_cd')
+    return {
+        pips = pips('Conduit Link', (link > 0 or casting) and 1 or 0, 1, 'azure', casting,
+            casting and 'ALLY CASTING' or nil),
+        bar = link > 0 and timerBar('conduit', 'Conduit Link', link, 'Idle', 8)
+            or timerBar('conduit_cd', 'Conduit Recast', recast, 'Ready', 24),
+    }
+end
+
 BESPOKE.necromancer = function(kv)
     local mode = str(kv, 'thrall_mode')
     local role = str(kv, 'thrall_role')
@@ -276,6 +333,84 @@ end
 -- =============================================================================
 -- 5. RDM: crimsonduelist
 -- =============================================================================
+BESPOKE.scarletweaver = function(kv)
+    local form = num(kv, 'form')
+    local recovery = num(kv, 'recovery_rem')
+    local recast = num(kv, 'switch_cd')
+    local aspect = form == 1 and 'YIN · SPELLS' or 'YANG · SWORD'
+    return {
+        pips = pips('Aspect', form > 0 and 1 or 0, 1, form == 1 and 'azure' or 'crimson',
+            recovery == 0, string.format('%s +%d%%', aspect, num(kv,'bonus'))),
+        bar = recovery > 0 and timerBar('recover', 'Aspect Recovery', recovery, 'Idle', 2)
+            or timerBar('switch', 'Aspect Change', recast, 'Ready', 12),
+    }
+end
+
+BESPOKE.oathbreaker = function(kv)
+    local vow = num(kv, 'vow')
+    local retaliation = num(kv, 'retaliate_rem')
+    local reckoning = num(kv, 'reckoning_cd')
+    local switching = num(kv, 'vow_cd')
+    local label = vow == 1 and 'CONDEMN' or (vow == 2 and 'ABSOLVE' or 'CHOOSE VOW')
+    local bar = timerBar('reckon', 'Reckoning', reckoning, 'Ready', 18)
+    if retaliation > 0 then
+        bar = timerBar('retaliate', 'Retaliation', retaliation, 'Idle', 7)
+    elseif switching > 0 then
+        bar = timerBar('vow', 'Vow Change', switching, 'Ready', 5)
+    end
+    return { pips = pips('Vow', vow > 0 and 1 or 0, 1, 'crimson', retaliation > 0, label), bar = bar }
+end
+
+BESPOKE.phantom = function(kv)
+    local guard = num(kv, 'guard_rem')
+    local dare = num(kv, 'dare_cd')
+    local activeWeapon = num(kv, 'weapon') > 0
+    return {
+        pips = pips('Evasion Threat', activeWeapon and num(kv, 'evade_cd') == 0 and 1 or 0, 1, 'azure', guard > 0,
+            activeWeapon and (guard > 0 and 'GUARD READY' or nil) or 'EQUIP DAGGER OR KATANA'),
+        bar = guard > 0 and timerBar('guard', 'Dare Guard', guard, 'Idle', 6)
+            or timerBar('dare', "Phantom's Dare", dare, 'Ready', 18),
+    }
+end
+
+BESPOKE.trickster = function(kv)
+    local suppression = num(kv, 'suppress_cd')
+    local blamed = num(kv, 'blame_ready') > 0
+    local down = num(kv, 'target_down') > 0
+    return {
+        pips = pips('Suppression', suppression == 0 and 1 or 0, 1, 'azure', blamed,
+            blamed and 'ALIGN WITH ALLY' or (down and 'ATTACK DOWN' or nil)),
+        bar = suppression > 0 and timerBar('suppress', 'Suppression', suppression, 'Ready', 20)
+            or timerBar('blame_cd', 'Pass the Blame', num(kv, 'blame_cd'), 'Ready', 35),
+    }
+end
+
+BESPOKE.bandit = function(kv)
+    local gap = num(kv, 'gap_rem')
+    local cooldown = num(kv, 'exploit_cd')
+    local exposed = gap > 0 or num(kv, 'exposed') > 0
+    return {
+        pips = pips('Opportunism', exposed and 1 or 0, 1, 'gold', exposed and cooldown == 0,
+            gap > 0 and 'PERSONAL GAP' or (exposed and 'DEFENSE DOWN' or 'NO OPENING')),
+        bar = cooldown > 0 and timerBar('exploit', 'Opportunism', cooldown, 'Ready', 12)
+            or (gap > 0 and timerBar('gap', 'Personal Gap', gap, 'Idle', 15)
+                or timerBar('gap_cd', 'Find the Gap', num(kv, 'gap_cd'), 'Ready', 24)),
+    }
+end
+
+BESPOKE.royaltactician = function(kv)
+    local pending = num(kv, 'pending')
+    local duration = num(kv, 'pending_rem')
+    local cooldown = num(kv, 'order_cd')
+    local label = pending == 1 and 'Advance' or (pending == 2 and 'Recompose' or 'No order')
+    if num(kv, 'half') > 0 then label = label .. ' (half)' end
+    return {
+        pips = pips('Order', pending > 0 and 1 or 0, 1, 'gold', pending > 0 and cooldown == 0, label),
+        bar = duration > 0 and timerBar('order', 'Pending Order', duration, 'Idle', 6)
+            or timerBar('order_cd', 'Issue Order', cooldown, 'Ready', 18),
+    }
+end
+
 BESPOKE.crimsonduelist = function(kv)
     local hexes     = num(kv, 'hexes')
     local fencer    = num(kv, 'fencer') > 0
@@ -342,6 +477,34 @@ end
 -- =============================================================================
 -- 7. DRK: dreadnought
 -- =============================================================================
+BESPOKE.reaper = function(kv)
+    local recovery = num(kv, 'recovery')
+    local rounds = num(kv, 'enemy_rounds')
+    local cooldown = num(kv, 'finality_cd')
+    local bar = recovery > 0 and timerBar('opening', 'Recovery', recovery, 'Closed', 5)
+        or timerBar('finality', 'Finality', cooldown, 'Ready', 16)
+    local label = recovery > 0 and (cooldown > 0 and ('FINALITY %ds'):format(math.ceil(cooldown)) or 'FINALITY READY')
+        or ('ENEMY ROUNDS %d/6'):format(rounds)
+    return { pips = pips('Enemy Rounds', recovery > 0 and 6 or rounds, 6, 'crimson', recovery > 0 and cooldown == 0, label), bar = bar }
+end
+
+BESPOKE.scourge = function(kv)
+    local names = { 'Withering', 'Ash', 'Famine' }
+    local curse = num(kv, 'curse_rem')
+    local ward = num(kv, 'ward_rem')
+    local cooldown = num(kv, 'curse_cd')
+    local rite = num(kv, 'rite_cd')
+    local bar = timerBar('curse', 'Curse Recast', cooldown, 'Ready', 12)
+    if ward > 0 then
+        bar = timerBar('ward', (names[num(kv, 'ward_kind')] or 'Immunity') .. ' Ward', ward, 'Spent', 8)
+    elseif curse > 0 then
+        bar = timerBar('curse', names[num(kv, 'curse_kind')] or 'Curse', curse, 'Expired', 24)
+    end
+    local label = (cooldown > 0 and ('CURSE %ds'):format(math.ceil(cooldown)) or 'CURSE READY')
+        .. (rite > 0 and ('  RITE %ds'):format(math.ceil(rite)) or '  RITE READY')
+    return { pips = pips('Curse', curse > 0 and 1 or 0, 1, 'crimson', ward > 0, label), bar = bar }
+end
+
 BESPOKE.dreadnought = function(kv)
     local tithe  = num(kv, 'tithe')
     local reap   = num(kv, 'reap_rem')
@@ -445,6 +608,30 @@ local HUNTSMAN_PETS = {
     [3] = { 'CEHUETZI', 'APEX TANK' },
     [4] = { 'GABBRATH', 'APEX DPS' },
 }
+
+BESPOKE.sniper = function(kv)
+    local aim = num(kv, 'aim_rem')
+    local cooldown = num(kv, 'shot_cd')
+    local deep = num(kv, 'deep') > 0
+    local bar = aim > 0 and timerBar('aim', 'Sightline Aim', aim, 'Fire', deep and 4 or 3)
+        or timerBar('shot', 'Sightline Shot', cooldown, 'Ready', 12)
+    return {
+        pips = pips('Sightline', cooldown == 0 and 1 or 0, 1, 'azure', aim > 0, deep and 'DEEP SIGHT' or 'STEADY SIGHT'),
+        bar = bar,
+    }
+end
+
+BESPOKE.arcanearcher = function(kv)
+    local elements = { 'Fire', 'Ice', 'Wind', 'Earth', 'Lightning', 'Water' }
+    local selected = elements[num(kv, 'element')] or 'Fire'
+    local marked = elements[num(kv, 'mark_element')]
+    local mark = num(kv, 'mark_rem')
+    local cooldown = num(kv, 'arrow_cd')
+    local bar = mark > 0 and timerBar('mark', (marked or 'Elemental') .. ' Mark', mark, 'Expired', 14)
+        or timerBar('arrow', 'Attunement Arrow', cooldown, 'Ready', 16)
+    local label = selected:upper() .. (cooldown > 0 and ('  ARROW %ds'):format(math.ceil(cooldown)) or '  ARROW READY')
+    return { pips = pips('Attunement', mark > 0 and 1 or 0, 1, 'azure', mark > 0, label), bar = bar }
+end
 
 BESPOKE.huntsman = function(kv)
     local pid  = math.floor(num(kv, 'pet_id'))
@@ -572,6 +759,24 @@ BESPOKE.kurogane = function(kv)
     }
 end
 
+BESPOKE.nightblade = function(kv)
+    local tell = num(kv, 'tell')
+    local sealed = num(kv, 'sealed') > 0
+    local cooldown = num(kv, 'seal_cd')
+    local quick = num(kv, 'quick_rem')
+    local quickCd = num(kv, 'quick_cd')
+    local label = tell == 1 and 'SPELL' or (tell == 2 and 'TECHNIQUE' or 'WATCHING')
+    if sealed then label = label .. ' SEALED' end
+    if quick > 0 then label = label .. '  QUICK READ' end
+    local bar = timerBar('seal', 'Seal Recast', cooldown, 'Ready', 20)
+    if quick > 0 then
+        bar = timerBar('quick', 'Quick Read', quick, 'Spent', 8)
+    elseif cooldown == 0 and quickCd > 0 then
+        bar = timerBar('quickRecast', 'Quick Read Recast', quickCd, 'Ready', 45)
+    end
+    return { pips = pips('Enemy Tell', tell > 0 and 1 or 0, 1, 'azure', tell > 0 and cooldown == 0 and not sealed, label), bar = bar }
+end
+
 BESPOKE.kagemusha = function(kv)
     local ash     = num(kv, 'ash')
     local shadows = num(kv, 'shadows')
@@ -589,6 +794,32 @@ end
 -- =============================================================================
 -- 13. DRG: wyvernheart
 -- =============================================================================
+BESPOKE.lancer = function(kv)
+    local lane = num(kv, 'lane')
+    local followup = num(kv, 'followup')
+    local cooldown = num(kv, 'vault_cd')
+    local label = lane == 2 and 'LONG LANE' or (lane == 1 and 'SHORT LANE' or 'OUTSIDE VAULT RANGE')
+    local bar = followup > 0 and timerBar('followup', 'Piercing Jump Follow-up', followup, 'Expired', 5)
+        or timerBar('vault', 'Spineshatter Vault', cooldown, 'Ready', 18)
+    return { pips = pips('Launch Lane', lane > 0 and lane <= 2 and lane or 0, 2, 'crimson', followup > 0, label), bar = bar }
+end
+
+BESPOKE.skyborn = function(kv)
+    local guard = num(kv, 'guard_ms') / 1000
+    local ward = num(kv, 'ward_ms') / 1000
+    local wardHP = num(kv, 'ward_hp')
+    local cooldown = num(kv, 'guard_cd')
+    local cry = num(kv, 'cry_cd')
+    local bar = timerBar('guard', 'Skyward Guard', cooldown, 'Ready', 20)
+    if guard > 0 then
+        bar = timerBar('intercept', 'Guard Window', guard, 'Landed', 1.5)
+    elseif ward > 0 then
+        bar = timerBar('ward', ('Landing Ward (%d HP)'):format(wardHP), ward, 'Expired', 5)
+    end
+    local label = cry > 0 and ('CRY %ds'):format(math.ceil(cry)) or 'CRY READY'
+    return { pips = pips('Guard', guard > 0 and 1 or 0, 1, 'azure', guard > 0, label), bar = bar }
+end
+
 BESPOKE.wyvernheart = function(kv)
     local scale = num(kv, 'wyrmscale')
     local rem   = num(kv, 'wyrmscale_rem')
@@ -638,6 +869,20 @@ BESPOKE.magus = function(kv)
         pips = pips('Catalyst', first(kv, 'catalyst', 'catalyst_stacks'), 5, 'azure'),
         bar  = timerBar('conduit', 'Osmotic Conduit', num(kv, 'conduit_rem')),
     }
+end
+
+BESPOKE.warmage = function(kv)
+    local mask = num(kv, 'match')
+    local window = num(kv, 'window')
+    local cooldown = num(kv, 'assess_cd')
+    local labels = {}
+    for index, label in ipairs({ 'BLUNT', 'SLASH', 'PIERCE', 'ELEMENTAL' }) do
+        if math.floor(mask / (2 ^ (index - 1))) % 2 == 1 then labels[#labels + 1] = label end
+    end
+    local bar = window > 0 and timerBar('window', 'Assessment', window, 'Expired', 8)
+        or timerBar('assess', 'Assess Prey', cooldown, 'Ready', 12)
+    local label = #labels > 0 and table.concat(labels, ' / ') or 'ASSESS YOUR TARGET'
+    return { pips = pips('Weakness Categories', #labels, 4, 'crimson', window > 0, label), bar = bar }
 end
 
 BESPOKE.azurebastion = function(kv)
@@ -846,6 +1091,118 @@ BESPOKE.medic = function(kv)
             idle  = 'Offline',
         },
     }
+end
+
+BESPOKE.untamed = function(kv)
+    if num(kv, 'pet') == 0 then return { pips = badge('NO PACKMATE', 'CALL PACKMATE', false) } end
+    local shared = num(kv, 'shared') == 1
+    local petTP = num(kv, 'pet_tp')
+    local petCD, masterCD = num(kv, 'to_pet'), num(kv, 'to_master')
+    local function linkTime(seconds)
+        return seconds > 0 and ('%ds'):format(seconds) or 'Ready'
+    end
+    return {
+        pips = badge(shared and 'SHARED QUARRY' or 'SET QUARRY',
+            ('Hare %d TP · You %d TP'):format(petTP, num(kv, 'master_tp')), shared),
+        bar = {
+            key = 'pack_link', label = 'Feral Synchronization', cur = math.max(petCD, masterCD),
+            max = 8, countdown = true, fmt = 'sec', idle = 'Ready',
+            right = ('To hare %s · To you %s'):format(linkTime(petCD), linkTime(masterCD)),
+        },
+    }
+end
+
+BESPOKE.beastspeaker = function(kv)
+    local family, weakness = str(kv, 'family'), str(kv, 'weakness')
+    local pending, exposed = num(kv, 'pending'), num(kv, 'exposed')
+    local label = weakness ~= '' and weakness or 'READ QUARRY'
+    local detail = family
+    if num(kv, 'pet') == 0 then detail = 'CALL TRACKER' end
+    local bar
+    if exposed > 0 then
+        bar = timerBar('exposure', ('Exposure +%d%%'):format(num(kv, 'bonus')), exposed, 'Expired', 10)
+    elseif pending > 0 then
+        bar = timerBar('tracker', 'Waiting for Tracker', pending, 'Expired', 6)
+    elseif str(kv, 'learned') ~= '' then
+        label, detail = label .. ' · ' .. family, str(kv, 'learned')
+    end
+    return { pips = badge(label, detail, exposed > 0), bar = bar }
+end
+
+BESPOKE.primalist = function(kv)
+    local avatar, choices = str(kv, 'avatar'), str(kv, 'choice')
+    local window, cost = num(kv, 'window'), num(kv, 'pact_mp')
+    local match = num(kv, 'match') == 1
+    local detail = avatar == '' and choices or ('%d MP per pact'):format(cost)
+    local bar
+    if window > 0 then
+        bar = timerBar('challenge', match and 'Aspect Matched' or 'Aspect Resisted', window, 'Expired', 15)
+    end
+    return { pips = badge(avatar ~= '' and avatar or 'CALL AVATAR', detail, window > 0 and match), bar = bar }
+end
+
+BESPOKE.herald = function(kv)
+    local avatar = str(kv, 'avatar')
+    local element = str(kv, 'element')
+    local remaining = num(kv, 'window')
+    local open, total = num(kv, 'ready'), num(kv, 'total')
+    if remaining == 0 then
+        return { pips = badge(avatar == '' and 'INVITE ENVOY' or avatar, ('Accord %d MP'):format(num(kv, 'mp')), false) }
+    end
+    return {
+        pips = pips('Open Claims', open, math.max(1, total), 'violet', open > 0, avatar),
+        bar = timerBar('accord', ('%s Accord +%d%%'):format(element, num(kv, 'pct')), remaining, 'Expired', 10),
+    }
+end
+
+BESPOKE.terramancer = function(kv)
+    local fuse, cooldown = num(kv, 'fuse'), num(kv, 'cooldown')
+    local inside = num(kv, 'inside') == 1
+    if fuse > 0 then
+        local kind, quarry = str(kv, 'kind'), str(kv, 'quarry')
+        return {
+            pips = badge(kind, quarry ~= '' and quarry or 'CLAIM LOST', inside),
+            bar = timerBar('fault_fuse', inside and 'Quarry Inside' or 'Quarry Outside', fuse, 'Erupted', kind == 'Deep Fault' and 4 or 2),
+        }
+    end
+    return { bar = timerBar('fault_cd', 'Fault Recast', cooldown, 'Ready', 8) }
+end
+
+BESPOKE.diviner = function(kv)
+    local duration = num(kv, 'duration')
+    if duration == 0 then return { pips = badge('NO MERIDIAN', 'LAY MERIDIAN', false) } end
+    local length = num(kv, 'length') / 10
+    local live = num(kv, 'live') == 1
+    local label
+    if live then label = ('%d Covered · +%d ACC/MACC'):format(num(kv, 'count'), num(kv, 'bonus'))
+    elseif num(kv, 'floor') == 0 then label = 'Return to Anchor Floor'
+    elseif length < 3 then label = 'Move Away from Anchor'
+    else label = 'Move Closer to Anchor' end
+    return {
+        pips = badge(label, ('%.1fy'):format(length), live),
+        bar = timerBar('meridian_duration', 'Meridian', duration, 'Expired', num(kv, 'max_duration')),
+    }
+end
+
+BESPOKE.archivist = function(kv)
+    local entries = num(kv, 'entries')
+    local slots = math.max(1, num(kv, 'slots'))
+    local recording = num(kv, 'recording')
+    local page = num(kv, 'page_rem')
+    local cooldown = num(kv, 'file_cd')
+    local recordCd = num(kv, 'record_cd')
+    local name = kv.record and kv.record ~= '' and kv.record or nil
+    local bar = timerBar('record', 'Record', recordCd, 'Ready', 6)
+    if recording > 0 then
+        bar = timerBar('watch', 'Watching Enemy', recording, 'Expired', 12)
+    elseif page > 0 then
+        bar = timerBar('page', 'Countermeasure', page, 'Spent', 25)
+    elseif cooldown > 0 then
+        bar = timerBar('file', 'File Countermeasure', cooldown, 'Ready', 15)
+    elseif name then
+        bar = timerBar('entry', 'Selected Record', num(kv, 'record_rem'), 'Expired', 60)
+    end
+    return { pips = pips('Records', entries, slots, 'azure', page > 0, name or 'NO RECORD'), bar = bar }
 end
 
 BESPOKE.sage = function(kv)

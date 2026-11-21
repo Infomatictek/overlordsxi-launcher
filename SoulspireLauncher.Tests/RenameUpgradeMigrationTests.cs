@@ -176,7 +176,7 @@ public sealed class RenameUpgradeMigrationTests
           "tag_name": "v2.0.0",
           "draft": false,
           "prerelease": false,
-          "html_url": "https://github.com/Infomatictek/overlordsxi-launcher/releases/tag/v2.0.0",
+          "html_url": "https://github.com/Infomatictek/soulspirexi-launcher/releases/tag/v2.0.0",
           "assets": [
             { "name": "OverlordsLauncher.exe", "browser_download_url": "https://example.test/OverlordsLauncher.exe", "size": 1000000 },
             { "name": "SoulspireLauncher.exe", "browser_download_url": "https://example.test/SoulspireLauncher.exe", "size": 1000000 }
@@ -193,7 +193,7 @@ public sealed class RenameUpgradeMigrationTests
           "tag_name": "v2.0.0",
           "draft": false,
           "prerelease": false,
-          "html_url": "https://github.com/Infomatictek/overlordsxi-launcher/releases/tag/v2.0.0",
+          "html_url": "https://github.com/Infomatictek/soulspirexi-launcher/releases/tag/v2.0.0",
           "assets": [
             { "name": "OverlordsLauncher.exe", "browser_download_url": "https://example.test/OverlordsLauncher.exe", "size": 1000000 }
           ]

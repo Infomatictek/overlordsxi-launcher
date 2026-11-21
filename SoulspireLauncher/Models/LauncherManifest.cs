@@ -56,13 +56,13 @@ public sealed class ManifestRepo
     public string Owner { get; set; } = "Infomatictek";
 
     [JsonPropertyName("name")]
-    public string Name { get; set; } = "overlordsxi-launcher";
+    public string Name { get; set; } = "soulspirexi-launcher";
 
     [JsonPropertyName("branch")]
     public string Branch { get; set; } = "main";
 
     [JsonPropertyName("rawBaseUrl")]
-    public string RawBaseUrl { get; set; } = "https://raw.githubusercontent.com/Infomatictek/overlordsxi-launcher/main";
+    public string RawBaseUrl { get; set; } = "https://raw.githubusercontent.com/Infomatictek/soulspirexi-launcher/main";
 }
 
 public sealed class ManifestBootstrap

@@ -45,7 +45,7 @@ public sealed class LauncherSelfUpdateServiceTests
         const string json = """
         {
           "tag_name": "v1.0.4",
-          "html_url": "https://github.com/Infomatictek/overlordsxi-launcher/releases/tag/v1.0.4",
+          "html_url": "https://github.com/Infomatictek/soulspirexi-launcher/releases/tag/v1.0.4",
           "draft": false,
           "prerelease": false,
           "assets": [

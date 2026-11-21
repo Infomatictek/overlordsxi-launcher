@@ -18,7 +18,7 @@ public sealed class ManifestTests
 
         Assert.Equal("SoulspireXI", manifest.ServerName);
         Assert.Equal("Infomatictek", manifest.Repo.Owner);
-        Assert.Equal("overlordsxi-launcher", manifest.Repo.Name);
+        Assert.Equal("soulspirexi-launcher", manifest.Repo.Name);
         Assert.True(manifest.Files.Count >= 5);
         Assert.Contains(manifest.Files, f =>
             f.Category == "addon" &&
@@ -408,9 +408,9 @@ public sealed class ManifestTests
               "serverName": "SoulspireXI",
               "repo": {
                 "owner": "Infomatictek",
-                "name": "overlordsxi-launcher",
+                "name": "soulspirexi-launcher",
                 "branch": "main",
-                "rawBaseUrl": "https://raw.githubusercontent.com/Infomatictek/overlordsxi-launcher/main"
+                "rawBaseUrl": "https://raw.githubusercontent.com/Infomatictek/soulspirexi-launcher/main"
               },
               "files": [
                 {
@@ -468,7 +468,7 @@ public sealed class ManifestTests
             var (manifest, fromRemote) = await service.FetchManifestAsync(fallback, localOverride: null);
 
             Assert.True(fromRemote);
-            Assert.Equal($"https://raw.githubusercontent.com/Infomatictek/overlordsxi-launcher/{commitSha}", manifest.ResolvedRawBaseUrl);
+            Assert.Equal($"https://raw.githubusercontent.com/Infomatictek/soulspirexi-launcher/{commitSha}", manifest.ResolvedRawBaseUrl);
 
             var settings = new LauncherSettings { AshitaPath = Path.Combine(tempRoot, "Ashita") };
             var synced = await service.SyncOverlordsFilesAsync(manifest, settings, forceAll: false);

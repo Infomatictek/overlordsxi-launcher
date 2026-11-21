@@ -21,7 +21,7 @@ addon.name    = 'soulspire_soulhud'
 addon.author  = 'SoulspireXI'
 addon.version = '1.0.0'
 addon.desc    = 'Universal configurable Soul Crystal HUD for SoulspireXI.'
-addon.link    = 'https://github.com/Infomatictek/overlordsxi-launcher'
+addon.link    = 'https://github.com/Infomatictek/soulspirexi-launcher'
 
 pcall(require, 'common')
 local okChat, chat   = pcall(require, 'chat')
