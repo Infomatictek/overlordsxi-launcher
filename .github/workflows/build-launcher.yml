@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should_build: ${{ steps.changes.outputs.should_build }}
+      should_build_crystaljobs: ${{ steps.changes.outputs.should_build_crystaljobs }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -47,13 +48,14 @@ jobs:
           python scripts/verify-launcher-manifest.py
           git diff --exit-code
 
-      - name: Determine whether Windows launcher build is required
+      - name: Determine whether Windows builds are required
         id: changes
         shell: bash
         run: |
           set -euo pipefail
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             echo "should_build=true" >> "$GITHUB_OUTPUT"
+            echo "should_build_crystaljobs=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -65,6 +67,7 @@ jobs:
 
           if [[ -z "$base_ref" ]] || [[ "$base_ref" == "0000000000000000000000000000000000000000" ]] || ! git cat-file -e "$base_ref^{commit}" 2>/dev/null; then
             echo "should_build=true" >> "$GITHUB_OUTPUT"
+            echo "should_build_crystaljobs=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -75,8 +78,15 @@ jobs:
           if echo "$changed" | grep -Eq '^(SoulspireLauncher/|SoulspireLauncher\.Tests/|SoulspireLauncher\.sln|manifest\.json|dat-overlay/|addons/|plugins/|scripts/|tests/|\.github/workflows/build-launcher\.yml)'; then
             echo "should_build=true" >> "$GITHUB_OUTPUT"
           else
-            echo "No launcher/client/manifest files changed; skipping redundant Windows build."
+            echo "No launcher/client/manifest files changed; skipping redundant Windows launcher build."
             echo "should_build=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if echo "$changed" | grep -Eq '^(native/crystaljobs/.*\.(c|cc|cpp|cxx|h|hh|hpp|hxx|def|cmd|bat|ps1)|\.github/workflows/build-launcher\.yml)$'; then
+            echo "should_build_crystaljobs=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No native/crystaljobs C++ source files changed; skipping crystaljobs.dll build."
+            echo "should_build_crystaljobs=false" >> "$GITHUB_OUTPUT"
           fi
 
   build-and-test:
@@ -151,8 +161,47 @@ jobs:
             publish/SoulspireLauncher/OverlordsLauncher.exe
             SoulspireLauncher-win-x64.zip
 
+  build-crystaljobs:
+    needs: verify-manifest
+    if: needs.verify-manifest.outputs.should_build_crystaljobs == 'true'
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Build and self-test crystaljobs.dll (Win32 / x86)
+        shell: cmd
+        run: native\crystaljobs\build.cmd
+
+      - name: Verify built 32-bit crystaljobs.dll binary
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $dllPath = "plugins/ashita4/crystaljobs.dll"
+          if (-not (Test-Path $dllPath)) { throw "Missing built DLL: $dllPath" }
+          $bytes = [System.IO.File]::ReadAllBytes($dllPath)
+          if ($bytes.Length -lt 64 -or $bytes[0] -ne 0x4D -or $bytes[1] -ne 0x5A) {
+            throw "Invalid PE header (missing MZ) in $dllPath"
+          }
+          $peOffset = [BitConverter]::ToInt32($bytes, 0x3C)
+          $machine = [BitConverter]::ToUInt16($bytes, $peOffset + 4)
+          if ($machine -ne 0x014C) {
+            throw ("Expected x86 (0x014C) PE machine type, got 0x{0:X4}" -f $machine)
+          }
+          $hash = (Get-FileHash -Path $dllPath -Algorithm SHA256).Hash.ToLowerInvariant()
+          Write-Host "Verified 32-bit PE DLL: $dllPath ($($bytes.Length) bytes, sha256=$hash)"
+
+      - name: Upload crystaljobs.dll build artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: crystaljobs-win-x86
+          retention-days: 14
+          path: |
+            plugins/ashita4/crystaljobs.dll
+            native/crystaljobs/crystaljobs.dll
+
   publish-release:
-    needs: build-and-test
+    needs: [build-and-test, build-crystaljobs]
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
     permissions:
