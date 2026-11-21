@@ -30,7 +30,7 @@ Disassembly of the supported retail `FFXiMain.dll` image (`TimeDateStamp = 0x6ae
     4. Reusable `WeaponRuleCatalog::allows_sub_weapon(...)` loaded via C-ABI `CrystalJobsReplaceWeaponRules`.
   - **Allow**: restores all registers/flags and jumps to `base + 0x133D65`, where `FFXiMain.dll` still enforces main-hand presence, `IsTwoHanded`, `CanEquipItem` (job/level/race), `CanEquipItemInSlot`, Wardrobe unlock bits, and sends native `0x050`.
   - **Deny**: restores all registers/flags, executes the stolen `push 0x8b`, and jumps to `base + 0x133D5B` (normal retail rejection).
-- **Server Authority**: The server (`soulspire_weapon_config.lua` + `0072-soul-weapon-config.patch`) remains 100% authoritative for all equipment validation, Soul-switch reconciliation, zoning/relogging persistence, and combat mechanics.
+- **Server Authority**: The server (`soulspire_weapon_config.lua` + `0073-soul-weapon-config.patch`) remains 100% authoritative for all equipment validation, Soul-switch reconciliation, zoning/relogging persistence, and combat mechanics.
 
 ## Data-Driven C-ABI (`native/crystaljobs/crystaljobs.h`)
 

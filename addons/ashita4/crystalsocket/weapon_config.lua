@@ -10,7 +10,7 @@
 -- natively (Shields bypass the Dual Wield weapon gate at 0x133CFF) and is
 -- enforced authoritatively by the server.
 --
--- The server (soulspire_weapon_config.lua + patch 0072) remains 100%
+-- The server (soulspire_weapon_config.lua + patch 0073) remains 100%
 -- authoritative for all equipment validation and combat rules.
 local bit = require('bit')
 
