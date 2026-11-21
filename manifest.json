@@ -7537,62 +7537,6 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/background_main.png",
-      "targetPath": "soulspire_talents/assets/background_main.png",
-      "sha256": "666341701cff0b39f51851209c5b78a96df4173e14be00c34cf9c35fe2e87887",
-      "size": 1654682
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/card_frame.png",
-      "targetPath": "soulspire_talents/assets/card_frame.png",
-      "sha256": "9a4b96cb5c16711ed96c14c1b6f4a9354731f359b4962e469a1b58bfa3901861",
-      "size": 161629
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/card_selected.png",
-      "targetPath": "soulspire_talents/assets/card_selected.png",
-      "sha256": "674c2492fa4de26e9734bb981b26d762300ab94ff161912e862efb661e03e423",
-      "size": 121489
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/detail_art.png",
-      "targetPath": "soulspire_talents/assets/detail_art.png",
-      "sha256": "985bedb5e0adeac409bff6129e72ce0151f3b7fd09622c70e9907f17266c384d",
-      "size": 147553
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/header_ornament.png",
-      "targetPath": "soulspire_talents/assets/header_ornament.png",
-      "sha256": "ed1229224a0db61792d7aee796f9b0d966650c61290998fa121dd3cae2139332",
-      "size": 137786
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/hero_1.png",
-      "targetPath": "soulspire_talents/assets/hero_1.png",
-      "sha256": "a555184e2c626a63cace36ae206044566286749f17f4753a83418412eba70085",
-      "size": 627415
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/hero_47.png",
-      "targetPath": "soulspire_talents/assets/hero_47.png",
-      "sha256": "9a920cbcb57352bc62326e723ce1023f7e66f14666d1c2fd1dbecd2bbe1f374e",
-      "size": 556395
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/hero_frame.png",
-      "targetPath": "soulspire_talents/assets/hero_frame.png",
-      "sha256": "b39cd8cb9abb3d43fe07525aa662f0c61ac6abfdf7814cda240d39fc14e82507",
-      "size": 243943
-    },
-    {
-      "category": "addon",
       "sourcePath": "addons/ashita4/soulspire_talents/assets/node_e_co_break.png",
       "targetPath": "soulspire_talents/assets/node_e_co_break.png",
       "sha256": "aee119d4bb80c1140d6f84107eb2c1c6cfaf886f90567ff6a4ac396de90fdd6b",
@@ -7733,73 +7677,10 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/panel_browser.png",
-      "targetPath": "soulspire_talents/assets/panel_browser.png",
-      "sha256": "65030e169c3bc008b15b1f4018eb21049af395a74283324906b1be2b327bb0bb",
-      "size": 416215
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/panel_inspector.png",
-      "targetPath": "soulspire_talents/assets/panel_inspector.png",
-      "sha256": "0c5bae1c8cdcb63df74c2eed615289e7446a0cfe8752e7ceeb2c35550a3ccc58",
-      "size": 472239
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/stage_1.png",
-      "targetPath": "soulspire_talents/assets/stage_1.png",
-      "sha256": "64204fd9cb51760d746a4b14cabbfd2d51d7459c0fb8874b2d5fa8921b857c4b",
-      "size": 54157
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/stage_2.png",
-      "targetPath": "soulspire_talents/assets/stage_2.png",
-      "sha256": "683eaf5df39c421e44169a0198eb78475949e5cf4b6f4a7768106263f7340b07",
-      "size": 39160
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/stage_3.png",
-      "targetPath": "soulspire_talents/assets/stage_3.png",
-      "sha256": "b641d55eb6b97fc761848e6db3f424d70747c9f043b998fb511d22851e5450d1",
-      "size": 89007
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/stage_4.png",
-      "targetPath": "soulspire_talents/assets/stage_4.png",
-      "sha256": "eee5d17e57e7613f43ba343ddc424908c74565ab4ddbf09de1c358d7fd1737c0",
-      "size": 40078
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/stage_5.png",
-      "targetPath": "soulspire_talents/assets/stage_5.png",
-      "sha256": "29846e4a349c2b34a32043785911af17e5684bf4c19bde4790a5cd6009f77709",
-      "size": 51683
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/tier_panel.png",
-      "targetPath": "soulspire_talents/assets/tier_panel.png",
-      "sha256": "6ed4416cd9e0d8aa682f80e706186ecd53a7e368ac3908cf46abce9c203d1c61",
-      "size": 281298
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/ws_1.png",
-      "targetPath": "soulspire_talents/assets/ws_1.png",
-      "sha256": "5ae8b09ec9dfb357a4734ded6a75d553bb4503e4cbd363a9e4e04110374b3b3d",
-      "size": 104759
-    },
-    {
-      "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/assets/ws_47.png",
-      "targetPath": "soulspire_talents/assets/ws_47.png",
-      "sha256": "ab743e57c7a917020c9f2eefbf9f649c5f18f0bd123df0283b1bf5c393790f1e",
-      "size": 80345
+      "sourcePath": "addons/ashita4/soulspire_talents/assets/soulspire_emblem.png",
+      "targetPath": "soulspire_talents/assets/soulspire_emblem.png",
+      "sha256": "8d0d0c24455a8e1bd44e7cd13e920b46a471e1056c8baef2f47ce14b6116d108",
+      "size": 117094
     },
     {
       "category": "addon",
@@ -7810,17 +7691,38 @@
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/premium_ui.lua",
-      "targetPath": "soulspire_talents/premium_ui.lua",
-      "sha256": "0836ab53c163b1eedfe46d7da844fbf5cf83c3d47e0b33a8b1bf2366a53e9fb1",
-      "size": 24250
+      "sourcePath": "addons/ashita4/soulspire_talents/soulspire_talents.lua",
+      "targetPath": "soulspire_talents/soulspire_talents.lua",
+      "sha256": "718154d272b9b5d384780c42eb3bf9516d88e861698b3cd7b533a33f9bc2b084",
+      "size": 10069
     },
     {
       "category": "addon",
-      "sourcePath": "addons/ashita4/soulspire_talents/soulspire_talents.lua",
-      "targetPath": "soulspire_talents/soulspire_talents.lua",
-      "sha256": "98c0c22ff4d70bfca8b13fd6f28ee71849dd092aeb6e472fa90b82935d246fce",
-      "size": 76454
+      "sourcePath": "addons/ashita4/soulspire_talents/talent_state.lua",
+      "targetPath": "soulspire_talents/talent_state.lua",
+      "sha256": "cdc76d58c190d9aebff05dec0c8e0f993b3ae011e61946268e3b9ae5080e280f",
+      "size": 19299
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/soulspire_talents/talent_theme.lua",
+      "targetPath": "soulspire_talents/talent_theme.lua",
+      "sha256": "1e61db0c85b989af71e87ab588893a2475de187476b4c2e5a8fecc7b9b0a7926",
+      "size": 9382
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/soulspire_talents/talent_tree_ui.lua",
+      "targetPath": "soulspire_talents/talent_tree_ui.lua",
+      "sha256": "9f282bbbb73f205db0f9fabea9357451aae6e1ebfdc63444f5e21215274f3eb8",
+      "size": 28220
+    },
+    {
+      "category": "addon",
+      "sourcePath": "addons/ashita4/soulspire_talents/ws_client_meta.lua",
+      "targetPath": "soulspire_talents/ws_client_meta.lua",
+      "sha256": "d1d85fb22fad459b8969819d83c10d6a3a9db1e4f73a5a6cb9d257f85332c8d1",
+      "size": 11290
     }
   ],
   "news": [
