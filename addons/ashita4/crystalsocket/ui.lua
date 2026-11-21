@@ -1,6 +1,6 @@
 local bit = require('bit')
 local protocol = require('protocol')
-local Buckler = require('buckler')
+local WeaponConfig = require('weapon_config')
 local UI = {}
 UI.__index = UI
 
@@ -140,7 +140,7 @@ function UI:key(key, now, navigation)
         elseif key == 'down' then
             self.buckler.sel = (self.buckler.sel % #list) + 1
         elseif key == 'enter' then
-            Buckler.equip(list[self.buckler.sel].entry)
+            WeaponConfig.equip(list[self.buckler.sel].entry)
             self:close_buckler()
         elseif key ~= 'left' and key ~= 'right' then
             return false
@@ -181,9 +181,9 @@ function UI:key(key, now, navigation)
         return true
     end
 
-    -- Sub slot (row 1, col 2) is locked by the stock client under a 2H weapon; open our picker instead.
-    if key == 'enter' and navigation and navigation.selected == Buckler.SUB_NATIVE_SLOT
-        and Buckler.active(snapshot) then
+    -- Sub slot (row 1, col 2) is filtered/locked by the stock client for Soul weapon configs; open our picker instead.
+    if key == 'enter' and navigation and navigation.selected == WeaponConfig.SUB_NATIVE_SLOT
+        and WeaponConfig.active(snapshot) then
         self:open_buckler(snapshot, navigation)
         return true
     end
@@ -202,11 +202,12 @@ function UI:key(key, now, navigation)
 end
 
 function UI:open_buckler(snapshot, navigation)
+    local rule = WeaponConfig.active_rule(snapshot)
     local list = { { label = '[Unequip]', entry = nil } }
-    for _, item in ipairs(Buckler.list(snapshot)) do
+    for _, item in ipairs(WeaponConfig.list(snapshot)) do
         list[#list + 1] = { label = item.name, entry = item }
     end
-    self.buckler = { list = list, sel = 1 }
+    self.buckler = { list = list, sel = 1, title = (rule and rule.title) or 'Sub: Offhand' }
     if not self.focused then
         self.focus_window = navigation and navigation.window
         self.focus_cursor = navigation and (navigation.cursor or navigation.selected)
@@ -402,7 +403,7 @@ function UI:draw(anchor, now, window, cursor)
     imgui.PopStyleVar()
 
     snapshot = self.state:snapshot()
-    if self.buckler and not Buckler.active(snapshot) then self:close_buckler() end
+    if self.buckler and not WeaponConfig.active(snapshot) then self:close_buckler() end
 
     if self.buckler and not snapshot.open then
         local bk = self.buckler
@@ -425,7 +426,7 @@ function UI:draw(anchor, now, window, cursor)
             if imgui.Begin('##crystal_buckler', nil, flags) then
                 local draw = imgui.GetWindowDrawList()
                 panel(draw, bx, by, bw, bh)
-                text(draw, bx + 12 * sx, by + 9 * sy, 'Sub: Buckler')
+                text(draw, bx + 12 * sx, by + 9 * sy, bk.title or 'Sub: Offhand')
                 draw:AddLine({ bx + 12 * sx, by + 32 * sy }, { bx + bw - 12 * sx, by + 32 * sy }, colors.edge)
                 for i, row in ipairs(bk.list) do
                     local top = 36 + (i - 1) * row_h
@@ -450,7 +451,7 @@ function UI:draw(anchor, now, window, cursor)
             imgui.End()
             imgui.PopStyleVar()
             if chosen then
-                Buckler.equip(bk.list[chosen].entry)
+                WeaponConfig.equip(bk.list[chosen].entry)
                 self:close_buckler()
             end
         end

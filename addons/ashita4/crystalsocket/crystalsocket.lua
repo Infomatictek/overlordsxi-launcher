@@ -147,8 +147,8 @@ ashita.events.register('command', 'crystalsocket_command', function(e)
     local cmd = e.command:lower()
     if cmd:match('^/equip%s+sub%f[%s%z]') then
         context()
-        local Buckler = require('buckler')
-        if Buckler.command(cmd, state:snapshot()) then
+        local WeaponConfig = require('weapon_config')
+        if WeaponConfig.command(cmd, state:snapshot()) then
             e.blocked = true
             return
         end
