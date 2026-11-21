@@ -255,6 +255,8 @@ public sealed class AshitaConfigGenerator
                     trimmed.Equals("/addon unload soulspire_soulhud", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon load overlords_soulhud", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.Equals("/addon unload overlords_soulhud", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon load soulspire_flintlock", StringComparison.OrdinalIgnoreCase) ||
+                    trimmed.Equals("/addon unload soulspire_flintlock", StringComparison.OrdinalIgnoreCase) ||
                     trimmed.StartsWith("/fps ", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
@@ -325,6 +327,11 @@ public sealed class AshitaConfigGenerator
         if (settings.AutoLoadSoulHudAddon)
         {
             EnsureLine(lines, "/addon load soulspire_soulhud", insertAtTop: false);
+        }
+
+        if (settings.AutoLoadFlintlockAddon)
+        {
+            EnsureLine(lines, "/addon load soulspire_flintlock", insertAtTop: false);
         }
 
         // Soul Actions is client-only and starts hidden; launch it automatically for everyone.

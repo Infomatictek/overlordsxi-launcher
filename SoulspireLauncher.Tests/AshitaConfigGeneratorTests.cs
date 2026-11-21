@@ -268,6 +268,26 @@ public sealed class AshitaConfigGeneratorTests
     }
 
     [Fact]
+    public void MergeBootScriptContent_IncludesAndRemovesFlintlockAddon()
+    {
+        var added = _generator.MergeBootScriptContent(null, new LauncherSettings
+        {
+            AutoLoadFlintlockAddon = true
+        });
+        Assert.Contains("/addon load soulspire_flintlock", added);
+
+        var removed = _generator.MergeBootScriptContent(
+            "/load addons\r\n/addon load soulspire_flintlock\r\n/fps 1",
+            new LauncherSettings
+            {
+                AutoLoadFlintlockAddon = false,
+                FpsCap = 60
+            });
+        Assert.DoesNotContain("soulspire_flintlock", removed);
+        Assert.Contains("/fps 1", removed);
+    }
+
+    [Fact]
     public void BuildBootIniContent_WritesInputAndGamepadRegistryKeys()
     {
         var settings = new LauncherSettings

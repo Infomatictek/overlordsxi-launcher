@@ -51,12 +51,22 @@ From `AkimboRA-Source/work/ra-rigs/build_v3.py` and `START-HERE.md`:
 - [x] Add opt-in, reversible overlay support to `SoulspireLauncher` (`LauncherManifest`, `LauncherSettings`, `ManifestUpdateService`, `AshitaConfigGenerator`, `MainViewModel`, `MainWindow.xaml`) — **disabled by default**.
 - [x] Regenerate and verify `manifest.json` (1110 core + 278 optional overlay entries, 9/9 manifest tests passing).
 
-### Stage 2 — Flintlock-Only Activation (Pending)
-- Document exact technical blocker preventing live runtime DAT hot-swapping via XIPivot/FFXI DAT cache.
-- Implement `addons/ashita4/soulspire_flintlock/` reusing existing `crystaljobs.dll` / `0x1FC` Soul identity:
-  - Flintlock-only Ashita v4 port of `AkimboAim` (auto-face `/ra` target only when `job == 17, branch == 1` and a Gun/Cannon is equipped).
-  - Safe overlay status/toggle helper (`/flintlock status`, `/flintlock aim on|off`, `/flintlock overlay on|off` for next client restart) with non-spammy Soul-transition guidance and clean reset on zone/logout/Soul change.
-- Commit and push Stage 2 separately.
+### Stage 2 — Flintlock-Only Activation (Completed)
+
+#### Technical Blocker for Pure Runtime DAT Hot-Swapping
+True live runtime switching of the 278 dual-pistol DATs on Soul change (without restarting FFXI) is **not supported by Ashita v4 + XIPivot + vanilla FFXI DAT caching**:
+1. **XIPivot boot-time scope**: `polplugins/pivot.dll` is a PlayOnline plugin loaded before `FFXiMain.dll`. It reads `config/pivot/soulspirexi.ini` at startup and intercepts Win32 file opens globally for the entire FFXI process with no actor, job, or Soul awareness.
+2. **FFXI in-memory DAT cache**: FFXI caches loaded race skeleton/motion DATs (containing `lc07`/`ls07`/`q3*`) and firearm model DATs (containing `info[30] = 0x07`, 75% dual meshes, and Mariner hip holsters) in memory. Changing overlays mid-session does not evict cached models/motions on Soul swap and risks client crashes across zone transitions (explicitly warned in upstream `START-HERE.md`).
+3. **Model-ID keying**: Because `info[30] = 0x07` is baked into the 271 firearm DATs keyed by `(race, model_id)`, any active XIPivot overlay affects all characters rendering those 26 firearm models in that client session. Achieving per-actor/per-Soul runtime animation switching would require new native `FFXiMain.dll` DAT/model-loader hooks (out of scope for Phase 1).
+
+#### Safest Achievable Implementation (Zero Impact on Other Souls)
+- **DAT overlay stays opt-in (`defaultEnabled: false`)** via `EnableFlintlockDualPistolsOverlay` in SoulspireXI Launcher and `optionalOverlays` in `manifest.json`. Non-Flintlock players never download or activate the 278 DATs.
+- **New client-only Ashita v4 addon `addons/ashita4/soulspire_flintlock/`** (auto-loaded via `AutoLoadFlintlockAddon`, completely inert on non-Flintlock Souls):
+  - `flintlock_state.lua`: Reuses existing `crystaljobs.dll` (`CrystalJobsGetStatus`) and `0x1FC` (`OXHD`) Soul identity to gate activation strictly to **COR Flintlock (`job == 17, branch == 1`)**. Ports `AkimboAim` auto-facing (`0x01A` category `0x10` + `0x0028` category `12`/`2`, respecting `0x7073` cancel) to Ashita v4, gated strictly to COR Flintlock + equipped firearm + local actor. Resets cleanly on zone (`0x000A`/`0x000B`), logout, or Soul change.
+  - `pivot_config.lua`: Safely parses and reversibly updates `config/pivot/soulspirexi.ini` (`0=flintlock-akimbo-compact`, `1=soulspirexi` vs `0=soulspirexi`) for the **next** client launch without touching live DATs in memory.
+  - `soulspire_flintlock.lua`: Provides `/flintlock status`, `/flintlock aim on|off`, `/flintlock overlay on|off`, and one-time non-spammy Soul-transition guidance when active Soul and session overlay state disagree.
+  - `tests/flintlock_spec.lua`: Pure-Lua unit tests covering Soul gating, `0x01A`/`0x0028` packet parsing, cancel handling, firearm classification, yaw math, zone reset, and reversible Pivot INI toggling.
+- **Compatibility**: Zero modifications to `native/crystaljobs/crystaljobs.dll`, `crystalsocket`, `soulspire_soul_actions`, equipment rules, or server combat mechanics.
 
 ### Stage 3 — Validation (Pending)
 - Run focused automated tests (manifest verification, asset mapping/integrity, Flintlock-only gating, CrystalSocket / Soul Actions / `crystaljobs.dll` compatibility).
