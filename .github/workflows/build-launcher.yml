@@ -172,35 +172,69 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Build and self-test crystaljobs.dll (Win32 / x86)
-        shell: cmd
-        run: native\crystaljobs\build.cmd
+        shell: pwsh
+        env:
+          CRYSTALJOBS_KEEP_SELFTEST: "1"
+        run: |
+          $ErrorActionPreference = 'Continue'
+          & cmd.exe /c "native\crystaljobs\build.cmd 2>&1" | Tee-Object -FilePath "crystaljobs-build.log"
+          $rc = $LASTEXITCODE
+          if ($rc -ne 0) {
+            $tail = (Get-Content "crystaljobs-build.log" -Tail 40) -join "`n"
+            foreach ($line in (Get-Content "crystaljobs-build.log" | Select-String -Pattern '(error |ERROR:|Assertion failed|fatal error)' | Select-Object -First 10)) {
+              Write-Host "::error::$($line.Line)"
+            }
+            if (-not (Get-Content "crystaljobs-build.log" | Select-String -Pattern '(error |ERROR:|Assertion failed|fatal error)')) {
+              Write-Host "::error::build.cmd exited with code $rc. Last lines: $tail"
+            }
+            exit $rc
+          }
 
-      - name: Verify built 32-bit crystaljobs.dll binary
+      - name: Verify built 32-bit binaries and write build metadata
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $dllPath = "plugins/ashita4/crystaljobs.dll"
-          if (-not (Test-Path $dllPath)) { throw "Missing built DLL: $dllPath" }
-          $bytes = [System.IO.File]::ReadAllBytes($dllPath)
-          if ($bytes.Length -lt 64 -or $bytes[0] -ne 0x4D -or $bytes[1] -ne 0x5A) {
-            throw "Invalid PE header (missing MZ) in $dllPath"
+          function Assert-Win32PE([string]$path) {
+            if (-not (Test-Path $path)) { throw "Missing built binary: $path" }
+            $bytes = [System.IO.File]::ReadAllBytes($path)
+            if ($bytes.Length -lt 64 -or $bytes[0] -ne 0x4D -or $bytes[1] -ne 0x5A) {
+              throw "Invalid PE header (missing MZ) in $path"
+            }
+            $peOffset = [BitConverter]::ToInt32($bytes, 0x3C)
+            $machine = [BitConverter]::ToUInt16($bytes, $peOffset + 4)
+            if ($machine -ne 0x014C) {
+              throw ("Expected x86 (0x014C) PE machine type in $path, got 0x{0:X4}" -f $machine)
+            }
+            $hash = (Get-FileHash -Path $path -Algorithm SHA256).Hash.ToLowerInvariant()
+            Write-Host "Verified 32-bit PE binary: $path ($($bytes.Length) bytes, sha256=$hash)"
+            return @{ Size = $bytes.Length; Sha256 = $hash }
           }
-          $peOffset = [BitConverter]::ToInt32($bytes, 0x3C)
-          $machine = [BitConverter]::ToUInt16($bytes, $peOffset + 4)
-          if ($machine -ne 0x014C) {
-            throw ("Expected x86 (0x014C) PE machine type, got 0x{0:X4}" -f $machine)
-          }
-          $hash = (Get-FileHash -Path $dllPath -Algorithm SHA256).Hash.ToLowerInvariant()
-          Write-Host "Verified 32-bit PE DLL: $dllPath ($($bytes.Length) bytes, sha256=$hash)"
 
-      - name: Upload crystaljobs.dll build artifact
+          $dllInfo = Assert-Win32PE "plugins/ashita4/crystaljobs.dll"
+          $testInfo = Assert-Win32PE "native/crystaljobs/selftest.exe"
+
+          @(
+            "commit_sha=${{ github.sha }}"
+            "ref=${{ github.ref }}"
+            "branch=${{ github.ref_name }}"
+            "run_id=${{ github.run_id }}"
+            "crystaljobs_dll_size=$($dllInfo.Size)"
+            "crystaljobs_dll_sha256=$($dllInfo.Sha256)"
+            "selftest_exe_size=$($testInfo.Size)"
+            "selftest_exe_sha256=$($testInfo.Sha256)"
+          ) | Set-Content -Path "crystaljobs-build-info.txt" -Encoding UTF8
+          Get-Content "crystaljobs-build-info.txt"
+
+      - name: Upload crystaljobs.dll and selftest.exe build artifacts
         uses: actions/upload-artifact@v7
         with:
           name: crystaljobs-win-x86
           retention-days: 14
           path: |
             plugins/ashita4/crystaljobs.dll
-            native/crystaljobs/crystaljobs.dll
+            native/crystaljobs/selftest.exe
+            crystaljobs-build-info.txt
+            crystaljobs-build.log
 
   publish-release:
     needs: [build-and-test, build-crystaljobs]
