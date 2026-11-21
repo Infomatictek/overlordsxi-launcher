@@ -643,6 +643,38 @@ static uint8_t __cdecl magic_list_filter_hook(const uint8_t* spell_resource) noe
     return original_can_show_spell(spell_resource);
 }
 
+static uintptr_t missing_spell_bit_resume;
+
+// The /ma name resolver checks the learned-spell bitmap before CanUseSpell.
+// Its missing-bit branch stores -2 in EBP, which survives a successful
+// CanUseSpell call. Only a current Soul unlock may clear that local rejection;
+// the server still validates the actual cast.
+static uint8_t __stdcall soul_knows_missing_spell(const uint8_t* spell_resource) noexcept {
+    if (spell_resource == nullptr) return 0;
+    const uint16_t spell_id = u16(spell_resource);
+    if (spell_id == 0 || spell_id > 1023u) return 0;
+    return decide_local_visibility(CRYSTALJOBS_ACTION_SPELL, spell_id) == VisibilityDecision::Show ? 1 : 0;
+}
+
+static __declspec(naked) void missing_spell_bit_hook() {
+    __asm {
+        pushfd
+        pushad
+        push edi
+        call soul_knows_missing_spell
+        test al, al
+        jz stock
+        popad
+        popfd
+        jmp dword ptr [missing_spell_bit_resume]
+    stock:
+        popad
+        popfd
+        mov ebp, 0xfffffffe
+        jmp dword ptr [missing_spell_bit_resume]
+    }
+}
+
 static void __stdcall compact_ability_menu_rows(uint8_t* menu_obj, int32_t* count_ptr, int32_t* saved_sel_ptr) noexcept {
     if (menu_obj == nullptr || count_ptr == nullptr || *count_ptr <= 0) return;
     if (ability_list_slot == nullptr || main_lvl_slot == nullptr) return;
@@ -879,26 +911,31 @@ static Patch patches[] = {
 struct PrologueDetour {
     uintptr_t rva;
     void* replacement;
+    uint8_t first_opcode = 0xA1u;
     uint8_t original[5]{}, installed[5]{};
     uint8_t* site = nullptr;
     uint8_t* trampoline = nullptr;
 
-    bool install(uint8_t* base, CanShowSpell& out_trampoline) {
+    bool install(uint8_t* base, CanShowSpell* out_trampoline = nullptr) {
         if (site != nullptr) return std::memcmp(site, installed, 5) == 0;
         uint8_t* target = base + rva;
-        if (target[0] != 0xA1u) return false;
-        if (trampoline == nullptr) {
-            trampoline = static_cast<uint8_t*>(VirtualAlloc(nullptr, 16, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE));
-            if (trampoline == nullptr) return false;
+        if (target[0] != first_opcode) return false;
+        if (out_trampoline != nullptr) {
+            if (trampoline == nullptr) {
+                trampoline = static_cast<uint8_t*>(VirtualAlloc(nullptr, 16, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE));
+                if (trampoline == nullptr) return false;
+            }
+            std::memcpy(original, target, 5);
+            std::memcpy(trampoline, original, 5);
+            trampoline[5] = 0xE9u;
+            const uint32_t back_rel = static_cast<uint32_t>(
+                reinterpret_cast<uintptr_t>(target + 5) - reinterpret_cast<uintptr_t>(trampoline + 10));
+            std::memcpy(trampoline + 6, &back_rel, 4);
+            FlushInstructionCache(GetCurrentProcess(), trampoline, 10);
+            *out_trampoline = reinterpret_cast<CanShowSpell>(trampoline);
+        } else {
+            std::memcpy(original, target, 5);
         }
-        std::memcpy(original, target, 5);
-        std::memcpy(trampoline, original, 5);
-        trampoline[5] = 0xE9u;
-        const uint32_t back_rel = static_cast<uint32_t>(
-            reinterpret_cast<uintptr_t>(target + 5) - reinterpret_cast<uintptr_t>(trampoline + 10));
-        std::memcpy(trampoline + 6, &back_rel, 4);
-        FlushInstructionCache(GetCurrentProcess(), trampoline, 10);
-        out_trampoline = reinterpret_cast<CanShowSpell>(trampoline);
 
         installed[0] = 0xE9u;
         const uint32_t jmp_rel = static_cast<uint32_t>(
@@ -930,6 +967,7 @@ struct PrologueDetour {
 };
 
 static PrologueDetour can_use_spell_detour{0x22CDE0, reinterpret_cast<void*>(&magic_list_filter_hook)};
+static PrologueDetour missing_spell_bit_detour{0x22CB44, reinterpret_cast<void*>(&missing_spell_bit_hook), 0xBDu};
 
 static bool host_detour(uint8_t* entry, const uint8_t* expected, size_t length, size_t stolen, HMODULE host) noexcept {
     if (host == nullptr || entry[0] != 0xe9 || stolen < 5 || stolen >= length) return false;
@@ -1025,6 +1063,8 @@ static bool supported_impl(uint8_t* base) noexcept {
         }
         if (signature.rva == can_use_spell_detour.rva && can_use_spell_detour.site != nullptr &&
             std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) skip = 5;
+        if (signature.rva == missing_spell_bit_detour.rva && missing_spell_bit_detour.site != nullptr &&
+            std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) skip = 5;
         if (std::memcmp(base + signature.rva + skip, expected + skip, sizeof(expected) - skip) != 0) return false;
     }
     return true;
@@ -1055,6 +1095,7 @@ extern "C" uint32_t __stdcall CrystalJobsShutdown() {
     soul_override = {};
     ReleaseSRWLockExclusive(&state_lock);
     uint32_t failure = 0;
+    if (!missing_spell_bit_detour.restore()) failure = 3;
     if (!can_use_spell_detour.restore()) failure = 3;
     for (size_t index = sizeof(patches) / sizeof(*patches); index-- > 0;) {
         auto& patch = patches[index];
@@ -1106,7 +1147,13 @@ extern "C" uint32_t __stdcall CrystalJobsInitialize() {
             last_error.store(failure); return failure;
         }
     }
-    if (!can_use_spell_detour.install(base, original_can_show_spell)) {
+    if (!can_use_spell_detour.install(base, &original_can_show_spell)) {
+        ReleaseSRWLockExclusive(&lifecycle_lock);
+        const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
+        last_error.store(failure); return failure;
+    }
+    missing_spell_bit_resume = reinterpret_cast<uintptr_t>(base + 0x22CB49);
+    if (!missing_spell_bit_detour.install(base)) {
         ReleaseSRWLockExclusive(&lifecycle_lock);
         const uint32_t failure = CrystalJobsShutdown() == 0 ? 2 : 3;
         last_error.store(failure); return failure;
@@ -1222,12 +1269,16 @@ extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus
     CrystalJobsActionStatus st{};
     st.size = sizeof(st);
     st.version = 1;
-    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches));
+    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 2;
 
     AcquireSRWLockShared(&lifecycle_lock);
     for (const auto& patch : patches) {
         if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++st.total_hooks;
     }
+    if (can_use_spell_detour.site != nullptr &&
+        std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) ++st.total_hooks;
+    if (missing_spell_bit_detour.site != nullptr &&
+        std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) ++st.total_hooks;
     if (enabled.load()) {
         if (patch_installed_at(0x14868F)) st.capabilities |= CRYSTALJOBS_CAP_EQUIPMENT_SOUL_NAME;
         if (patch_installed_at(0x1CBD4C) && patch_installed_at(0x1CC086) &&
@@ -1244,6 +1295,11 @@ extern "C" uint32_t __stdcall CrystalJobsGetActionStatus(CrystalJobsActionStatus
         if (patch_installed_at(0x22614E)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_ICONS;
         if (patch_installed_at(0x22DAB9)) st.capabilities |= CRYSTALJOBS_CAP_MAGIC_MENU_FILTER;
         if (patch_installed_at(0x22562F)) st.capabilities |= CRYSTALJOBS_CAP_ABILITY_MENU_FILTER;
+        if (can_use_spell_detour.site != nullptr && missing_spell_bit_detour.site != nullptr &&
+            std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0 &&
+            std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) {
+            st.capabilities |= CRYSTALJOBS_CAP_SOUL_CAST_LOOKUP;
+        }
     }
     ReleaseSRWLockShared(&lifecycle_lock);
 
@@ -1292,12 +1348,16 @@ extern "C" uint32_t __stdcall CrystalJobsGetVisibilityStatus(CrystalJobsVisibili
     CrystalJobsVisibilityStatus st{};
     st.size = sizeof(st);
     st.version = 1;
-    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches));
+    st.expected_hooks = static_cast<uint32_t>(sizeof(patches) / sizeof(*patches)) + 2;
 
     AcquireSRWLockShared(&lifecycle_lock);
     for (const auto& patch : patches) {
         if (patch.site != nullptr && std::memcmp(patch.site, patch.installed, 5) == 0) ++st.total_hooks;
     }
+    if (can_use_spell_detour.site != nullptr &&
+        std::memcmp(can_use_spell_detour.site, can_use_spell_detour.installed, 5) == 0) ++st.total_hooks;
+    if (missing_spell_bit_detour.site != nullptr &&
+        std::memcmp(missing_spell_bit_detour.site, missing_spell_bit_detour.installed, 5) == 0) ++st.total_hooks;
     ReleaseSRWLockShared(&lifecycle_lock);
 
     AcquireSRWLockShared(&visibility_lock);

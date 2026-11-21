@@ -47,6 +47,7 @@ M.CAPABILITIES = {
     { bit = 512,  name = 'Ability/WS menu icons' },
     { bit = 1024, name = 'Magic/Ninjutsu menu visibility filter' },
     { bit = 2048, name = 'Ability/WS menu visibility filter' },
+    { bit = 4096, name = 'Soul cast lookup' },
 }
 
 function M.soulToPair(soulKey)

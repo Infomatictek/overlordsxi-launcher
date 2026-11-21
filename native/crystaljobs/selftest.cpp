@@ -749,18 +749,19 @@ static void visibility_checks() {
     main_lvl_slot = &mock_lvl;
     selftest_alive = true;
 
-    CrystalJobsVisibilityEntry rules[5] = {
+    CrystalJobsVisibilityEntry rules[6] = {
         make_vis(13, 1, CRYSTALJOBS_ACTION_SPELL, 338, 10, CRYSTALJOBS_VIS_RULE_UNLOCK),
         make_vis(13, 1, CRYSTALJOBS_ACTION_SPELL, 339, 37, CRYSTALJOBS_VIS_RULE_UNLOCK),
         make_vis(13, 2, CRYSTALJOBS_ACTION_SPELL, 339, 1,  CRYSTALJOBS_VIS_RULE_HIDDEN),
         make_vis(13, 1, CRYSTALJOBS_ACTION_WEAPONSKILL, 128, 37, CRYSTALJOBS_VIS_RULE_UNLOCK),
         make_vis(13, 1, CRYSTALJOBS_ACTION_ABILITY, 600, 1, CRYSTALJOBS_VIS_RULE_HIDDEN),
+        make_vis(21, 3, CRYSTALJOBS_ACTION_SPELL, 160, 10, CRYSTALJOBS_VIS_RULE_UNLOCK),
     };
-    assert(CrystalJobsReplaceVisibility(rules, 5) == 0);
+    assert(CrystalJobsReplaceVisibility(rules, 6) == 0);
     // Reject duplicates without corrupting active policy.
     CrystalJobsVisibilityEntry dup[2] = { rules[0], rules[0] };
     assert(CrystalJobsReplaceVisibility(dup, 2) == 1);
-    assert(visibility_catalog.count() == 5);
+    assert(visibility_catalog.count() == 6);
 
     uint8_t spell338[4]{}, spell339[4]{}, spell340[4]{};
     const uint16_t id338 = 338, id339 = 339, id340 = 340;
@@ -798,6 +799,26 @@ static void visibility_checks() {
     // Switch Soul to Nightblade (branch 3): unmanaged -> vanilla.
     ev[3] = 3; state.update(ev, 8, GetTickCount());
     assert(magic_list_filter_hook(spell339) == 1 && fake_can_show_calls == 3);
+
+    // A missing learned-spell bitmap bit must only be ignored for the active
+    // Soul's unlocked spell; the generic resolver and server remain intact.
+    uint8_t spell160[4]{};
+    const uint16_t id160 = 160;
+    std::memcpy(spell160, &id160, 2);
+    mock_job = 21; mock_lvl = 9; ev[2] = 21; ev[3] = 3;
+    state.update(ev, 8, GetTickCount());
+    assert(soul_knows_missing_spell(spell160) == 0);
+    mock_lvl = 10;
+    assert(soul_knows_missing_spell(spell160) == 1);
+    assert(soul_knows_missing_spell(spell339) == 0);
+    mock_lvl = 30;
+    assert(soul_knows_missing_spell(spell160) == 1);
+    mock_lvl = 35;
+    assert(soul_knows_missing_spell(spell160) == 1);
+    mock_job = 13;
+    assert(soul_knows_missing_spell(spell160) == 0);
+    mock_job = 13; ev[2] = 13; ev[3] = 1;
+    state.update(ev, 8, GetTickCount());
 
     // Ability & Weapon Skill list compaction + selection remapping ABI test.
     ev[3] = 1; state.update(ev, 8, GetTickCount());
@@ -929,6 +950,11 @@ int main() {
     assert(host_detour(memory, expected, 24, 10, GetModuleHandleW(nullptr)));
     assert(!host_detour(memory, expected, 24, 10, nullptr));
     memory[10] ^= 1; assert(!host_detour(memory, expected, 24, 10, GetModuleHandleW(nullptr)));
+    const uint8_t missing_bit_instruction[5] = {0xbd, 0xfe, 0xff, 0xff, 0xff};
+    std::memcpy(memory, missing_bit_instruction, 5);
+    PrologueDetour missing_bit_test{0, reinterpret_cast<void*>(&missing_spell_bit_hook), 0xBDu};
+    assert(missing_bit_test.install(memory) && memory[0] == 0xe9);
+    assert(missing_bit_test.restore() && std::memcmp(memory, missing_bit_instruction, 5) == 0);
     VirtualFree(memory, 0, MEM_RELEASE);
     // Verify signature relocation when FFXiMain.dll is relocated (e.g. 0x04860000 under Ashita v4).
     uint8_t reloc_sig[24];
@@ -966,11 +992,11 @@ int main() {
     const auto get_vis_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsVisibilityStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetVisibilityStatus"));
     assert(get_vis_st != nullptr);
     CrystalJobsVisibilityStatus vis_st{};
-    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 20 && vis_st.total_hooks == 0);
+    assert(get_vis_st(&vis_st, sizeof(vis_st)) == 0 && vis_st.version == 1 && vis_st.expected_hooks == 22 && vis_st.total_hooks == 0);
     const auto get_action_st = reinterpret_cast<uint32_t(__stdcall*)(CrystalJobsActionStatus*, uint32_t)>(GetProcAddress(dll, "CrystalJobsGetActionStatus"));
     assert(get_action_st != nullptr);
     CrystalJobsActionStatus act_st{};
-    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 20 && act_st.total_hooks == 0);
+    assert(get_action_st(&act_st, sizeof(act_st)) == 0 && act_st.version == 1 && act_st.expected_hooks == 22 && act_st.total_hooks == 0);
     assert(get_iface != nullptr && create_plugin != nullptr && destroy_plugin != nullptr);
     assert(get_iface() == 4.30);
     void* plugin = create_plugin("");
