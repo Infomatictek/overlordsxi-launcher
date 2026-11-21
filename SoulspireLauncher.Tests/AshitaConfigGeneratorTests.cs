@@ -1,3 +1,4 @@
+using System.IO;
 using SoulspireLauncher.Models;
 using SoulspireLauncher.Services;
 using Xunit;
@@ -129,6 +130,52 @@ public sealed class AshitaConfigGeneratorTests
 
         Assert.Contains("0=flintlock-akimbo-compact", pivotIni);
         Assert.Contains("1=soulspirexi", pivotIni);
+    }
+
+    [Fact]
+    public void WriteAllConfigs_EnableThenDisableFlintlockOverlay_LeavesNoStalePivotConfig()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), $"soulspire_pivot_toggle_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        try
+        {
+            var settings = new LauncherSettings
+            {
+                AshitaPath = tempDir,
+                EnablePivotOverlay = true,
+                EnableFlintlockDualPistolsOverlay = true
+            };
+
+            _generator.WriteAllConfigs(tempDir, settings, "127.0.0.1", false, null, "xiloader.exe");
+            var pivotIniPath = Path.Combine(tempDir, "config", "pivot", "soulspirexi.ini");
+            var enabledText = File.ReadAllText(pivotIniPath);
+            Assert.Contains("0=flintlock-akimbo-compact", enabledText);
+            Assert.Contains("1=soulspirexi", enabledText);
+
+            // Disable Flintlock overlay while keeping base Pivot overlay enabled.
+            settings.EnableFlintlockDualPistolsOverlay = false;
+            _generator.WriteAllConfigs(tempDir, settings, "127.0.0.1", false, null, "xiloader.exe");
+            var disabledText = File.ReadAllText(pivotIniPath);
+            Assert.DoesNotContain("flintlock-akimbo-compact", disabledText);
+            Assert.Contains("0=soulspirexi", disabledText);
+
+            // Re-enable, then disable Pivot entirely -> boot ini omits pivot and pivot ini has no stale Flintlock line.
+            settings.EnableFlintlockDualPistolsOverlay = true;
+            _generator.WriteAllConfigs(tempDir, settings, "127.0.0.1", false, null, "xiloader.exe");
+            settings.EnablePivotOverlay = false;
+            _generator.WriteAllConfigs(tempDir, settings, "127.0.0.1", false, null, "xiloader.exe");
+            var bootIniText = File.ReadAllText(Path.Combine(tempDir, "config", "boot", "soulspirexi.ini"));
+            var pivotOffText = File.ReadAllText(pivotIniPath);
+            Assert.DoesNotContain("pivot = 1", bootIniText);
+            Assert.DoesNotContain("flintlock-akimbo-compact", pivotOffText);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir))
+            {
+                Directory.Delete(tempDir, recursive: true);
+            }
+        }
     }
 
     [Theory]

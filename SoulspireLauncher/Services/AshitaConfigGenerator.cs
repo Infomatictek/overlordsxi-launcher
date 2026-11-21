@@ -375,6 +375,7 @@ public sealed class AshitaConfigGenerator
         var bootIni = BuildBootIniContent(settings, serverHost, useHairpin, password, xiloaderPath);
         File.WriteAllText(bootIniPath, bootIni, new UTF8Encoding(false));
 
+        var pivotIniPath = Path.Combine(pivotDir, $"{PivotConfigName}.ini");
         if (settings.EnablePivotOverlay)
         {
             if (settings.EnableFlintlockDualPistolsOverlay)
@@ -382,8 +383,13 @@ public sealed class AshitaConfigGenerator
                 Directory.CreateDirectory(Path.Combine(datsRoot, FlintlockOverlayFolderName));
             }
 
-            var pivotIniPath = Path.Combine(pivotDir, $"{PivotConfigName}.ini");
             var pivotIni = BuildPivotIniContent(datsRoot, settings.EnableFlintlockDualPistolsOverlay);
+            File.WriteAllText(pivotIniPath, pivotIni, new UTF8Encoding(false));
+        }
+        else if (File.Exists(pivotIniPath))
+        {
+            // Clear any previously enabled optional Flintlock overlay so disabling Pivot never leaves stale config on disk.
+            var pivotIni = BuildPivotIniContent(datsRoot, enableFlintlockOverlay: false);
             File.WriteAllText(pivotIniPath, pivotIni, new UTF8Encoding(false));
         }
 
